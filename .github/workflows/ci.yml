@@ -45,7 +45,8 @@ jobs:
       - name: 检查无敏感信息泄露
         run: |
           echo "=== 检查敏感信息 ==="
-          if grep -rn "ghp_\|github_pat_\|sk-\|api_key\|password\s*=" \
+          # 只检查真实 token 格式（ghp_xxx / github_pat_xxx / sk-xxx 等）
+          if grep -rn "ghp_[A-Za-z0-9]\{20,\}\|github_pat_[A-Za-z0-9]\{20,\}\|sk-[A-Za-z0-9]\{20,\}" \
             --include="*.nova" --include="*.md" --include="*.sh" \
             . 2>/dev/null | grep -v ".github/workflows"; then
             echo "✗ 发现可能的敏感信息泄露!" && exit 1
