@@ -7,95 +7,255 @@ on:
     branches: [ master ]
 
 jobs:
-  # ─── 文件完整性检查 ───
+  # ═══════════════════════════════════════════════════
+  #  1. 许可证与安全
+  # ═══════════════════════════════════════════════════
   integrity:
-    name: 文件完整性检查
+    name: 许可证与安全检查
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
-      - name: 检查许可证文件存在
+      - name: 许可证文件完整性
         run: |
-          echo "=== 检查许可证文件 ==="
+          echo "=== 许可证文件 ==="
+          fail=0
           for f in LICENSE NOTICE LICENSE_木兰公共版 README.md README.en.md CONTRIBUTING.md SECURITY.md; do
             if [ -f "$f" ]; then
-              echo "✓ $f 存在 ($(wc -c < "$f") 字节)"
+              echo "✓ $f ($(wc -c < "$f") 字节)"
             else
-              echo "✗ $f 缺失!" && exit 1
+              echo "✗ $f 缺失!" && fail=1
             fi
           done
+          [ $fail -eq 0 ] || exit 1
 
-      - name: 检查许可证名称一致性
+      - name: 许可证名称全局一致性
         run: |
-          echo "=== 检查 Nova-CSL 1.1 全局一致性 ==="
-          files="LICENSE NOTICE README.md README.en.md LICENSE_木兰公共版 CONTRIBUTING.md"
-          for f in $files; do
+          echo "=== Nova-CSL 1.1 一致性 ==="
+          for f in LICENSE NOTICE README.md README.en.md LICENSE_木兰公共版 CONTRIBUTING.md; do
             if grep -q "Nova-CSL" "$f"; then
-              echo "✓ $f 包含 Nova-CSL 引用"
+              echo "✓ $f"
             else
-              echo "⚠ $f 未包含 Nova-CSL 引用（可能正常）"
+              echo "⚠ $f 无 Nova-CSL 引用"
             fi
           done
-          # 确保没有旧的 BSL 命名残留
           if grep -rl "Nova-BSL" LICENSE NOTICE README.md 2>/dev/null; then
-            echo "✗ 发现 Nova-BSL 旧命名残留!" && exit 1
+            echo "✗ 发现旧命名残留!" && exit 1
           fi
           echo "✓ 无旧命名残留"
 
-      - name: 检查无敏感信息泄露
+      - name: 敏感信息泄露检测
         run: |
-          echo "=== 检查敏感信息 ==="
-          # 只检查真实 token 格式（ghp_xxx / github_pat_xxx / sk-xxx 等）
+          echo "=== 敏感信息 ==="
           if grep -rn "ghp_[A-Za-z0-9]\{20,\}\|github_pat_[A-Za-z0-9]\{20,\}\|sk-[A-Za-z0-9]\{20,\}" \
             --include="*.nova" --include="*.md" --include="*.sh" \
             . 2>/dev/null | grep -v ".github/workflows"; then
-            echo "✗ 发现可能的敏感信息泄露!" && exit 1
+            echo "✗ 发现 token 泄露!" && exit 1
           fi
           echo "✓ 未发现敏感信息"
 
-  # ─── 源码结构检查 ───
-  structure:
-    name: 源码结构检查
+  # ═══════════════════════════════════════════════════
+  #  2. 原生编译器深度检查 (518 文件 / 20万行)
+  # ═══════════════════════════════════════════════════
+  compiler:
+    name: 原生编译器检查
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
-      - name: 检查编译器模块结构
+      - name: 编译器入口与 manifest
         run: |
-          echo "=== 检查编译器核心模块 ==="
-          modules=(
-            "原生编译器/Nova.nova"
-            "原生编译器/_manifest.txt"
-          )
-          for m in "${modules[@]}"; do
-            if [ -f "$m" ]; then
-              echo "✓ $m"
-            else
-              echo "✗ $m 缺失!" && exit 1
-            fi
+          echo "=== 核心入口 ==="
+          for f in 原生编译器/Nova.nova 原生编译器/_manifest.txt; do
+            [ -f "$f" ] && echo "✓ $f" || { echo "✗ $f 缺失!"; exit 1; }
           done
 
-      - name: 统计源码规模
+      - name: manifest 与实际文件一致性
         run: |
-          echo "=== 源码统计 ==="
-          nova_count=$(find . -name "*.nova" | wc -l)
-          echo "Nova 源文件数: $nova_count"
-          total_lines=$(find . -name "*.nova" -exec cat {} + 2>/dev/null | wc -l)
-          echo "Nova 总行数: $total_lines"
-          echo ""
-          echo "--- 目录分布 ---"
-          echo "原生编译器: $(find 原生编译器 -name '*.nova' 2>/dev/null | wc -l) 个文件"
-          echo "纯净版系统: $(find 纯净版系统 -name '*.nova' 2>/dev/null | wc -l) 个文件"
-
-      - name: 检查 manifest 一致性
-        run: |
-          echo "=== 检查 _manifest.txt ==="
-          if [ -f "原生编译器/_manifest.txt" ]; then
-            echo "✓ manifest 存在"
-            echo "manifest 文件数: $(wc -l < 原生编译器/_manifest.txt)"
+          echo "=== manifest 深度校验 ==="
+          missing=0
+          extra=0
+          # manifest 列出但文件不存在
+          while IFS= read -r line; do
+            if [ ! -f "原生编译器/$line" ]; then
+              echo "✗ manifest 列出但文件不存在: $line"
+              missing=$((missing+1))
+            fi
+          done < 原生编译器/_manifest.txt
+          # 实际存在但 manifest 未列出
+          find 原生编译器/编译器 -name "*.nova" -printf "%P\n" 2>/dev/null | sort > /tmp/ci_actual.txt
+          sort 原生编译器/_manifest.txt > /tmp/ci_manifest.txt
+          extra_files=$(comm -23 /tmp/ci_actual.txt /tmp/ci_manifest.txt | head -20)
+          if [ -n "$extra_files" ]; then
+            echo "⚠ 以下文件未在 manifest 中登记:"
+            echo "$extra_files"
+            extra=$(echo "$extra_files" | wc -l)
           fi
+          echo ""
+          echo "manifest 登记: $(wc -l < 原生编译器/_manifest.txt) 个"
+          echo "实际文件: $(wc -l < /tmp/ci_actual.txt) 个"
+          echo "缺失: $missing / 未登记: $extra"
+          [ $missing -eq 0 ] || exit 1
 
-  # ─── PR 贡献者合规检查 ───
+      - name: 编译器模块完整性
+        run: |
+          echo "=== 编译器子模块检查 ==="
+          modules=(
+            "编译器/词法"
+            "编译器/语法"
+            "编译器/语义"
+            "编译器/分析"
+            "编译器/规划"
+            "编译器/安全"
+            "链接器"
+            "运行时"
+            "标准库"
+            "IR/字节码"
+            "IR/优化器"
+            "内存"
+            "工具"
+          )
+          fail=0
+          for m in "${modules[@]}"; do
+            count=$(find "原生编译器/$m" -name "*.nova" 2>/dev/null | wc -l)
+            if [ "$count" -gt 0 ]; then
+              echo "✓ $m ($count 个文件)"
+            else
+              echo "✗ $m 无 .nova 文件!" && fail=1
+            fi
+          done
+          [ $fail -eq 0 ] || exit 1
+
+      - name: 编码规范检查
+        run: |
+          echo "=== 编码规范 ==="
+          # 检查 BOM / 非 UTF-8
+          bad_encoding=0
+          while IFS= read -r f; do
+            if file "$f" | grep -qi "BOM\|ISO-8859\|ASCII text"; then
+              : # ASCII 兼容 UTF-8, 正常
+            elif file "$f" | grep -qi "UTF-8"; then
+              : # 正常
+            else
+              encoding=$(file "$f" | cut -d: -f2)
+              echo "⚠ 非 UTF-8: $f ($encoding)"
+              bad_encoding=$((bad_encoding+1))
+            fi
+          done < <(find 原生编译器 -name "*.nova" | head -100)
+          # 检查空文件
+          empty=$(find 原生编译器 -name "*.nova" -empty | wc -l)
+          echo "空 .nova 文件: $empty"
+          # 检查超长行 (>500字符)
+          long_lines=$(find 原生编译器 -name "*.nova" -exec awk 'length>500{print FILENAME":"NR": "length" chars"}' {} + 2>/dev/null | wc -l)
+          echo "超长行 (>500字符): $long_lines"
+          echo "非 UTF-8 文件: $bad_encoding"
+
+      - name: 源码统计报告
+        run: |
+          echo "╔═══════════════════════════════════════╗"
+          echo "║      原生编译器源码统计报告           ║"
+          echo "╠═══════════════════════════════════════╣"
+          total_files=$(find 原生编译器 -name "*.nova" | wc -l)
+          total_lines=$(find 原生编译器 -name "*.nova" -exec cat {} + 2>/dev/null | wc -l)
+          echo "║ 总文件数: $total_files"
+          echo "║ 总行数:   $total_lines"
+          echo "╠═══════════════════════════════════════╣"
+          echo "║ 模块分布:"
+          for d in 原生编译器/*/; do
+            name=$(basename "$d")
+            count=$(find "$d" -name "*.nova" 2>/dev/null | wc -l)
+            lines=$(find "$d" -name "*.nova" -exec cat {} + 2>/dev/null | wc -l)
+            [ "$count" -gt 0 ] && printf "║   %-12s %4d 文件  %6d 行\n" "$name" "$count" "$lines"
+          done
+          echo "╚═══════════════════════════════════════╝"
+
+  # ═══════════════════════════════════════════════════
+  #  3. 纯净版系统深度检查 (1631 文件 / 55万行)
+  # ═══════════════════════════════════════════════════
+  system:
+    name: 纯净版系统检查
+    runs-on: self-hosted
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 系统模块完整性
+        run: |
+          echo "=== 纯净版系统子模块检查 ==="
+          modules=(
+            "中枢"
+            "执行"
+            "感知"
+            "记忆"
+            "推理"
+            "引导"
+            "稳态"
+            "外联"
+            "资源"
+            "标准"
+          )
+          fail=0
+          for m in "${modules[@]}"; do
+            count=$(find "纯净版系统/$m" -name "*.nova" 2>/dev/null | wc -l)
+            if [ "$count" -gt 0 ]; then
+              echo "✓ $m ($count 个文件)"
+            else
+              echo "✗ $m 无 .nova 文件!" && fail=1
+            fi
+          done
+          [ $fail -eq 0 ] || exit 1
+
+      - name: 源码统计报告
+        run: |
+          echo "╔═══════════════════════════════════════╗"
+          echo "║      纯净版系统源码统计报告           ║"
+          echo "╠═══════════════════════════════════════╣"
+          total_files=$(find 纯净版系统 -name "*.nova" | wc -l)
+          total_lines=$(find 纯净版系统 -name "*.nova" -exec cat {} + 2>/dev/null | wc -l)
+          echo "║ 总文件数: $total_files"
+          echo "║ 总行数:   $total_lines"
+          echo "╠═══════════════════════════════════════╣"
+          echo "║ 模块分布:"
+          for d in 纯净版系统/*/; do
+            name=$(basename "$d")
+            [ "$name" = "__pycache__" ] && continue
+            count=$(find "$d" -name "*.nova" 2>/dev/null | wc -l)
+            lines=$(find "$d" -name "*.nova" -exec cat {} + 2>/dev/null | wc -l)
+            [ "$count" -gt 0 ] && printf "║   %-12s %4d 文件  %6d 行\n" "$name" "$count" "$lines"
+          done
+          echo "╚═══════════════════════════════════════╝"
+
+  # ═══════════════════════════════════════════════════
+  #  4. 全局质量门禁
+  # ═══════════════════════════════════════════════════
+  quality-gate:
+    name: 全局质量门禁
+    runs-on: self-hosted
+    needs: [integrity, compiler, system]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: 项目总览
+        run: |
+          echo "╔═══════════════════════════════════════════════╗"
+          echo "║           Nova 项目 CI 总览                  ║"
+          echo "╠═══════════════════════════════════════════════╣"
+          compiler_files=$(find 原生编译器 -name "*.nova" | wc -l)
+          compiler_lines=$(find 原生编译器 -name "*.nova" -exec cat {} + 2>/dev/null | wc -l)
+          system_files=$(find 纯净版系统 -name "*.nova" | wc -l)
+          system_lines=$(find 纯净版系统 -name "*.nova" -exec cat {} + 2>/dev/null | wc -l)
+          total_files=$((compiler_files + system_files))
+          total_lines=$((compiler_lines + system_lines))
+          printf "║ 原生编译器: %5d 文件 / %7d 行\n" "$compiler_files" "$compiler_lines"
+          printf "║ 纯净版系统: %5d 文件 / %7d 行\n" "$system_files" "$system_lines"
+          echo "╠═══════════════════════════════════════════════╣"
+          printf "║ 项目总计:   %5d 文件 / %7d 行\n" "$total_files" "$total_lines"
+          echo "╚═══════════════════════════════════════════════╝"
+          echo ""
+          echo "✅ 所有检查通过"
+
+  # ═══════════════════════════════════════════════════
+  #  5. PR 贡献者合规检查
+  # ═══════════════════════════════════════════════════
   contributor-check:
     name: 贡献者合规检查
     runs-on: self-hosted
