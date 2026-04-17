@@ -10,7 +10,7 @@ jobs:
   # ─── 文件完整性检查 ───
   integrity:
     name: 文件完整性检查
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
@@ -55,7 +55,7 @@ jobs:
   # ─── 源码结构检查 ───
   structure:
     name: 源码结构检查
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - uses: actions/checkout@v4
 
@@ -97,7 +97,7 @@ jobs:
   # ─── PR 贡献者合规检查 ───
   contributor-check:
     name: 贡献者合规检查
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     if: github.event_name == 'pull_request'
     steps:
       - uses: actions/checkout@v4
