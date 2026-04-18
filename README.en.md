@@ -4,9 +4,11 @@
 
 **Chinese-Native Compiler & System Software Engineering**
 
+[![CI](https://github.com/nova-awakening/nova-awakening/actions/workflows/ci.yml/badge.svg)](https://github.com/nova-awakening/nova-awakening/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/License-Nova--CSL%201.1-blue.svg)](NOTICE)
-[![Project](https://img.shields.io/badge/Project-Compiler%20%2B%20Pure%20System-brightgreen.svg)]()
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-Stage2%20≡%20Stage3-success.svg)]()
 [![Language](https://img.shields.io/badge/Lang-Chinese%20Native-red.svg)]()
+[![Platform](https://img.shields.io/badge/Platform-x86__64%20Linux-lightgrey.svg)]()
 
 [🇨🇳 中文](README.md) | **🇬🇧 English**
 
