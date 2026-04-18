@@ -5,10 +5,14 @@
 **中文原生编译器与系统软件工程**
 
 [![CI](https://github.com/nova-awakening/nova-awakening/actions/workflows/ci.yml/badge.svg)](https://github.com/nova-awakening/nova-awakening/actions/workflows/ci.yml)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/nova-awakening/nova-awakening/badge)](https://scorecard.dev/viewer/?uri=github.com/nova-awakening/nova-awakening)
 [![License](https://img.shields.io/badge/许可证-Nova--CSL%201.1-blue.svg)](NOTICE)
 [![Bootstrap](https://img.shields.io/badge/自举-Stage2%20≡%20Stage3-success.svg)]()
 [![Language](https://img.shields.io/badge/语言-中文原生-red.svg)]()
 [![Platform](https://img.shields.io/badge/平台-x86__64%20Linux-lightgrey.svg)]()
+[![Repo Size](https://img.shields.io/github/repo-size/nova-awakening/nova-awakening)](https://github.com/nova-awakening/nova-awakening)
+[![Last Commit](https://img.shields.io/github/last-commit/nova-awakening/nova-awakening)](https://github.com/nova-awakening/nova-awakening/commits/master)
+[![Commit Activity](https://img.shields.io/github/commit-activity/m/nova-awakening/nova-awakening)](https://github.com/nova-awakening/nova-awakening/commits/master)
 
 **🇨🇳 中文** | [🇬🇧 English](README.en.md)
 
