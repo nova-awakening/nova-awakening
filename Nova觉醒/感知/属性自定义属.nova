@@ -1,0 +1,486 @@
+《属性自定义属》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《..·中枢·辅助有符号读》。
+
+引用《..·中枢·字符串替换》。
+
+PROP_SYNTAX_ANY 为 0。
+
+PROP_SYNTAX_LENGTH 为 1。
+
+PROP_SYNTAX_NUMBER 为 2。
+
+PROP_SYNTAX_PERCENTAGE 为 3。
+
+PROP_SYNTAX_COLOR 为 4。
+
+PROP_SYNTAX_IMAGE 为 5。
+
+PROP_SYNTAX_URL 为 6。
+
+PROP_SYNTAX_INTEGER 为 7。
+
+PROP_SYNTAX_ANGLE 为 8。
+
+PROP_SYNTAX_TIME 为 9。
+
+PROP_SYNTAX_RESOLUTION 为 10。
+
+PROP_SYNTAX_TRANSFORM 为 11。
+
+PROP_SYNTAX_CUSTOM_IDENT 为 12。
+
+PROP_SYNTAX_LENGTH_PERCENTAGE 为 13。
+
+RegisteredProperty 是 一种 事物，含 名称、语法、语法字符串、继承、初始值、可动画。
+
+PropertyRegistry 是 一种 事物，含 属性列表、属性数量、属性容量。
+
+可变 全局属性注册表 为 0。
+
+PropertyRegistry_获取 接受 零参：
+    若 全局属性注册表 等于 0：
+        全局属性注册表 为 做 堆_分配 用 PropertyRegistry。
+        全局属性注册表 的 属性容量 为 128。
+        全局属性注册表 的 属性列表 为 做 堆_分配_数组 用 128 乘 8。
+        全局属性注册表 的 属性数量 为 0。
+    完。
+    返还 全局属性注册表。
+完。
+
+Property_注册 接受 名称、语法字符串、继承、初始值：
+    reg 为 做 PropertyRegistry_获取。
+    若 reg 的 属性数量 大于或等于 reg 的 属性容量：
+        返还。
+    完。
+    若 做 Property_查找 用 名称 不等于 0：
+        返还。
+    完。
+    prop 为 做 堆_分配 用 RegisteredProperty。
+    prop 的 名称 为 做 字符串_复制 用 名称。
+    prop 的 语法字符串 为 若 语法字符串 不等于 0 则 做 字符串_复制 用 语法字符串 否则 「*」。
+    prop 的 语法 为 做 Property_解析语法 用 prop 的 语法字符串。
+    prop 的 继承 为 继承。
+    prop 的 初始值 为 若 初始值 不等于 0 则 做 字符串_复制 用 初始值 否则 0。
+    prop 的 可动画 为 prop 的 语法 不等于 PROP_SYNTAX_ANY。
+    做 内存_写64 用 reg 的 属性列表 加 reg 的 属性数量 乘 8、prop。
+    reg 的 属性数量 为 reg 的 属性数量 加 1。
+完。
+
+Property_查找 接受 名称：
+    reg 为 做 PropertyRegistry_获取。
+    可变 i 为 0。
+    只要 i 小于 reg 的 属性数量：
+        prop 为 做 内存_读64 用 reg 的 属性列表 加 i 乘 8。
+        若 prop 不等于 0 并且 做 字符串_相等 用 prop 的 名称、名称：
+            返还 prop。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Property_解析语法 接受 语法字符串：
+    若 语法字符串 等于 0 或者 做 字符串_相等 用 语法字符串、「*」：
+        返还 PROP_SYNTAX_ANY。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<length>」：
+        返还 PROP_SYNTAX_LENGTH。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<number>」：
+        返还 PROP_SYNTAX_NUMBER。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<percentage>」：
+        返还 PROP_SYNTAX_PERCENTAGE。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<color>」：
+        返还 PROP_SYNTAX_COLOR。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<image>」：
+        返还 PROP_SYNTAX_IMAGE。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<url>」：
+        返还 PROP_SYNTAX_URL。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<integer>」：
+        返还 PROP_SYNTAX_INTEGER。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<angle>」：
+        返还 PROP_SYNTAX_ANGLE。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<time>」：
+        返还 PROP_SYNTAX_TIME。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<transform-function>」：
+        返还 PROP_SYNTAX_TRANSFORM。
+    完。
+    若 做 字符串_相等 用 语法字符串、「<length-percentage>」：
+        返还 PROP_SYNTAX_LENGTH_PERCENTAGE。
+    完。
+    返还 PROP_SYNTAX_ANY。
+完。
+
+Property_插值 接受 属性、从值、到值、t：
+    若 属性 等于 0 或者 非 属性 的 可动画：
+        返还 到值。
+    完。
+    若 属性 的 语法 等于 PROP_SYNTAX_LENGTH 或者 属性 的 语法 等于 PROP_SYNTAX_NUMBER 或者 属性 的 语法 等于 PROP_SYNTAX_PERCENTAGE 或者 属性 的 语法 等于 PROP_SYNTAX_LENGTH_PERCENTAGE：
+        从 为 做 CSS解析_数字 用 从值。
+        到 为 做 CSS解析_数字 用 到值。
+        结果 为 从 加 (到 减 从) 乘 t 除以 10000。
+        返还 做 整数转字符串 用 结果。
+    完。
+    若 属性 的 语法 等于 PROP_SYNTAX_COLOR：
+        从c 为 做 CSS解析_颜色 用 从值。
+        到c 为 做 CSS解析_颜色 用 到值。
+        rr 为 做 SkColor_R 用 从c 加 (做 SkColor_R 用 到c 减 做 SkColor_R 用 从c) 乘 t 除以 10000。
+        gg 为 做 SkColor_G 用 从c 加 (做 SkColor_G 用 到c 减 做 SkColor_G 用 从c) 乘 t 除以 10000。
+        bb 为 做 SkColor_B 用 从c 加 (做 SkColor_B 用 到c 减 做 SkColor_B 用 从c) 乘 t 除以 10000。
+        aa 为 做 SkColor_A 用 从c 加 (做 SkColor_A 用 到c 减 做 SkColor_A 用 从c) 乘 t 除以 10000。
+        返还 做 CSS颜色_到字符串 用 做 SkColor 用 aa、rr、gg、bb。
+    完。
+    若 属性 的 语法 等于 PROP_SYNTAX_ANGLE：
+        从 为 做 CSS解析_数字 用 从值。
+        到 为 做 CSS解析_数字 用 到值。
+        结果 为 从 加 (到 减 从) 乘 t 除以 10000。
+        返还 做 整数转字符串 用 结果。
+    完。
+    若 t 大于或等于 5000：
+        返还 到值。
+    完。
+    返还 从值。
+完。
+
+CSS_registerProperty 接受 Nova运行时实例、选项：
+    若 选项 等于 0：
+        返还。
+    完。
+    名称 为 做 Nova对象_获取属性 用 Nova运行时实例、选项、「name」。
+    语法 为 做 Nova对象_获取属性 用 Nova运行时实例、选项、「syntax」。
+    继承 为 做 Nova对象_获取属性 用 Nova运行时实例、选项、「inherits」。
+    初始 为 做 Nova对象_获取属性 用 Nova运行时实例、选项、「initialValue」。
+    若 名称 等于 0：
+        返还。
+    完。
+    做 Property_注册 用 做 JSValue_获取字符串 用 名称、若 语法 不等于 0 则 做 JSValue_获取字符串 用 语法 否则 「*」、若 继承 不等于 0 则 做 JSValue_ToBoolean 用 Nova运行时实例、继承 否则 假、若 初始 不等于 0 则 做 JSValue_获取字符串 用 初始 否则 0。
+完。
+
+Property_从AtRule解析 接受 规则文本：
+    若 规则文本 等于 0：
+        返还。
+    完。
+    可变 名称 为 0。
+    可变 语法 为 「*」。
+    可变 继承 为 假。
+    可变 初始值 为 0。
+    长度 为 做 字节长度 用 规则文本。
+    可变 位置 为 0。
+    只要 位置 小于 长度：
+        只要 位置 小于 长度 并且 做 字节取 用 规则文本、位置 等于 32：
+            位置 为 位置 加 1。
+        完。
+        行开始 为 位置。
+        只要 位置 小于 长度 并且 做 字节取 用 规则文本、位置 不等于 59 并且 做 字节取 用 规则文本、位置 不等于 125：
+            位置 为 位置 加 1。
+        完。
+        行 为 做 字符串_子串 用 规则文本、行开始、位置 减 行开始。
+        若 做 字符串_以开头 用 行、「syntax:」：
+            语法 为 做 字符串_去空白 用 做 字符串_子串 用 行、7、做 字符串_长度 用 行 减 7。
+        否则若 做 字符串_以开头 用 行、「inherits:」：
+            值 为 做 字符串_去空白 用 做 字符串_子串 用 行、9、做 字符串_长度 用 行 减 9。
+            继承 为 做 字符串_相等 用 值、「true」。
+        否则若 做 字符串_以开头 用 行、「initial-value:」：
+            初始值 为 做 字符串_去空白 用 做 字符串_子串 用 行、14、做 字符串_长度 用 行 减 14。
+        完。
+        若 位置 小于 长度：
+            位置 为 位置 加 1。
+        完。
+    完。
+    若 名称 不等于 0：
+        做 Property_注册 用 名称、语法、继承、初始值。
+    完。
+完。
+
+Property_语法名 接受 语法：
+    若 语法 等于 PROP_SYNTAX_ANY：
+        返还 「*」。
+    完。
+    若 语法 等于 PROP_SYNTAX_LENGTH：
+        返还 「<length>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_NUMBER：
+        返还 「<number>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_PERCENTAGE：
+        返还 「<percentage>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_COLOR：
+        返还 「<color>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_IMAGE：
+        返还 「<image>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_URL：
+        返还 「<url>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_INTEGER：
+        返还 「<integer>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_ANGLE：
+        返还 「<angle>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_TIME：
+        返还 「<time>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_RESOLUTION：
+        返还 「<resolution>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_TRANSFORM：
+        返还 「<transform-function>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_CUSTOM_IDENT：
+        返还 「<custom-ident>」。
+    完。
+    若 语法 等于 PROP_SYNTAX_LENGTH_PERCENTAGE：
+        返还 「<length-percentage>」。
+    完。
+    返还 「unknown」。
+完。
+
+Property_是数值语法 接受 语法：
+    返还 语法 等于 PROP_SYNTAX_LENGTH 或者 语法 等于 PROP_SYNTAX_NUMBER 或者 语法 等于 PROP_SYNTAX_PERCENTAGE 或者 语法 等于 PROP_SYNTAX_INTEGER 或者 语法 等于 PROP_SYNTAX_ANGLE 或者 语法 等于 PROP_SYNTAX_TIME 或者 语法 等于 PROP_SYNTAX_LENGTH_PERCENTAGE。
+完。
+
+Property_可插值 接受 语法：
+    返还 语法 不等于 PROP_SYNTAX_ANY 并且 语法 不等于 PROP_SYNTAX_URL 并且 语法 不等于 PROP_SYNTAX_IMAGE 并且 语法 不等于 PROP_SYNTAX_CUSTOM_IDENT。
+完。
+
+Property_是有效自定义属性名 接受 名称：
+    若 名称 等于 0：
+        返还 假。
+    完。
+    长度 为 做 字符串_长度 用 名称。
+    若 长度 小于 3：
+        返还 假。
+    完。
+    返还 做 字节取 用 名称、0 等于 45 并且 做 字节取 用 名称、1 等于 45。
+完。
+
+PropertyRegistry_数量 接受 零参：
+    reg 为 做 PropertyRegistry_获取。
+    返还 reg 的 属性数量。
+完。
+
+PropertyRegistry_获取按索引 接受 索引：
+    reg 为 做 PropertyRegistry_获取。
+    若 索引 大于或等于 reg 的 属性数量：
+        返还 0。
+    完。
+    返还 做 内存_读64 用 reg 的 属性列表 加 索引 乘 8。
+完。
+
+PropertyRegistry_删除 接受 名称：
+    reg 为 做 PropertyRegistry_获取。
+    可变 i 为 0。
+    只要 i 小于 reg 的 属性数量：
+        prop 为 做 内存_读64 用 reg 的 属性列表 加 i 乘 8。
+        若 prop 不等于 0 并且 做 字符串_相等 用 prop 的 名称、名称：
+            最后 为 reg 的 属性数量 减 1。
+            若 i 小于 最后：
+                做 内存_写64 用 reg 的 属性列表 加 i 乘 8、做 内存_读64 用 reg 的 属性列表 加 最后 乘 8。
+            完。
+            reg 的 属性数量 为 reg 的 属性数量 减 1。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+PropertyRegistry_清空 接受 零参：
+    reg 为 做 PropertyRegistry_获取。
+    reg 的 属性数量 为 0。
+完。
+
+PropertyRegistry_列出所有 接受 零参：
+    reg 为 做 PropertyRegistry_获取。
+    可变 结果 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 reg 的 属性数量：
+        prop 为 做 内存_读64 用 reg 的 属性列表 加 i 乘 8。
+        若 prop 不等于 0：
+            做 追加 用 结果、prop。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+PropertyRegistry_按语法过滤 接受 语法：
+    reg 为 做 PropertyRegistry_获取。
+    可变 结果 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 reg 的 属性数量：
+        prop 为 做 内存_读64 用 reg 的 属性列表 加 i 乘 8。
+        若 prop 不等于 0 并且 prop 的 语法 等于 语法：
+            做 追加 用 结果、prop。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+PropertyRegistry_可继承属性 接受 零参：
+    reg 为 做 PropertyRegistry_获取。
+    可变 结果 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 reg 的 属性数量：
+        prop 为 做 内存_读64 用 reg 的 属性列表 加 i 乘 8。
+        若 prop 不等于 0 并且 prop 的 继承：
+            做 追加 用 结果、prop。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+PropertyRegistry_可动画属性 接受 零参：
+    reg 为 做 PropertyRegistry_获取。
+    可变 结果 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 reg 的 属性数量：
+        prop 为 做 内存_读64 用 reg 的 属性列表 加 i 乘 8。
+        若 prop 不等于 0 并且 prop 的 可动画：
+            做 追加 用 结果、prop。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+CSS解析_数字 接受 文本：
+    若 文本 等于 0：
+        返还 0。
+    完。
+    返还 做 转整数 用 文本。
+完。
+
+CSS解析_颜色 接受 文本：
+    若 文本 等于 0：
+        返还 0。
+    完。
+    若 做 字节取 用 文本、0 等于 35：
+        返还 做 CSS解析_十六进制颜色 用 文本。
+    完。
+    返还 0。
+完。
+
+CSS解析_十六进制颜色 接受 文本：
+    若 文本 等于 0：
+        返还 0。
+    完。
+    长度 为 做 字符串_长度 用 文本。
+    若 长度 等于 4：
+        r 为 做 CSS_十六进制字符 用 做 字节取 用 文本、1 乘 17。
+        g 为 做 CSS_十六进制字符 用 做 字节取 用 文本、2 乘 17。
+        b 为 做 CSS_十六进制字符 用 做 字节取 用 文本、3 乘 17。
+        返还 255 左移 24 位或 r 左移 16 位或 g 左移 8 位或 b。
+    完。
+    若 长度 等于 7：
+        r 为 做 CSS_十六进制字符 用 做 字节取 用 文本、1 乘 16 加 做 CSS_十六进制字符 用 做 字节取 用 文本、2。
+        g 为 做 CSS_十六进制字符 用 做 字节取 用 文本、3 乘 16 加 做 CSS_十六进制字符 用 做 字节取 用 文本、4。
+        b 为 做 CSS_十六进制字符 用 做 字节取 用 文本、5 乘 16 加 做 CSS_十六进制字符 用 做 字节取 用 文本、6。
+        返还 255 左移 24 位或 r 左移 16 位或 g 左移 8 位或 b。
+    完。
+    返还 0。
+完。
+
+CSS_十六进制字符 接受 ch：
+    若 ch 大于或等于 48 并且 ch 小于或等于 57：
+        返还 ch 减 48。
+    完。
+    若 ch 大于或等于 65 并且 ch 小于或等于 70：
+        返还 ch 减 55。
+    完。
+    若 ch 大于或等于 97 并且 ch 小于或等于 102：
+        返还 ch 减 87。
+    完。
+    返还 0。
+完。
+
+SkColor 接受 a、r、g、b：
+    返还 a 左移 24 位或 r 左移 16 位或 g 左移 8 位或 b。
+完。
+
+SkColor_R 接受 c：
+    返还 c 右移 16 位与 0xFF。
+完。
+
+SkColor_G 接受 c：
+    返还 c 右移 8 位与 0xFF。
+完。
+
+SkColor_B 接受 c：
+    返还 c 位与 0xFF。
+完。
+
+SkColor_A 接受 c：
+    返还 c 右移 24 位与 0xFF。
+完。
+
+CSS颜色_到字符串 接受 颜色：
+    返还 「#」 加 做 十六进制 用 做 SkColor_R 用 颜色 加 做 十六进制 用 做 SkColor_G 用 颜色 加 做 十六进制 用 做 SkColor_B 用 颜色。
+完。
+
+可变 Property_注册总数 为 0。
+
+可变 Property_查找总数 为 0。
+
+可变 Property_插值总数 为 0。
+
+Property_统计 接受 零参：
+    返还 一本字典：注册数 对应 做 PropertyRegistry_数量、注册总数 对应 Property_注册总数、查找总数 对应 Property_查找总数、插值总数 对应 Property_插值总数、可动画数 对应 做 计数 用 做 PropertyRegistry_可动画属性、可继承数 对应 做 计数 用 做 PropertyRegistry_可继承属性。
+完。
+
+Property_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 做 PropertyRegistry_数量 大于 500：
+        做 追加 用 问题、「注册属性过多: 」 加 做 整数转字符串 用 做 PropertyRegistry_数量。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「自定义属性注册表健康」。
+    完。
+    返还 问题。
+完。
+
+Property_重置统计 接受 零参：
+    Property_注册总数 为 0。
+    Property_查找总数 为 0。
+    Property_插值总数 为 0。
+完。
+
+Property_完整统计 接受 零参：
+    返还 一组：做 PropertyRegistry_数量、Property_注册总数、Property_查找总数、Property_插值总数。
+完。
+
+Property_诊断 接受 名称：
+    prop 为 做 Property_查找 用 名称。
+    若 prop 等于 0：
+        返还 「属性未注册: 」 加 名称。
+    完。
+    返还 一本字典：名称 对应 prop 的 名称、语法 对应 做 Property_语法名 用 prop 的 语法、继承 对应 prop 的 继承、初始值 对应 prop 的 初始值、可动画 对应 prop 的 可动画。
+完。
+
+本章 收束。

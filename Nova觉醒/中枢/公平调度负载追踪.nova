@@ -1,0 +1,182 @@
+《公平调度负载追踪》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+Nova负载追踪_半衰期 为 32000。
+
+Nova负载追踪_衰减因子 为 978。
+
+Nova负载追踪_精度 为 1000。
+
+Nova负载追踪_最大周期 为 10。
+
+Nova负载追踪_衰减 接受 值、周期数：
+    若 周期数 小于或等于 0：
+        返还 值。
+    完。
+    若 周期数 大于 Nova负载追踪_最大周期：
+        周期数 为 Nova负载追踪_最大周期。
+    完。
+    可变 结果 为 值。
+    可变 i 为 0。
+    只要 i 小于 周期数：
+        结果 为 结果 乘 Nova负载追踪_衰减因子 除以 Nova负载追踪_精度。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+Nova负载追踪_累积 接受 当前值、delta_us、权重：
+    周期数 为 delta_us 除以 Nova负载追踪_半衰期。
+    余数 为 delta_us 取余于 Nova负载追踪_半衰期。
+    衰减值 为 做 Nova负载追踪_衰减 用 当前值、周期数。
+    新贡献 为 delta_us 乘 权重 除以 Nova负载追踪_精度。
+    返还 衰减值 加 新贡献。
+完。
+
+Nova负载追踪_更新实体负载 接受 任务、当前时间、是运行中：
+    上次时间 为 任务 的 第 T_last_update 项。
+    若 上次时间 等于 0：
+        做 设置 用 任务、T_last_update、当前时间。
+        做 设置 用 任务、T_load_avg、0。
+        做 设置 用 任务、T_util_avg、0。
+        做 设置 用 任务、T_runnable_avg、0。
+        返还。
+    完。
+    delta_us 为 当前时间 减 上次时间。
+    若 delta_us 小于或等于 0：
+        返还。
+    完。
+    权重 为 任务 的 第 T_权重 项。
+    若 权重 小于或等于 0：
+        权重 为 NICE_0_权重。
+    完。
+    旧load 为 任务 的 第 T_load_avg 项。
+    新load 为 做 Nova负载追踪_累积 用 旧load、delta_us、权重。
+    做 设置 用 任务、T_load_avg、新load。
+    若 是运行中：
+        旧util 为 任务 的 第 T_util_avg 项。
+        新util 为 做 Nova负载追踪_累积 用 旧util、delta_us、Nova负载追踪_精度。
+        做 设置 用 任务、T_util_avg、新util。
+    否则：
+        周期数 为 delta_us 除以 Nova负载追踪_半衰期。
+        旧util 为 任务 的 第 T_util_avg 项。
+        新util 为 做 Nova负载追踪_衰减 用 旧util、周期数。
+        做 设置 用 任务、T_util_avg、新util。
+    完。
+    旧runnable 为 任务 的 第 T_runnable_avg 项。
+    新runnable 为 做 Nova负载追踪_累积 用 旧runnable、delta_us、Nova负载追踪_精度。
+    做 设置 用 任务、T_runnable_avg、新runnable。
+    做 设置 用 任务、T_last_update、当前时间。
+完。
+
+可变 Nova公平调度_rq_load_avg 为 0。
+
+可变 Nova公平调度_rq_util_avg 为 0。
+
+可变 Nova公平调度_rq_runnable_avg 为 0。
+
+可变 Nova公平调度_rq_last_update 为 0。
+
+Nova负载追踪_更新运行队列负载 接受 当前时间：
+    上次时间 为 Nova公平调度_rq_last_update。
+    若 上次时间 等于 0：
+        Nova公平调度_rq_last_update 为 当前时间。
+        返还。
+    完。
+    delta_us 为 当前时间 减 上次时间。
+    若 delta_us 小于或等于 0：
+        返还。
+    完。
+    周期数 为 delta_us 除以 Nova负载追踪_半衰期。
+    Nova公平调度_rq_load_avg 为 做 Nova负载追踪_衰减 用 Nova公平调度_rq_load_avg、周期数。
+    Nova公平调度_rq_util_avg 为 做 Nova负载追踪_衰减 用 Nova公平调度_rq_util_avg、周期数。
+    Nova公平调度_rq_runnable_avg 为 做 Nova负载追踪_衰减 用 Nova公平调度_rq_runnable_avg、周期数。
+    Nova公平调度_rq_last_update 为 当前时间。
+完。
+
+Nova负载追踪_入队更新 接受 任务、当前时间：
+    做 Nova负载追踪_更新实体负载 用 任务、当前时间、假。
+    做 Nova负载追踪_更新运行队列负载 用 当前时间。
+    Nova公平调度_rq_load_avg 为 Nova公平调度_rq_load_avg 加 任务 的 第 T_load_avg 项。
+    Nova公平调度_rq_util_avg 为 Nova公平调度_rq_util_avg 加 任务 的 第 T_util_avg 项。
+    Nova公平调度_rq_runnable_avg 为 Nova公平调度_rq_runnable_avg 加 任务 的 第 T_runnable_avg 项。
+完。
+
+Nova负载追踪_出队更新 接受 任务、当前时间：
+    做 Nova负载追踪_更新实体负载 用 任务、当前时间、假。
+    做 Nova负载追踪_更新运行队列负载 用 当前时间。
+    Nova公平调度_rq_load_avg 为 Nova公平调度_rq_load_avg 减 任务 的 第 T_load_avg 项。
+    Nova公平调度_rq_util_avg 为 Nova公平调度_rq_util_avg 减 任务 的 第 T_util_avg 项。
+    Nova公平调度_rq_runnable_avg 为 Nova公平调度_rq_runnable_avg 减 任务 的 第 T_runnable_avg 项。
+    若 Nova公平调度_rq_load_avg 小于 0：
+        Nova公平调度_rq_load_avg 为 0。
+    完。
+    若 Nova公平调度_rq_util_avg 小于 0：
+        Nova公平调度_rq_util_avg 为 0。
+    完。
+    若 Nova公平调度_rq_runnable_avg 小于 0：
+        Nova公平调度_rq_runnable_avg 为 0。
+    完。
+完。
+
+Nova负载追踪_获取CPU利用率 接受 零参：
+    返还 Nova公平调度_rq_util_avg 乘 100 除以 Nova负载追踪_精度。
+完。
+
+Nova负载追踪_获取CPU负载 接受 零参：
+    返还 Nova公平调度_rq_load_avg。
+完。
+
+Nova负载追踪_是否过载 接受 零参：
+    返还 做 Nova负载追踪_获取CPU利用率 大于 80。
+完。
+
+Nova负载追踪_任务负载 接受 任务：
+    返还 任务 的 第 T_load_avg 项。
+完。
+
+Nova负载追踪_任务利用率 接受 任务：
+    返还 任务 的 第 T_util_avg 项。
+完。
+
+Nova负载追踪_任务可运行 接受 任务：
+    返还 任务 的 第 T_runnable_avg 项。
+完。
+
+Nova负载追踪_统计 接受 零参：
+    返还 一组：Nova公平调度_rq_load_avg、Nova公平调度_rq_util_avg、Nova公平调度_rq_runnable_avg、做 Nova负载追踪_获取CPU利用率、做 Nova负载追踪_是否过载。
+完。
+
+Nova负载追踪_初始化 接受 零参：
+    Nova公平调度_rq_load_avg 为 0。
+    Nova公平调度_rq_util_avg 为 0。
+    Nova公平调度_rq_runnable_avg 为 0。
+    Nova公平调度_rq_last_update 为 0。
+完。
+
+可变 AI_公平调度负_负载窗口 为 一组：（空）。
+
+AI_公平调度负_负载预测 接受 当前负载：
+    做 追加 用 AI_公平调度负_负载窗口、当前负载。
+    若 做 计数 用 AI_公平调度负_负载窗口 大于 20：
+        做 列表_移除 用 AI_公平调度负_负载窗口、0。
+    完。
+    若 做 计数 用 AI_公平调度负_负载窗口 小于 3：
+        返还 当前负载。
+    完。
+    n 为 做 计数 用 AI_公平调度负_负载窗口。
+    趋势 为 AI_公平调度负_负载窗口 的 第 n 减 1 项 减 AI_公平调度负_负载窗口 的 第 n 减 3 项。
+    返还 当前负载 加 趋势。
+完。
+
+AI_公平调度负_迁移建议 接受 源CPU负载、目标CPU负载：
+    若 源CPU负载 大于 目标CPU负载 乘 2：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

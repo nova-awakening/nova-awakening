@@ -1,0 +1,423 @@
+《样式解析边》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·AI样式推断》。
+
+Display_none 为 0。
+
+Display_block 为 1。
+
+Display_inline 为 2。
+
+Display_inline_block 为 3。
+
+Display_flex 为 4。
+
+Display_inline_flex 为 5。
+
+Display_grid 为 6。
+
+Display_inline_grid 为 7。
+
+Display_table 为 8。
+
+Display_list_item 为 9。
+
+Position_static 为 0。
+
+Position_relative 为 1。
+
+Position_absolute 为 2。
+
+Position_fixed 为 3。
+
+Position_sticky 为 4。
+
+TextAlign_left 为 0。
+
+TextAlign_right 为 1。
+
+TextAlign_center 为 2。
+
+TextAlign_justify 为 3。
+
+FlexDir_row 为 0。
+
+FlexDir_row_reverse 为 1。
+
+FlexDir_column 为 2。
+
+FlexDir_column_reverse 为 3。
+
+FlexWrap_nowrap 为 0。
+
+FlexWrap_wrap 为 1。
+
+FlexWrap_wrap_reverse 为 2。
+
+JustifyContent_start 为 0。
+
+JustifyContent_end 为 1。
+
+JustifyContent_center 为 2。
+
+JustifyContent_space_between 为 3。
+
+JustifyContent_space_around 为 4。
+
+JustifyContent_space_evenly 为 5。
+
+AlignItems_stretch 为 0。
+
+AlignItems_start 为 1。
+
+AlignItems_end 为 2。
+
+AlignItems_center 为 3。
+
+AlignItems_baseline 为 4。
+
+CSS解析_边框样式值 接受 关键字ID：
+    若 关键字ID 等于 5：
+        返还 0。
+    完。
+    若 关键字ID 等于 55：
+        返还 1。
+    完。
+    若 关键字ID 等于 56：
+        返还 2。
+    完。
+    若 关键字ID 等于 57：
+        返还 3。
+    完。
+    若 关键字ID 等于 58：
+        返还 4。
+    完。
+    若 关键字ID 等于 59：
+        返还 5。
+    完。
+    若 关键字ID 等于 60：
+        返还 6。
+    完。
+    若 关键字ID 等于 61：
+        返还 7。
+    完。
+    若 关键字ID 等于 62：
+        返还 8。
+    完。
+    返还 0。
+完。
+
+CSS解析_overflow值 接受 关键字ID：
+    若 关键字ID 等于 12：
+        返还 Overflow_visible。
+    完。
+    若 关键字ID 等于 11：
+        返还 Overflow_hidden。
+    完。
+    若 关键字ID 等于 33：
+        返还 Overflow_scroll。
+    完。
+    若 关键字ID 等于 4：
+        返还 Overflow_auto。
+    完。
+    返还 Overflow_visible。
+完。
+
+CSS解析_display值 接受 关键字ID：
+    若 关键字ID 等于 5：
+        返还 Display_none。
+    完。
+    若 关键字ID 等于 10：
+        返还 Display_block。
+    完。
+    若 关键字ID 等于 20：
+        返还 Display_inline。
+    完。
+    若 关键字ID 等于 21：
+        返还 Display_inline_block。
+    完。
+    若 关键字ID 等于 30：
+        返还 Display_flex。
+    完。
+    若 关键字ID 等于 31：
+        返还 Display_inline_flex。
+    完。
+    若 关键字ID 等于 40：
+        返还 Display_grid。
+    完。
+    若 关键字ID 等于 41：
+        返还 Display_inline_grid。
+    完。
+    若 关键字ID 等于 50：
+        返还 Display_table。
+    完。
+    若 关键字ID 等于 51：
+        返还 Display_list_item。
+    完。
+    返还 Display_inline。
+完。
+
+CSS解析_position值 接受 关键字ID：
+    若 关键字ID 等于 70：
+        返还 Position_static。
+    完。
+    若 关键字ID 等于 71：
+        返还 Position_relative。
+    完。
+    若 关键字ID 等于 72：
+        返还 Position_absolute。
+    完。
+    若 关键字ID 等于 73：
+        返还 Position_fixed。
+    完。
+    若 关键字ID 等于 74：
+        返还 Position_sticky。
+    完。
+    返还 Position_static。
+完。
+
+CSS解析_text_align值 接受 关键字ID：
+    若 关键字ID 等于 80：
+        返还 TextAlign_left。
+    完。
+    若 关键字ID 等于 81：
+        返还 TextAlign_right。
+    完。
+    若 关键字ID 等于 82：
+        返还 TextAlign_center。
+    完。
+    若 关键字ID 等于 83：
+        返还 TextAlign_justify。
+    完。
+    返还 TextAlign_left。
+完。
+
+CSS解析_flex_direction值 接受 关键字ID：
+    若 关键字ID 等于 90：
+        返还 FlexDir_row。
+    完。
+    若 关键字ID 等于 91：
+        返还 FlexDir_row_reverse。
+    完。
+    若 关键字ID 等于 92：
+        返还 FlexDir_column。
+    完。
+    若 关键字ID 等于 93：
+        返还 FlexDir_column_reverse。
+    完。
+    返还 FlexDir_row。
+完。
+
+CSS解析_flex_wrap值 接受 关键字ID：
+    若 关键字ID 等于 100：
+        返还 FlexWrap_nowrap。
+    完。
+    若 关键字ID 等于 101：
+        返还 FlexWrap_wrap。
+    完。
+    若 关键字ID 等于 102：
+        返还 FlexWrap_wrap_reverse。
+    完。
+    返还 FlexWrap_nowrap。
+完。
+
+CSS解析_justify_content值 接受 关键字ID：
+    若 关键字ID 等于 110：
+        返还 JustifyContent_start。
+    完。
+    若 关键字ID 等于 111：
+        返还 JustifyContent_end。
+    完。
+    若 关键字ID 等于 112：
+        返还 JustifyContent_center。
+    完。
+    若 关键字ID 等于 113：
+        返还 JustifyContent_space_between。
+    完。
+    若 关键字ID 等于 114：
+        返还 JustifyContent_space_around。
+    完。
+    若 关键字ID 等于 115：
+        返还 JustifyContent_space_evenly。
+    完。
+    返还 JustifyContent_start。
+完。
+
+CSS解析_align_items值 接受 关键字ID：
+    若 关键字ID 等于 120：
+        返还 AlignItems_stretch。
+    完。
+    若 关键字ID 等于 121：
+        返还 AlignItems_start。
+    完。
+    若 关键字ID 等于 122：
+        返还 AlignItems_end。
+    完。
+    若 关键字ID 等于 123：
+        返还 AlignItems_center。
+    完。
+    若 关键字ID 等于 124：
+        返还 AlignItems_baseline。
+    完。
+    返还 AlignItems_stretch。
+完。
+
+CSS解析_font_weight值 接受 关键字ID：
+    若 关键字ID 等于 130：
+        返还 100。
+    完。
+    若 关键字ID 等于 131：
+        返还 300。
+    完。
+    若 关键字ID 等于 132：
+        返还 400。
+    完。
+    若 关键字ID 等于 133：
+        返还 500。
+    完。
+    若 关键字ID 等于 134：
+        返还 600。
+    完。
+    若 关键字ID 等于 135：
+        返还 700。
+    完。
+    若 关键字ID 等于 136：
+        返还 800。
+    完。
+    若 关键字ID 等于 137：
+        返还 900。
+    完。
+    返还 400。
+完。
+
+CSS解析_visibility值 接受 关键字ID：
+    若 关键字ID 等于 12：
+        返还 0。
+    完。
+    若 关键字ID 等于 11：
+        返还 1。
+    完。
+    若 关键字ID 等于 140：
+        返还 2。
+    完。
+    返还 0。
+完。
+
+CSS解析_white_space值 接受 关键字ID：
+    若 关键字ID 等于 132：
+        返还 0。
+    完。
+    若 关键字ID 等于 150：
+        返还 1。
+    完。
+    若 关键字ID 等于 151：
+        返还 2。
+    完。
+    若 关键字ID 等于 152：
+        返还 3。
+    完。
+    若 关键字ID 等于 153：
+        返还 4。
+    完。
+    返还 0。
+完。
+
+CSS解析_cursor值 接受 关键字ID：
+    若 关键字ID 等于 4：
+        返还 0。
+    完。
+    若 关键字ID 等于 160：
+        返还 1。
+    完。
+    若 关键字ID 等于 161：
+        返还 2。
+    完。
+    若 关键字ID 等于 162：
+        返还 3。
+    完。
+    若 关键字ID 等于 163：
+        返还 4。
+    完。
+    若 关键字ID 等于 164：
+        返还 5。
+    完。
+    若 关键字ID 等于 165：
+        返还 6。
+    完。
+    若 关键字ID 等于 166：
+        返还 7。
+    完。
+    若 关键字ID 等于 167：
+        返还 8。
+    完。
+    返还 0。
+完。
+
+CSS_属性影响级别 接受 属性ID：
+    若 属性ID 小于或等于 10：
+        返还 2。
+    完。
+    若 属性ID 小于或等于 20：
+        返还 1。
+    完。
+    若 属性ID 小于或等于 30：
+        返还 0。
+    完。
+    返还 2。
+完。
+
+CSS_是否触发图层提升 接受 属性ID：
+    若 属性ID 等于 200：
+        返还 真。
+    完。
+    若 属性ID 等于 201：
+        返还 真。
+    完。
+    若 属性ID 等于 202：
+        返还 真。
+    完。
+    若 属性ID 等于 203：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+智能_Computed样式_AI样式意图 接受 属性ID、值：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 0。
+    完。
+    若 做 CSS_是否触发图层提升 用 属性ID：
+        返还 3。
+    完。
+    若 做 CSS_属性影响级别 用 属性ID 等于 0：
+        返还 1。
+    完。
+    返还 做 AI样式_推断意图 用 属性ID、值。
+完。
+
+智能_Computed样式_AI影响分析 接受 属性ID：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 做 CSS_属性影响级别 用 属性ID。
+    完。
+    返还 做 AI样式_分析影响 用 属性ID。
+完。
+
+智能_Computed样式_AI布局预测 接受 元素、属性ID、新值：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 假。
+    完。
+    影响 为 做 CSS_属性影响级别 用 属性ID。
+    若 影响 大于或等于 2：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

@@ -1,0 +1,65 @@
+《DevTools创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·文档观察》。
+
+引用《.·DevTools_Page》。
+
+引用《.·运行域》。
+
+引用《.·DevTools_DOM》。
+
+CDPMessage 是 一种 事物，含 id、方法、参数、结果、错误码、错误消息。
+
+CDPSession 是 一种 事物，含 连接、目标ID、目标类型、发送队列、接收队列、dom启用、css启用、page启用、network启用、runtime启用、debugger启用、performance启用、console启用、断点列表、断点数、已暂停、暂停原因。
+
+DevToolsServer 是 一种 事物，含 端口、会话、会话数、浏览器、console日志、console日志数。
+
+可变 全局DevTools 为 0。
+
+DevTools_创建 接受 端口：
+    dt 为 做 堆_分配 用 DevToolsServer。
+    dt 的 端口 为 端口。
+    dt 的 会话数 为 0。
+    dt 的 浏览器 为 0。
+    dt 的 console日志 为 0。
+    dt 的 console日志数 为 0。
+    全局DevTools 为 dt。
+    返还 dt。
+完。
+
+DevTools_处理消息 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 方法 等于 0：
+        返还。
+    完。
+    若 做 字符串_以开头 用 方法、「DOM.」：
+        做 DevTools_DOM处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「CSS.」：
+        做 DevTools_CSS处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「Page.」：
+        做 DevTools_Page处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「Network.」：
+        做 DevTools_Network处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「Runtime.」：
+        做 DevTools_Runtime处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「调试ger.」：
+        做 DevTools_调试ger处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「Performance.」：
+        做 DevTools_Performance处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「Console.」：
+        做 DevTools_Console处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「Emulation.」：
+        做 DevTools_Emulation处理 用 session、msg。
+    否则若 做 字符串_以开头 用 方法、「存储.」：
+        做 DevTools_存储处理 用 session、msg。
+    完。
+完。
+
+本章 收束。

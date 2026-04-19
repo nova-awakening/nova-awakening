@@ -1,0 +1,600 @@
+《应用样式声明》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+Computed样式_应用声明 接受 style、声明：
+    属性 为 声明 的 属性ID。
+    值 为 声明 的 值。
+    若 值 等于 0：
+        返还。
+    完。
+    若 属性 等于 CSS属性_display：
+        若 值 的 类型 等于 CSS值_关键字：
+            若 值 的 关键字ID 等于 5：
+                style 的 display 为 Display_none。
+            否则若 值 的 关键字ID 等于 6：
+                style 的 display 为 Display_block。
+            否则若 值 的 关键字ID 等于 7：
+                style 的 display 为 Display_inline。
+            否则若 值 的 关键字ID 等于 8：
+                style 的 display 为 Display_inline_block。
+            否则若 值 的 关键字ID 等于 9：
+                style 的 display 为 Display_flex。
+            否则若 值 的 关键字ID 等于 10：
+                style 的 display 为 Display_grid。
+            完。
+        完。
+    否则若 属性 等于 CSS属性_position：
+        若 值 的 类型 等于 CSS值_关键字：
+            若 值 的 关键字ID 等于 17：
+                style 的 position 为 Position_static。
+            否则若 值 的 关键字ID 等于 13：
+                style 的 position 为 Position_relative。
+            否则若 值 的 关键字ID 等于 14：
+                style 的 position 为 Position_absolute。
+            否则若 值 的 关键字ID 等于 15：
+                style 的 position 为 Position_fixed。
+            否则若 值 的 关键字ID 等于 16：
+                style 的 position 为 Position_sticky。
+            完。
+        完。
+    否则若 属性 等于 CSS属性_width：
+        style 的 width 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_height：
+        style 的 height 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_min_width：
+        style 的 min_width 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_max_width：
+        style 的 max_width 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_min_height：
+        style 的 min_height 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_max_height：
+        style 的 max_height 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_margin_top：
+        style 的 margin_top 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_margin_right：
+        style 的 margin_right 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_margin_bottom：
+        style 的 margin_bottom 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_margin_left：
+        style 的 margin_left 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_padding_top：
+        style 的 padding_top 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_padding_right：
+        style 的 padding_right 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_padding_bottom：
+        style 的 padding_bottom 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_padding_left：
+        style 的 padding_left 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_top：
+        style 的 top 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_right：
+        style 的 right_pos 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_bottom：
+        style 的 bottom 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_left：
+        style 的 left_pos 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_color：
+        若 值 的 类型 等于 CSS值_颜色：
+            style 的 color 为 值 的 颜色。
+        完。
+    否则若 属性 等于 CSS属性_background_color：
+        若 值 的 类型 等于 CSS值_颜色：
+            style 的 background_color 为 值 的 颜色。
+        完。
+    否则若 属性 等于 CSS属性_font_size：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 font_size 为 值 的 数值。
+        否则若 值 的 类型 等于 CSS值_数字：
+            style 的 font_size 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_font_weight：
+        若 值 的 类型 等于 CSS值_数字：
+            style 的 font_weight 为 值 的 数值 除以 100。
+        否则若 值 的 类型 等于 CSS值_关键字 并且 值 的 关键字ID 等于 21：
+            style 的 font_weight 为 700。
+        否则若 值 的 类型 等于 CSS值_关键字 并且 值 的 关键字ID 等于 22：
+            style 的 font_weight 为 400。
+        完。
+    否则若 属性 等于 CSS属性_text_align：
+        若 值 的 关键字ID 等于 18：
+            style 的 text_align 为 TextAlign_center。
+        否则若 值 的 关键字ID 等于 19：
+            style 的 text_align 为 TextAlign_left。
+        否则若 值 的 关键字ID 等于 20：
+            style 的 text_align 为 TextAlign_right。
+        完。
+    否则若 属性 等于 CSS属性_opacity：
+        若 值 的 类型 等于 CSS值_数字：
+            style 的 opacity 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_z_index：
+        若 值 的 类型 等于 CSS值_数字：
+            style 的 z_index 为 值 的 数值 除以 100。
+            style 的 z_index_auto 为 假。
+        否则若 值 的 类型 等于 CSS值_关键字 并且 值 的 关键字ID 等于 4：
+            style 的 z_index_auto 为 真。
+        完。
+    否则若 属性 等于 CSS属性_overflow：
+        若 值 的 关键字ID 等于 11：
+            style 的 overflow_x 为 Overflow_hidden。
+            style 的 overflow_y 为 Overflow_hidden。
+        否则若 值 的 关键字ID 等于 12：
+            style 的 overflow_x 为 Overflow_visible。
+            style 的 overflow_y 为 Overflow_visible。
+        完。
+    否则若 属性 等于 CSS属性_flex_direction：
+        若 值 的 关键字ID 等于 23：
+            style 的 flex_direction 为 弹性Dir_row。
+        否则若 值 的 关键字ID 等于 24：
+            style 的 flex_direction 为 弹性Dir_column。
+        完。
+    否则若 属性 等于 CSS属性_justify_content：
+        若 值 的 关键字ID 等于 18：
+            style 的 justify_content 为 JC_center。
+        否则若 值 的 关键字ID 等于 27：
+            style 的 justify_content 为 JC_space_between。
+        否则若 值 的 关键字ID 等于 28：
+            style 的 justify_content 为 JC_space_around。
+        完。
+    否则若 属性 等于 CSS属性_align_items：
+        若 值 的 关键字ID 等于 18：
+            style 的 align_items 为 JC_center。
+        否则若 值 的 关键字ID 等于 29：
+            style 的 align_items 为 JC_stretch。
+        完。
+    否则若 属性 等于 CSS属性_gap：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 gap 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_box_sizing：
+        若 值 的 关键字ID 等于 31：
+            style 的 box_sizing 为 BoxSizing_border。
+        否则若 值 的 关键字ID 等于 32：
+            style 的 box_sizing 为 BoxSizing_content。
+        完。
+    否则若 属性 等于 CSS属性_border_radius：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 border_radius_tl 为 值 的 数值。
+            style 的 border_radius_tr 为 值 的 数值。
+            style 的 border_radius_bl 为 值 的 数值。
+            style 的 border_radius_br 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_visibility：
+        若 值 的 关键字ID 等于 12：
+            style 的 visibility 为 Visibility_visible。
+        否则若 值 的 关键字ID 等于 11：
+            style 的 visibility 为 Visibility_hidden。
+        完。
+    否则若 属性 等于 CSS属性_line_height：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 line_height 为 值 的 数值。
+        否则若 值 的 类型 等于 CSS值_数字：
+            style 的 line_height 为 值 的 数值 乘 style 的 font_size 除以 100。
+        完。
+    否则若 属性 等于 CSS属性_font_family：
+        若 值 的 字符串值 不等于 0：
+            style 的 font_family 为 值 的 字符串值。
+        完。
+    否则若 属性 等于 CSS属性_cursor：
+        若 值 的 关键字ID 等于 30：
+            style 的 cursor 为 30。
+        完。
+    完。
+完。
+
+Computed样式_解析长度值 接受 值：
+    若 值 的 类型 等于 CSS值_长度：
+        返还 做 计算长度_px 用 值 的 数值。
+    完。
+    若 值 的 类型 等于 CSS值_百分比：
+        l 为 新建 计算长度。
+        l 的 值 为 值 的 数值。
+        l 的 是auto 为 假。
+        l 的 单位 为 单位_百分比。
+        返还 l。
+    完。
+    若 值 的 类型 等于 CSS值_数字 并且 值 的 数值 等于 0：
+        返还 做 计算长度_零。
+    完。
+    若 值 的 类型 等于 CSS值_关键字：
+        若 值 的 关键字ID 等于 4：
+            返还 做 计算长度_auto。
+        完。
+    完。
+    返还 做 计算长度_auto。
+完。
+
+CSS属性_display 为 0。
+
+CSS属性_position 为 1。
+
+CSS属性_width 为 2。
+
+CSS属性_height 为 3。
+
+CSS属性_min_width 为 4。
+
+CSS属性_max_width 为 5。
+
+CSS属性_min_height 为 6。
+
+CSS属性_max_height 为 7。
+
+CSS属性_margin_top 为 8。
+
+CSS属性_margin_right 为 9。
+
+CSS属性_margin_bottom 为 10。
+
+CSS属性_margin_left 为 11。
+
+CSS属性_padding_top 为 12。
+
+CSS属性_padding_right 为 13。
+
+CSS属性_padding_bottom 为 14。
+
+CSS属性_padding_left 为 15。
+
+CSS属性_top 为 16。
+
+CSS属性_right 为 17。
+
+CSS属性_bottom 为 18。
+
+CSS属性_left 为 19。
+
+CSS属性_color 为 20。
+
+CSS属性_background_color 为 21。
+
+CSS属性_font_size 为 22。
+
+CSS属性_font_weight 为 23。
+
+CSS属性_font_family 为 24。
+
+CSS属性_text_align 为 25。
+
+CSS属性_opacity 为 26。
+
+CSS属性_z_index 为 27。
+
+CSS属性_overflow 为 28。
+
+CSS属性_flex_direction 为 29。
+
+CSS属性_justify_content 为 30。
+
+CSS属性_align_items 为 31。
+
+CSS属性_gap 为 32。
+
+CSS属性_box_sizing 为 33。
+
+CSS属性_border_radius 为 34。
+
+CSS属性_visibility 为 35。
+
+CSS属性_line_height 为 36。
+
+CSS属性_cursor 为 37。
+
+CSS属性_transform 为 38。
+
+CSS属性_transition 为 39。
+
+CSS属性_animation 为 40。
+
+CSS属性_border_width 为 41。
+
+CSS属性_border_color 为 42。
+
+CSS属性_border_style 为 43。
+
+CSS属性_flex_grow 为 44。
+
+CSS属性_flex_shrink 为 45。
+
+CSS属性_flex_basis 为 46。
+
+CSS属性_order 为 47。
+
+CSS属性_white_space 为 48。
+
+CSS属性_text_decoration 为 49。
+
+CSS属性_float 为 50。
+
+CSS属性_clear 为 51。
+
+CSS属性_总数 为 52。
+
+CSS属性_名称 接受 id：
+    若 id 等于 CSS属性_display：
+        返还 「display」。
+    完。
+    若 id 等于 CSS属性_position：
+        返还 「position」。
+    完。
+    若 id 等于 CSS属性_width：
+        返还 「width」。
+    完。
+    若 id 等于 CSS属性_height：
+        返还 「height」。
+    完。
+    若 id 等于 CSS属性_color：
+        返还 「color」。
+    完。
+    若 id 等于 CSS属性_background_color：
+        返还 「background-color」。
+    完。
+    若 id 等于 CSS属性_font_size：
+        返还 「font-size」。
+    完。
+    若 id 等于 CSS属性_font_weight：
+        返还 「font-weight」。
+    完。
+    若 id 等于 CSS属性_font_family：
+        返还 「font-family」。
+    完。
+    若 id 等于 CSS属性_text_align：
+        返还 「text-align」。
+    完。
+    若 id 等于 CSS属性_opacity：
+        返还 「opacity」。
+    完。
+    若 id 等于 CSS属性_z_index：
+        返还 「z-index」。
+    完。
+    若 id 等于 CSS属性_overflow：
+        返还 「overflow」。
+    完。
+    若 id 等于 CSS属性_flex_direction：
+        返还 「flex-direction」。
+    完。
+    若 id 等于 CSS属性_justify_content：
+        返还 「justify-content」。
+    完。
+    若 id 等于 CSS属性_align_items：
+        返还 「align-items」。
+    完。
+    若 id 等于 CSS属性_gap：
+        返还 「gap」。
+    完。
+    若 id 等于 CSS属性_border_radius：
+        返还 「border-radius」。
+    完。
+    若 id 等于 CSS属性_visibility：
+        返还 「visibility」。
+    完。
+    若 id 等于 CSS属性_line_height：
+        返还 「line-height」。
+    完。
+    若 id 等于 CSS属性_transform：
+        返还 「transform」。
+    完。
+    若 id 等于 CSS属性_transition：
+        返还 「transition」。
+    完。
+    若 id 等于 CSS属性_animation：
+        返还 「animation」。
+    完。
+    返还 「prop_」 加 做 整数转字符串 用 id。
+完。
+
+CSS值_关键字 为 0。
+
+CSS值_长度 为 1。
+
+CSS值_百分比 为 2。
+
+CSS值_颜色 为 3。
+
+CSS值_数字 为 4。
+
+CSS值_字符串 为 5。
+
+Display_none 为 0。
+
+Display_block 为 1。
+
+Display_inline 为 2。
+
+Display_inline_block 为 3。
+
+Display_flex 为 4。
+
+Display_grid 为 5。
+
+Display_table 为 6。
+
+Display_contents 为 7。
+
+Position_static 为 0。
+
+Position_relative 为 1。
+
+Position_absolute 为 2。
+
+Position_fixed 为 3。
+
+Position_sticky 为 4。
+
+Overflow_visible 为 0。
+
+Overflow_hidden 为 1。
+
+Overflow_scroll 为 2。
+
+Overflow_auto 为 3。
+
+TextAlign_left 为 0。
+
+TextAlign_center 为 1。
+
+TextAlign_right 为 2。
+
+TextAlign_justify 为 3。
+
+Visibility_visible 为 0。
+
+Visibility_hidden 为 1。
+
+Visibility_collapse 为 2。
+
+弹性Dir_row 为 0。
+
+弹性Dir_row_reverse 为 1。
+
+弹性Dir_column 为 2。
+
+弹性Dir_column_reverse 为 3。
+
+JC_flex_start 为 0。
+
+JC_flex_end 为 1。
+
+JC_center 为 2。
+
+JC_space_between 为 3。
+
+JC_space_around 为 4。
+
+JC_space_evenly 为 5。
+
+JC_stretch 为 6。
+
+BoxSizing_content 为 0。
+
+BoxSizing_border 为 1。
+
+单位_px 为 0。
+
+单位_百分比 为 1。
+
+单位_em 为 2。
+
+单位_rem 为 3。
+
+单位_vw 为 4。
+
+单位_vh 为 5。
+
+计算长度 是 一种 事物，含 值、是auto、单位。
+
+计算长度_px 接受 数值：
+    l 为 新建 计算长度。
+    l 的 值 为 数值。
+    l 的 是auto 为 假。
+    l 的 单位 为 单位_px。
+    返还 l。
+完。
+
+计算长度_零 接受 零参：
+    l 为 新建 计算长度。
+    l 的 值 为 0。
+    l 的 是auto 为 假。
+    l 的 单位 为 单位_px。
+    返还 l。
+完。
+
+计算长度_auto 接受 零参：
+    l 为 新建 计算长度。
+    l 的 值 为 0。
+    l 的 是auto 为 真。
+    l 的 单位 为 单位_px。
+    返还 l。
+完。
+
+计算长度_是零 接受 l：
+    返还 非 l 的 是auto 并且 l 的 值 等于 0。
+完。
+
+计算长度_是auto 接受 l：
+    返还 l 的 是auto。
+完。
+
+计算长度_解析为px 接受 l、容器大小、字体大小：
+    若 l 的 是auto：
+        返还 0。
+    完。
+    若 l 的 单位 等于 单位_px：
+        返还 l 的 值。
+    完。
+    若 l 的 单位 等于 单位_百分比：
+        返还 l 的 值 乘 容器大小 除以 10000。
+    完。
+    若 l 的 单位 等于 单位_em：
+        返还 l 的 值 乘 字体大小 除以 100。
+    完。
+    若 l 的 单位 等于 单位_rem：
+        返还 l 的 值 乘 16 除以 100。
+    完。
+    返还 l 的 值。
+完。
+
+Computed样式_应用声明列表 接受 style、声明列表、数量：
+    可变 i 为 0。
+    只要 i 小于 数量：
+        做 Computed样式_应用声明 用 style、声明列表 的 第 i 项。
+        i 为 i 加 1。
+    完。
+完。
+
+Computed样式_应用匹配结果 接受 style、匹配列表、数量：
+    可变 i 为 0。
+    只要 i 小于 数量：
+        匹配 为 匹配列表 的 第 i 项。
+        做 Computed样式_应用声明列表 用 style、匹配 的 声明、匹配 的 声明数。
+        i 为 i 加 1。
+    完。
+完。
+
+可变 样式应用_总次数 为 0。
+
+可变 样式应用_属性设置数 为 0。
+
+可变 样式应用_继承数 为 0。
+
+样式应用_统计 接受 零参：
+    返还 一本字典：总次数 对应 样式应用_总次数、属性设置 对应 样式应用_属性设置数、继承 对应 样式应用_继承数。
+完。
+
+样式应用_健康检查 接受 零参：
+    返还 「样式应用子系统健康」。
+完。
+
+样式应用_重置 接受 零参：
+    样式应用_总次数 为 0。
+    样式应用_属性设置数 为 0。
+    样式应用_继承数 为 0。
+完。
+
+样式应用_完整统计 接受 零参：
+    返还 一组：样式应用_总次数、样式应用_属性设置数、样式应用_继承数。
+完。
+
+可变 AI_应用样式声_样式缓存命中 为 0。
+
+AI_应用样式声_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+        返还 「高复杂度」。
+    完。
+    若 组合子数 大于 2：
+        返还 「中复杂度」。
+    完。
+    返还 「低复杂度」。
+完。
+
+AI_应用样式声_布局缓存 接受 元素哈希：
+    AI_应用样式声_样式缓存命中 为 AI_应用样式声_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。

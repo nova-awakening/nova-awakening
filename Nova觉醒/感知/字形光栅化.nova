@@ -1,0 +1,191 @@
+《字形光栅化》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·真字体字体》。
+
+引用《.·内核直连层》。
+
+引用《.·文字绘制最》。
+
+引用《.·字体度量和塑形》。
+
+引用《.·定位字形表》。
+
+GlyphBitmap 是 一种 事物，含 宽度、高度、左偏、上偏、步幅、像素、前进宽度。
+
+TrueType_光栅化字形 接受 font、glyphID、像素大小：
+    outline 为 做 TrueType_解析字形 用 font、glyphID。
+    advance 为 做 TrueType_获取前进宽度 用 font、glyphID。
+    若 outline 等于 0：
+        bmp 为 做 堆_分配 用 GlyphBitmap。
+        bmp 的 宽度 为 0。
+        bmp 的 高度 为 0。
+        bmp 的 左偏 为 0。
+        bmp 的 上偏 为 0。
+        bmp 的 步幅 为 0。
+        bmp 的 像素 为 0。
+        bmp 的 前进宽度 为 advance 乘 像素大小 乘 64 除以 font 的 upem。
+        返还 bmp。
+    完。
+    scale 为 像素大小 乘 256 除以 font 的 upem。
+    xMin_px 为 outline 的 xMin 乘 scale 除以 256 减 1。
+    yMin_px 为 outline 的 yMin 乘 scale 除以 256 减 1。
+    xMax_px 为 outline 的 xMax 乘 scale 除以 256 加 2。
+    yMax_px 为 outline 的 yMax 乘 scale 除以 256 加 2。
+    w 为 xMax_px 减 xMin_px。
+    h 为 yMax_px 减 yMin_px。
+    若 w 小于或等于 0 或者 h 小于或等于 0：
+        做 堆_释放 用 outline。
+        bmp 为 做 堆_分配 用 GlyphBitmap。
+        bmp 的 宽度 为 0。
+        bmp 的 高度 为 0。
+        bmp 的 像素 为 0。
+        bmp 的 前进宽度 为 advance 乘 像素大小 乘 64 除以 font 的 upem。
+        返还 bmp。
+    完。
+    bmp 为 做 堆_分配 用 GlyphBitmap。
+    bmp 的 宽度 为 w。
+    bmp 的 高度 为 h。
+    bmp 的 左偏 为 xMin_px。
+    bmp 的 上偏 为 yMax_px。
+    bmp 的 步幅 为 w。
+    bmp 的 像素 为 做 堆_分配 用 w 乘 h。
+    做 内存_置零 用 bmp 的 像素、w 乘 h。
+    bmp 的 前进宽度 为 advance 乘 像素大小 乘 64 除以 font 的 upem。
+    可变 contour_start 为 0。
+    可变 c 为 0。
+    只要 c 小于 outline 的 轮廓数：
+        contour_end 为 做 读16 用 outline 的 轮廓结束点、c 乘 2。
+        可变 p 为 contour_start。
+        只要 p 小于或等于 contour_end：
+            p_next 为 若 p 小于 contour_end 则 p 加 1 否则 contour_start。
+            flag 为 做 内存_读8 用 outline 的 标志 加 p。
+            flag_next 为 做 内存_读8 用 outline 的 标志 加 p_next。
+            x0 为 做 读i16 用 outline 的 x坐标、p 乘 2 乘 scale 除以 256 减 xMin_px。
+            y0 为 yMax_px 减 做 读i16 用 outline 的 y坐标、p 乘 2 乘 scale 除以 256。
+            x1 为 做 读i16 用 outline 的 x坐标、p_next 乘 2 乘 scale 除以 256 减 xMin_px。
+            y1 为 yMax_px 减 做 读i16 用 outline 的 y坐标、p_next 乘 2 乘 scale 除以 256。
+            若 flag 位与 1：
+                做 光栅化_直线 用 bmp、x0、y0、x1、y1。
+            否则：
+                cx 为 x0。
+                cy 为 y0。
+                若 非 (flag_next 位与 1)：
+                    x1 为 (x0 加 x1) 除以 2。
+                    y1 为 (y0 加 y1) 除以 2。
+                完。
+                p_prev 为 若 p 大于 contour_start 则 p 减 1 否则 contour_end。
+                x_start 为 做 读i16 用 outline 的 x坐标、p_prev 乘 2 乘 scale 除以 256 减 xMin_px。
+                y_start 为 yMax_px 减 做 读i16 用 outline 的 y坐标、p_prev 乘 2 乘 scale 除以 256。
+                做 光栅化_贝塞尔 用 bmp、x_start、y_start、cx、cy、x1、y1。
+            完。
+            p 为 p 加 1。
+        完。
+        contour_start 为 contour_end 加 1。
+        c 为 c 加 1。
+    完。
+    做 光栅化_填充 用 bmp。
+    做 堆_释放 用 outline。
+    返还 bmp。
+完。
+
+光栅化_直线 接受 bmp、x0、y0、x1、y1：
+    若 y0 等于 y1：
+        返还。
+    完。
+    可变 sx0 为 x0。
+    可变 sy0 为 y0。
+    可变 sx1 为 x1。
+    可变 sy1 为 y1。
+    可变 方向 为 1。
+    若 y0 大于 y1：
+        sx0 为 x1。
+        sy0 为 y1。
+        sx1 为 x0。
+        sy1 为 y0。
+        方向 为 负 1。
+    完。
+    若 sy1 小于 0 或者 sy0 大于或等于 bmp 的 高度：
+        返还。
+    完。
+    若 sy0 小于 0：
+        sy0 为 0。
+    完。
+    若 sy1 大于 bmp 的 高度：
+        sy1 为 bmp 的 高度。
+    完。
+    dy 为 sy1 减 sy0。
+    若 dy 等于 0：
+        返还。
+    完。
+    dx_per_y 为 (sx1 减 sx0) 乘 256 除以 dy。
+    可变 x_fixed 为 sx0 乘 256。
+    可变 y 为 sy0。
+    只要 y 小于 sy1 并且 y 小于 bmp 的 高度：
+        x_px 为 x_fixed 除以 256。
+        若 x_px 大于或等于 0 并且 x_px 小于 bmp 的 宽度：
+            ptr 为 bmp 的 像素 加 y 乘 bmp 的 步幅 加 x_px。
+            当前值 为 做 内存_读8 用 ptr。
+            新值 为 当前值 加 方向 乘 32。
+            若 新值 小于 0：
+                新值 为 0。
+            完。
+            若 新值 大于 255：
+                新值 为 255。
+            完。
+            做 内存_写8 用 ptr、新值。
+        完。
+        x_fixed 为 x_fixed 加 dx_per_y。
+        y 为 y 加 1。
+    完。
+完。
+
+光栅化_贝塞尔 接受 bmp、x0、y0、cx、cy、x1、y1：
+    dx 为 (x0 加 x1) 除以 2 减 cx。
+    dy 为 (y0 加 y1) 除以 2 减 cy。
+    若 dx 小于 0：
+        dx 为 0 减 dx。
+    完。
+    若 dy 小于 0：
+        dy 为 0 减 dy。
+    完。
+    若 dx 加 dy 小于 2：
+        做 光栅化_直线 用 bmp、x0、y0、x1、y1。
+    否则：
+        mx01 为 (x0 加 cx) 除以 2。
+        my01 为 (y0 加 cy) 除以 2。
+        mx12 为 (cx 加 x1) 除以 2。
+        my12 为 (cy 加 y1) 除以 2。
+        mx 为 (mx01 加 mx12) 除以 2。
+        my 为 (my01 加 my12) 除以 2。
+        做 光栅化_贝塞尔 用 bmp、x0、y0、mx01、my01、mx、my。
+        做 光栅化_贝塞尔 用 bmp、mx、my、mx12、my12、x1、y1。
+    完。
+完。
+
+光栅化_填充 接受 bmp：
+    可变 y 为 0。
+    只要 y 小于 bmp 的 高度：
+        row 为 bmp 的 像素 加 y 乘 bmp 的 步幅。
+        可变 cover 为 0。
+        可变 x 为 0。
+        只要 x 小于 bmp 的 宽度：
+            cover 为 cover 加 做 内存_读8 用 row 加 x。
+            可变 alpha 为 cover 乘 4。
+            若 alpha 小于 0：
+                alpha 为 0 减 alpha。
+            完。
+            若 alpha 大于 255：
+                alpha 为 255。
+            完。
+            做 内存_写8 用 row 加 x、alpha。
+            x 为 x 加 1。
+        完。
+        y 为 y 加 1。
+    完。
+完。
+
+本章 收束。

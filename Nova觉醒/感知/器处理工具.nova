@@ -1,0 +1,111 @@
+《器处理工具》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·渲染管线计》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+Browser_处理工具栏点击 接受 browser、x、y：
+    若 y 大于或等于 browser 的 标签栏高度 并且 y 小于 browser 的 工具栏高度：
+        browser 的 地址栏聚焦 为 真。
+    完。
+完。
+
+Browser_处理地址栏按键 接受 browser、键码、修饰：
+    若 键码 等于 0x0D：
+        browser 的 地址栏聚焦 为 假。
+        做 Browser_导航 用 browser、browser 的 地址栏文本。
+    否则若 键码 等于 0x1B：
+        browser 的 地址栏聚焦 为 假。
+    否则若 键码 等于 0x08：
+        长度 为 做 字符串_长度 用 browser 的 地址栏文本。
+        若 长度 大于 0：
+            browser 的 地址栏文本 为 做 字符串_子串 用 browser 的 地址栏文本、0、长度 减 1。
+        完。
+    否则若 键码 大于或等于 0x20 并且 键码 小于或等于 0x7E：
+        字符缓冲 为 做 堆_分配 用 2。
+        做 内存_写8 用 字符缓冲、键码。
+        做 内存_写8 用 字符缓冲 加 1、0。
+        browser 的 地址栏文本 为 做 字符串_连接 用 browser 的 地址栏文本、字符缓冲。
+    完。
+完。
+
+Browser_合成帧 接受 browser：
+    win 为 browser 的 平台窗口。
+    tab 为 做 Browser_获取当前标签 用 browser。
+    做 内存_填充 用 win 的 后缓冲、0xF0、win 的 帧缓冲大小。
+    做 Browser_绘制标签栏 用 browser。
+    做 Browser_绘制地址栏 用 browser。
+    若 tab 不等于 0 并且 tab 的 位图 不等于 0：
+        内容起始y 为 browser 的 工具栏高度。
+        内容高 为 win 的 高 减 browser 的 工具栏高度 减 browser 的 状态栏高度。
+        可变 y 为 0。
+        只要 y 小于 内容高 并且 y 小于 tab 的 位图 的 高：
+            src行 为 tab 的 位图 的 像素数据 加 y 乘 tab 的 位图 的 行字节数。
+            dst行 为 win 的 后缓冲 加 (内容起始y 加 y) 乘 win 的 帧缓冲行字节。
+            做 内存_复制 用 dst行、src行、tab 的 位图 的 行字节数。
+            y 为 y 加 1。
+        完。
+    完。
+    做 Browser_绘制状态栏 用 browser。
+完。
+
+Browser_绘制标签栏 接受 browser：
+    win 为 browser 的 平台窗口。
+    可变 x 为 0。
+    标签宽 为 200。
+    可变 i 为 0。
+    只要 i 小于 browser 的 标签数量：
+        tab 为 做 内存_读64 用 browser 的 标签列表 加 i 乘 8。
+        可变 颜色 为 0xFFDDDDDD。
+        若 i 等于 browser 的 当前标签：
+            颜色 为 0xFFFFFFFF。
+        完。
+        做 Browser_填充矩形 用 win 的 后缓冲、win 的 帧缓冲行字节、x、0、标签宽、browser 的 标签栏高度、颜色。
+        x 为 x 加 标签宽 加 2。
+        i 为 i 加 1。
+    完。
+完。
+
+Browser_绘制地址栏 接受 browser：
+    win 为 browser 的 平台窗口。
+    y 为 browser 的 标签栏高度。
+    做 Browser_填充矩形 用 win 的 后缓冲、win 的 帧缓冲行字节、0、y、win 的 宽、browser 的 地址栏高度、0xFFF0F0F0。
+    输入框颜色 为 0xFFFFFFFF。
+    若 browser 的 地址栏聚焦：
+        输入框颜色 为 0xFFE8F0FE。
+    完。
+    做 Browser_填充矩形 用 win 的 后缓冲、win 的 帧缓冲行字节、80、y 加 5、win 的 宽 减 160、browser 的 地址栏高度 减 10、输入框颜色。
+完。
+
+Browser_绘制状态栏 接受 browser：
+    win 为 browser 的 平台窗口。
+    y 为 win 的 高 减 browser 的 状态栏高度。
+    做 Browser_填充矩形 用 win 的 后缓冲、win 的 帧缓冲行字节、0、y、win 的 宽、browser 的 状态栏高度、0xFFF5F5F5。
+完。
+
+Browser_填充矩形 接受 后缓冲、行字节、x、y、w、h、argb颜色：
+    可变 dy 为 0。
+    只要 dy 小于 h：
+        可变 dx 为 0。
+        行偏移 为 后缓冲 加 (y 加 dy) 乘 行字节 加 x 乘 4。
+        只要 dx 小于 w：
+            做 内存_写32 用 行偏移 加 dx 乘 4、argb颜色。
+            dx 为 dx 加 1。
+        完。
+        dy 为 dy 加 1。
+    完。
+完。
+
+本章 收束。

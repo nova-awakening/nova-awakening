@@ -1,0 +1,588 @@
+《图位图像素缓》
+
+引用《..·稳态·图处显示》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·执行·底层内存操》。
+
+COLORTYPE_UNKNOWN 为 0。
+
+COLORTYPE_RGBA8888 为 1。
+
+COLORTYPE_BGRA8888 为 2。
+
+COLORTYPE_RGB565 为 3。
+
+COLORTYPE_ALPHA8 为 4。
+
+COLORTYPE_GRAY8 为 5。
+
+Nova缓冲itmap 是 一种 事物，含 宽、高、行字节、像素、颜色类型、是否拥有、引用计数。
+
+Nova缓冲itmap_创建 接受 宽、高、颜色类型：
+    bm 为 做 堆_分配 用 Nova缓冲itmap。
+    bm 的 宽 为 宽。
+    bm 的 高 为 高。
+    bm 的 颜色类型 为 颜色类型。
+    bpp 为 做 Nova缓冲itmap_bpp 用 颜色类型。
+    bm 的 行字节 为 宽 乘 bpp。
+    bm 的 像素 为 做 堆_分配 用 高 乘 bm 的 行字节。
+    bm 的 是否拥有 为 真。
+    bm 的 引用计数 为 1。
+    做 内存_清零 用 bm 的 像素、高 乘 bm 的 行字节。
+    返还 bm。
+完。
+
+Nova缓冲itmap_bpp 接受 颜色类型：
+    做 匹配 用 颜色类型。
+完。
+
+Nova缓冲itmap_读像素 接受 bm、x、y：
+    若 bm 等于 0 或者 x 大于或等于 bm 的 宽 或者 y 大于或等于 bm 的 高：
+        返还 0。
+    完。
+    偏移 为 y 乘 bm 的 行字节 加 x 乘 做 Nova缓冲itmap_bpp 用 bm 的 颜色类型。
+    做 匹配 用 bm 的 颜色类型。
+完。
+
+Nova缓冲itmap_写像素 接受 bm、x、y、rgba：
+    若 bm 等于 0 或者 x 大于或等于 bm 的 宽 或者 y 大于或等于 bm 的 高：
+        返还。
+    完。
+    偏移 为 y 乘 bm 的 行字节 加 x 乘 做 Nova缓冲itmap_bpp 用 bm 的 颜色类型。
+    做 匹配 用 bm 的 颜色类型。
+完。
+
+Nova缓冲itmap_释放 接受 bm：
+    若 bm 等于 0：
+        返还。
+    完。
+    bm 的 引用计数 为 bm 的 引用计数 减 1。
+    若 bm 的 引用计数 小于或等于 0 并且 bm 的 是否拥有 并且 bm 的 像素 不等于 0：
+        做 堆_释放 用 bm 的 像素。
+        做 堆_释放 用 bm。
+    完。
+完。
+
+NPBT_版本 为 1。
+
+NPBT_AI特征维度 为 10。
+
+BLEND_NORMAL 为 0。
+
+BLEND_ADD 为 1。
+
+BLEND_MULTIPLY 为 2。
+
+BLEND_SCREEN 为 3。
+
+BLEND_OVERLAY 为 4。
+
+SCALE_NEAREST 为 0。
+
+SCALE_BILINEAR 为 1。
+
+可变 NPBT_blit总数 为 0。
+
+可变 NPBT_缩放总数 为 0。
+
+可变 NPBT_混合总数 为 0。
+
+可变 NPBT_像素传输总量 为 0。
+
+可变 NPBT_AI推理次数 为 0。
+
+Nova缓冲itmap_blit 接受 目标、源、目标x、目标y、源x、源y、宽、高：
+    若 目标 等于 0 或者 源 等于 0：
+        返还。
+    完。
+    可变 sx 为 源x。
+    可变 sy 为 源y。
+    可变 dx 为 目标x。
+    可变 dy 为 目标y。
+    可变 w 为 宽。
+    可变 h 为 高。
+    若 dx 小于 0：
+        sx 为 sx 减 dx。
+        w 为 w 加 dx。
+        dx 为 0。
+    完。
+    若 dy 小于 0：
+        sy 为 sy 减 dy。
+        h 为 h 加 dy。
+        dy 为 0。
+    完。
+    若 sx 小于 0：
+        dx 为 dx 减 sx。
+        w 为 w 加 sx。
+        sx 为 0。
+    完。
+    若 sy 小于 0：
+        dy 为 dy 减 sy。
+        h 为 h 加 sy。
+        sy 为 0。
+    完。
+    若 dx 加 w 大于 目标 的 宽：
+        w 为 目标 的 宽 减 dx。
+    完。
+    若 dy 加 h 大于 目标 的 高：
+        h 为 目标 的 高 减 dy。
+    完。
+    若 sx 加 w 大于 源 的 宽：
+        w 为 源 的 宽 减 sx。
+    完。
+    若 sy 加 h 大于 源 的 高：
+        h 为 源 的 高 减 sy。
+    完。
+    若 w 小于或等于 0 或者 h 小于或等于 0：
+        返还。
+    完。
+    bpp 为 做 Nova缓冲itmap_bpp 用 源 的 颜色类型。
+    若 源 的 颜色类型 等于 目标 的 颜色类型：
+        每行字节 为 w 乘 bpp。
+        可变 row 为 0。
+        只要 row 小于 h：
+            源偏移 为 (sy 加 row) 乘 源 的 行字节 加 sx 乘 bpp。
+            目标偏移 为 (dy 加 row) 乘 目标 的 行字节 加 dx 乘 bpp。
+            做 内存_复制 用 目标 的 像素 加 目标偏移、源 的 像素 加 源偏移、每行字节。
+            row 为 row 加 1。
+        完。
+    否则：
+        可变 row 为 0。
+        只要 row 小于 h：
+            可变 col 为 0。
+            只要 col 小于 w：
+                rgba 为 做 Nova缓冲itmap_读像素 用 源、sx 加 col、sy 加 row。
+                做 Nova缓冲itmap_写像素 用 目标、dx 加 col、dy 加 row、rgba。
+                col 为 col 加 1。
+            完。
+            row 为 row 加 1。
+        完。
+    完。
+    NPBT_blit总数 为 NPBT_blit总数 加 1。
+    NPBT_像素传输总量 为 NPBT_像素传输总量 加 w 乘 h。
+完。
+
+NPBT_R 接受 rgba：
+    返还 rgba 右移 16 位与 0xFF。
+完。
+
+NPBT_G 接受 rgba：
+    返还 rgba 右移 8 位与 0xFF。
+完。
+
+NPBT_B 接受 rgba：
+    返还 rgba 位与 0xFF。
+完。
+
+NPBT_A 接受 rgba：
+    返还 rgba 右移 24 位与 0xFF。
+完。
+
+NPBT_RGBA 接受 r、g、b、a：
+    返还 a 左移 24 位或 r 左移 16 位或 g 左移 8 位或 b。
+完。
+
+NPBT_混合像素 接受 源、目标：
+    sa 为 做 NPBT_A 用 源。
+    若 sa 等于 0：
+        返还 目标。
+    完。
+    若 sa 等于 255：
+        返还 源。
+    完。
+    da 为 255 减 sa。
+    r 为 (做 NPBT_R 用 源 乘 sa 加 做 NPBT_R 用 目标 乘 da) 除以 255。
+    g 为 (做 NPBT_G 用 源 乘 sa 加 做 NPBT_G 用 目标 乘 da) 除以 255。
+    b 为 (做 NPBT_B 用 源 乘 sa 加 做 NPBT_B 用 目标 乘 da) 除以 255。
+    a 为 sa 加 做 NPBT_A 用 目标 乘 da 除以 255。
+    返还 做 NPBT_RGBA 用 r、g、b、a。
+完。
+
+NPBT_混合像素_模式 接受 源、目标、模式：
+    若 模式 等于 BLEND_NORMAL：
+        返还 做 NPBT_混合像素 用 源、目标。
+    完。
+    sr 为 做 NPBT_R 用 源。
+    sg 为 做 NPBT_G 用 源。
+    sb 为 做 NPBT_B 用 源。
+    dr 为 做 NPBT_R 用 目标。
+    dg 为 做 NPBT_G 用 目标。
+    db 为 做 NPBT_B 用 目标。
+    可变 rr 为 0。
+    可变 rg 为 0。
+    可变 rb 为 0。
+    若 模式 等于 BLEND_ADD：
+        rr 为 sr 加 dr。
+        若 rr 大于 255：
+            rr 为 255。
+        完。
+        rg 为 sg 加 dg。
+        若 rg 大于 255：
+            rg 为 255。
+        完。
+        rb 为 sb 加 db。
+        若 rb 大于 255：
+            rb 为 255。
+        完。
+    否则若 模式 等于 BLEND_MULTIPLY：
+        rr 为 sr 乘 dr 除以 255。
+        rg 为 sg 乘 dg 除以 255。
+        rb 为 sb 乘 db 除以 255。
+    否则若 模式 等于 BLEND_SCREEN：
+        rr 为 255 减 (255 减 sr) 乘 (255 减 dr) 除以 255。
+        rg 为 255 减 (255 减 sg) 乘 (255 减 dg) 除以 255。
+        rb 为 255 减 (255 减 sb) 乘 (255 减 db) 除以 255。
+    否则若 模式 等于 BLEND_OVERLAY：
+        若 dr 小于 128：
+            rr 为 2 乘 sr 乘 dr 除以 255。
+        否则：
+            rr 为 255 减 2 乘 (255 减 sr) 乘 (255 减 dr) 除以 255。
+        完。
+        若 dg 小于 128：
+            rg 为 2 乘 sg 乘 dg 除以 255。
+        否则：
+            rg 为 255 减 2 乘 (255 减 sg) 乘 (255 减 dg) 除以 255。
+        完。
+        若 db 小于 128：
+            rb 为 2 乘 sb 乘 db 除以 255。
+        否则：
+            rb 为 255 减 2 乘 (255 减 sb) 乘 (255 减 db) 除以 255。
+        完。
+    完。
+    返还 做 NPBT_RGBA 用 rr、rg、rb、做 NPBT_A 用 源。
+完。
+
+Nova缓冲itmap_blit_混合 接受 目标、源、dx、dy、sx、sy、w、h、模式：
+    若 目标 等于 0 或者 源 等于 0：
+        返还。
+    完。
+    若 dx 加 w 大于 目标 的 宽：
+        w 为 目标 的 宽 减 dx。
+    完。
+    若 dy 加 h 大于 目标 的 高：
+        h 为 目标 的 高 减 dy。
+    完。
+    若 w 小于或等于 0 或者 h 小于或等于 0：
+        返还。
+    完。
+    可变 row 为 0。
+    只要 row 小于 h：
+        可变 col 为 0。
+        只要 col 小于 w：
+            源像素 为 做 Nova缓冲itmap_读像素 用 源、sx 加 col、sy 加 row。
+            目标像素 为 做 Nova缓冲itmap_读像素 用 目标、dx 加 col、dy 加 row。
+            结果 为 做 NPBT_混合像素_模式 用 源像素、目标像素、模式。
+            做 Nova缓冲itmap_写像素 用 目标、dx 加 col、dy 加 row、结果。
+            col 为 col 加 1。
+        完。
+        row 为 row 加 1。
+    完。
+    NPBT_混合总数 为 NPBT_混合总数 加 1。
+完。
+
+Nova缓冲itmap_缩放_最近邻 接受 源、新宽、新高：
+    若 源 等于 0 或者 新宽 小于或等于 0 或者 新高 小于或等于 0：
+        返还 0。
+    完。
+    结果 为 做 Nova缓冲itmap_创建 用 新宽、新高、源 的 颜色类型。
+    x比 为 源 的 宽 乘 65536 除以 新宽。
+    y比 为 源 的 高 乘 65536 除以 新高。
+    可变 dy 为 0。
+    只要 dy 小于 新高：
+        sy 为 dy 乘 y比 右移 16。
+        可变 dx 为 0。
+        只要 dx 小于 新宽：
+            sx 为 dx 乘 x比 右移 16。
+            像素 为 做 Nova缓冲itmap_读像素 用 源、sx、sy。
+            做 Nova缓冲itmap_写像素 用 结果、dx、dy、像素。
+            dx 为 dx 加 1。
+        完。
+        dy 为 dy 加 1。
+    完。
+    NPBT_缩放总数 为 NPBT_缩放总数 加 1。
+    返还 结果。
+完。
+
+Nova缓冲itmap_缩放_双线性 接受 源、新宽、新高：
+    若 源 等于 0 或者 新宽 小于或等于 0 或者 新高 小于或等于 0：
+        返还 0。
+    完。
+    结果 为 做 Nova缓冲itmap_创建 用 新宽、新高、源 的 颜色类型。
+    x比 为 源 的 宽 乘 65536 除以 新宽。
+    y比 为 源 的 高 乘 65536 除以 新高。
+    可变 dy 为 0。
+    只要 dy 小于 新高：
+        sy_fixed 为 dy 乘 y比。
+        sy0 为 sy_fixed 右移 16。
+        sy1 为 sy0 加 1。
+        若 sy1 大于或等于 源 的 高：
+            sy1 为 源 的 高 减 1。
+        完。
+        fy 为 sy_fixed 位与 0xFFFF。
+        可变 dx 为 0。
+        只要 dx 小于 新宽：
+            sx_fixed 为 dx 乘 x比。
+            sx0 为 sx_fixed 右移 16。
+            sx1 为 sx0 加 1。
+            若 sx1 大于或等于 源 的 宽：
+                sx1 为 源 的 宽 减 1。
+            完。
+            fx 为 sx_fixed 位与 0xFFFF。
+            c00 为 做 Nova缓冲itmap_读像素 用 源、sx0、sy0。
+            c10 为 做 Nova缓冲itmap_读像素 用 源、sx1、sy0。
+            c01 为 做 Nova缓冲itmap_读像素 用 源、sx0、sy1。
+            c11 为 做 Nova缓冲itmap_读像素 用 源、sx1、sy1。
+            r 为 做 NPBT_双线性通道 用 做 NPBT_R 用 c00、做 NPBT_R 用 c10、做 NPBT_R 用 c01、做 NPBT_R 用 c11、fx、fy。
+            g 为 做 NPBT_双线性通道 用 做 NPBT_G 用 c00、做 NPBT_G 用 c10、做 NPBT_G 用 c01、做 NPBT_G 用 c11、fx、fy。
+            b 为 做 NPBT_双线性通道 用 做 NPBT_B 用 c00、做 NPBT_B 用 c10、做 NPBT_B 用 c01、做 NPBT_B 用 c11、fx、fy。
+            a 为 做 NPBT_双线性通道 用 做 NPBT_A 用 c00、做 NPBT_A 用 c10、做 NPBT_A 用 c01、做 NPBT_A 用 c11、fx、fy。
+            做 Nova缓冲itmap_写像素 用 结果、dx、dy、做 NPBT_RGBA 用 r、g、b、a。
+            dx 为 dx 加 1。
+        完。
+        dy 为 dy 加 1。
+    完。
+    NPBT_缩放总数 为 NPBT_缩放总数 加 1。
+    返还 结果。
+完。
+
+NPBT_双线性通道 接受 c00、c10、c01、c11、fx、fy：
+    ifx 为 65536 减 fx。
+    ify 为 65536 减 fy。
+    w00 为 ifx 乘 ify 右移 16。
+    w10 为 fx 乘 ify 右移 16。
+    w01 为 ifx 乘 fy 右移 16。
+    w11 为 fx 乘 fy 右移 16。
+    结果 为 c00 乘 w00 加 c10 乘 w10 加 c01 乘 w01 加 c11 乘 w11 右移 16。
+    若 结果 大于 255：
+        结果 为 255。
+    完。
+    返还 结果。
+完。
+
+Nova缓冲itmap_缩放 接受 源、新宽、新高、模式：
+    若 模式 等于 SCALE_BILINEAR：
+        返还 做 Nova缓冲itmap_缩放_双线性 用 源、新宽、新高。
+    完。
+    返还 做 Nova缓冲itmap_缩放_最近邻 用 源、新宽、新高。
+完。
+
+Nova缓冲itmap_填充矩形 接受 bm、x、y、w、h、rgba：
+    若 bm 等于 0：
+        返还。
+    完。
+    可变 x1 为 x。
+    可变 y1 为 y。
+    可变 x2 为 x 加 w。
+    可变 y2 为 y 加 h。
+    若 x1 小于 0：
+        x1 为 0。
+    完。
+    若 y1 小于 0：
+        y1 为 0。
+    完。
+    若 x2 大于 bm 的 宽：
+        x2 为 bm 的 宽。
+    完。
+    若 y2 大于 bm 的 高：
+        y2 为 bm 的 高。
+    完。
+    可变 row 为 y1。
+    只要 row 小于 y2：
+        可变 col 为 x1。
+        只要 col 小于 x2：
+            做 Nova缓冲itmap_写像素 用 bm、col、row、rgba。
+            col 为 col 加 1。
+        完。
+        row 为 row 加 1。
+    完。
+完。
+
+Nova缓冲itmap_清除 接受 bm、rgba：
+    若 bm 等于 0：
+        返还。
+    完。
+    若 rgba 等于 0 并且 bm 的 颜色类型 等于 COLORTYPE_RGBA8888：
+        做 内存_清零 用 bm 的 像素、bm 的 高 乘 bm 的 行字节。
+    否则：
+        做 Nova缓冲itmap_填充矩形 用 bm、0、0、bm 的 宽、bm 的 高、rgba。
+    完。
+完。
+
+NPBT_RGBA转灰度 接受 rgba：
+    r 为 做 NPBT_R 用 rgba。
+    g 为 做 NPBT_G 用 rgba。
+    b 为 做 NPBT_B 用 rgba。
+    返还 r 乘 77 加 g 乘 150 加 b 乘 29 右移 8。
+完。
+
+Nova缓冲itmap_转灰度 接受 源：
+    若 源 等于 0：
+        返还 0。
+    完。
+    结果 为 做 Nova缓冲itmap_创建 用 源 的 宽、源 的 高、COLORTYPE_GRAY8。
+    可变 y 为 0。
+    只要 y 小于 源 的 高：
+        可变 x 为 0。
+        只要 x 小于 源 的 宽：
+            rgba 为 做 Nova缓冲itmap_读像素 用 源、x、y。
+            gray 为 做 NPBT_RGBA转灰度 用 rgba。
+            做 字节写 用 结果 的 像素、y 乘 结果 的 行字节 加 x、gray。
+            x 为 x 加 1。
+        完。
+        y 为 y 加 1。
+    完。
+    返还 结果。
+完。
+
+NPBT_gamma校正 接受 通道、gamma_inv_q16：
+    若 通道 小于或等于 0：
+        返还 0。
+    完。
+    若 通道 大于或等于 255：
+        返还 255。
+    完。
+    若 通道 小于 11：
+        返还 通道 乘 3295 右移 8。
+    完。
+    归一化 为 通道 乘 256 除以 255。
+    结果 为 归一化 乘 gamma_inv_q16 右移 16。
+    若 结果 大于 255：
+        结果 为 255。
+    完。
+    返还 结果。
+完。
+
+Nova缓冲itmap_交换RB 接受 bm：
+    若 bm 等于 0：
+        返还。
+    完。
+    若 bm 的 颜色类型 不等于 COLORTYPE_RGBA8888 并且 bm 的 颜色类型 不等于 COLORTYPE_BGRA8888：
+        返还。
+    完。
+    总像素 为 bm 的 宽 乘 bm 的 高。
+    可变 i 为 0。
+    只要 i 小于 总像素：
+        偏移 为 i 乘 4。
+        v 为 做 内存_读32 用 bm 的 像素 加 偏移。
+        交换 为 v 位与 0xFF00FF00 位或 (v 位与 0xFF) 左移 16 位或 v 右移 16 位与 0xFF。
+        做 内存_写32 用 bm 的 像素 加 偏移、交换。
+        i 为 i 加 1。
+    完。
+    若 bm 的 颜色类型 等于 COLORTYPE_RGBA8888：
+        bm 的 颜色类型 为 COLORTYPE_BGRA8888。
+    否则：
+        bm 的 颜色类型 为 COLORTYPE_RGBA8888。
+    完。
+完。
+
+NPBT_预乘Alpha 接受 rgba：
+    a 为 做 NPBT_A 用 rgba。
+    若 a 等于 255：
+        返还 rgba。
+    完。
+    若 a 等于 0：
+        返还 0。
+    完。
+    r 为 做 NPBT_R 用 rgba 乘 a 除以 255。
+    g 为 做 NPBT_G 用 rgba 乘 a 除以 255。
+    b 为 做 NPBT_B 用 rgba 乘 a 除以 255。
+    返还 做 NPBT_RGBA 用 r、g、b、a。
+完。
+
+NPBT_反预乘Alpha 接受 rgba：
+    a 为 做 NPBT_A 用 rgba。
+    若 a 等于 0：
+        返还 0。
+    完。
+    若 a 等于 255：
+        返还 rgba。
+    完。
+    r 为 做 NPBT_R 用 rgba 乘 255 除以 a。
+    g 为 做 NPBT_G 用 rgba 乘 255 除以 a。
+    b 为 做 NPBT_B 用 rgba 乘 255 除以 a。
+    若 r 大于 255：
+        r 为 255。
+    完。
+    若 g 大于 255：
+        g 为 255。
+    完。
+    若 b 大于 255：
+        b 为 255。
+    完。
+    返还 做 NPBT_RGBA 用 r、g、b、a。
+完。
+
+Nova缓冲itmap_引用 接受 bm：
+    若 bm 等于 0：
+        返还 0。
+    完。
+    bm 的 引用计数 为 bm 的 引用计数 加 1。
+    返还 bm。
+完。
+
+Nova缓冲itmap_克隆 接受 bm：
+    若 bm 等于 0：
+        返还 0。
+    完。
+    副本 为 做 Nova缓冲itmap_创建 用 bm 的 宽、bm 的 高、bm 的 颜色类型。
+    做 内存_复制 用 副本 的 像素、bm 的 像素、bm 的 高 乘 bm 的 行字节。
+    返还 副本。
+完。
+
+NPBT_AI预测缩放模式 接受 源宽、源高、目标宽、目标高：
+    特征 为 做 Tensor_创建 用 一组：NPBT_AI特征维度。
+    做 Tensor_写 用 特征、一组：0、源宽。
+    做 Tensor_写 用 特征、一组：1、源高。
+    做 Tensor_写 用 特征、一组：2、目标宽。
+    做 Tensor_写 用 特征、一组：3、目标高。
+    做 Tensor_写 用 特征、一组：4、目标宽 乘 1000 除以 源宽。
+    做 Tensor_写 用 特征、一组：5、目标高 乘 1000 除以 源高。
+    做 Tensor_写 用 特征、一组：6、NPBT_缩放总数。
+    做 Tensor_写 用 特征、一组：7、NPBT_blit总数。
+    做 Tensor_写 用 特征、一组：8、NPBT_混合总数。
+    做 Tensor_写 用 特征、一组：9、NPBT_像素传输总量。
+    预测 为 做 AI总线_推理 用 「NPBT缩放预测」、特征。
+    结果 为 做 Tensor_读 用 预测、一组：0。
+    NPBT_AI推理次数 为 NPBT_AI推理次数 加 1。
+    做 Tensor_释放 用 特征。
+    做 Tensor_释放 用 预测。
+    返还 结果 大于 500。
+完。
+
+NPBT_AI异常检测 接受 bm：
+    若 bm 等于 0：
+        返还 假。
+    完。
+    特征 为 做 Tensor_创建 用 一组：6。
+    做 Tensor_写 用 特征、一组：0、bm 的 宽。
+    做 Tensor_写 用 特征、一组：1、bm 的 高。
+    做 Tensor_写 用 特征、一组：2、bm 的 颜色类型。
+    做 Tensor_写 用 特征、一组：3、bm 的 引用计数。
+    做 Tensor_写 用 特征、一组：4、NPBT_像素传输总量。
+    做 Tensor_写 用 特征、一组：5、NPBT_混合总数。
+    分数 为 做 AI总线_异常检测 用 「NPBT异常」、特征。
+    做 Tensor_释放 用 特征。
+    返还 分数 大于 750。
+完。
+
+NPBT_获取统计 接受 零参：
+    返还 一本字典：版本 对应 NPBT_版本、blit总数 对应 NPBT_blit总数、缩放总数 对应 NPBT_缩放总数、混合总数 对应 NPBT_混合总数、像素传输总量 对应 NPBT_像素传输总量、AI推理次数 对应 NPBT_AI推理次数。
+完。
+
+NPBT_重置统计 接受 零参：
+    NPBT_blit总数 为 0。
+    NPBT_缩放总数 为 0。
+    NPBT_混合总数 为 0。
+    NPBT_像素传输总量 为 0。
+    NPBT_AI推理次数 为 0。
+完。
+
+本章 收束。

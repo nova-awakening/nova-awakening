@@ -1,0 +1,151 @@
+《合成层创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·瓦片》。
+
+引用《.·网缓画布结》。
+
+引用《.·内存管理纹》。
+
+引用《..·执行·底层内存操》。
+
+CompositedLayer_创建 接受 paint层、原因：
+    lth 为 做 LayerTreeHost_获取。
+    cl 为 做 堆_分配 用 CompositedLayer。
+    cl 的 ID 为 lth 的 下一个层ID。
+    lth 的 下一个层ID 为 lth 的 下一个层ID 加 1。
+    cl 的 paint层 为 paint层。
+    cl 的 合成原因 为 原因。
+    cl 的 纹理ID 为 0。
+    cl 的 纹理宽 为 0。
+    cl 的 纹理高 为 0。
+    cl 的 设备像素比 为 lth 的 设备像素比。
+    cl 的 偏移x 为 0。
+    cl 的 偏移y 为 0。
+    cl 的 变换矩阵 为 0。
+    cl 的 不透明度 为 100。
+    cl 的 瓦片列表 为 0。
+    cl 的 瓦片列数 为 0。
+    cl 的 瓦片行数 为 0。
+    cl 的 脏区域 为 0。
+    cl 的 需要重绘 为 真。
+    cl 的 父 为 0。
+    cl 的 子容量 为 16。
+    cl 的 子列表 为 做 堆_分配_数组 用 16 乘 8。
+    cl 的 子数量 为 0。
+    cl 的 滚动偏移x 为 0。
+    cl 的 滚动偏移y 为 0。
+    cl 的 可滚动 为 假。
+    cl 的 已激活 为 假。
+    cl 的 需要commit 为 真。
+    若 lth 的 层数量 小于 lth 的 层容量：
+        做 内存_写64 用 lth 的 层列表 加 lth 的 层数量 乘 8、cl。
+        lth 的 层数量 为 lth 的 层数量 加 1。
+    完。
+    返还 cl。
+完。
+
+CompositedLayer_更新尺寸 接受 cl、宽、高：
+    若 cl 等于 0：
+        返还。
+    完。
+    dpr 为 cl 的 设备像素比。
+    若 dpr 等于 0：
+        dpr 为 100。
+    完。
+    物理宽 为 宽 乘 dpr 除以 10000。
+    物理高 为 高 乘 dpr 除以 10000。
+    若 物理宽 等于 cl 的 纹理宽 并且 物理高 等于 cl 的 纹理高：
+        返还。
+    完。
+    cl 的 纹理宽 为 物理宽。
+    cl 的 纹理高 为 物理高。
+    做 CompositedLayer_分割瓦片 用 cl。
+    cl 的 需要重绘 为 真。
+完。
+
+CompositedLayer_分割瓦片 接受 cl：
+    若 cl 等于 0 或者 cl 的 纹理宽 等于 0：
+        返还。
+    完。
+    列数 为 (cl 的 纹理宽 加 TILE_SIZE 减 1) 除以 TILE_SIZE。
+    行数 为 (cl 的 纹理高 加 TILE_SIZE 减 1) 除以 TILE_SIZE。
+    总数 为 列数 乘 行数。
+    若 cl 的 瓦片列表 不等于 0：
+        做 堆_释放 用 cl 的 瓦片列表。
+    完。
+    cl 的 瓦片列表 为 做 堆_分配_数组 用 总数 乘 8。
+    cl 的 瓦片列数 为 列数。
+    cl 的 瓦片行数 为 行数。
+    可变 r 为 0。
+    只要 r 小于 行数：
+        可变 c 为 0。
+        只要 c 小于 列数：
+            tile 为 做 堆_分配 用 Tile。
+            tile 的 列 为 c。
+            tile 的 行 为 r。
+            tile 的 x 为 c 乘 TILE_SIZE。
+            tile 的 y 为 r 乘 TILE_SIZE。
+            tile 的 宽 为 TILE_SIZE。
+            tile 的 高 为 TILE_SIZE。
+            若 tile 的 x 加 tile 的 宽 大于 cl 的 纹理宽：
+                tile 的 宽 为 cl 的 纹理宽 减 tile 的 x。
+            完。
+            若 tile 的 y 加 tile 的 高 大于 cl 的 纹理高：
+                tile 的 高 为 cl 的 纹理高 减 tile 的 y。
+            完。
+            tile 的 状态 为 TILE_STATE_IDLE。
+            tile 的 像素数据 为 0。
+            tile 的 纹理ID 为 0。
+            tile 的 优先级 为 0。
+            tile 的 需要光栅化 为 真。
+            做 内存_写64 用 cl 的 瓦片列表 加 (r 乘 列数 加 c) 乘 8、tile。
+            c 为 c 加 1。
+        完。
+        r 为 r 加 1。
+    完。
+完。
+
+Tile_光栅化 接受 tile、cl：
+    若 tile 等于 0 或者 cl 等于 0：
+        返还。
+    完。
+    若 非 tile 的 需要光栅化：
+        返还。
+    完。
+    大小 为 tile 的 宽 乘 tile 的 高 乘 4。
+    若 tile 的 像素数据 等于 0：
+        tile 的 像素数据 为 做 堆_分配 用 大小。
+    完。
+    做 内存_清零 用 tile 的 像素数据、大小。
+    bitmap 为 做 Nova缓冲itmap_创建 用 tile 的 宽、tile 的 高。
+    bitmap 的 像素 为 tile 的 像素数据。
+    canvas 为 做 Sk画布_创建 用 bitmap。
+    做 Sk画布_translate 用 canvas、0 减 tile 的 x、0 减 tile 的 y。
+    若 cl 的 paint层 不等于 0：
+        做 绘制Layer_重放显示列表 用 cl 的 paint层、canvas。
+    完。
+    tile 的 状态 为 TILE_STATE_RASTERIZED。
+    tile 的 需要光栅化 为 假。
+完。
+
+CompositedLayer_光栅化所有瓦片 接受 cl：
+    若 cl 等于 0：
+        返还。
+    完。
+    总数 为 cl 的 瓦片列数 乘 cl 的 瓦片行数。
+    可变 i 为 0。
+    只要 i 小于 总数：
+        tile 为 做 内存_读64 用 cl 的 瓦片列表 加 i 乘 8。
+        若 tile 不等于 0 并且 tile 的 需要光栅化：
+            做 Tile_光栅化 用 tile、cl。
+        完。
+        i 为 i 加 1。
+    完。
+    cl 的 需要重绘 为 假。
+完。
+
+本章 收束。

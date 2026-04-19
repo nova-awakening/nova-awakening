@@ -1,0 +1,676 @@
+《一元删除符》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·标准·类型判断》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·辅助有符号读》。
+
+引用《..·执行·底层内存操》。
+
+引用《..·标准·加法运算符》。
+
+引用《..·标准·JS值转字符串》。
+
+引用《.·小整数SMI判定》。
+
+引用《..·感知·内核直连层》。
+
+OP_DeletePropertyStrict 为 0xA0。
+
+OP_DeletePropertySloppy 为 0xA1。
+
+OP_TestUndetectable 为 0xA2。
+
+OP_TestTypeOf 为 0xA3。
+
+OP_TestInstanceOf 为 0xA4。
+
+OP_TestIn 为 0xA5。
+
+OP_JumpIfNotNull 为 0xA6。
+
+OP_JumpIfNotUndefined 为 0xA7。
+
+OP_SwitchOnSmiTable 为 0xA8。
+
+OP_PushContext 为 0xA9。
+
+OP_PopContext 为 0xAA。
+
+OP_LdaCurrentContextSlot 为 0xAB。
+
+OP_StaCurrentContextSlot 为 0xAC。
+
+OP_Lda模块Variable 为 0xAD。
+
+OP_Sta模块Variable 为 0xAE。
+
+OP_BitwiseNot 为 0xAF。
+
+OP_Negate 为 0xB0。
+
+OP_ToNumber 为 0xB1。
+
+OP_ToNumeric 为 0xB2。
+
+OP_Inc 为 0xB3。
+
+OP_Dec 为 0xB4。
+
+OP_LogicalNot 为 0xB5。
+
+OP_TypeOf 为 0xB6。
+
+OP_Void 为 0xB7。
+
+OP_ForInEnumerate 为 0xB8。
+
+OP_ForInNext 为 0xB9。
+
+OP_ForInStep 为 0xBA。
+
+OP_GetIterator 为 0xBB。
+
+OP_IteratorNext 为 0xBC。
+
+OP_IteratorClose 为 0xBD。
+
+OP_CreateClosure 为 0xBE。
+
+OP_CreateBlockContext 为 0xBF。
+
+OP_CreateCatchContext 为 0xC0。
+
+OP_CreateWithContext 为 0xC1。
+
+OP_JumpIfTrue 为 0xC2。
+
+OP_JumpIfFalse 为 0xC3。
+
+OP_JumpIfToBooleanTrue 为 0xC4。
+
+OP_JumpIfToBooleanFalse 为 0xC5。
+
+TYPEOF_undefined 为 0。
+
+TYPEOF_boolean 为 1。
+
+TYPEOF_number 为 2。
+
+TYPEOF_string 为 3。
+
+TYPEOF_symbol 为 4。
+
+TYPEOF_bigint 为 5。
+
+TYPEOF_object 为 6。
+
+TYPEOF_function 为 7。
+
+上下文_父指针偏移 为 8。
+
+上下文_槽起始偏移 为 16。
+
+上下文_最大槽数 为 128。
+
+上下文_结构大小 为 16 加 128 乘 8。
+
+AI_操作码统计_大小 为 256。
+
+操作码统计 是 一种 事物，含 执行次数、基址、总执行数、最热操作码、最热次数、AI分析间隔、AI分析计数器。
+
+操作码统计_创建 接受 零参：
+    可变 统计 为 做 堆_分配 用 操作码统计。
+    若 统计 等于 0：
+        返还 空。
+    完。
+    统计 的 基址 为 做 平台_申请内存 用 AI_操作码统计_大小 乘 8。
+    若 统计 的 基址 不等于 0：
+        做 内存_清零 用 统计 的 基址、AI_操作码统计_大小 乘 8。
+    完。
+    统计 的 总执行数 为 0。
+    统计 的 最热操作码 为 0。
+    统计 的 最热次数 为 0。
+    统计 的 AI分析间隔 为 10000。
+    统计 的 AI分析计数器 为 0。
+    返还 统计。
+完。
+
+操作码统计_销毁 接受 统计：
+    若 统计 等于 空：
+        返还。
+    完。
+    若 统计 的 基址 不等于 0：
+        做 平台_释放内存 用 统计 的 基址、AI_操作码统计_大小 乘 8。
+    完。
+    做 堆_释放 用 统计。
+完。
+
+操作码统计_记录 接受 统计、操作码：
+    若 统计 等于 空 或者 统计 的 基址 等于 0：
+        返还。
+    完。
+    若 操作码 小于 AI_操作码统计_大小：
+        偏移 为 统计 的 基址 加 操作码 乘 8。
+        当前 为 做 内存_读64 用 偏移。
+        做 内存_写64 用 偏移、当前 加 1。
+        若 当前 加 1 大于 统计 的 最热次数：
+            统计 的 最热次数 为 当前 加 1。
+            统计 的 最热操作码 为 操作码。
+        完。
+    完。
+    统计 的 总执行数 为 统计 的 总执行数 加 1。
+    统计 的 AI分析计数器 为 统计 的 AI分析计数器 加 1。
+    若 统计 的 AI分析计数器 大于或等于 统计 的 AI分析间隔：
+        统计 的 AI分析计数器 为 0。
+        做 操作码统计_AI分析 用 统计。
+    完。
+完。
+
+操作码统计_AI分析 接受 统计：
+    若 统计 等于 空 或者 统计 的 基址 等于 0：
+        返还。
+    完。
+完。
+
+字节码_执行一元运算 接受 Nova运行时实例、frame、op、acc、寄存器、代码、常量池：
+    若 Nova运行时实例 等于 0 或者 frame 等于 0：
+        返还 acc。
+    完。
+    若 op 等于 OP_BitwiseNot：
+        值 为 做 JSValue_ToInt32 用 Nova运行时实例、acc。
+        返还 做 Nova值_创建_Int 用 Nova运行时实例、按位取反 值。
+    完。
+    若 op 等于 OP_Negate：
+        若 做 JSValue_IsSmi 用 acc：
+            值 为 做 JSValue_GetSmi 用 acc。
+            返还 做 Nova值_创建_Int 用 Nova运行时实例、0 减 值。
+        完。
+        数值 为 做 JSValue_ToNumber 用 Nova运行时实例、acc。
+        返还 做 Nova值_创建_Number 用 Nova运行时实例、0 减 数值。
+    完。
+    若 op 等于 OP_ToNumber：
+        若 做 JSValue_IsNumber 用 acc：
+            返还 acc。
+        完。
+        值 为 做 JSValue_ToNumber 用 Nova运行时实例、acc。
+        返还 做 Nova值_创建_Number 用 Nova运行时实例、值。
+    完。
+    若 op 等于 OP_ToNumeric：
+        若 做 JSValue_IsNumber 用 acc 或者 做 JSValue_IsBigInt 用 acc：
+            返还 acc。
+        完。
+        值 为 做 JSValue_ToNumber 用 Nova运行时实例、acc。
+        返还 做 Nova值_创建_Number 用 Nova运行时实例、值。
+    完。
+    若 op 等于 OP_Inc：
+        若 做 JSValue_IsSmi 用 acc：
+            值 为 做 JSValue_GetSmi 用 acc。
+            返还 做 Nova值_创建_Int 用 Nova运行时实例、值 加 1。
+        完。
+        数值 为 做 JSValue_ToNumber 用 Nova运行时实例、acc。
+        返还 做 Nova值_创建_Number 用 Nova运行时实例、数值 加 1。
+    完。
+    若 op 等于 OP_Dec：
+        若 做 JSValue_IsSmi 用 acc：
+            值 为 做 JSValue_GetSmi 用 acc。
+            返还 做 Nova值_创建_Int 用 Nova运行时实例、值 减 1。
+        完。
+        数值 为 做 JSValue_ToNumber 用 Nova运行时实例、acc。
+        返还 做 Nova值_创建_Number 用 Nova运行时实例、数值 减 1。
+    完。
+    若 op 等于 OP_LogicalNot：
+        布尔值 为 做 JSValue_ToBoolean 用 Nova运行时实例、acc。
+        若 布尔值 等于 真：
+            返还 Nova运行时实例 的 false值。
+        完。
+        返还 Nova运行时实例 的 true值。
+    完。
+    若 op 等于 OP_TypeOf：
+        类型ID 为 做 JSValue_TypeOfId 用 Nova运行时实例、acc。
+        若 类型ID 等于 TYPEOF_undefined：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「undefined」。
+        完。
+        若 类型ID 等于 TYPEOF_boolean：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「boolean」。
+        完。
+        若 类型ID 等于 TYPEOF_number：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「number」。
+        完。
+        若 类型ID 等于 TYPEOF_string：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「string」。
+        完。
+        若 类型ID 等于 TYPEOF_symbol：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「symbol」。
+        完。
+        若 类型ID 等于 TYPEOF_bigint：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「bigint」。
+        完。
+        若 类型ID 等于 TYPEOF_function：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「function」。
+        完。
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「object」。
+    完。
+    若 op 等于 OP_Void：
+        返还 Nova运行时实例 的 undefined值。
+    完。
+    返还 acc。
+完。
+
+字节码_执行删除 接受 Nova运行时实例、frame、op、acc、寄存器、代码：
+    若 Nova运行时实例 等于 0 或者 frame 等于 0：
+        返还 acc。
+    否则若 op 等于 OP_DeletePropertyStrict：
+        obj_r 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        obj 为 做 内存_读64 用 寄存器 加 obj_r 乘 8。
+        key 为 做 JSValue_ToString 用 Nova运行时实例、acc。
+        acc 为 若 做 Nova对象_Delete 用 Nova运行时实例、obj、key 则 Nova运行时实例 的 true值 否则 Nova运行时实例 的 false值。
+    否则若 op 等于 OP_DeletePropertySloppy：
+        obj_r 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        obj 为 做 内存_读64 用 寄存器 加 obj_r 乘 8。
+        key 为 做 JSValue_ToString 用 Nova运行时实例、acc。
+        做 Nova对象_Delete 用 Nova运行时实例、obj、key。
+        acc 为 Nova运行时实例 的 true值。
+    否则若 op 等于 OP_TestUndetectable：
+        acc 为 若 做 JSValue_IsNull 用 acc 或者 做 JSValue_IsUndefined 用 acc 则 Nova运行时实例 的 true值 否则 Nova运行时实例 的 false值。
+    否则若 op 等于 OP_TestTypeOf：
+        期望类型 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        实际 为 做 JSValue_TypeOfId 用 Nova运行时实例、acc。
+        acc 为 若 实际 等于 期望类型 则 Nova运行时实例 的 true值 否则 Nova运行时实例 的 false值。
+    否则若 op 等于 OP_TestInstanceOf：
+        obj_r 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        obj 为 做 内存_读64 用 寄存器 加 obj_r 乘 8。
+        acc 为 若 做 JSValue_InstanceOf 用 Nova运行时实例、obj、acc 则 Nova运行时实例 的 true值 否则 Nova运行时实例 的 false值。
+    否则若 op 等于 OP_TestIn：
+        obj_r 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        obj 为 做 内存_读64 用 寄存器 加 obj_r 乘 8。
+        key 为 做 JSValue_ToString 用 Nova运行时实例、acc。
+        acc 为 若 做 Nova对象_HasProperty 用 Nova运行时实例、obj、key 则 Nova运行时实例 的 true值 否则 Nova运行时实例 的 false值。
+    否则若 op 等于 OP_JumpIfNotNull：
+        目标 为 做 内存_读16 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 2。
+        若 非 做 JSValue_IsNull 用 acc：
+            frame 的 PC 为 目标。
+        完。
+    否则若 op 等于 OP_JumpIfNotUndefined：
+        目标 为 做 内存_读16 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 2。
+        若 非 做 JSValue_IsUndefined 用 acc：
+            frame 的 PC 为 目标。
+        完。
+    否则若 op 等于 OP_SwitchOnSmiTable：
+        table_idx 为 做 内存_读8 用 代码 加 frame 的 PC。
+        size 为 做 内存_读8 用 代码 加 frame 的 PC 加 1。
+        frame 的 PC 为 frame 的 PC 加 2。
+        val 为 做 JSValue_ToInt32 用 Nova运行时实例、acc。
+        若 val 大于或等于 0 并且 val 小于 size：
+            table 为 常量池 加 table_idx 乘 8。
+            frame 的 PC 为 做 内存_读16 用 table 加 val 乘 2。
+        完。
+    否则若 op 等于 OP_PushContext：
+        reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        做 内存_写64 用 寄存器 加 reg 乘 8、frame 的 上下文。
+        新ctx 为 做 堆_分配 用 256。
+        做 内存_写64 用 新ctx 加 8、frame 的 上下文。
+        frame 的 上下文 为 新ctx。
+    否则若 op 等于 OP_PopContext：
+        reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        frame 的 上下文 为 做 内存_读64 用 寄存器 加 reg 乘 8。
+    否则若 op 等于 OP_LdaCurrentContextSlot：
+        slot 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        若 frame 的 上下文 不等于 0：
+            acc 为 做 内存_读64 用 frame 的 上下文 加 16 加 slot 乘 8。
+        完。
+    否则若 op 等于 OP_StaCurrentContextSlot：
+        slot 为 做 内存_读8 用 代码 加 frame 的 PC。
+        frame 的 PC 为 frame 的 PC 加 1。
+        若 frame 的 上下文 不等于 0：
+            做 内存_写64 用 frame 的 上下文 加 16 加 slot 乘 8、acc。
+        完。
+    否则若 op 等于 OP_Lda模块Variable：
+        cell_idx 为 做 内存_读8 用 代码 加 frame 的 PC。
+        depth 为 做 内存_读8 用 代码 加 frame 的 PC 加 1。
+        frame 的 PC 为 frame 的 PC 加 2。
+        可变 ctx 为 frame 的 上下文。
+        可变 d 为 0。
+        只要 d 小于 depth 并且 ctx 不等于 0：
+            ctx 为 做 内存_读64 用 ctx 加 8。
+            d 为 d 加 1。
+        完。
+        若 ctx 不等于 0：
+            acc 为 做 内存_读64 用 ctx 加 16 加 cell_idx 乘 8。
+        完。
+    否则若 op 等于 OP_Sta模块Variable：
+        cell_idx 为 做 内存_读8 用 代码 加 frame 的 PC。
+        depth 为 做 内存_读8 用 代码 加 frame 的 PC 加 1。
+        frame 的 PC 为 frame 的 PC 加 2。
+        可变 ctx 为 frame 的 上下文。
+        可变 d 为 0。
+        只要 d 小于 depth 并且 ctx 不等于 0：
+            ctx 为 做 内存_读64 用 ctx 加 8。
+            d 为 d 加 1。
+        完。
+        若 ctx 不等于 0：
+            做 内存_写64 用 ctx 加 16 加 cell_idx 乘 8、acc。
+        完。
+    完。
+    字节码_执行迭代器 接受 Nova运行时实例、frame、op、acc、寄存器、代码：
+        若 Nova运行时实例 等于 0 或者 frame 等于 0：
+            返还 acc。
+        完。
+        若 op 等于 OP_ForInEnumerate：
+            若 做 JSValue_IsNull 用 acc 或者 做 JSValue_IsUndefined 用 acc：
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            对象 为 做 JSValue_ToObject 用 Nova运行时实例、acc。
+            若 对象 等于 0：
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            可变 键列表 为 一组：（空）。
+            可变 当前 为 对象。
+            只要 当前 不等于 0：
+                属性数 为 做 Nova对象_属性数量 用 Nova运行时实例、当前。
+                可变 i 为 0。
+                只要 i 小于 属性数：
+                    键 为 做 Nova对象_获取键_按索引 用 Nova运行时实例、当前、i。
+                    若 键 不等于 0：
+                        描述符 为 做 Nova对象_获取属性描述 用 Nova运行时实例、当前、键。
+                        若 描述符 不等于 0 并且 描述符 位与 2 不等于 0：
+                            做 追加 用 键列表、键。
+                        完。
+                    完。
+                    i 为 i 加 1。
+                完。
+                当前 为 做 Nova对象_获取原型 用 Nova运行时实例、当前。
+            完。
+            缓存 为 做 堆_分配 用 枚举缓存。
+            若 缓存 不等于 0：
+                缓存 的 键列表 为 键列表。
+                缓存 的 当前索引 为 0。
+                缓存 的 总数 为 做 计数 用 键列表。
+            完。
+            返还 缓存。
+        完。
+        若 op 等于 OP_ForInNext：
+            枚举_reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            索引_reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            枚举 为 做 内存_读64 用 寄存器 加 枚举_reg 乘 8。
+            索引 为 做 内存_读64 用 寄存器 加 索引_reg 乘 8。
+            若 枚举 等于 0：
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            若 索引 大于或等于 枚举 的 总数：
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            返还 枚举 的 键列表 的 第 索引 项。
+        完。
+        若 op 等于 OP_ForInStep：
+            索引_reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            当前索引 为 做 内存_读64 用 寄存器 加 索引_reg 乘 8。
+            做 内存_写64 用 寄存器 加 索引_reg 乘 8、当前索引 加 1。
+            返还 acc。
+        完。
+        若 op 等于 OP_GetIterator：
+            若 acc 等于 0 或者 做 JSValue_IsNull 用 acc 或者 做 JSValue_IsUndefined 用 acc：
+                做 打印 用 「[字节码] 错误: 不可迭代的值」。
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            迭代器方法 为 做 Nova对象_获取属性 用 Nova运行时实例、acc、「Symbol.iterator」。
+            若 迭代器方法 等于 0 或者 做 JSValue_IsUndefined 用 迭代器方法：
+                做 打印 用 「[字节码] TypeError: 对象不可迭代」。
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            迭代器 为 做 JSValue_Call 用 Nova运行时实例、迭代器方法、acc、0、0。
+            返还 迭代器。
+        完。
+        若 op 等于 OP_IteratorNext：
+            迭代器_reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            迭代器 为 做 内存_读64 用 寄存器 加 迭代器_reg 乘 8。
+            若 迭代器 等于 0：
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            next方法 为 做 Nova对象_获取属性 用 Nova运行时实例、迭代器、「next」。
+            若 next方法 等于 0：
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            结果 为 做 JSValue_Call 用 Nova运行时实例、next方法、迭代器、0、0。
+            返还 结果。
+        完。
+        若 op 等于 OP_IteratorClose：
+            迭代器_reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            迭代器 为 做 内存_读64 用 寄存器 加 迭代器_reg 乘 8。
+            若 迭代器 不等于 0：
+                return方法 为 做 Nova对象_获取属性 用 Nova运行时实例、迭代器、「return」。
+                若 return方法 不等于 0 并且 非 做 JSValue_IsUndefined 用 return方法：
+                    做 JSValue_Call 用 Nova运行时实例、return方法、迭代器、0、0。
+                完。
+            完。
+            返还 acc。
+        完。
+        返还 acc。
+    完。
+    枚举缓存 是 一种 事物，含 键列表、当前索引、总数。
+    字节码_执行闭包上下文 接受 Nova运行时实例、frame、op、acc、寄存器、代码、常量池：
+        若 Nova运行时实例 等于 0 或者 frame 等于 0：
+            返还 acc。
+        完。
+        若 op 等于 OP_CreateClosure：
+            函数索引 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            标志 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            共享信息 为 做 内存_读64 用 常量池 加 函数索引 乘 8。
+            若 共享信息 等于 0：
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            闭包 为 做 堆_分配 用 256。
+            若 闭包 等于 0：
+                返还 Nova运行时实例 的 undefined值。
+            完。
+            做 内存_写64 用 闭包、共享信息。
+            做 内存_写64 用 闭包 加 8、frame 的 上下文。
+            做 内存_写32 用 闭包 加 16、标志。
+            做 内存_写64 用 闭包 加 24、0。
+            返还 闭包。
+        完。
+        若 op 等于 OP_CreateBlockContext：
+            槽数 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            新ctx 为 做 平台_申请内存 用 上下文_槽起始偏移 加 槽数 乘 8。
+            若 新ctx 等于 0：
+                返还 acc。
+            完。
+            做 内存_清零 用 新ctx、上下文_槽起始偏移 加 槽数 乘 8。
+            做 内存_写64 用 新ctx 加 上下文_父指针偏移、frame 的 上下文。
+            frame 的 上下文 为 新ctx。
+            返还 acc。
+        完。
+        若 op 等于 OP_CreateCatchContext：
+            异常_reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            异常值 为 做 内存_读64 用 寄存器 加 异常_reg 乘 8。
+            新ctx 为 做 平台_申请内存 用 上下文_槽起始偏移 加 8。
+            若 新ctx 等于 0：
+                返还 acc。
+            完。
+            做 内存_写64 用 新ctx 加 上下文_父指针偏移、frame 的 上下文。
+            做 内存_写64 用 新ctx 加 上下文_槽起始偏移、异常值。
+            frame 的 上下文 为 新ctx。
+            返还 acc。
+        完。
+        若 op 等于 OP_CreateWithContext：
+            对象_reg 为 做 内存_读8 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 1。
+            对象 为 做 内存_读64 用 寄存器 加 对象_reg 乘 8。
+            新ctx 为 做 平台_申请内存 用 上下文_槽起始偏移 加 8。
+            若 新ctx 等于 0：
+                返还 acc。
+            完。
+            做 内存_写64 用 新ctx 加 上下文_父指针偏移、frame 的 上下文。
+            做 内存_写64 用 新ctx 加 上下文_槽起始偏移、对象。
+            frame 的 上下文 为 新ctx。
+            返还 acc。
+        完。
+        返还 acc。
+    完。
+    字节码_执行条件跳转 接受 Nova运行时实例、frame、op、acc、代码：
+        若 Nova运行时实例 等于 0 或者 frame 等于 0：
+            返还。
+        完。
+        若 op 等于 OP_JumpIfTrue：
+            目标 为 做 内存_读16 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 2。
+            若 acc 等于 Nova运行时实例 的 true值：
+                frame 的 PC 为 目标。
+            完。
+        完。
+        若 op 等于 OP_JumpIfFalse：
+            目标 为 做 内存_读16 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 2。
+            若 acc 等于 Nova运行时实例 的 false值：
+                frame 的 PC 为 目标。
+            完。
+        完。
+        若 op 等于 OP_JumpIfToBooleanTrue：
+            目标 为 做 内存_读16 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 2。
+            布尔值 为 做 JSValue_ToBoolean 用 Nova运行时实例、acc。
+            若 布尔值 等于 真：
+                frame 的 PC 为 目标。
+            完。
+        完。
+        若 op 等于 OP_JumpIfToBooleanFalse：
+            目标 为 做 内存_读16 用 代码 加 frame 的 PC。
+            frame 的 PC 为 frame 的 PC 加 2。
+            布尔值 为 做 JSValue_ToBoolean 用 Nova运行时实例、acc。
+            若 布尔值 等于 假：
+                frame 的 PC 为 目标。
+            完。
+        完。
+    完。
+    字节码_分发扩展操作码 接受 Nova运行时实例、frame、op、acc、寄存器、代码、常量池、统计：
+        若 Nova运行时实例 等于 0 或者 frame 等于 0：
+            返还 acc。
+        完。
+        若 统计 不等于 空：
+            做 操作码统计_记录 用 统计、op。
+        完。
+        若 op 大于或等于 OP_BitwiseNot 并且 op 小于或等于 OP_Void：
+            返还 做 字节码_执行一元运算 用 Nova运行时实例、frame、op、acc、寄存器、代码、常量池。
+        完。
+        若 op 大于或等于 OP_DeletePropertyStrict 并且 op 小于或等于 OP_TestIn：
+            返还 做 字节码_执行删除 用 Nova运行时实例、frame、op、acc、寄存器、代码。
+        完。
+        若 op 大于或等于 OP_JumpIfNotNull 并且 op 小于或等于 OP_JumpIfToBooleanFalse：
+            做 字节码_执行条件跳转 用 Nova运行时实例、frame、op、acc、代码。
+            返还 acc。
+        完。
+        若 op 大于或等于 OP_ForInEnumerate 并且 op 小于或等于 OP_IteratorClose：
+            返还 做 字节码_执行迭代器 用 Nova运行时实例、frame、op、acc、寄存器、代码。
+        完。
+        若 op 大于或等于 OP_CreateClosure 并且 op 小于或等于 OP_CreateWithContext：
+            返还 做 字节码_执行闭包上下文 用 Nova运行时实例、frame、op、acc、寄存器、代码、常量池。
+        完。
+        做 打印 用 「[字节码] 警告: 未知操作码」。
+        返还 acc。
+    完。
+    操作码统计_打印 接受 统计：
+        若 统计 等于 空：
+            返还。
+        完。
+        做 打印 用 「[字节码] ═══════════ 操作码统计 ═══════════」。
+        做 打印 用 做 字符串拼接 用 「  总执行数:   」、做 转字符串 用 统计 的 总执行数。
+        做 打印 用 做 字符串拼接 用 「  最热操作码: 0x」、做 转字符串 用 统计 的 最热操作码。
+        做 打印 用 做 字符串拼接 用 「  最热次数:   」、做 转字符串 用 统计 的 最热次数。
+        若 统计 的 基址 不等于 0 并且 统计 的 总执行数 大于 0：
+            可变 i 为 0。
+            只要 i 小于 AI_操作码统计_大小：
+                次数 为 做 内存_读64 用 统计 的 基址 加 i 乘 8。
+                若 次数 大于 统计 的 总执行数 除以 100：
+                    做 打印 用 做 字符串拼接 用 「  操作码0x」、做 字符串拼接 用 做 转字符串 用 i、做 字符串拼接 用 「: 」、做 转字符串 用 次数。
+                完。
+                i 为 i 加 1。
+            完。
+        完。
+        做 打印 用 「[字节码] ═══════════════════════════════════════」。
+    完。
+    操作码_名称 接受 op：
+        若 op 等于 OP_DeletePropertyStrict：
+            返还 「DeletePropertyStrict」。
+        完。
+        若 op 等于 OP_DeletePropertySloppy：
+            返还 「DeletePropertySloppy」。
+        完。
+        若 op 等于 OP_TestUndetectable：
+            返还 「TestUndetectable」。
+        完。
+        若 op 等于 OP_TestTypeOf：
+            返还 「TestTypeOf」。
+        完。
+        若 op 等于 OP_TestInstanceOf：
+            返还 「TestInstanceOf」。
+        完。
+        若 op 等于 OP_TestIn：
+            返还 「TestIn」。
+        完。
+        若 op 等于 OP_BitwiseNot：
+            返还 「BitwiseNot」。
+        完。
+        若 op 等于 OP_Negate：
+            返还 「Negate」。
+        完。
+        若 op 等于 OP_Inc：
+            返还 「Inc」。
+        完。
+        若 op 等于 OP_Dec：
+            返还 「Dec」。
+        完。
+        若 op 等于 OP_LogicalNot：
+            返还 「LogicalNot」。
+        完。
+        若 op 等于 OP_TypeOf：
+            返还 「TypeOf」。
+        完。
+        若 op 等于 OP_Void：
+            返还 「Void」。
+        完。
+        若 op 等于 OP_ForInEnumerate：
+            返还 「ForInEnumerate」。
+        完。
+        若 op 等于 OP_GetIterator：
+            返还 「GetIterator」。
+        完。
+        若 op 等于 OP_CreateClosure：
+            返还 「CreateClosure」。
+        完。
+        若 op 等于 OP_PushContext：
+            返还 「PushContext」。
+        完。
+        若 op 等于 OP_PopContext：
+            返还 「PopContext」。
+        完。
+        返还 「未知操作码」。
+    完。
+完。
+
+本章 收束。

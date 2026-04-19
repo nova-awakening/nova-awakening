@@ -1,0 +1,208 @@
+《着色编译器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·着色器编译》。
+
+GL_COPY_READ_BUFFER 为 0x8F36。
+
+GL_COPY_WRITE_BUFFER 为 0x8F37。
+
+GL_TRANSFORM_FEEDBACK_BUFFER 为 0x8C8E。
+
+GL_UNIFORM_BUFFER 为 0x8A11。
+
+GL_PIXEL_PACK_BUFFER 为 0x88EB。
+
+GL_PIXEL_UNPACK_BUFFER 为 0x88EC。
+
+GL_TEXTURE_3D 为 0x806F。
+
+GL_TEXTURE_2D_ARRAY 为 0x8C1A。
+
+GL_R8 为 0x8229。
+
+GL_R16F 为 0x822D。
+
+GL_R32F 为 0x822E。
+
+GL_R8I 为 0x8231。
+
+GL_R8UI 为 0x8232。
+
+GL_RG8 为 0x822B。
+
+GL_RG16F 为 0x822F。
+
+GL_RG32F 为 0x8230。
+
+GL_RGB8 为 0x8051。
+
+GL_RGBA8 为 0x8058。
+
+GL_RGBA16F 为 0x881A。
+
+GL_RGBA32F 为 0x8814。
+
+GL_DEPTH_COMPONENT24 为 0x81A6。
+
+GL_DEPTH_COMPONENT32F 为 0x8CAC。
+
+GL_DEPTH24_STENCIL8 为 0x88F0。
+
+GL_DEPTH32F_STENCIL8 为 0x8CAD。
+
+GL_SYNC_图处_COMMANDS_COMPLETE 为 0x9117。
+
+GL_ALREADY_SIGNALED 为 0x911A。
+
+GL_TIMEOUT_EXPIRED 为 0x911B。
+
+GL_CONDITION_SATISFIED 为 0x911C。
+
+GL_WAIT_FAILED 为 0x911D。
+
+GL_SYNC_FLUSH_COMMANDS_BIT 为 0x00000001。
+
+GL_TRANSFORM_FEEDBACK 为 0x8E22。
+
+GL_INTERLEAVED_ATTRIBS 为 0x8C8C。
+
+GL_SEPARATE_ATTRIBS 为 0x8C8D。
+
+GL_ANY_SAMPLES_PASSED 为 0x8C2F。
+
+GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN 为 0x8C88。
+
+GL_SAMPLER_BINDING 为 0x8919。
+
+GLSL_TOK_IDENT 为 0。
+
+GLSL_TOK_INT 为 1。
+
+GLSL_TOK_FLOAT 为 2。
+
+GLSL_TOK_KEYWORD 为 3。
+
+GLSL_TOK_OPERATOR 为 4。
+
+GLSL_TOK_SEMICOL 为 5。
+
+GLSL_TOK_LBRACE 为 6。
+
+GLSL_TOK_RBRACE 为 7。
+
+GLSL_TOK_LPAREN 为 8。
+
+GLSL_TOK_RPAREN 为 9。
+
+GLSL_TOK_COMMA 为 10。
+
+GLSL_TOK_DOT 为 11。
+
+GLSL_TOK_EOF 为 12。
+
+GLSL_TOK_PREPROC 为 13。
+
+GLSL_TYPE_VOID 为 0。
+
+GLSL_TYPE_BOOL 为 1。
+
+GLSL_TYPE_INT 为 2。
+
+GLSL_TYPE_UINT 为 3。
+
+GLSL_TYPE_FLOAT 为 4。
+
+GLSL_TYPE_VEC2 为 5。
+
+GLSL_TYPE_VEC3 为 6。
+
+GLSL_TYPE_VEC4 为 7。
+
+GLSL_TYPE_MAT2 为 8。
+
+GLSL_TYPE_MAT3 为 9。
+
+GLSL_TYPE_MAT4 为 10。
+
+GLSL_TYPE_SAMPLER2D 为 11。
+
+GLSL_TYPE_SAMPLER3D 为 12。
+
+GLSL_TYPE_SAMPLERCUBE 为 13。
+
+GLSL_TYPE_IVEC2 为 14。
+
+GLSL_TYPE_IVEC3 为 15。
+
+GLSL_TYPE_IVEC4 为 16。
+
+GLSL_TYPE_UVEC2 为 17。
+
+GLSL_TYPE_UVEC3 为 18。
+
+GLSL_TYPE_UVEC4 为 19。
+
+GLSL令牌 是 一种 事物，含 类型、值、行号、列号。
+
+GLSLVariable 是 一种 事物，含 名称、类型、限定符、位置、绑定、数组大小。
+
+GLSLFunction 是 一种 事物，含 名称、返回类型、参数、参数数、体。
+
+ShaderCompiler 是 一种 事物，含 源码、源码长度、位置、当前行、当前列、令牌s、令牌数、令牌容量、变量、变量数、函数、函数数、字节码、字节码长度、错误、有错误、版本。
+
+ShaderCompiler_创建 接受 零参：
+    sc 为 做 堆_分配 用 ShaderCompiler。
+    sc 的 源码 为 0。
+    sc 的 源码长度 为 0。
+    sc 的 位置 为 0。
+    sc 的 当前行 为 1。
+    sc 的 当前列 为 1。
+    sc 的 令牌容量 为 1024。
+    sc 的 令牌s 为 做 堆_分配_数组 用 1024 乘 做 大小of 用 GLSL令牌。
+    sc 的 令牌数 为 0。
+    sc 的 变量数 为 0。
+    sc 的 函数数 为 0。
+    sc 的 字节码 为 0。
+    sc 的 字节码长度 为 0。
+    sc 的 错误 为 0。
+    sc 的 有错误 为 假。
+    sc 的 版本 为 300。
+    返还 sc。
+完。
+
+ShaderCompiler_编译 接受 sc、源码、长度、着色器类型：
+    若 sc 等于 0 或者 源码 等于 0：
+        返还 假。
+    完。
+    sc 的 源码 为 源码。
+    sc 的 源码长度 为 长度。
+    sc 的 位置 为 0。
+    sc 的 有错误 为 假。
+    sc 的 令牌数 为 0。
+    sc 的 变量数 为 0。
+    做 ShaderCompiler_预处理 用 sc。
+    若 sc 的 有错误：
+        返还 假。
+    完。
+    做 ShaderCompiler_词法分析 用 sc。
+    若 sc 的 有错误：
+        返还 假。
+    完。
+    做 ShaderCompiler_语法分析 用 sc。
+    若 sc 的 有错误：
+        返还 假。
+    完。
+    做 ShaderCompiler_语义检查 用 sc。
+    若 sc 的 有错误：
+        返还 假。
+    完。
+    做 ShaderCompiler_优化 用 sc。
+    做 ShaderCompiler_生成代码 用 sc、着色器类型。
+    返还 非 sc 的 有错误。
+完。
+
+本章 收束。

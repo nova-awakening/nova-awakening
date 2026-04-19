@@ -1,0 +1,600 @@
+《TTF文件解析》
+
+引用《..·中枢·日志中枢》。
+
+引用《..·中枢·数学工具》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·中枢·整数转字符串》。
+
+TTF字体 是 一种 事物，含 数据、大小、cmap偏移、glyf偏移、loca偏移、head偏移、hhea偏移、hmtx偏移、maxp偏移、单位_每EM、字形数、loca格式、上升量、下降量、行间距、已加载。
+
+字形轮廓点 是 一种 事物，含 x、y、在曲线上。
+
+字形数据 是 一种 事物，含 轮廓数、点数、点列表、轮廓结束索引、xMin、yMin、xMax、yMax、advanceWidth、leftSideBearing。
+
+光栅化位图 是 一种 事物，含 宽度、高度、像素、偏移X、偏移Y。
+
+LRU_缓存大小 为 256。
+
+字形缓存项 是 一种 事物，含 字符码、字号、位图、访问计数、有效。
+
+可变 全局TTF 为 新建 TTF字体。
+
+可变 字形缓存 为 一组：（空）。
+
+可变 缓存_命中数 为 0。
+
+可变 缓存_未中数 为 0。
+
+TTF_加载 接受 数据地址、大小：
+    若 大小 小于 12：
+        做 内核警告 用 「TTF: 文件太小」。
+        返还 假。
+    完。
+    全局TTF 的 数据 为 数据地址。
+    全局TTF 的 大小 为 大小。
+    魔数 为 做 TTF_读32 用 0。
+    若 魔数 不等于 0x00010000 并且 魔数 不等于 0x74727565：
+        做 内核警告 用 「TTF: 无效魔数」。
+        返还 假。
+    完。
+    表数 为 做 TTF_读16 用 4。
+    可变 i 为 0。
+    只要 i 小于 表数：
+        偏移 为 12 加 i 乘 16。
+        标签 为 做 TTF_读32 用 偏移。
+        表偏移 为 做 TTF_读32 用 偏移 加 8。
+        若 标签 等于 0x636D6170：
+            全局TTF 的 cmap偏移 为 表偏移。
+        完。
+        做 否则如果 用 标签 等于 0x676C7966。
+        块：
+            全局TTF 的 glyf偏移 为 表偏移。
+        完。
+        做 否则如果 用 标签 等于 0x6C6F6361。
+        块：
+            全局TTF 的 loca偏移 为 表偏移。
+        完。
+        做 否则如果 用 标签 等于 0x68656164。
+        块：
+            全局TTF 的 head偏移 为 表偏移。
+        完。
+        做 否则如果 用 标签 等于 0x68686561。
+        块：
+            全局TTF 的 hhea偏移 为 表偏移。
+        完。
+        做 否则如果 用 标签 等于 0x686D7478。
+        块：
+            全局TTF 的 hmtx偏移 为 表偏移。
+        完。
+        做 否则如果 用 标签 等于 0x6D617870。
+        块：
+            全局TTF 的 maxp偏移 为 表偏移。
+        完。
+        i 为 i 加 1。
+    完。
+    若 全局TTF 的 head偏移 大于 0：
+        全局TTF 的 单位_每EM 为 做 TTF_读16 用 全局TTF 的 head偏移 加 18。
+        全局TTF 的 loca格式 为 做 TTF_读16 用 全局TTF 的 head偏移 加 50。
+    完。
+    若 全局TTF 的 单位_每EM 等于 0：
+        全局TTF 的 单位_每EM 为 2048。
+    完。
+    若 全局TTF 的 maxp偏移 大于 0：
+        全局TTF 的 字形数 为 做 TTF_读16 用 全局TTF 的 maxp偏移 加 4。
+    完。
+    若 全局TTF 的 hhea偏移 大于 0：
+        全局TTF 的 上升量 为 做 TTF_读16有符号 用 全局TTF 的 hhea偏移 加 4。
+        全局TTF 的 下降量 为 做 TTF_读16有符号 用 全局TTF 的 hhea偏移 加 6。
+        全局TTF 的 行间距 为 做 TTF_读16有符号 用 全局TTF 的 hhea偏移 加 8。
+    完。
+    全局TTF 的 已加载 为 真。
+    字形缓存 为 一组：（空）。
+    做 内核信息 用 「TTF: 加载完成 表=」 加 做 整数转字符串 用 表数 加 「 字形=」 加 做 整数转字符串 用 全局TTF 的 字形数 加 「 EM=」 加 做 整数转字符串 用 全局TTF 的 单位_每EM。
+    返还 真。
+完。
+
+TTF_cmap_查找字形ID 接受 字符码：
+    若 非 全局TTF 的 已加载 或者 全局TTF 的 cmap偏移 等于 0：
+        返还 0。
+    完。
+    cmap_base 为 全局TTF 的 cmap偏移。
+    子表数 为 做 TTF_读16 用 cmap_base 加 2。
+    可变 子表偏移 为 0。
+    可变 i 为 0。
+    只要 i 小于 子表数：
+        off 为 cmap_base 加 4 加 i 乘 8。
+        platform 为 做 TTF_读16 用 off。
+        encoding 为 做 TTF_读16 用 off 加 2。
+        若 platform 等于 3 并且 encoding 等于 1：
+            子表偏移 为 cmap_base 加 做 TTF_读32 用 off 加 4。
+            跳出。
+        完。
+        若 platform 等于 0 并且 encoding 等于 3 并且 子表偏移 等于 0：
+            子表偏移 为 cmap_base 加 做 TTF_读32 用 off 加 4。
+        完。
+        i 为 i 加 1。
+    完。
+    若 子表偏移 等于 0：
+        返还 0。
+    完。
+    format 为 做 TTF_读16 用 子表偏移。
+    若 format 不等于 4：
+        返还 0。
+    完。
+    segCount2 为 做 TTF_读16 用 子表偏移 加 6。
+    segCount 为 segCount2 除以 2。
+    endCodes 为 子表偏移 加 14。
+    startCodes 为 endCodes 加 segCount2 加 2。
+    idDeltas 为 startCodes 加 segCount2。
+    idRangeOffsets 为 idDeltas 加 segCount2。
+    可变 lo 为 0。
+    可变 hi 为 segCount 减 1。
+    只要 lo 小于或等于 hi：
+        mid 为 (lo 加 hi) 除以 2。
+        endCode 为 做 TTF_读16 用 endCodes 加 mid 乘 2。
+        若 字符码 大于 endCode：
+            lo 为 mid 加 1。
+        否则：
+            startCode 为 做 TTF_读16 用 startCodes 加 mid 乘 2。
+            若 字符码 小于 startCode：
+                hi 为 mid 减 1。
+            否则：
+                idRangeOffset 为 做 TTF_读16 用 idRangeOffsets 加 mid 乘 2。
+                若 idRangeOffset 等于 0：
+                    idDelta 为 做 TTF_读16有符号 用 idDeltas 加 mid 乘 2。
+                    返还 字符码 加 idDelta 位与 0xFFFF。
+                否则：
+                    glyphAddr 为 idRangeOffsets 加 mid 乘 2 加 idRangeOffset 加 (字符码 减 startCode) 乘 2。
+                    glyphID 为 做 TTF_读16 用 glyphAddr。
+                    若 glyphID 不等于 0：
+                        idDelta 为 做 TTF_读16有符号 用 idDeltas 加 mid 乘 2。
+                        返还 glyphID 加 idDelta 位与 0xFFFF。
+                    完。
+                    返还 0。
+                完。
+            完。
+        完。
+    完。
+    返还 0。
+完。
+
+TTF_获取字形偏移 接受 glyphID：
+    若 全局TTF 的 loca偏移 等于 0 或者 glyphID 大于或等于 全局TTF 的 字形数：
+        返还 0。
+    完。
+    若 全局TTF 的 loca格式 等于 0：
+        返还 做 TTF_读16 用 全局TTF 的 loca偏移 加 glyphID 乘 2 乘 2。
+    否则：
+        返还 做 TTF_读32 用 全局TTF 的 loca偏移 加 glyphID 乘 4。
+    完。
+完。
+
+TTF_加载字形 接受 glyphID：
+    若 全局TTF 的 glyf偏移 等于 0：
+        返还 0。
+    完。
+    glyf_off 为 全局TTF 的 glyf偏移 加 做 TTF_获取字形偏移 用 glyphID。
+    next_off 为 全局TTF 的 glyf偏移 加 做 TTF_获取字形偏移 用 glyphID 加 1。
+    若 glyf_off 等于 next_off：
+        返还 0。
+    完。
+    g 为 新建 字形数据。
+    轮廓数 为 做 TTF_读16有符号 用 glyf_off。
+    若 轮廓数 小于 0：
+        返还 0。
+    完。
+    g 的 轮廓数 为 轮廓数。
+    g 的 xMin 为 做 TTF_读16有符号 用 glyf_off 加 2。
+    g 的 yMin 为 做 TTF_读16有符号 用 glyf_off 加 4。
+    g 的 xMax 为 做 TTF_读16有符号 用 glyf_off 加 6。
+    g 的 yMax 为 做 TTF_读16有符号 用 glyf_off 加 8。
+    g 的 轮廓结束索引 为 一组：（空）。
+    可变 p 为 glyf_off 加 10。
+    可变 i 为 0。
+    只要 i 小于 轮廓数：
+        endIdx 为 做 TTF_读16 用 p。
+        做 追加 用 g 的 轮廓结束索引、endIdx。
+        p 为 p 加 2。
+        i 为 i 加 1。
+    完。
+    g 的 点数 为 g 的 轮廓结束索引 的 第 轮廓数 减 1 项 加 1。
+    指令长 为 做 TTF_读16 用 p。
+    p 为 p 加 2 加 指令长。
+    可变 flags 为 一组：（空）。
+    可变 fi 为 0。
+    只要 fi 小于 g 的 点数：
+        flag 为 做 TTF_读8 用 p。
+        p 为 p 加 1。
+        做 追加 用 flags、flag。
+        若 flag 位与 8：
+            repeat 为 做 TTF_读8 用 p。
+            p 为 p 加 1。
+            可变 ri 为 0。
+            只要 ri 小于 repeat：
+                做 追加 用 flags、flag。
+                fi 为 fi 加 1。
+                ri 为 ri 加 1。
+            完。
+        完。
+        fi 为 fi 加 1。
+    完。
+    可变 xCoords 为 一组：（空）。
+    可变 x 为 0。
+    i 为 0。
+    只要 i 小于 g 的 点数：
+        f 为 flags 的 第 i 项。
+        若 f 位与 2：
+            dx 为 做 TTF_读8 用 p。
+            p 为 p 加 1。
+            若 非 (f 位与 16)：
+                dx 为 0 减 dx。
+            完。
+            x 为 x 加 dx。
+        完。
+        做 否则如果 用 非 (f 位与 16)。
+        块：
+            x 为 x 加 做 TTF_读16有符号 用 p。
+            p 为 p 加 2。
+        完。
+        做 追加 用 xCoords、x。
+        i 为 i 加 1。
+    完。
+    可变 yCoords 为 一组：（空）。
+    可变 y 为 0。
+    i 为 0。
+    只要 i 小于 g 的 点数：
+        f 为 flags 的 第 i 项。
+        若 f 位与 4：
+            dy 为 做 TTF_读8 用 p。
+            p 为 p 加 1。
+            若 非 (f 位与 32)：
+                dy 为 0 减 dy。
+            完。
+            y 为 y 加 dy。
+        完。
+        做 否则如果 用 非 (f 位与 32)。
+        块：
+            y 为 y 加 做 TTF_读16有符号 用 p。
+            p 为 p 加 2。
+        完。
+        做 追加 用 yCoords、y。
+        i 为 i 加 1。
+    完。
+    g 的 点列表 为 一组：（空）。
+    i 为 0。
+    只要 i 小于 g 的 点数：
+        pt 为 新建 字形轮廓点。
+        pt 的 x 为 xCoords 的 第 i 项。
+        pt 的 y 为 yCoords 的 第 i 项。
+        pt 的 在曲线上 为 flags 的 第 i 项 位与 1 不等于 0。
+        做 追加 用 g 的 点列表、pt。
+        i 为 i 加 1。
+    完。
+    做 TTF_加载度量 用 g、glyphID。
+    返还 g。
+完。
+
+BEZIER_细分步数 为 8。
+
+贝塞尔_平坦化 接受 p0x、p0y、p1x、p1y、p2x、p2y、结果点：
+    可变 i 为 1。
+    只要 i 小于或等于 BEZIER_细分步数：
+        t 为 i 乘 1024 除以 BEZIER_细分步数。
+        t2 为 t 乘 t 除以 1024。
+        mt 为 1024 减 t。
+        mt2 为 mt 乘 mt 除以 1024。
+        two_mt_t 为 2 乘 mt 乘 t 除以 1024。
+        x 为 (mt2 乘 p0x 加 two_mt_t 乘 p1x 加 t2 乘 p2x) 除以 1024。
+        y 为 (mt2 乘 p0y 加 two_mt_t 乘 p1y 加 t2 乘 p2y) 除以 1024。
+        pt 为 新建 字形轮廓点。
+        pt 的 x 为 x。
+        pt 的 y 为 y。
+        pt 的 在曲线上 为 真。
+        做 追加 用 结果点、pt。
+        i 为 i 加 1。
+    完。
+完。
+
+TTF_光栅化 接受 字形、字号像素：
+    若 字形 等于 0：
+        返还 0。
+    完。
+    缩放 为 字号像素 乘 1024 除以 全局TTF 的 单位_每EM。
+    w 为 (字形 的 xMax 减 字形 的 xMin) 乘 缩放 除以 1024 加 2。
+    h 为 (字形 的 yMax 减 字形 的 yMin) 乘 缩放 除以 1024 加 2。
+    若 w 小于或等于 0 或者 h 小于或等于 0：
+        返还 0。
+    完。
+    bmp 为 新建 光栅化位图。
+    bmp 的 宽度 为 w。
+    bmp 的 高度 为 h。
+    bmp 的 像素 为 做 堆_分配 用 w 乘 h。
+    做 内存_置零 用 bmp 的 像素、w 乘 h。
+    bmp 的 偏移X 为 字形 的 xMin 乘 缩放 除以 1024。
+    bmp 的 偏移Y 为 字形 的 yMin 乘 缩放 除以 1024。
+    线段 为 做 TTF_平坦化轮廓 用 字形、缩放。
+    可变 y 为 0。
+    只要 y 小于 h：
+        scan_y 为 y 加 bmp 的 偏移Y。
+        可变 交点 为 一组：（空）。
+        可变 ei 为 0。
+        只要 ei 小于 做 计数 用 线段：
+            seg 为 线段 的 第 ei 项。
+            y0 为 seg 的 y0。
+            y1 为 seg 的 y1。
+            若 y0 小于或等于 scan_y 并且 y1 大于 scan_y 或者 y1 小于或等于 scan_y 并且 y0 大于 scan_y：
+                t 为 (scan_y 减 y0) 乘 1024 除以 (y1 减 y0 加 1)。
+                ix 为 seg 的 x0 加 t 乘 (seg 的 x1 减 seg 的 x0) 除以 1024。
+                做 追加 用 交点、ix 减 bmp 的 偏移X。
+            完。
+            ei 为 ei 加 1。
+        完。
+        可变 si 为 1。
+        只要 si 小于 做 计数 用 交点：
+            key 为 交点 的 第 si 项。
+            可变 sj 为 si 减 1。
+            只要 sj 大于或等于 0 并且 交点 的 第 sj 项 大于 key：
+                交点 的 第 sj 加 1 项 为 交点 的 第 sj 项。
+                sj 为 sj 减 1。
+            完。
+            交点 的 第 sj 加 1 项 为 key。
+            si 为 si 加 1。
+        完。
+        可变 pi 为 0。
+        只要 pi 加 1 小于 做 计数 用 交点：
+            x0 为 交点 的 第 pi 项。
+            x1 为 交点 的 第 pi 加 1 项。
+            可变 x 为 x0。
+            只要 x 小于 x1：
+                若 x 大于或等于 0 并且 x 小于 w：
+                    做 内存_写8 用 bmp 的 像素 加 y 乘 w 加 x、255。
+                完。
+                x 为 x 加 1。
+            完。
+            pi 为 pi 加 2。
+        完。
+        y 为 y 加 1。
+    完。
+    返还 bmp。
+完。
+
+线段数据 是 一种 事物，含 x0、y0、x1、y1。
+
+TTF_平坦化轮廓 接受 字形、缩放：
+    结果 为 一组：（空）。
+    可变 轮廓开始 为 0。
+    可变 ci 为 0。
+    只要 ci 小于 字形 的 轮廓数：
+        轮廓结束 为 字形 的 轮廓结束索引 的 第 ci 项。
+        可变 pi 为 轮廓开始。
+        只要 pi 小于或等于 轮廓结束：
+            ni 为 若 pi 小于 轮廓结束 则 pi 加 1 否则 轮廓开始。
+            p0 为 字形 的 点列表 的 第 pi 项。
+            p1 为 字形 的 点列表 的 第 ni 项。
+            若 p0 的 在曲线上 并且 p1 的 在曲线上：
+                seg 为 新建 线段数据。
+                seg 的 x0 为 p0 的 x 乘 缩放 除以 1024。
+                seg 的 y0 为 p0 的 y 乘 缩放 除以 1024。
+                seg 的 x1 为 p1 的 x 乘 缩放 除以 1024。
+                seg 的 y1 为 p1 的 y 乘 缩放 除以 1024。
+                做 追加 用 结果、seg。
+            完。
+            做 否则如果 用 p0 的 在曲线上 并且 非 p1 的 在曲线上。
+            块：
+                nni 为 若 ni 小于 轮廓结束 则 ni 加 1 否则 轮廓开始。
+                p2 为 字形 的 点列表 的 第 nni 项。
+                flat_pts 为 一组：（空）。
+                做 贝塞尔_平坦化 用 p0 的 x 乘 缩放 除以 1024、p0 的 y 乘 缩放 除以 1024、p1 的 x 乘 缩放 除以 1024、p1 的 y 乘 缩放 除以 1024、p2 的 x 乘 缩放 除以 1024、p2 的 y 乘 缩放 除以 1024、flat_pts。
+                可变 prev_x 为 p0 的 x 乘 缩放 除以 1024。
+                可变 prev_y 为 p0 的 y 乘 缩放 除以 1024。
+                可变 fi 为 0。
+                只要 fi 小于 做 计数 用 flat_pts：
+                    seg 为 新建 线段数据。
+                    seg 的 x0 为 prev_x。
+                    seg 的 y0 为 prev_y。
+                    seg 的 x1 为 flat_pts 的 第 fi 项 的 x。
+                    seg 的 y1 为 flat_pts 的 第 fi 项 的 y。
+                    做 追加 用 结果、seg。
+                    prev_x 为 seg 的 x1。
+                    prev_y 为 seg 的 y1。
+                    fi 为 fi 加 1。
+                完。
+                pi 为 pi 加 1。
+            完。
+            pi 为 pi 加 1。
+        完。
+        轮廓开始 为 轮廓结束 加 1。
+        ci 为 ci 加 1。
+    完。
+    返还 结果。
+完。
+
+TTF_加载度量 接受 字形、glyphID：
+    若 全局TTF 的 hmtx偏移 等于 0：
+        返还。
+    完。
+    numHMetrics 为 做 TTF_读16 用 全局TTF 的 hhea偏移 加 34。
+    若 glyphID 小于 numHMetrics：
+        字形 的 advanceWidth 为 做 TTF_读16 用 全局TTF 的 hmtx偏移 加 glyphID 乘 4。
+        字形 的 leftSideBearing 为 做 TTF_读16有符号 用 全局TTF 的 hmtx偏移 加 glyphID 乘 4 加 2。
+    否则：
+        字形 的 advanceWidth 为 做 TTF_读16 用 全局TTF 的 hmtx偏移 加 (numHMetrics 减 1) 乘 4。
+        lsb_off 为 全局TTF 的 hmtx偏移 加 numHMetrics 乘 4 加 (glyphID 减 numHMetrics) 乘 2。
+        字形 的 leftSideBearing 为 做 TTF_读16有符号 用 lsb_off。
+    完。
+完。
+
+字形缓存_查找 接受 字符码、字号：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 字形缓存：
+        entry 为 字形缓存 的 第 i 项。
+        若 entry 的 有效 并且 entry 的 字符码 等于 字符码 并且 entry 的 字号 等于 字号：
+            entry 的 访问计数 为 entry 的 访问计数 加 1。
+            缓存_命中数 为 缓存_命中数 加 1。
+            返还 entry 的 位图。
+        完。
+        i 为 i 加 1。
+    完。
+    缓存_未中数 为 缓存_未中数 加 1。
+    返还 0。
+完。
+
+字形缓存_插入 接受 字符码、字号、位图：
+    若 做 计数 用 字形缓存 大于或等于 LRU_缓存大小：
+        可变 min_idx 为 0。
+        可变 min_cnt 为 字形缓存 的 第 0 项 的 访问计数。
+        可变 i 为 1。
+        只要 i 小于 做 计数 用 字形缓存：
+            若 字形缓存 的 第 i 项 的 访问计数 小于 min_cnt：
+                min_cnt 为 字形缓存 的 第 i 项 的 访问计数。
+                min_idx 为 i。
+            完。
+            i 为 i 加 1。
+        完。
+        若 字形缓存 的 第 min_idx 项 的 位图 不等于 0：
+            做 堆_释放 用 字形缓存 的 第 min_idx 项 的 位图 的 像素。
+        完。
+        字形缓存 的 第 min_idx 项 的 字符码 为 字符码。
+        字形缓存 的 第 min_idx 项 的 字号 为 字号。
+        字形缓存 的 第 min_idx 项 的 位图 为 位图。
+        字形缓存 的 第 min_idx 项 的 访问计数 为 1。
+        字形缓存 的 第 min_idx 项 的 有效 为 真。
+        返还。
+    完。
+    entry 为 新建 字形缓存项。
+    entry 的 字符码 为 字符码。
+    entry 的 字号 为 字号。
+    entry 的 位图 为 位图。
+    entry 的 访问计数 为 1。
+    entry 的 有效 为 真。
+    做 追加 用 字形缓存、entry。
+完。
+
+TTF_渲染字符 接受 字符码、字号：
+    cached 为 做 字形缓存_查找 用 字符码、字号。
+    若 cached 不等于 0：
+        返还 cached。
+    完。
+    glyphID 为 做 TTF_cmap_查找字形ID 用 字符码。
+    若 glyphID 等于 0：
+        返还 0。
+    完。
+    glyph 为 做 TTF_加载字形 用 glyphID。
+    若 glyph 等于 0：
+        返还 0。
+    完。
+    bmp 为 做 TTF_光栅化 用 glyph、字号。
+    若 bmp 不等于 0：
+        做 字形缓存_插入 用 字符码、字号、bmp。
+    完。
+    返还 bmp。
+完。
+
+TTF_渲染文本 接受 文本、字号、fb、x、y、颜色：
+    若 非 全局TTF 的 已加载：
+        返还 0。
+    完。
+    缩放 为 字号 乘 1024 除以 全局TTF 的 单位_每EM。
+    可变 cursor_x 为 x。
+    可变 i 为 0。
+    只要 i 小于 做 字符串长度 用 文本：
+        ch 为 做 字符串_字符 用 文本、i。
+        bmp 为 做 TTF_渲染字符 用 ch、字号。
+        若 bmp 不等于 0：
+            做 TTF_blit位图 用 fb、bmp、cursor_x、y、颜色。
+            glyphID 为 做 TTF_cmap_查找字形ID 用 ch。
+            glyph 为 做 TTF_加载字形 用 glyphID。
+            若 glyph 不等于 0：
+                cursor_x 为 cursor_x 加 glyph 的 advanceWidth 乘 缩放 除以 1024。
+            否则：
+                cursor_x 为 cursor_x 加 字号 除以 2。
+            完。
+        否则：
+            cursor_x 为 cursor_x 加 字号 除以 2。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 cursor_x 减 x。
+完。
+
+TTF_blit位图 接受 fb、bmp、dx、dy、颜色：
+    可变 by 为 0。
+    只要 by 小于 bmp 的 高度：
+        可变 bx 为 0。
+        只要 bx 小于 bmp 的 宽度：
+            alpha 为 做 内存_读8 用 bmp 的 像素 加 by 乘 bmp 的 宽度 加 bx。
+            若 alpha 大于 0：
+                px 为 dx 加 bx。
+                py 为 dy 加 by。
+                若 px 大于或等于 0 并且 py 大于或等于 0 并且 px 小于 fb 的 宽度 并且 py 小于 fb 的 高度：
+                    dst_off 为 (py 乘 fb 的 宽度 加 px) 乘 4。
+                    src_r 为 颜色 右移 16 位与 0xFF。
+                    src_g 为 颜色 右移 8 位与 0xFF。
+                    src_b 为 颜色 位与 0xFF。
+                    dst_r 为 做 内存_读8 用 fb 的 数据 加 dst_off。
+                    dst_g 为 做 内存_读8 用 fb 的 数据 加 dst_off 加 1。
+                    dst_b 为 做 内存_读8 用 fb 的 数据 加 dst_off 加 2。
+                    inv_a 为 255 减 alpha。
+                    做 内存_写8 用 fb 的 数据 加 dst_off、(src_r 乘 alpha 加 dst_r 乘 inv_a) 除以 255。
+                    做 内存_写8 用 fb 的 数据 加 dst_off 加 1、(src_g 乘 alpha 加 dst_g 乘 inv_a) 除以 255。
+                    做 内存_写8 用 fb 的 数据 加 dst_off 加 2、(src_b 乘 alpha 加 dst_b 乘 inv_a) 除以 255。
+                完。
+            完。
+            bx 为 bx 加 1。
+        完。
+        by 为 by 加 1。
+    完。
+完。
+
+TTF_读8 接受 off：
+    返还 做 内存_读8 用 全局TTF 的 数据 加 off。
+完。
+
+TTF_读16 接受 off：
+    b 为 全局TTF 的 数据 加 off。
+    返还 做 内存_读8 用 b 左移 8 位或 做 内存_读8 用 b 加 1。
+完。
+
+TTF_读16有符号 接受 off：
+    v 为 做 TTF_读16 用 off。
+    若 v 大于或等于 32768：
+        返还 v 减 65536。
+    完。
+    返还 v。
+完。
+
+TTF_读32 接受 off：
+    b 为 全局TTF 的 数据 加 off。
+    返还 做 内存_读8 用 b 左移 24 位或 做 内存_读8 用 b 加 1 左移 16 位或 做 内存_读8 用 b 加 2 左移 8 位或 做 内存_读8 用 b 加 3。
+完。
+
+可变 AI_真字体文件_热文件表 为 一组：（空）。
+
+AI_真字体文件_访问模式 接受 路径：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 AI_真字体文件_热文件表：
+        若 AI_真字体文件_热文件表 的 第 i 项 的 路径 等于 路径：
+            AI_真字体文件_热文件表 的 第 i 项 的 频率 为 AI_真字体文件_热文件表 的 第 i 项 的 频率 加 1。
+            返还 AI_真字体文件_热文件表 的 第 i 项 的 频率。
+        完。
+        i 为 i 加 1。
+    完。
+    若 做 计数 用 AI_真字体文件_热文件表 小于 128：
+        做 追加 用 AI_真字体文件_热文件表、一本字典：路径 对应 路径、频率 对应 1。
+    完。
+    返还 1。
+完。
+
+AI_真字体文件_预读建议 接受 文件大小、已读偏移：
+    若 已读偏移 大于 文件大小 乘 80 除以 100：
+        返还 0。
+    完。
+    返还 32768。
+完。
+
+本章 收束。

@@ -1,0 +1,119 @@
+《文件上传列》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+File 是 一种 事物，含 名称、类型、大小、最后修改、数据、relativePath。
+
+FileList 是 一种 事物，含 文件、长度。
+
+可变 文件列表创建数 为 0。
+
+可变 文件读取器创建数 为 0。
+
+可变 IME会话数 为 0。
+
+FileList_创建 接受 零参：
+    列表 为 做 堆_分配 用 FileList。
+    列表 的 文件 为 做 堆_分配_数组 用 32 乘 8。
+    列表 的 长度 为 0。
+    文件列表创建数 为 文件列表创建数 加 1。
+    返还 列表。
+完。
+
+FR_EMPTY 为 0。
+
+FR_LOADING 为 1。
+
+FR_DONE 为 2。
+
+FileReader 是 一种 事物，含 readyState、结果、结果类型、error、onload、onerror、onloadstart、onloadend、onprogress、onabort、已中止。
+
+FileReader_创建 接受 零参：
+    fr 为 做 堆_分配 用 FileReader。
+    fr 的 readyState 为 FR_EMPTY。
+    fr 的 结果 为 0。
+    fr 的 error 为 0。
+    fr 的 已中止 为 假。
+    文件读取器创建数 为 文件读取器创建数 加 1。
+    返还 fr。
+完。
+
+FileReader_readAsText 接受 fr、file、encoding：
+    若 fr 等于 0 或者 file 等于 0：
+        返还。
+    完。
+    若 fr 的 readyState 等于 FR_LOADING：
+        返还。
+    完。
+    fr 的 readyState 为 FR_LOADING。
+    fr 的 结果类型 为 1。
+完。
+
+FileReader_readAs数组Buffer 接受 fr、file：
+    若 fr 等于 0 或者 file 等于 0：
+        返还。
+    完。
+    若 fr 的 readyState 等于 FR_LOADING：
+        返还。
+    完。
+    fr 的 readyState 为 FR_LOADING。
+    fr 的 结果类型 为 0。
+完。
+
+FileReader_readAsDataURL 接受 fr、file：
+    若 fr 等于 0 或者 file 等于 0：
+        返还。
+    完。
+    若 fr 的 readyState 等于 FR_LOADING：
+        返还。
+    完。
+    fr 的 readyState 为 FR_LOADING。
+    fr 的 结果类型 为 2。
+完。
+
+FileReader_abort 接受 fr：
+    若 fr 等于 0 或者 fr 的 readyState 不等于 FR_LOADING：
+        返还。
+    完。
+    fr 的 已中止 为 真。
+    fr 的 readyState 为 FR_DONE。
+    fr 的 结果 为 0。
+完。
+
+CompositionState 是 一种 事物，含 活跃、文本、选区起始、选区长度、候选、候选数。
+
+可变 全局IME状态 为 0。
+
+IME_获取状态 接受 零参：
+    若 全局IME状态 等于 0：
+        全局IME状态 为 做 堆_分配 用 CompositionState。
+        全局IME状态 的 活跃 为 假。
+        全局IME状态 的 文本 为 0。
+        全局IME状态 的 候选数 为 0。
+    完。
+    返还 全局IME状态。
+完。
+
+IME_开始组合 接受 target：
+    state 为 做 IME_获取状态。
+    state 的 活跃 为 真。
+    state 的 文本 为 「」。
+    IME会话数 为 IME会话数 加 1。
+完。
+
+IME_更新组合 接受 文本：
+    state 为 做 IME_获取状态。
+    若 非 state 的 活跃：
+        返还。
+    完。
+    state 的 文本 为 文本。
+完。
+
+IME_结束组合 接受 最终文本：
+    state 为 做 IME_获取状态。
+    state 的 活跃 为 假。
+完。
+
+本章 收束。

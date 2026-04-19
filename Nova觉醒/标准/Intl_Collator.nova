@@ -1,0 +1,582 @@
+《Intl_Collator》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信总线》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·字符串替换》。
+
+COLLATION_SENSITIVITY_BASE 为 0。
+
+COLLATION_SENSITIVITY_ACCENT 为 1。
+
+COLLATION_SENSITIVITY_CASE 为 2。
+
+COLLATION_SENSITIVITY_VARIANT 为 3。
+
+Collator 是 一种 事物，含 locale、usage、sensitivity、ignorePunctuation、numeric、caseFirst。
+
+Collator_创建 接受 locale标签、sensitivity：
+    c 为 做 堆_分配 用 Collator。
+    c 的 locale 为 做 Locale_解析 用 locale标签。
+    c 的 usage 为 0。
+    c 的 sensitivity 为 sensitivity。
+    c 的 ignorePunctuation 为 假。
+    c 的 numeric 为 假。
+    c 的 caseFirst 为 0。
+    返还 c。
+完。
+
+Collator_compare 接受 c、a、b：
+    若 c 等于 0 或者 a 等于 0 或者 b 等于 0：
+        返还 0。
+    完。
+    lenA 为 做 字节长度 用 a。
+    lenB 为 做 字节长度 用 b。
+    minLen 为 若 lenA 小于 lenB 则 lenA 否则 lenB。
+    若 c 的 numeric：
+        返还 做 Collator_数字比较 用 a、lenA、b、lenB。
+    完。
+    可变 i 为 0。
+    只要 i 小于 minLen：
+        ca 为 做 字节取 用 a、i。
+        cb 为 做 字节取 用 b、i。
+        若 c 的 sensitivity 等于 COLLATION_SENSITIVITY_BASE 或者 c 的 sensitivity 等于 COLLATION_SENSITIVITY_ACCENT：
+            若 ca 大于或等于 65 并且 ca 小于或等于 90：
+                ca 为 ca 加 32。
+            完。
+            若 cb 大于或等于 65 并且 cb 小于或等于 90：
+                cb 为 cb 加 32。
+            完。
+        完。
+        若 ca 不等于 cb：
+            返还 若 ca 小于 cb 则 负 1 否则 1。
+        完。
+        i 为 i 加 1。
+    完。
+    若 lenA 等于 lenB：
+        返还 0。
+    完。
+    返还 若 lenA 小于 lenB 则 负 1 否则 1。
+完。
+
+Collator_数字比较 接受 a、lenA、b、lenB：
+    可变 i 为 0。
+    可变 j 为 0。
+    只要 i 小于 lenA 并且 j 小于 lenB：
+        ca 为 做 字节取 用 a、i。
+        cb 为 做 字节取 用 b、j。
+        若 ca 大于或等于 48 并且 ca 小于或等于 57 并且 (cb 大于或等于 48 并且 cb 小于或等于 57)：
+            可变 numA 为 0。
+            可变 numB 为 0。
+            只要 i 小于 lenA 并且 做 字节取 用 a、i 大于或等于 48 并且 做 字节取 用 a、i 小于或等于 57：
+                numA 为 numA 乘 10 加 做 字节取 用 a、i 减 48。
+                i 为 i 加 1。
+            完。
+            只要 j 小于 lenB 并且 做 字节取 用 b、j 大于或等于 48 并且 做 字节取 用 b、j 小于或等于 57：
+                numB 为 numB 乘 10 加 做 字节取 用 b、j 减 48。
+                j 为 j 加 1。
+            完。
+            若 numA 不等于 numB：
+                返还 若 numA 小于 numB 则 负 1 否则 1。
+            完。
+        否则：
+            若 ca 不等于 cb：
+                返还 若 ca 小于 cb 则 负 1 否则 1。
+            完。
+            i 为 i 加 1。
+            j 为 j 加 1。
+        完。
+    完。
+    若 lenA 等于 lenB：
+        返还 0。
+    完。
+    返还 若 lenA 小于 lenB 则 负 1 否则 1。
+完。
+
+PLURAL_ZERO 为 0。
+
+PLURAL_ONE 为 1。
+
+PLURAL_TWO 为 2。
+
+PLURAL_FEW 为 3。
+
+PLURAL_MANY 为 4。
+
+PLURAL_OTHER 为 5。
+
+PluralRules 是 一种 事物，含 locale、类型。
+
+PluralRules_创建 接受 locale标签、类型：
+    pr 为 做 堆_分配 用 PluralRules。
+    pr 的 locale 为 做 Locale_解析 用 locale标签。
+    pr 的 类型 为 类型。
+    返还 pr。
+完。
+
+PluralRules_select 接受 pr、n：
+    若 pr 等于 0：
+        返还 PLURAL_OTHER。
+    完。
+    loc 为 pr 的 locale。
+    若 loc 等于 0：
+        返还 PLURAL_OTHER。
+    完。
+    若 做 字符串_相等 用 loc 的 语言、「zh」 或者 做 字符串_相等 用 loc 的 语言、「ja」 或者 做 字符串_相等 用 loc 的 语言、「ko」：
+        返还 PLURAL_OTHER。
+    完。
+    若 做 字符串_相等 用 loc 的 语言、「en」：
+        若 pr 的 类型 等于 0：
+            若 n 等于 1：
+                返还 PLURAL_ONE。
+            完。
+            返还 PLURAL_OTHER。
+        否则：
+            若 n 取余于 10 等于 1 并且 n 取余于 100 不等于 11：
+                返还 PLURAL_ONE。
+            完。
+            若 n 取余于 10 等于 2 并且 n 取余于 100 不等于 12：
+                返还 PLURAL_TWO。
+            完。
+            若 n 取余于 10 等于 3 并且 n 取余于 100 不等于 13：
+                返还 PLURAL_FEW。
+            完。
+            返还 PLURAL_OTHER。
+        完。
+    完。
+    若 做 字符串_相等 用 loc 的 语言、「ar」：
+        若 n 等于 0：
+            返还 PLURAL_ZERO。
+        完。
+        若 n 等于 1：
+            返还 PLURAL_ONE。
+        完。
+        若 n 等于 2：
+            返还 PLURAL_TWO。
+        完。
+        若 n 取余于 100 大于或等于 3 并且 n 取余于 100 小于或等于 10：
+            返还 PLURAL_FEW。
+        完。
+        若 n 取余于 100 大于或等于 11 并且 n 取余于 100 小于或等于 99：
+            返还 PLURAL_MANY。
+        完。
+        返还 PLURAL_OTHER。
+    完。
+    若 n 等于 1：
+        返还 PLURAL_ONE。
+    完。
+    返还 PLURAL_OTHER。
+完。
+
+PluralRules_类别名 接受 类别：
+    若 类别 等于 PLURAL_ZERO：
+        返还 「zero」。
+    完。
+    若 类别 等于 PLURAL_ONE：
+        返还 「one」。
+    完。
+    若 类别 等于 PLURAL_TWO：
+        返还 「two」。
+    完。
+    若 类别 等于 PLURAL_FEW：
+        返还 「few」。
+    完。
+    若 类别 等于 PLURAL_MANY：
+        返还 「many」。
+    完。
+    返还 「other」。
+完。
+
+NUMBER_STYLE_DECIMAL 为 0。
+
+NUMBER_STYLE_CURRENCY 为 1。
+
+NUMBER_STYLE_PERCENT 为 2。
+
+NUMBER_STYLE_UNIT 为 3。
+
+NumberFormat 是 一种 事物，含 locale、style、currency、currencyDisplay、minimumIntegerDigits、minimumFractionDigits、maximumFractionDigits、useGrouping、notation。
+
+NumberFormat_创建 接受 locale标签、style：
+    nf 为 做 堆_分配 用 NumberFormat。
+    nf 的 locale 为 做 Locale_解析 用 locale标签。
+    nf 的 style 为 style。
+    nf 的 currency 为 0。
+    nf 的 currencyDisplay 为 0。
+    nf 的 minimumIntegerDigits 为 1。
+    nf 的 minimumFractionDigits 为 0。
+    nf 的 maximumFractionDigits 为 3。
+    nf 的 useGrouping 为 真。
+    nf 的 notation 为 0。
+    返还 nf。
+完。
+
+NumberFormat_format 接受 nf、数值：
+    若 nf 等于 0：
+        返还 做 整数转字符串 用 数值。
+    完。
+    可变 结果 为 「」。
+    若 nf 的 style 等于 NUMBER_STYLE_PERCENT：
+        结果 为 做 整数转字符串 用 数值 乘 100 除以 1024 加 「%」。
+        返还 结果。
+    完。
+    若 nf 的 style 等于 NUMBER_STYLE_CURRENCY：
+        符号 为 做 NumberFormat_货币符号 用 nf 的 currency。
+        结果 为 符号 加 做 整数转字符串 用 数值。
+        返还 结果。
+    完。
+    结果 为 做 整数转字符串 用 数值。
+    若 nf 的 useGrouping 并且 数值 大于或等于 1000：
+        结果 为 做 NumberFormat_添加千分位 用 结果。
+    完。
+    返还 结果。
+完。
+
+NumberFormat_货币符号 接受 货币代码：
+    若 货币代码 等于 0：
+        返还 「$」。
+    完。
+    若 做 字符串_相等 用 货币代码、「USD」：
+        返还 「$」。
+    完。
+    若 做 字符串_相等 用 货币代码、「EUR」：
+        返还 「€」。
+    完。
+    若 做 字符串_相等 用 货币代码、「GBP」：
+        返还 「£」。
+    完。
+    若 做 字符串_相等 用 货币代码、「JPY」：
+        返还 「¥」。
+    完。
+    若 做 字符串_相等 用 货币代码、「CNY」：
+        返还 「¥」。
+    完。
+    若 做 字符串_相等 用 货币代码、「KRW」：
+        返还 「₩」。
+    完。
+    返还 货币代码。
+完。
+
+NumberFormat_添加千分位 接受 s：
+    若 s 等于 0：
+        返还 「0」。
+    完。
+    长度 为 做 字符串_长度 用 s。
+    若 长度 小于或等于 3：
+        返还 s。
+    完。
+    可变 结果 为 「」。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        若 i 大于 0 并且 (长度 减 i) 取余于 3 等于 0：
+            结果 为 结果 加 「,」。
+        完。
+        结果 为 结果 加 做 字符串_子串 用 s、i、1。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+DATETIME_STYLE_FULL 为 0。
+
+DATETIME_STYLE_LONG 为 1。
+
+DATETIME_STYLE_MEDIUM 为 2。
+
+DATETIME_STYLE_SHORT 为 3。
+
+DateTimeFormat 是 一种 事物，含 locale、dateStyle、timeStyle、timeZone、hour12、weekday、era、year、month、day、hour、minute、second。
+
+DateTimeFormat_创建 接受 locale标签：
+    dtf 为 做 堆_分配 用 DateTimeFormat。
+    dtf 的 locale 为 做 Locale_解析 用 locale标签。
+    dtf 的 dateStyle 为 DATETIME_STYLE_MEDIUM。
+    dtf 的 timeStyle 为 DATETIME_STYLE_MEDIUM。
+    dtf 的 timeZone 为 0。
+    dtf 的 hour12 为 假。
+    dtf 的 weekday 为 0。
+    dtf 的 year 为 1。
+    dtf 的 month 为 1。
+    dtf 的 day 为 1。
+    dtf 的 hour 为 1。
+    dtf 的 minute 为 1。
+    dtf 的 second 为 0。
+    返还 dtf。
+完。
+
+DateTimeFormat_format 接受 dtf、时间戳：
+    若 dtf 等于 0：
+        返还 做 整数转字符串 用 时间戳。
+    完。
+    秒 为 时间戳 除以 1000。
+    分 为 秒 除以 60。
+    时 为 分 除以 60。
+    天 为 时 除以 24。
+    年 为 1970 加 天 除以 365。
+    月 为 天 取余于 365 除以 30 加 1。
+    日 为 天 取余于 365 取余于 30 加 1。
+    小时 为 时 取余于 24。
+    分钟 为 分 取余于 60。
+    可变 结果 为 「」。
+    结果 为 结果 加 做 整数转字符串 用 年 加 「-」。
+    若 月 小于 10：
+        结果 为 结果 加 「0」。
+    完。
+    结果 为 结果 加 做 整数转字符串 用 月 加 「-」。
+    若 日 小于 10：
+        结果 为 结果 加 「0」。
+    完。
+    结果 为 结果 加 做 整数转字符串 用 日 加 「 」。
+    若 小时 小于 10：
+        结果 为 结果 加 「0」。
+    完。
+    结果 为 结果 加 做 整数转字符串 用 小时 加 「:」。
+    若 分钟 小于 10：
+        结果 为 结果 加 「0」。
+    完。
+    结果 为 结果 加 做 整数转字符串 用 分钟。
+    返还 结果。
+完。
+
+Locale 是 一种 事物，含 语言、脚本、地区、原始标签。
+
+Locale_解析 接受 标签：
+    若 标签 等于 0：
+        返还 做 Locale_默认。
+    完。
+    loc 为 做 堆_分配 用 Locale。
+    loc 的 原始标签 为 标签。
+    loc 的 语言 为 「」。
+    loc 的 脚本 为 「」。
+    loc 的 地区 为 「」。
+    长度 为 做 字符串_长度 用 标签。
+    可变 位置 为 0。
+    可变 段 为 0。
+    可变 开始 为 0。
+    只要 位置 小于或等于 长度：
+        若 位置 等于 长度 或者 做 字节取 用 标签、位置 等于 45 或者 做 字节取 用 标签、位置 等于 95：
+            片段 为 做 字符串_子串 用 标签、开始、位置 减 开始。
+            若 段 等于 0：
+                loc 的 语言 为 片段。
+            否则若 段 等于 1 并且 位置 减 开始 等于 4：
+                loc 的 脚本 为 片段。
+            否则若 段 等于 1 或者 段 等于 2：
+                loc 的 地区 为 片段。
+            完。
+            段 为 段 加 1。
+            开始 为 位置 加 1。
+        完。
+        位置 为 位置 加 1。
+    完。
+    返还 loc。
+完。
+
+Locale_默认 接受 零参：
+    loc 为 做 堆_分配 用 Locale。
+    loc 的 语言 为 「zh」。
+    loc 的 脚本 为 「Hans」。
+    loc 的 地区 为 「CN」。
+    loc 的 原始标签 为 「zh-Hans-CN」。
+    返还 loc。
+完。
+
+Locale_语言名 接受 语言：
+    若 做 字符串_相等 用 语言、「zh」：
+        返还 「中文」。
+    完。
+    若 做 字符串_相等 用 语言、「en」：
+        返还 「English」。
+    完。
+    若 做 字符串_相等 用 语言、「ja」：
+        返还 「日本語」。
+    完。
+    若 做 字符串_相等 用 语言、「ko」：
+        返还 「한국어」。
+    完。
+    若 做 字符串_相等 用 语言、「fr」：
+        返还 「Français」。
+    完。
+    若 做 字符串_相等 用 语言、「de」：
+        返还 「Deutsch」。
+    完。
+    若 做 字符串_相等 用 语言、「es」：
+        返还 「Español」。
+    完。
+    若 做 字符串_相等 用 语言、「ar」：
+        返还 「العربية」。
+    完。
+    若 做 字符串_相等 用 语言、「ru」：
+        返还 「Русский」。
+    完。
+    返还 语言。
+完。
+
+LIST_TYPE_CONJUNCTION 为 0。
+
+LIST_TYPE_DISJUNCTION 为 1。
+
+LIST_TYPE_UNIT 为 2。
+
+ListFormat_format 接受 locale、类型、列表：
+    若 列表 等于 0 或者 做 计数 用 列表 等于 0：
+        返还 「」。
+    完。
+    若 做 计数 用 列表 等于 1：
+        返还 列表 的 第 0 项。
+    完。
+    连接词 为 「、」。
+    若 locale 不等于 0 并且 做 字符串_相等 用 locale 的 语言、「en」：
+        若 类型 等于 LIST_TYPE_CONJUNCTION：
+            连接词 为 「, 」。
+        否则若 类型 等于 LIST_TYPE_DISJUNCTION：
+            连接词 为 「 or 」。
+        完。
+    否则：
+        若 类型 等于 LIST_TYPE_DISJUNCTION：
+            连接词 为 「或」。
+        完。
+    完。
+    可变 结果 为 列表 的 第 0 项。
+    可变 i 为 1。
+    只要 i 小于 做 计数 用 列表 减 1：
+        结果 为 结果 加 连接词 加 列表 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    若 locale 不等于 0 并且 做 字符串_相等 用 locale 的 语言、「en」 并且 类型 等于 LIST_TYPE_CONJUNCTION：
+        结果 为 结果 加 「, and 」 加 列表 的 第 做 计数 用 列表 减 1 项。
+    否则：
+        结果 为 结果 加 连接词 加 列表 的 第 做 计数 用 列表 减 1 项。
+    完。
+    返还 结果。
+完。
+
+TIME_UNIT_SECOND 为 0。
+
+TIME_UNIT_MINUTE 为 1。
+
+TIME_UNIT_HOUR 为 2。
+
+TIME_UNIT_DAY 为 3。
+
+TIME_UNIT_WEEK 为 4。
+
+TIME_UNIT_MONTH 为 5。
+
+TIME_UNIT_YEAR 为 6。
+
+RelativeTimeFormat_format 接受 locale、值、单位：
+    单位名 为 做 RelativeTimeFormat_单位名 用 locale、单位。
+    若 值 等于 0：
+        返还 「现在」。
+    完。
+    若 locale 不等于 0 并且 做 字符串_相等 用 locale 的 语言、「zh」：
+        若 值 大于 0：
+            返还 做 整数转字符串 用 值 加 单位名 加 「后」。
+        完。
+        返还 做 整数转字符串 用 0 减 值 加 单位名 加 「前」。
+    完。
+    若 值 大于 0：
+        返还 「in 」 加 做 整数转字符串 用 值 加 「 」 加 单位名。
+    完。
+    返还 做 整数转字符串 用 0 减 值 加 「 」 加 单位名 加 「 ago」。
+完。
+
+RelativeTimeFormat_单位名 接受 locale、单位：
+    若 locale 不等于 0 并且 做 字符串_相等 用 locale 的 语言、「zh」：
+        若 单位 等于 TIME_UNIT_SECOND：
+            返还 「秒」。
+        完。
+        若 单位 等于 TIME_UNIT_MINUTE：
+            返还 「分钟」。
+        完。
+        若 单位 等于 TIME_UNIT_HOUR：
+            返还 「小时」。
+        完。
+        若 单位 等于 TIME_UNIT_DAY：
+            返还 「天」。
+        完。
+        若 单位 等于 TIME_UNIT_WEEK：
+            返还 「周」。
+        完。
+        若 单位 等于 TIME_UNIT_MONTH：
+            返还 「个月」。
+        完。
+        若 单位 等于 TIME_UNIT_YEAR：
+            返还 「年」。
+        完。
+    完。
+    若 单位 等于 TIME_UNIT_SECOND：
+        返还 「second」。
+    完。
+    若 单位 等于 TIME_UNIT_MINUTE：
+        返还 「minute」。
+    完。
+    若 单位 等于 TIME_UNIT_HOUR：
+        返还 「hour」。
+    完。
+    若 单位 等于 TIME_UNIT_DAY：
+        返还 「day」。
+    完。
+    若 单位 等于 TIME_UNIT_WEEK：
+        返还 「week」。
+    完。
+    若 单位 等于 TIME_UNIT_MONTH：
+        返还 「month」。
+    完。
+    若 单位 等于 TIME_UNIT_YEAR：
+        返还 「year」。
+    完。
+    返还 「unit」。
+完。
+
+可变 Intl_比较总数 为 0。
+
+可变 Intl_格式化总数 为 0。
+
+可变 Intl_复数选择总数 为 0。
+
+可变 Intl_Locale解析总数 为 0。
+
+Intl_统计 接受 零参：
+    返还 一本字典：比较 对应 Intl_比较总数、格式化 对应 Intl_格式化总数、复数选择 对应 Intl_复数选择总数、Locale解析 对应 Intl_Locale解析总数。
+完。
+
+Intl_健康检查 接受 零参：
+    返还 「国际化子系统健康」。
+完。
+
+Intl_重置统计 接受 零参：
+    Intl_比较总数 为 0。
+    Intl_格式化总数 为 0。
+    Intl_复数选择总数 为 0。
+    Intl_Locale解析总数 为 0。
+完。
+
+Intl_完整统计 接受 零参：
+    返还 一组：Intl_比较总数、Intl_格式化总数、Intl_复数选择总数、Intl_Locale解析总数。
+完。
+
+可变 AI_本地排序_操作热度 为 0。
+
+AI_本地排序_最优算法 接受 数据量、已排序：
+    AI_本地排序_操作热度 为 AI_本地排序_操作热度 加 1。
+    若 数据量 小于 16：
+        返还 「插入排序」。
+    完。
+    若 已排序：
+        返还 「二分查找」。
+    完。
+    若 数据量 小于 10000：
+        返还 「快速排序」。
+    完。
+    返还 「归并排序」。
+完。
+
+本章 收束。

@@ -1,0 +1,423 @@
+《错误栈捕获》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·栈跟踪捕获》。
+
+引用《..·中枢·内核打印》。
+
+引用《.·定点Q算术》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·外联·WebSocket_IO缓冲》。
+
+错误_captureStackTrace 接受 Nova运行时实例、目标对象、构造函数过滤：
+    若 目标对象 等于 0：
+        返还。
+    完。
+    st 为 做 StackTrace_捕获 用 Nova运行时实例、错误_stackTraceLimit。
+    若 构造函数过滤 不等于 0 并且 st 不等于 0：
+        可变 截断位 为 0。
+        可变 i 为 0。
+        只要 i 小于 st 的 帧数量：
+            frame 为 做 内存_读64 用 st 的 帧列表 加 i 乘 8。
+            截断位 为 i 加 1。
+            i 为 i 加 1。
+        完。
+    完。
+    做 Nova对象_DefineProperty_内部 用 Nova运行时实例、目标对象、「stack」、st。
+完。
+
+MessageTemplate_Not_A_Function 接受 值描述：
+    返还 做 字符串_连接 用 值描述、「 is not a function」。
+完。
+
+MessageTemplate_Not_An_Object 接受 值描述：
+    返还 做 字符串_连接 用 值描述、「 is not an object」。
+完。
+
+MessageTemplate_Cannot_Read_Property 接受 属性、值描述：
+    可变 msg 为 「Cannot read properties of 」。
+    msg 为 做 字符串_连接 用 msg、值描述。
+    msg 为 做 字符串_连接 用 msg、「 (reading '」。
+    msg 为 做 字符串_连接 用 msg、属性。
+    msg 为 做 字符串_连接 用 msg、「')」。
+    返还 msg。
+完。
+
+MessageTemplate_Cannot_Set_Property 接受 属性、值描述：
+    可变 msg 为 「Cannot set properties of 」。
+    msg 为 做 字符串_连接 用 msg、值描述。
+    msg 为 做 字符串_连接 用 msg、「 (setting '」。
+    msg 为 做 字符串_连接 用 msg、属性。
+    msg 为 做 字符串_连接 用 msg、「')」。
+    返还 msg。
+完。
+
+MessageTemplate_Not_Defined 接受 名称：
+    返还 做 字符串_连接 用 名称、「 is not defined」。
+完。
+
+MessageTemplate_Not_Iterable 接受 值描述：
+    返还 做 字符串_连接 用 值描述、「 is not iterable」。
+完。
+
+MessageTemplate_Invalid_数组_Length 接受 零参：
+    返还 「Invalid array length」。
+完。
+
+MessageTemplate_Stack_Overflow 接受 零参：
+    返还 「Maximum call stack size exceeded」。
+完。
+
+MessageTemplate_Not_Constructor 接受 值描述：
+    返还 做 字符串_连接 用 值描述、「 is not a constructor」。
+完。
+
+MessageTemplate_Cannot_Convert_To_Primitive 接受 零参：
+    返还 「Cannot convert object to primitive value」。
+完。
+
+MessageTemplate_Assignment_To_Const 接受 名称：
+    返还 做 字符串_连接 用 「Assignment to constant variable '」、做 字符串_连接 用 名称、「'」。
+完。
+
+MessageTemplate_Not_Initialized 接受 名称：
+    可变 msg 为 「Cannot access '」。
+    msg 为 做 字符串_连接 用 msg、名称。
+    msg 为 做 字符串_连接 用 msg、「' before initialization」。
+    返还 msg。
+完。
+
+MessageTemplate_Redeclaration 接受 名称：
+    可变 msg 为 「Identifier '」。
+    msg 为 做 字符串_连接 用 msg、名称。
+    msg 为 做 字符串_连接 用 msg、「' has already been declared」。
+    返还 msg。
+完。
+
+NESC_最大栈深 为 128。
+
+NESC_最大异步链 为 16。
+
+NESC_聚合最大 为 256。
+
+AI_NESC_特征维度 为 8。
+
+可变 NESC_捕获数 为 0。
+
+可变 NESC_格式化数 为 0。
+
+可变 NESC_源码映射数 为 0。
+
+可变 NESC_异步追踪数 为 0。
+
+可变 NESC_聚合数 为 0。
+
+可变 NESC_未捕获数 为 0。
+
+栈帧 是 一种 事物，含 函数名 为 空、文件名 为 空、行号 为 0、列号 为 0、是构造 为 假、是eval 为 假、是原生 为 假、此对象 为 空、脚本ID 为 0。
+
+栈帧_格式化 接受 帧：
+    NESC_格式化数 为 NESC_格式化数 加 1。
+    可变 结果 为 「    at 」。
+    若 帧 的 是构造 等于 真：
+        结果 为 做 字符串_连接 用 结果、「new 」。
+    完。
+    若 帧 的 函数名 不等于 空：
+        结果 为 做 字符串_连接 用 结果、帧 的 函数名。
+    否则：
+        结果 为 做 字符串_连接 用 结果、「<anonymous>」。
+    完。
+    若 帧 的 是原生 等于 真：
+        结果 为 做 字符串_连接 用 结果、「 [native]」。
+        返还 结果。
+    完。
+    结果 为 做 字符串_连接 用 结果、「 (」。
+    若 帧 的 文件名 不等于 空：
+        结果 为 做 字符串_连接 用 结果、帧 的 文件名。
+    否则：
+        结果 为 做 字符串_连接 用 结果、「<unknown>」。
+    完。
+    结果 为 做 字符串_连接 用 结果、「:」。
+    结果 为 做 字符串_连接 用 结果、做 整数转字符串 用 帧 的 行号。
+    结果 为 做 字符串_连接 用 结果、「:」。
+    结果 为 做 字符串_连接 用 结果、做 整数转字符串 用 帧 的 列号。
+    结果 为 做 字符串_连接 用 结果、「)」。
+    返还 结果。
+完。
+
+栈追踪_格式化 接受 错误对象、帧列表、帧数：
+    可变 结果 为 「」。
+    类型名 为 做 错误_获取类型名 用 错误对象。
+    消息 为 做 错误_获取消息 用 错误对象。
+    结果 为 做 字符串_连接 用 类型名、「: 」。
+    结果 为 做 字符串_连接 用 结果、消息。
+    结果 为 做 字符串_连接 用 结果、「\n」。
+    可变 i 为 0。
+    只要 i 小于 帧数 并且 i 小于 NESC_最大栈深：
+        行 为 做 栈帧_格式化 用 帧列表 的 第 i 项。
+        结果 为 做 字符串_连接 用 结果、行。
+        结果 为 做 字符串_连接 用 结果、「\n」。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+源码映射条目 是 一种 事物，含 生成行 为 0、生成列 为 0、源行 为 0、源列 为 0、源文件 为 空、源函数名 为 空。
+
+源码映射表 是 一种 事物，含 条目列表 为 空、条目数 为 0、源文件名 为 空。
+
+可变 NESC_源码映射缓存 为 一组：（空）。
+
+可变 NESC_源码映射缓存数 为 0。
+
+NESC_注册源码映射 接受 脚本ID、映射表：
+    若 NESC_源码映射缓存数 小于 1024：
+        NESC_源码映射缓存 的 第 NESC_源码映射缓存数 项 为 映射表。
+        NESC_源码映射缓存数 为 NESC_源码映射缓存数 加 1。
+    完。
+完。
+
+NESC_查找源码映射 接受 脚本ID、生成行、生成列：
+    NESC_源码映射数 为 NESC_源码映射数 加 1。
+    可变 i 为 0。
+    只要 i 小于 NESC_源码映射缓存数：
+        表 为 NESC_源码映射缓存 的 第 i 项。
+        可变 j 为 0。
+        可变 最佳 为 空。
+        只要 j 小于 表 的 条目数：
+            e 为 表 的 条目列表 的 第 j 项。
+            若 e 的 生成行 等于 生成行 并且 e 的 生成列 小于或等于 生成列：
+                若 最佳 等于 空 或者 e 的 生成列 大于 最佳 的 生成列：
+                    最佳 为 e。
+                完。
+            完。
+            j 为 j 加 1。
+        完。
+        若 最佳 不等于 空：
+            返还 最佳。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+NESC_映射栈帧 接受 帧：
+    映射 为 做 NESC_查找源码映射 用 帧 的 脚本ID、帧 的 行号、帧 的 列号。
+    若 映射 不等于 空：
+        帧 的 行号 为 映射 的 源行。
+        帧 的 列号 为 映射 的 源列。
+        若 映射 的 源文件 不等于 空：
+            帧 的 文件名 为 映射 的 源文件。
+        完。
+        若 映射 的 源函数名 不等于 空：
+            帧 的 函数名 为 映射 的 源函数名。
+        完。
+    完。
+完。
+
+异步栈节点 是 一种 事物，含 描述 为 空、帧列表 为 空、帧数 为 0、父节点 为 空。
+
+可变 NESC_异步栈根 为 空。
+
+NESC_推入异步栈 接受 Nova运行时实例、描述：
+    NESC_异步追踪数 为 NESC_异步追踪数 加 1。
+    节点 为 新建 异步栈节点：描述 为 描述、帧列表 为 做 StackTrace_捕获 用 Nova运行时实例、NESC_最大栈深、帧数 为 0、父节点 为 NESC_异步栈根。
+    NESC_异步栈根 为 节点。
+    返还 节点。
+完。
+
+NESC_弹出异步栈 接受 零参：
+    若 NESC_异步栈根 不等于 空：
+        NESC_异步栈根 为 NESC_异步栈根 的 父节点。
+    完。
+完。
+
+NESC_格式化异步栈 接受 错误对象、同步帧、同步帧数：
+    可变 结果 为 做 栈追踪_格式化 用 错误对象、同步帧、同步帧数。
+    可变 节点 为 NESC_异步栈根。
+    可变 深度 为 0。
+    只要 节点 不等于 空 并且 深度 小于 NESC_最大异步链：
+        结果 为 做 字符串_连接 用 结果、「    --- 异步边界 (」。
+        结果 为 做 字符串_连接 用 结果、节点 的 描述。
+        结果 为 做 字符串_连接 用 结果、「) ---\n」。
+        可变 i 为 0。
+        只要 i 小于 节点 的 帧数：
+            行 为 做 栈帧_格式化 用 节点 的 帧列表 的 第 i 项。
+            结果 为 做 字符串_连接 用 结果、行。
+            结果 为 做 字符串_连接 用 结果、「\n」。
+            i 为 i 加 1。
+        完。
+        节点 为 节点 的 父节点。
+        深度 为 深度 加 1。
+    完。
+    返还 结果。
+完。
+
+错误聚合记录 是 一种 事物，含 消息摘要 为 空、计数 为 0、首次时间 为 0、末次时间 为 0、样本栈 为 空。
+
+可变 NESC_聚合表 为 一组：（空）。
+
+可变 NESC_聚合表数 为 0。
+
+NESC_错误聚合 接受 消息、栈追踪：
+    NESC_聚合数 为 NESC_聚合数 加 1。
+    摘要 为 做 字符串_截取 用 消息、0、64。
+    可变 i 为 0。
+    只要 i 小于 NESC_聚合表数：
+        若 做 字符串_相等 用 NESC_聚合表 的 第 i 项 的 消息摘要、摘要：
+            NESC_聚合表 的 第 i 项 的 计数 为 NESC_聚合表 的 第 i 项 的 计数 加 1。
+            NESC_聚合表 的 第 i 项 的 末次时间 为 做 获取时间戳。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 NESC_聚合表数 小于 NESC_聚合最大：
+        NESC_聚合表 的 第 NESC_聚合表数 项 为 新建 错误聚合记录：消息摘要 为 摘要、计数 为 1、首次时间 为 做 获取时间戳、末次时间 为 做 获取时间戳、样本栈 为 栈追踪。
+        NESC_聚合表数 为 NESC_聚合表数 加 1。
+    完。
+完。
+
+NESC_聚合报告 接受 零参：
+    做 内核打印 用 「\n═══ NESC 错误聚合报告 ═══\n」。
+    可变 i 为 0。
+    只要 i 小于 NESC_聚合表数：
+        r 为 NESC_聚合表 的 第 i 项。
+        做 内核打印 用 「[%d次] %s\n」、r 的 计数、r 的 消息摘要。
+        i 为 i 加 1。
+    完。
+完。
+
+异常处理器 是 一种 事物，含 catch回调 为 空、finally回调 为 空、父处理器 为 空、深度 为 0。
+
+可变 NESC_异常栈顶 为 空。
+
+NESC_推入异常处理器 接受 catch回调、finally回调：
+    处理器 为 新建 异常处理器：catch回调 为 catch回调、finally回调 为 finally回调、父处理器 为 NESC_异常栈顶、深度 为 0。
+    若 NESC_异常栈顶 不等于 空：
+        处理器 的 深度 为 NESC_异常栈顶 的 深度 加 1。
+    完。
+    NESC_异常栈顶 为 处理器。
+完。
+
+NESC_弹出异常处理器 接受 零参：
+    若 NESC_异常栈顶 不等于 空：
+        老 为 NESC_异常栈顶。
+        NESC_异常栈顶 为 老 的 父处理器。
+        返还 老。
+    完。
+    返还 空。
+完。
+
+NESC_抛出异常 接受 错误对象：
+    NESC_捕获数 为 NESC_捕获数 加 1。
+    消息 为 做 错误_获取消息 用 错误对象。
+    做 NESC_错误聚合 用 消息、空。
+    若 NESC_异常栈顶 不等于 空：
+        处理器 为 做 NESC_弹出异常处理器。
+        若 处理器 的 catch回调 不等于 空：
+            做 Nova_调用函数 用 处理器 的 catch回调、错误对象。
+        完。
+        若 处理器 的 finally回调 不等于 空：
+            做 Nova_调用函数 用 处理器 的 finally回调、空。
+        完。
+    否则：
+        NESC_未捕获数 为 NESC_未捕获数 加 1。
+        做 NESC_处理未捕获 用 错误对象。
+    完。
+完。
+
+NESC_处理未捕获 接受 错误对象：
+    消息 为 做 错误_获取消息 用 错误对象。
+    类型 为 做 错误_获取类型名 用 错误对象。
+    做 内核警告 用 「NESC: 未捕获异常 %s: %s」、类型、消息。
+    做 Nova_触发事件 用 「uncaughtException」、错误对象。
+完。
+
+NESC_AI分析 接受 零参：
+    特征 为 做 Tensor_创建 用 AI_NESC_特征维度。
+    若 特征 等于 空：
+        返还。
+    完。
+    做 Tensor_写 用 特征、0、NESC_捕获数。
+    做 Tensor_写 用 特征、1、NESC_格式化数。
+    做 Tensor_写 用 特征、2、NESC_源码映射数。
+    做 Tensor_写 用 特征、3、NESC_异步追踪数。
+    做 Tensor_写 用 特征、4、NESC_聚合数。
+    做 Tensor_写 用 特征、5、NESC_未捕获数。
+    做 Tensor_写 用 特征、6、NESC_聚合表数。
+    做 Tensor_写 用 特征、7、NESC_源码映射缓存数。
+    结果 为 做 AI总线_推理 用 「错误分类」、特征。
+    若 结果 大于 75：
+        做 内核警告 用 「NESC-AI: 错误率异常分值=%d」、结果。
+    完。
+    做 Tensor_释放 用 特征。
+完。
+
+NESC_诊断报告 接受 零参：
+    做 内核打印 用 「═══ NESC 错误栈捕获统计 ═══\n」。
+    做 内核打印 用 「捕获: %d  格式化: %d  源码映射: %d\n」、NESC_捕获数、NESC_格式化数、NESC_源码映射数。
+    做 内核打印 用 「异步追踪: %d  聚合: %d  未捕获: %d\n」、NESC_异步追踪数、NESC_聚合数、NESC_未捕获数。
+    做 NESC_聚合报告。
+完。
+
+NESC_全局初始化 接受 零参：
+    NESC_捕获数 为 0。
+    NESC_格式化数 为 0。
+    NESC_源码映射数 为 0。
+    NESC_异步追踪数 为 0。
+    NESC_聚合数 为 0。
+    NESC_未捕获数 为 0。
+    NESC_聚合表数 为 0。
+    NESC_源码映射缓存数 为 0。
+    NESC_异常栈顶 为 空。
+    NESC_异步栈根 为 空。
+    做 内核信息 用 「NESC: 错误栈捕获子系统已初始化」。
+    做 NESC_AI分析。
+完。
+
+MessageTemplate_Illegal_Invocation 接受 零参：
+    返还 「Illegal invocation」。
+完。
+
+MessageTemplate_Strict_Delete_Property 接受 属性：
+    可变 msg 为 「Cannot delete property '」。
+    msg 为 做 字符串_连接 用 msg、属性。
+    msg 为 做 字符串_连接 用 msg、「'」。
+    返还 msg。
+完。
+
+MessageTemplate_Circular_Structure 接受 零参：
+    返还 「Converting circular structure to JSON」。
+完。
+
+MessageTemplate_Invalid_RegExp 接受 模式：
+    可变 msg 为 「Invalid regular expression: /」。
+    msg 为 做 字符串_连接 用 msg、模式。
+    msg 为 做 字符串_连接 用 msg、「/」。
+    返还 msg。
+完。
+
+MessageTemplate_Read_Only_Property 接受 属性：
+    可变 msg 为 「Cannot assign to read only property '」。
+    msg 为 做 字符串_连接 用 msg、属性。
+    msg 为 做 字符串_连接 用 msg、「'」。
+    返还 msg。
+完。
+
+NESC_重置统计 接受 零参：
+    NESC_捕获数 为 0。
+    NESC_格式化数 为 0。
+    NESC_源码映射数 为 0。
+    NESC_异步追踪数 为 0。
+    NESC_聚合数 为 0。
+    NESC_未捕获数 为 0。
+完。
+
+本章 收束。

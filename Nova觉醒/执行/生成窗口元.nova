@@ -1,0 +1,396 @@
+《生成窗口元》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·协议处理》。
+
+引用《.·窗口管理每》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·外联·URL解析辅助》。
+
+引用《..·中枢·整数转字符串》。
+
+资源_图标根 为 「../资源/图标/」。
+
+资源_系统图标根 为 「../资源/系统图标/」。
+
+资源_壁纸根 为 「../资源/壁纸/」。
+
+Nova原生桌面_标识到图片 接受 标识：
+    若 标识 等于 「终端」：
+        返还 资源_图标根 加 「图标_终端.png」。
+    完。
+    若 标识 等于 「ai」：
+        返还 资源_图标根 加 「图标_AI.png」。
+    完。
+    若 标识 等于 「system」：
+        返还 资源_系统图标根 加 「系统_CPU.png」。
+    完。
+    若 标识 等于 「multimodal」：
+        返还 资源_系统图标根 加 「系统_视觉.png」。
+    完。
+    若 标识 等于 「automation」：
+        返还 资源_图标根 加 「图标_代码.png」。
+    完。
+    若 标识 等于 「recovery」：
+        返还 资源_图标根 加 「图标_设置.png」。
+    完。
+    若 标识 等于 「settings」：
+        返还 资源_图标根 加 「图标_设置.png」。
+    完。
+    若 标识 等于 「voice」：
+        返还 资源_系统图标根 加 「系统_语音.png」。
+    完。
+    若 标识 等于 「avatar」：
+        返还 资源_系统图标根 加 「系统_形象.png」。
+    完。
+    若 标识 等于 「setup」：
+        返还 资源_图标根 加 「图标_设置.png」。
+    完。
+    返还 资源_图标根 加 「图标_文件.png」。
+完。
+
+壁纸_默认_冥想 为 资源_壁纸根 加 「壁纸_默认_冥想.png」。
+
+壁纸_觉醒 为 资源_壁纸根 加 「壁纸_觉醒.png」。
+
+壁纸_拔剑 为 资源_壁纸根 加 「壁纸_拔剑.png」。
+
+壁纸_星空 为 资源_壁纸根 加 「壁纸_星空.png」。
+
+壁纸_花海 为 资源_壁纸根 加 「壁纸_花海.png」。
+
+壁纸_水面 为 资源_壁纸根 加 「壁纸_水面.png」。
+
+壁纸_科技 为 资源_壁纸根 加 「壁纸_科技.png」。
+
+壁纸_飘浮 为 资源_壁纸根 加 「壁纸_飘浮.png」。
+
+可变 当前壁纸 为 资源_壁纸根 加 「壁纸_默认_冥想.png」。
+
+Nova原生桌面_切换壁纸 接受 索引：
+    若 索引 等于 0：
+        当前壁纸 为 壁纸_默认_冥想。
+    完。
+    若 索引 等于 1：
+        当前壁纸 为 壁纸_觉醒。
+    完。
+    若 索引 等于 2：
+        当前壁纸 为 壁纸_拔剑。
+    完。
+    若 索引 等于 3：
+        当前壁纸 为 壁纸_星空。
+    完。
+    若 索引 等于 4：
+        当前壁纸 为 壁纸_花海。
+    完。
+    若 索引 等于 5：
+        当前壁纸 为 壁纸_水面。
+    完。
+    若 索引 等于 6：
+        当前壁纸 为 壁纸_科技。
+    完。
+    若 索引 等于 7：
+        当前壁纸 为 壁纸_飘浮。
+    完。
+完。
+
+Nova原生桌面_解析图标标识 接受 url、标识：
+    若 做 字符串长度 用 标识 大于 0：
+        返还 标识。
+    完。
+    若 做 字符串查找 用 url、「nova://终端」 等于 0 或者 做 字符串查找 用 url、「nova://newtab」 等于 0：
+        返还 「终端」。
+    完。
+    若 做 字符串查找 用 url、「nova://ai」 等于 0：
+        返还 「ai」。
+    完。
+    若 做 字符串查找 用 url、「nova://system」 等于 0：
+        返还 「system」。
+    完。
+    若 做 字符串查找 用 url、「nova://multimodal」 等于 0：
+        返还 「multimodal」。
+    完。
+    若 做 字符串查找 用 url、「nova://automation」 等于 0：
+        返还 「automation」。
+    完。
+    若 做 字符串查找 用 url、「nova://recovery」 等于 0：
+        返还 「recovery」。
+    完。
+    若 做 字符串查找 用 url、「nova://settings」 等于 0：
+        返还 「settings」。
+    完。
+    若 做 字符串查找 用 url、「nova://voice」 等于 0：
+        返还 「voice」。
+    完。
+    若 做 字符串查找 用 url、「nova://avatar」 等于 0：
+        返还 「avatar」。
+    完。
+    若 做 字符串查找 用 url、「nova://setup」 等于 0：
+        返还 「setup」。
+    完。
+    返还 「app」。
+完。
+
+Nova原生桌面_图标短码 接受 标识：
+    若 标识 等于 「终端」：
+        返还 「NX」。
+    完。
+    若 标识 等于 「ai」：
+        返还 「AI」。
+    完。
+    若 标识 等于 「system」：
+        返还 「IO」。
+    完。
+    若 标识 等于 「multimodal」：
+        返还 「MM」。
+    完。
+    若 标识 等于 「automation」：
+        返还 「AT」。
+    完。
+    若 标识 等于 「recovery」：
+        返还 「RC」。
+    完。
+    若 标识 等于 「settings」：
+        返还 「ST」。
+    完。
+    若 标识 等于 「voice」：
+        返还 「VC」。
+    完。
+    若 标识 等于 「avatar」：
+        返还 「AV」。
+    完。
+    若 标识 等于 「setup」：
+        返还 「SU」。
+    完。
+    返还 「AP」。
+完。
+
+Nova原生桌面_图标标签 接受 标识：
+    若 标识 等于 「终端」：
+        返还 「CORE」。
+    完。
+    若 标识 等于 「ai」：
+        返还 「智能体」。
+    完。
+    若 标识 等于 「system」：
+        返还 「BUS」。
+    完。
+    若 标识 等于 「multimodal」：
+        返还 「SENSE」。
+    完。
+    若 标识 等于 「automation」：
+        返还 「FLOW」。
+    完。
+    若 标识 等于 「recovery」：
+        返还 「SAFE」。
+    完。
+    若 标识 等于 「settings」：
+        返还 「CTRL」。
+    完。
+    若 标识 等于 「voice」：
+        返还 「VOICE」。
+    完。
+    若 标识 等于 「avatar」：
+        返还 「AVATAR」。
+    完。
+    若 标识 等于 「setup」：
+        返还 「BOOT」。
+    完。
+    返还 「APP」。
+完。
+
+Nova原生桌面_图标渐变 接受 标识：
+    若 标识 等于 「终端」：
+        返还 「linear-gradient(135deg,#ffffff,#dbeafe 48%,#bfdbfe 100%)」。
+    完。
+    若 标识 等于 「ai」：
+        返还 「linear-gradient(135deg,#f5f3ff,#ddd6fe 48%,#c4b5fd 100%)」。
+    完。
+    若 标识 等于 「system」：
+        返还 「linear-gradient(135deg,#eff6ff,#bfdbfe 48%,#93c5fd 100%)」。
+    完。
+    若 标识 等于 「multimodal」：
+        返还 「linear-gradient(135deg,#ecfeff,#a5f3fc 44%,#7dd3fc 100%)」。
+    完。
+    若 标识 等于 「automation」：
+        返还 「linear-gradient(135deg,#f0fdf4,#bbf7d0 44%,#86efac 100%)」。
+    完。
+    若 标识 等于 「recovery」：
+        返还 「linear-gradient(135deg,#fff7ed,#fed7aa 44%,#fdba74 100%)」。
+    完。
+    若 标识 等于 「settings」：
+        返还 「linear-gradient(135deg,#f8fafc,#e2e8f0 44%,#cbd5e1 100%)」。
+    完。
+    若 标识 等于 「voice」：
+        返还 「linear-gradient(135deg,#fdf2f8,#fbcfe8 46%,#f9a8d4 100%)」。
+    完。
+    若 标识 等于 「avatar」：
+        返还 「linear-gradient(135deg,#ecfeff,#bfdbfe 44%,#99f6e4 100%)」。
+    完。
+    若 标识 等于 「setup」：
+        返还 「linear-gradient(135deg,#eef2ff,#c7d2fe 46%,#a5b4fc 100%)」。
+    完。
+    返还 「linear-gradient(135deg,#ffffff,#e2e8f0 48%,#cbd5e1 100%)」。
+完。
+
+Nova原生桌面_图标符号HTML 接受 标识：
+    图片 为 做 Nova原生桌面_标识到图片 用 标识。
+    返还 「<img class='icon-pic' src='」 加 图片 加 「' alt='」 加 标识 加 「'/>」。
+完。
+
+Nova原生桌面_工作区高度 接受 零参：
+    返还 桌面 的 屏幕高 减 桌面 的 任务栏高 减 桌面 的 系统栏高。
+完。
+
+Nova原生桌面_建议窗口几何 接受 序号：
+    左 为 228 加 序号 取余于 4 乘 18。
+    顶 为 18 加 序号 取余于 4 乘 16。
+    宽 为 桌面 的 屏幕宽 减 左 减 28。
+    高 为 做 Nova原生桌面_工作区高度 减 顶 减 24。
+    若 宽 小于 860：
+        左 为 36。
+        宽 为 桌面 的 屏幕宽 减 72。
+    完。
+    若 高 小于 560：
+        顶 为 12。
+        高 为 做 Nova原生桌面_工作区高度 减 24。
+    完。
+    返还 一组：左、顶、宽、高。
+完。
+
+Nova原生桌面_生成窗口NML 接受 窗口：
+    focused 为 「」。
+    若 窗口 的 ID 等于 桌面 的 焦点窗口：
+        focused 为 「 focused」。
+    完。
+    可变 html 为 「<div class='nova-window」 加 focused 加 「'」。
+    html 为 html 加 「 style='left:」 加 做 整数转字符串 用 窗口 的 x 加 「px;」。
+    html 为 html 加 「top:」 加 做 整数转字符串 用 窗口 的 y 加 「px;」。
+    html 为 html 加 「width:」 加 做 整数转字符串 用 窗口 的 宽 加 「px;」。
+    html 为 html 加 「height:」 加 做 整数转字符串 用 窗口 的 高 加 「px;」。
+    html 为 html 加 「z-index:」 加 做 整数转字符串 用 窗口 的 Z序 加 「;'>」。
+    html 为 html 加 「<div class='window-titlebar'>」。
+    html 为 html 加 「  <div class='window-controls'>」。
+    html 为 html 加 「    <div class='window-btn close'></div>」。
+    html 为 html 加 「    <div class='window-btn minimize'></div>」。
+    html 为 html 加 「    <div class='window-btn maximize'></div>」。
+    html 为 html 加 「  </div>」。
+    html 为 html 加 「  <span class='title'>」 加 窗口 的 标题 加 「</span>」。
+    html 为 html 加 「</div>」。
+    html 为 html 加 「<div class='window-content' id='wc-」 加 做 整数转字符串 用 窗口 的 ID 加 「'>」。
+    html 为 html 加 做 Nova原生桌面_生成窗口内容HTML 用 窗口。
+    html 为 html 加 「</div>」。
+    html 为 html 加 「</div>」。
+    返还 html。
+完。
+
+Nova原生桌面_生成图标NML 接受 零参：
+    可变 html 为 「」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 桌面 的 桌面图标：
+        图标 为 桌面 的 桌面图标 的 第 i 项。
+        标识 为 做 Nova原生桌面_解析图标标识 用 图标 的 第 1 项、图标 的 第 2 项。
+        标签 为 做 Nova原生桌面_图标标签 用 标识。
+        背景 为 做 Nova原生桌面_图标渐变 用 标识。
+        符号 为 做 Nova原生桌面_图标符号HTML 用 标识。
+        html 为 html 加 「<div class='desktop-icon' style='left:」 加 做 整数转字符串 用 图标 的 第 3 项 加 「px;top:」 加 做 整数转字符串 用 图标 的 第 4 项 加 「px;'」。
+        html 为 html 加 「 data-url='」 加 图标 的 第 1 项 加 「'>」。
+        html 为 html 加 「  <div class='icon-img'>」 加 符号 加 「</div>」。
+        html 为 html 加 「  <div class='icon-name'>」 加 图标 的 第 0 项 加 「</div>」。
+        html 为 html 加 「  <div class='icon-caption'>」 加 标签 加 「</div>」。
+        html 为 html 加 「</div>」。
+        i 为 i 加 1。
+    完。
+    返还 html。
+完。
+
+Nova原生桌面_生成任务栏NML 接受 零参：
+    可变 html 为 「」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 桌面 的 窗口列表：
+        窗口 为 桌面 的 窗口列表 的 第 i 项。
+        active 为 「」。
+        标识 为 做 Nova原生桌面_解析图标标识 用 窗口 的 URL、「」。
+        符号 为 做 Nova原生桌面_图标符号HTML 用 标识。
+        若 窗口 的 ID 等于 桌面 的 焦点窗口：
+            active 为 「 active」。
+        完。
+        html 为 html 加 「<div class='taNova缓冲ar-app」 加 active 加 「' data-wid='」 加 做 整数转字符串 用 窗口 的 ID 加 「'>」。
+        html 为 html 加 「<span class='taNova缓冲ar-app-symbol'>」 加 符号 加 「</span>」。
+        html 为 html 加 「</div>」。
+        i 为 i 加 1。
+    完。
+    返还 html。
+完。
+
+Nova原生桌面_图标双击 接受 图标索引：
+    若 图标索引 小于 做 计数 用 桌面 的 桌面图标：
+        图标 为 桌面 的 桌面图标 的 第 图标索引 项。
+        几何 为 做 Nova原生桌面_建议窗口几何 用 图标索引。
+        做 Nova原生桌面_打开窗口 用 图标 的 第 0 项、图标 的 第 1 项、几何 的 第 0 项、几何 的 第 1 项、几何 的 第 2 项、几何 的 第 3 项。
+    完。
+完。
+
+Nova原生桌面_任务栏点击 接受 窗口ID：
+    做 Nova原生桌面_聚焦窗口 用 窗口ID。
+完。
+
+Nova原生桌面_加载外部平台 接受 url、标题：
+    几何 为 做 Nova原生桌面_建议窗口几何 用 做 计数 用 桌面 的 窗口列表 加 1。
+    返还 做 Nova原生桌面_打开窗口 用 标题、url、几何 的 第 0 项、几何 的 第 1 项、几何 的 第 2 项、几何 的 第 3 项。
+完。
+
+Nova原生桌面_生成窗口内容HTML 接受 窗口：
+    可变 内容 为 「」。
+    若 做 字符串查找 用 窗口 的 URL、「nova://ai」 等于 0：
+        内容 为 做 浏览器网络_生成AI工作台内容HTML。
+    否则若 做 字符串查找 用 窗口 的 URL、「nova://system」 等于 0：
+        内容 为 做 浏览器网络_生成系统面内容HTML。
+    否则若 做 字符串查找 用 窗口 的 URL、「nova://settings」 等于 0：
+        内容 为 做 浏览器网络_生成设置内容HTML。
+    否则若 做 字符串查找 用 窗口 的 URL、「nova://multimodal」 等于 0：
+        内容 为 做 浏览器网络_生成多模态内容HTML。
+    否则若 做 字符串查找 用 窗口 的 URL、「nova://voice」 等于 0：
+        内容 为 做 浏览器网络_生成语音内容HTML。
+    否则若 做 字符串查找 用 窗口 的 URL、「nova://avatar」 等于 0：
+        内容 为 做 浏览器网络_生成形象内容HTML。
+    否则若 做 字符串查找 用 窗口 的 URL、「nova://automation」 等于 0：
+        内容 为 做 浏览器网络_生成自动化内容HTML。
+    否则若 做 字符串查找 用 窗口 的 URL、「nova://recovery」 等于 0：
+        内容 为 做 浏览器网络_生成恢复内容HTML。
+    否则若 做 字符串查找 用 窗口 的 URL、「nova://newtab」 等于 0 或者 做 字符串查找 用 窗口 的 URL、「nova://终端」 等于 0：
+        内容 为 做 浏览器网络_生成主壳内容HTML。
+    否则：
+        内容 为 「<section class='nova-grid'><div class='nova-panel'><h2>browser-终端 窗口上下文已连接</h2><p>当前窗口已经具备独立文档状态，后续可继续接入真实页面、任务流和多模态工作区。</p></div><div class='nova-panel'><h2>当前目标</h2><p>把浏览器窗口变成系统模块、AI工作台和自动化执行台的统一承载面。</p></div></section>」。
+    完。
+    可变 html 为 「<div class='window-page-终端'>」。
+    html 为 html 加 「<div class='window-page-title'>」 加 窗口 的 标题 加 「</div>」。
+    html 为 html 加 「<div class='window-page-url'>」 加 窗口 的 URL 加 「</div>」。
+    html 为 html 加 「<div class='window-page-status'>browser-终端 窗口上下文已连接 · kernel+AI 页面已注入</div>」。
+    html 为 html 加 「<div class='window-终端-actions'><a href='nova://终端'>主壳</a><a href='nova://ai'>AI</a><a href='nova://system'>系统</a><a href='nova://multimodal'>多模态</a><a href='nova://voice'>语音</a><a href='nova://avatar'>形象</a><a href='nova://recovery'>恢复</a></div>」。
+    html 为 html 加 内容。
+    html 为 html 加 「</div>」。
+    返还 html。
+完。
+
+Nova原生桌面_构建窗口文档 接受 窗口：
+    可变 html 为 「<!DOCTYPE html><html><head>」。
+    html 为 html 加 「<meta charset='UTF-8'>」。
+    html 为 html 加 「<title>」 加 窗口 的 标题 加 「</title>」。
+    html 为 html 加 「<style>」 加 桌面 的 主题CSS 加 「</style>」。
+    html 为 html 加 「</head><body>」。
+    html 为 html 加 做 Nova原生桌面_生成窗口NML 用 窗口。
+    html 为 html 加 「</body></html>」。
+    返还 做 DOM_解析NML 用 html、窗口 的 URL。
+完。
+
+Nova原生桌面_统计 接受 零参：
+    返还 一组：做 计数 用 桌面 的 窗口列表、桌面 的 焦点窗口、做 计数 用 桌面 的 桌面图标。
+完。
+
+本章 收束。

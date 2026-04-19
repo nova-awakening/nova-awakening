@@ -1,0 +1,1014 @@
+《音频解码器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《..·执行·控制台输出》。
+
+音频Decoder_解码_真实 接受 dec、pkt：
+    若 dec 等于 0 或者 pkt 等于 0 或者 非 dec 的 已初始化：
+        返还 0。
+    完。
+    frame 为 做 堆_分配 用 音频Frame。
+    frame 的 时间戳 为 pkt 的 时间戳。
+    若 dec 的 编解码器 等于 CODEC_PCM：
+        frame 的 采样数 为 pkt 的 大小 除以 4。
+        frame 的 采样率 为 44100。
+        frame 的 声道数 为 2。
+        frame 的 采样 为 做 堆_分配 用 pkt 的 大小。
+        做 内存_复制 用 frame 的 采样、pkt 的 数据、pkt 的 大小。
+        返还 frame。
+    完。
+    若 dec 的 编解码器 等于 CODEC_AAC：
+        frame 的 采样数 为 1024。
+        frame 的 采样率 为 44100。
+        frame 的 声道数 为 2。
+        frame 的 采样 为 做 堆_分配 用 frame 的 采样数 乘 frame 的 声道数 乘 2。
+        做 AAC_完整解码 用 dec、pkt 的 数据、pkt 的 大小、frame。
+        返还 frame。
+    完。
+    若 dec 的 编解码器 等于 CODEC_MP3：
+        frame 的 采样数 为 1152。
+        frame 的 采样率 为 44100。
+        frame 的 声道数 为 2。
+        frame 的 采样 为 做 堆_分配 用 frame 的 采样数 乘 frame 的 声道数 乘 2。
+        做 MP3_完整解码 用 dec、pkt 的 数据、pkt 的 大小、frame。
+        返还 frame。
+    完。
+    若 dec 的 编解码器 等于 CODEC_OPUS：
+        frame 的 采样数 为 960。
+        frame 的 采样率 为 48000。
+        frame 的 声道数 为 2。
+        frame 的 采样 为 做 堆_分配 用 frame 的 采样数 乘 frame 的 声道数 乘 2。
+        做 Opus_完整解码 用 dec、pkt 的 数据、pkt 的 大小、frame。
+        返还 frame。
+    完。
+    若 dec 的 编解码器 等于 CODEC_VORBIS：
+        frame 的 采样数 为 1024。
+        frame 的 采样率 为 44100。
+        frame 的 声道数 为 2。
+        frame 的 采样 为 做 堆_分配 用 frame 的 采样数 乘 frame 的 声道数 乘 2。
+        做 Vorbis_完整解码 用 dec、pkt 的 数据、pkt 的 大小、frame。
+        返还 frame。
+    完。
+    做 堆_释放 用 frame。
+    返还 0。
+完。
+
+AAC_完整解码 接受 dec、数据、大小、frame：
+    若 数据 等于 0 或者 frame 等于 0 或者 frame 的 采样 等于 0：
+        返还。
+    完。
+    N 为 frame 的 采样数。
+    ch 为 frame 的 声道数。
+    若 大小 小于 7：
+        返还。
+    完。
+    sync 为 做 字节取 用 数据、0 左移 4 位或 做 字节取 用 数据、1 右移 4。
+    若 sync 不等于 0xFFF：
+        返还。
+    完。
+    profile 为 做 字节取 用 数据、2 右移 6 位与 3。
+    sr_idx 为 做 字节取 用 数据、2 右移 2 位与 0xF。
+    ch_cfg 为 (做 字节取 用 数据、2 位与 1) 左移 2 位或 做 字节取 用 数据、3 右移 6。
+    prot 为 做 字节取 用 数据、1 位与 1。
+    hdr_len 为 若 prot 等于 0 则 9 否则 7。
+    frame_len 为 (做 字节取 用 数据、3 位与 3) 左移 11 位或 做 字节取 用 数据、4 左移 3 位或 做 字节取 用 数据、5 右移 5。
+    若 frame_len 大于 大小：
+        返还。
+    完。
+    sr_table 为 一组：96000、88200、64000、48000、44100、32000、24000、22050、16000、12000、11025、8000、7350。
+    若 sr_idx 小于 13：
+        frame 的 采样率 为 sr_table 的 第 sr_idx 项。
+    完。
+    若 ch_cfg 大于 0 并且 ch_cfg 小于或等于 7：
+        frame 的 声道数 为 ch_cfg。
+    完。
+    可变 bit_pos 为 hdr_len 乘 8。
+    payload_end 为 frame_len 乘 8。
+    spec_buf 为 做 堆_分配 用 N 乘 ch 乘 4。
+    prev_buf 为 dec 的 aac_prev_samples。
+    若 prev_buf 等于 0：
+        prev_buf 为 做 堆_分配 用 N 乘 ch 乘 4。
+        做 内存_置零 用 prev_buf、N 乘 ch 乘 4。
+        dec 的 aac_prev_samples 为 prev_buf。
+    完。
+    可变 c 为 0。
+    只要 c 小于 ch：
+        num_sfb 为 做 AAC_获取SFB数 用 sr_idx、N。
+        sfb_offset 为 做 AAC_获取SFB偏移表 用 sr_idx、N。
+        可变 global_gain 为 做 AAC_读比特 用 数据、bit_pos、8。
+        bit_pos 为 bit_pos 加 8。
+        sf 为 做 堆_分配 用 num_sfb 乘 4。
+        可变 sf_val 为 global_gain。
+        可变 b 为 0。
+        只要 b 小于 num_sfb：
+            delta 为 做 AAC_解码频率编码_SF 用 数据、bit_pos。
+            bit_pos 为 bit_pos 加 做 绝对值 用 delta 除以 4 加 3。
+            sf_val 为 sf_val 加 delta。
+            做 内存_写带符号32 用 sf 加 b 乘 4、sf_val。
+            b 为 b 加 1。
+        完。
+        spec_ch 为 spec_buf 加 c 乘 N 乘 4。
+        可变 k 为 0。
+        b 为 0。
+        只要 b 小于 num_sfb 并且 k 小于 N：
+            sfb_start 为 若 b 等于 0 则 0 否则 做 内存_读32 用 sfb_offset 加 (b 减 1) 乘 4。
+            sfb_end 为 做 内存_读32 用 sfb_offset 加 b 乘 4。
+            gain 为 做 内存_读带符号32 用 sf 加 b 乘 4。
+            只要 k 小于 sfb_end 并且 k 小于 N：
+                raw 为 做 AAC_解码频率编码_Spec 用 数据、bit_pos。
+                bit_pos 为 bit_pos 加 4。
+                sign 为 若 raw 小于 0 则 负 1 否则 1。
+                abs_val 为 做 绝对值 用 raw。
+                dequant 为 sign 乘 做 AAC_定点幂次 用 abs_val 乘 做 AAC_定点增益 用 gain。
+                做 内存_写带符号32 用 spec_ch 加 k 乘 4、dequant。
+                k 为 k 加 1。
+            完。
+            b 为 b 加 1。
+        完。
+        只要 k 小于 N：
+            做 内存_写带符号32 用 spec_ch 加 k 乘 4、0。
+            k 为 k 加 1。
+        完。
+        做 堆_释放 用 sf。
+        c 为 c 加 1。
+    完。
+    若 ch 等于 2 并且 dec 的 aac_ms_mask 不等于 0：
+        L 为 spec_buf。
+        R 为 spec_buf 加 N 乘 4。
+        可变 k2 为 0。
+        只要 k2 小于 N：
+            m 为 做 内存_读带符号32 用 L 加 k2 乘 4。
+            s 为 做 内存_读带符号32 用 R 加 k2 乘 4。
+            做 内存_写带符号32 用 L 加 k2 乘 4、(m 加 s) 乘 724 除以 1024。
+            做 内存_写带符号32 用 R 加 k2 乘 4、(m 减 s) 乘 724 除以 1024。
+            k2 为 k2 加 1。
+        完。
+    完。
+    c 为 0。
+    只要 c 小于 ch：
+        spec_ch2 为 spec_buf 加 c 乘 N 乘 4。
+        prev_ch 为 prev_buf 加 c 乘 N 乘 4。
+        time_buf 为 做 堆_分配 用 N 乘 2 乘 4。
+        做 AAC_IMDCT_N点 用 spec_ch2、time_buf、N。
+        可变 n 为 0。
+        只要 n 小于 N：
+            cur 为 做 内存_读带符号32 用 time_buf 加 n 乘 4。
+            prev_val 为 做 内存_读带符号32 用 prev_ch 加 n 乘 4。
+            win 为 做 AAC_正弦窗 用 n、N。
+            pcm_val 为 cur 乘 win 除以 1024 加 prev_val 右移 10。
+            若 pcm_val 大于 32767：
+                pcm_val 为 32767。
+            完。
+            若 pcm_val 小于 负 32768：
+                pcm_val 为 负 32768。
+            完。
+            做 内存_写带符号16 用 frame 的 采样 加 (n 乘 ch 加 c) 乘 2、pcm_val。
+            n 为 n 加 1。
+        完。
+        n 为 0。
+        只要 n 小于 N：
+            tail 为 做 内存_读带符号32 用 time_buf 加 (N 加 n) 乘 4。
+            win2 为 做 AAC_正弦窗 用 N 减 1 减 n、N。
+            做 内存_写带符号32 用 prev_ch 加 n 乘 4、tail 乘 win2 除以 1024。
+            n 为 n 加 1。
+        完。
+        做 堆_释放 用 time_buf。
+        c 为 c 加 1。
+    完。
+    做 堆_释放 用 spec_buf。
+完。
+
+AAC_定点幂次 接受 x：
+    若 x 等于 0：
+        返还 0。
+    完。
+    若 x 等于 1：
+        返还 1。
+    完。
+    cbrt 为 做 定点_立方根 用 x。
+    返还 x 乘 cbrt 除以 1024。
+完。
+
+AAC_定点增益 接受 gain：
+    whole 为 gain 除以 4。
+    frac 为 gain 取余于 4。
+    base 为 1 左移 whole。
+    frac_table 为 一组：1024、1218、1448、1722。
+    返还 base 乘 frac_table 的 第 frac 项 除以 1024。
+完。
+
+AAC_正弦窗 接受 n、N：
+    angle 为 (2 乘 n 加 1) 乘 1608 除以 (4 乘 N)。
+    返还 做 定点_正弦 用 angle。
+完。
+
+AAC_IMDCT_N点 接受 spec、out、N：
+    N2 为 N 乘 2。
+    可变 n 为 0。
+    只要 n 小于 N2：
+        可变 sum 为 0。
+        可变 k 为 0。
+        只要 k 小于 N：
+            coeff 为 做 内存_读带符号32 用 spec 加 k 乘 4。
+            angle 为 (2 乘 n 加 1 加 N 除以 2) 乘 (2 乘 k 加 1) 乘 804 除以 (4 乘 N)。
+            sum 为 sum 加 coeff 乘 做 定点_余弦 用 angle 除以 1024。
+            k 为 k 加 1。
+        完。
+        做 内存_写带符号32 用 out 加 n 乘 4、sum。
+        n 为 n 加 1。
+    完。
+完。
+
+AAC_获取SFB数 接受 sr_idx、N：
+    若 N 等于 1024：
+        若 sr_idx 小于或等于 2：
+            返还 41。
+        完。
+        若 sr_idx 小于或等于 4：
+            返还 49。
+        完。
+        返还 51。
+    完。
+    返还 14。
+完。
+
+AAC_获取SFB偏移表 接受 sr_idx、N：
+    返还 dec 的 aac_sfb_offset_table。
+完。
+
+AAC_读比特 接受 数据、pos、n：
+    可变 val 为 0。
+    可变 i 为 0。
+    只要 i 小于 n：
+        byte_idx 为 (pos 加 i) 除以 8。
+        bit_idx 为 7 减 (pos 加 i) 取余于 8。
+        val 为 val 左移 1 位或 做 字节取 用 数据、byte_idx 右移 bit_idx 位与 1。
+        i 为 i 加 1。
+    完。
+    返还 val。
+完。
+
+AAC_解码频率编码_SF 接受 数据、pos：
+    可变 node 为 0。
+    可变 bits_read 为 0。
+    可变 code 为 0。
+    只要 bits_read 小于 19：
+        byte_idx 为 (pos 加 bits_read) 除以 8。
+        bit_idx 为 7 减 (pos 加 bits_read) 取余于 8。
+        bit 为 做 字节取 用 数据、byte_idx 右移 bit_idx 位与 1。
+        code 为 code 左移 1 位或 bit。
+        bits_read 为 bits_read 加 1。
+        若 bits_read 小于或等于 5：
+            若 code 等于 0 并且 bits_read 等于 1：
+                返还 0。
+            完。
+            若 code 等于 2 并且 bits_read 等于 2：
+                返还 1。
+            完。
+            若 code 等于 3 并且 bits_read 等于 2：
+                返还 负 1。
+            完。
+            若 code 等于 4 并且 bits_read 等于 3：
+                返还 2。
+            完。
+            若 code 等于 5 并且 bits_read 等于 3：
+                返还 负 2。
+            完。
+            若 code 等于 6 并且 bits_read 等于 3：
+                返还 3。
+            完。
+            若 code 等于 7 并且 bits_read 等于 3：
+                返还 负 3。
+            完。
+        完。
+    完。
+    返还 0。
+完。
+
+AAC_解码频率编码_Spec 接受 数据、pos：
+    可变 bits_read 为 0。
+    可变 code 为 0。
+    只要 bits_read 小于 20：
+        byte_idx 为 (pos 加 bits_read) 除以 8。
+        bit_idx 为 7 减 (pos 加 bits_read) 取余于 8。
+        code 为 code 左移 1 位或 做 字节取 用 数据、byte_idx 右移 bit_idx 位与 1。
+        bits_read 为 bits_read 加 1。
+        若 bits_read 大于或等于 1 并且 bits_read 小于或等于 4：
+            若 code 等于 0 并且 bits_read 等于 1：
+                返还 0。
+            完。
+            若 code 等于 2 并且 bits_read 等于 2：
+                返还 1。
+            完。
+            若 code 等于 3 并且 bits_read 等于 2：
+                返还 负 1。
+            完。
+            若 code 等于 4 并且 bits_read 等于 3：
+                返还 2。
+            完。
+            若 code 等于 5 并且 bits_read 等于 3：
+                返还 负 2。
+            完。
+            若 code 等于 12 并且 bits_read 等于 4：
+                返还 3。
+            完。
+            若 code 等于 13 并且 bits_read 等于 4：
+                返还 负 3。
+            完。
+        完。
+    完。
+    返还 0。
+完。
+
+MP3_完整解码 接受 dec、数据、大小、frame：
+    若 数据 等于 0 或者 frame 等于 0 或者 frame 的 采样 等于 0：
+        返还。
+    完。
+    若 大小 小于 4：
+        返还。
+    完。
+    若 做 字节取 用 数据、0 不等于 0xFF 或者 做 字节取 用 数据、1 位与 0xE0 不等于 0xE0：
+        返还。
+    完。
+    version 为 做 字节取 用 数据、1 右移 3 位与 3。
+    layer 为 做 字节取 用 数据、1 右移 1 位与 3。
+    br_idx 为 做 字节取 用 数据、2 右移 4 位与 0xF。
+    sr_idx 为 做 字节取 用 数据、2 右移 2 位与 3。
+    padding 为 做 字节取 用 数据、2 右移 1 位与 1。
+    声道模式 为 做 字节取 用 数据、3 右移 6 位与 3。
+    mode_ext 为 做 字节取 用 数据、3 右移 4 位与 3。
+    mono 为 声道模式 等于 3。
+    ch 为 若 mono 则 1 否则 2。
+    side_len 为 若 mono 则 17 否则 32。
+    sr_table 为 一组：44100、48000、32000。
+    若 sr_idx 小于 3：
+        frame 的 采样率 为 sr_table 的 第 sr_idx 项。
+    完。
+    frame 的 声道数 为 ch。
+    br_table 为 一组：0、32、40、48、56、64、80、96、112、128、160、192、224、256、320。
+    bitrate 为 若 br_idx 小于 15 则 br_table 的 第 br_idx 项 乘 1000 否则 0。
+    可变 bit_pos 为 32。
+    main_data_begin 为 做 MP3_读比特 用 数据、bit_pos、9。
+    bit_pos 为 bit_pos 加 9。
+    若 mono：
+        bit_pos 为 bit_pos 加 5。
+    否则：
+        bit_pos 为 bit_pos 加 3。
+    完。
+    granules 为 2。
+    gr_info 为 做 堆_分配 用 granules 乘 ch 乘 64。
+    可变 gr 为 0。
+    只要 gr 小于 granules：
+        可变 c2 为 0。
+        只要 c2 小于 ch：
+            offset 为 (gr 乘 ch 加 c2) 乘 64。
+            做 内存_写32 用 gr_info 加 offset、做 MP3_读比特 用 数据、bit_pos、12。
+            bit_pos 为 bit_pos 加 12。
+            做 内存_写32 用 gr_info 加 offset 加 4、做 MP3_读比特 用 数据、bit_pos、9。
+            bit_pos 为 bit_pos 加 9。
+            做 内存_写32 用 gr_info 加 offset 加 8、做 MP3_读比特 用 数据、bit_pos、8。
+            bit_pos 为 bit_pos 加 8。
+            做 内存_写32 用 gr_info 加 offset 加 12、做 MP3_读比特 用 数据、bit_pos、4。
+            bit_pos 为 bit_pos 加 4。
+            win_flag 为 做 MP3_读比特 用 数据、bit_pos、1。
+            bit_pos 为 bit_pos 加 1。
+            做 内存_写32 用 gr_info 加 offset 加 16、win_flag。
+            若 win_flag 等于 1：
+                做 内存_写32 用 gr_info 加 offset 加 20、做 MP3_读比特 用 数据、bit_pos、2。
+                bit_pos 为 bit_pos 加 2。
+                做 内存_写32 用 gr_info 加 offset 加 24、做 MP3_读比特 用 数据、bit_pos、1。
+                bit_pos 为 bit_pos 加 1。
+                bit_pos 为 bit_pos 加 10。
+                bit_pos 为 bit_pos 加 9。
+            否则：
+                bit_pos 为 bit_pos 加 15。
+                bit_pos 为 bit_pos 加 4 加 3。
+            完。
+            bit_pos 为 bit_pos 加 1。
+            bit_pos 为 bit_pos 加 1。
+            bit_pos 为 bit_pos 加 1。
+            c2 为 c2 加 1。
+        完。
+        gr 为 gr 加 1。
+    完。
+    spec 为 做 堆_分配 用 576 乘 ch 乘 4。
+    prev_imdct 为 dec 的 mp3_prev_imdct。
+    若 prev_imdct 等于 0：
+        prev_imdct 为 做 堆_分配 用 576 乘 ch 乘 4。
+        做 内存_置零 用 prev_imdct、576 乘 ch 乘 4。
+        dec 的 mp3_prev_imdct 为 prev_imdct。
+    完。
+    V_buf 为 dec 的 mp3_V_buf。
+    若 V_buf 等于 0：
+        V_buf 为 做 堆_分配 用 1024 乘 ch 乘 4。
+        做 内存_置零 用 V_buf、1024 乘 ch 乘 4。
+        dec 的 mp3_V_buf 为 V_buf。
+    完。
+    可变 sample_idx 为 0。
+    gr 为 0。
+    只要 gr 小于 granules：
+        可变 c3 为 0。
+        只要 c3 小于 ch：
+            gi 为 (gr 乘 ch 加 c3) 乘 64。
+            global_gain 为 做 内存_读32 用 gr_info 加 gi 加 8。
+            big_values 为 做 内存_读32 用 gr_info 加 gi 加 4。
+            spec_ch 为 spec 加 c3 乘 576 乘 4。
+            可变 k 为 0。
+            只要 k 小于 big_values 乘 2 并且 k 小于 576：
+                huff_val 为 做 MP3_解码频率编码_Pair 用 数据、bit_pos。
+                bit_pos 为 bit_pos 加 4。
+                做 内存_写带符号32 用 spec_ch 加 k 乘 4、huff_val。
+                k 为 k 加 1。
+            完。
+            只要 k 小于 576：
+                做 内存_写带符号32 用 spec_ch 加 k 乘 4、0。
+                k 为 k 加 1。
+            完。
+            gain_shift 为 (global_gain 减 210) 除以 4。
+            k 为 0。
+            只要 k 小于 576：
+                is_val 为 做 内存_读带符号32 用 spec_ch 加 k 乘 4。
+                若 is_val 不等于 0：
+                    sign2 为 若 is_val 小于 0 则 负 1 否则 1。
+                    abs2 为 做 绝对值 用 is_val。
+                    dq 为 sign2 乘 做 AAC_定点幂次 用 abs2。
+                    若 gain_shift 大于 0：
+                        dq 为 dq 左移 gain_shift。
+                    否则若 gain_shift 小于 0：
+                        dq 为 dq 右移 负 gain_shift。
+                    完。
+                    做 内存_写带符号32 用 spec_ch 加 k 乘 4、dq。
+                完。
+                k 为 k 加 1。
+            完。
+            c3 为 c3 加 1。
+        完。
+        若 ch 等于 2 并且 声道模式 等于 1 并且 做 位与 用 mode_ext、2 不等于 0：
+            L2 为 spec。
+            R2 为 spec 加 576 乘 4。
+            可变 j 为 0。
+            只要 j 小于 576：
+                m2 为 做 内存_读带符号32 用 L2 加 j 乘 4。
+                s2 为 做 内存_读带符号32 用 R2 加 j 乘 4。
+                做 内存_写带符号32 用 L2 加 j 乘 4、(m2 加 s2) 乘 724 除以 1024。
+                做 内存_写带符号32 用 R2 加 j 乘 4、(m2 减 s2) 乘 724 除以 1024。
+                j 为 j 加 1。
+            完。
+        完。
+        cs_table 为 一组：1024、1014、983、955、946、941、939、938。
+        ca_table 为 一组：负 614、负 547、负 338、负 190、负 97、负 42、负 15、负 4。
+        可变 c4 为 0。
+        只要 c4 小于 ch：
+            sp 为 spec 加 c4 乘 576 乘 4。
+            可变 sb 为 0。
+            只要 sb 小于 31：
+                可变 p 为 0。
+                只要 p 小于 8：
+                    upper_idx 为 (sb 加 1) 乘 18 减 1 减 p。
+                    lower_idx 为 (sb 加 1) 乘 18 加 p。
+                    u 为 做 内存_读带符号32 用 sp 加 upper_idx 乘 4。
+                    l 为 做 内存_读带符号32 用 sp 加 lower_idx 乘 4。
+                    做 内存_写带符号32 用 sp 加 upper_idx 乘 4、(u 乘 cs_table 的 第 p 项 加 l 乘 ca_table 的 第 p 项) 除以 1024。
+                    做 内存_写带符号32 用 sp 加 lower_idx 乘 4、(l 乘 cs_table 的 第 p 项 减 u 乘 ca_table 的 第 p 项) 除以 1024。
+                    p 为 p 加 1。
+                完。
+                sb 为 sb 加 1。
+            完。
+            c4 为 c4 加 1。
+        完。
+        c4 为 0。
+        只要 c4 小于 ch：
+            sp2 为 spec 加 c4 乘 576 乘 4。
+            prev_ch2 为 prev_imdct 加 c4 乘 576 乘 4。
+            可变 sb2 为 0。
+            只要 sb2 小于 32：
+                in_ptr 为 sp2 加 sb2 乘 18 乘 4。
+                prev_ptr 为 prev_ch2 加 sb2 乘 18 乘 4。
+                tmp36 为 做 堆_分配 用 36 乘 4。
+                可变 n2 为 0。
+                只要 n2 小于 36：
+                    可变 sum2 为 0。
+                    可变 k2 为 0。
+                    只要 k2 小于 18：
+                        coeff2 为 做 内存_读带符号32 用 in_ptr 加 k2 乘 4。
+                        angle2 为 (2 乘 n2 加 1 加 18) 乘 (2 乘 k2 加 1) 乘 804 除以 72。
+                        sum2 为 sum2 加 coeff2 乘 做 定点_余弦 用 angle2 除以 1024。
+                        k2 为 k2 加 1。
+                    完。
+                    做 内存_写带符号32 用 tmp36 加 n2 乘 4、sum2。
+                    n2 为 n2 加 1。
+                完。
+                n2 为 0。
+                只要 n2 小于 18：
+                    win2 为 做 AAC_正弦窗 用 n2、36。
+                    cur2 为 做 内存_读带符号32 用 tmp36 加 n2 乘 4 乘 win2 除以 1024。
+                    prev2 为 做 内存_读带符号32 用 prev_ptr 加 n2 乘 4。
+                    做 内存_写带符号32 用 in_ptr 加 n2 乘 4、cur2 加 prev2。
+                    n2 为 n2 加 1。
+                完。
+                n2 为 0。
+                只要 n2 小于 18：
+                    win3 为 做 AAC_正弦窗 用 18 加 n2、36。
+                    做 内存_写带符号32 用 prev_ptr 加 n2 乘 4、做 内存_读带符号32 用 tmp36 加 (18 加 n2) 乘 4 乘 win3 除以 1024。
+                    n2 为 n2 加 1。
+                完。
+                做 堆_释放 用 tmp36。
+                sb2 为 sb2 加 1。
+            完。
+            c4 为 c4 加 1。
+        完。
+        c4 为 0。
+        只要 c4 小于 ch：
+            sp3 为 spec 加 c4 乘 576 乘 4。
+            可变 sb3 为 1。
+            只要 sb3 小于 32：
+                可变 s3 为 1。
+                只要 s3 小于 18：
+                    idx3 为 sb3 乘 18 加 s3。
+                    做 内存_写带符号32 用 sp3 加 idx3 乘 4、负 做 内存_读带符号32 用 sp3 加 idx3 乘 4。
+                    s3 为 s3 加 2。
+                完。
+                sb3 为 sb3 加 2。
+            完。
+            c4 为 c4 加 1。
+        完。
+        c4 为 0。
+        只要 c4 小于 ch：
+            sp4 为 spec 加 c4 乘 576 乘 4。
+            V_ch 为 V_buf 加 c4 乘 1024 乘 4。
+            可变 ss 为 0。
+            只要 ss 小于 18：
+                可变 i2 为 0。
+                只要 i2 小于 64：
+                    可变 sum3 为 0。
+                    可变 k3 为 0。
+                    只要 k3 小于 32：
+                        s_val 为 做 内存_读带符号32 用 sp4 加 (k3 乘 18 加 ss) 乘 4。
+                        ang3 为 (2 乘 i2 加 1) 乘 (2 乘 k3 加 1) 乘 804 除以 128。
+                        sum3 为 sum3 加 s_val 乘 做 定点_余弦 用 ang3 除以 1024。
+                        k3 为 k3 加 1。
+                    完。
+                    做 内存_写带符号32 用 V_ch 加 i2 取余于 1024 乘 4、sum3。
+                    i2 为 i2 加 1。
+                完。
+                可变 j2 为 0。
+                只要 j2 小于 32：
+                    可变 pcm 为 0。
+                    可变 w 为 0。
+                    只要 w 小于 16：
+                        v_idx 为 (j2 加 32 乘 w) 取余于 1024。
+                        pcm 为 pcm 加 做 内存_读带符号32 用 V_ch 加 v_idx 乘 4 除以 16。
+                        w 为 w 加 1。
+                    完。
+                    若 pcm 大于 32767：
+                        pcm 为 32767。
+                    完。
+                    若 pcm 小于 负 32768：
+                        pcm 为 负 32768。
+                    完。
+                    out_idx 为 sample_idx 加 ss 乘 32 加 j2。
+                    若 out_idx 小于 frame 的 采样数：
+                        做 内存_写带符号16 用 frame 的 采样 加 (out_idx 乘 frame 的 声道数 加 c4) 乘 2、pcm。
+                    完。
+                    j2 为 j2 加 1。
+                完。
+                ss 为 ss 加 1。
+            完。
+            c4 为 c4 加 1。
+        完。
+        sample_idx 为 sample_idx 加 576。
+        gr 为 gr 加 1。
+    完。
+    做 堆_释放 用 spec。
+    做 堆_释放 用 gr_info。
+完。
+
+MP3_读比特 接受 数据、pos、n：
+    可变 val 为 0。
+    可变 i 为 0。
+    只要 i 小于 n：
+        byte_idx 为 (pos 加 i) 除以 8。
+        bit_idx 为 7 减 (pos 加 i) 取余于 8。
+        val 为 val 左移 1 位或 做 字节取 用 数据、byte_idx 右移 bit_idx 位与 1。
+        i 为 i 加 1。
+    完。
+    返还 val。
+完。
+
+MP3_解码频率编码_Pair 接受 数据、pos：
+    可变 code 为 0。
+    可变 bits 为 0。
+    只要 bits 小于 16：
+        byte_idx 为 (pos 加 bits) 除以 8。
+        bit_idx 为 7 减 (pos 加 bits) 取余于 8。
+        code 为 code 左移 1 位或 做 字节取 用 数据、byte_idx 右移 bit_idx 位与 1。
+        bits 为 bits 加 1。
+        若 bits 小于或等于 4：
+            若 code 等于 0 并且 bits 等于 1：
+                返还 0。
+            完。
+            若 code 等于 2 并且 bits 等于 2：
+                返还 1。
+            完。
+            若 code 等于 3 并且 bits 等于 2：
+                返还 负 1。
+            完。
+            若 code 等于 4 并且 bits 等于 3：
+                返还 2。
+            完。
+            若 code 等于 5 并且 bits 等于 3：
+                返还 负 2。
+            完。
+            若 code 等于 12 并且 bits 等于 4：
+                返还 3。
+            完。
+            若 code 等于 13 并且 bits 等于 4：
+                返还 负 3。
+            完。
+            若 code 等于 14 并且 bits 等于 4：
+                返还 4。
+            完。
+            若 code 等于 15 并且 bits 等于 4：
+                返还 负 4。
+            完。
+        完。
+    完。
+    返还 0。
+完。
+
+Opus_完整解码 接受 dec、数据、大小、frame：
+    若 数据 等于 0 或者 frame 等于 0 或者 frame 的 采样 等于 0：
+        返还。
+    完。
+    若 大小 小于 1：
+        返还。
+    完。
+    toc 为 做 字节取 用 数据、0。
+    config 为 toc 右移 3。
+    stereo_flag 为 toc 右移 2 位与 1。
+    frame_count_code 为 toc 位与 3。
+    ch 为 若 stereo_flag 等于 1 则 2 否则 1。
+    frame 的 声道数 为 ch。
+    frame_sizes 为 一组：480、960、1920、2880、480、960、1920、2880、480、960、1920、2880、480、960、480、960、120、240、480、960、120、240、480、960、120、240、480、960、120、240、480、960。
+    若 config 小于 32：
+        frame 的 采样数 为 frame_sizes 的 第 config 项。
+    完。
+    N 为 frame 的 采样数。
+    可变 range_pos 为 1。
+    若 frame_count_code 等于 0：
+    否则若 frame_count_code 等于 1：
+    否则若 frame_count_code 等于 2：
+        range_pos 为 range_pos 加 1。
+    否则：
+        range_pos 为 range_pos 加 1。
+    完。
+    payload 为 数据 加 range_pos。
+    payload_len 为 大小 减 range_pos。
+    pcm_buf 为 做 堆_分配 用 N 乘 ch 乘 4。
+    若 config 小于或等于 11：
+        做 Opus_SILK_解码 用 dec、payload、payload_len、pcm_buf、N、ch。
+    否则若 config 小于或等于 15：
+        silk_buf 为 做 堆_分配 用 N 乘 ch 乘 4。
+        celt_buf 为 做 堆_分配 用 N 乘 ch 乘 4。
+        做 Opus_SILK_解码 用 dec、payload、payload_len 除以 2、silk_buf、N、ch。
+        做 Opus_CELT_解码 用 dec、payload 加 payload_len 除以 2、payload_len 减 payload_len 除以 2、celt_buf、N、ch。
+        可变 n 为 0。
+        只要 n 小于 N 乘 ch：
+            lo 为 做 内存_读带符号32 用 silk_buf 加 n 乘 4。
+            hi 为 做 内存_读带符号32 用 celt_buf 加 n 乘 4。
+            做 内存_写带符号32 用 pcm_buf 加 n 乘 4、lo 加 hi。
+            n 为 n 加 1。
+        完。
+        做 堆_释放 用 silk_buf。
+        做 堆_释放 用 celt_buf。
+    否则：
+        做 Opus_CELT_解码 用 dec、payload、payload_len、pcm_buf、N、ch。
+    完。
+    可变 i 为 0。
+    只要 i 小于 N 乘 ch：
+        val 为 做 内存_读带符号32 用 pcm_buf 加 i 乘 4 右移 10。
+        若 val 大于 32767：
+            val 为 32767。
+        完。
+        若 val 小于 负 32768：
+            val 为 负 32768。
+        完。
+        做 内存_写带符号16 用 frame 的 采样 加 i 乘 2、val。
+        i 为 i 加 1。
+    完。
+    做 堆_释放 用 pcm_buf。
+完。
+
+Opus_SILK_解码 接受 dec、数据、大小、out、N、ch：
+    若 数据 等于 0 或者 大小 小于 2：
+        做 内存_置零 用 out、N 乘 ch 乘 4。
+        返还。
+    完。
+    lpc_order 为 16。
+    lpc_state 为 dec 的 opus_silk_lpc_state。
+    若 lpc_state 等于 0：
+        lpc_state 为 做 堆_分配 用 lpc_order 乘 ch 乘 4。
+        做 内存_置零 用 lpc_state、lpc_order 乘 ch 乘 4。
+        dec 的 opus_silk_lpc_state 为 lpc_state。
+    完。
+    可变 c 为 0。
+    只要 c 小于 ch：
+        lpc 为 做 堆_分配 用 lpc_order 乘 4。
+        可变 j 为 0。
+        只要 j 小于 lpc_order：
+            lsf_q 为 若 j 小于 大小 减 1 则 (做 字节取 用 数据、1 加 j 减 128) 乘 8 否则 0。
+            做 内存_写带符号32 用 lpc 加 j 乘 4、lsf_q。
+            j 为 j 加 1。
+        完。
+        exc 为 做 堆_分配 用 N 乘 4。
+        可变 n 为 0。
+        只要 n 小于 N：
+            byte_idx 为 1 加 lpc_order 加 (n 乘 ch 加 c)。
+            exc_val 为 若 byte_idx 小于 大小 则 (做 字节取 用 数据、byte_idx 减 128) 乘 256 否则 0。
+            做 内存_写带符号32 用 exc 加 n 乘 4、exc_val。
+            n 为 n 加 1。
+        完。
+        state_ch 为 lpc_state 加 c 乘 lpc_order 乘 4。
+        out_ch 为 out 加 c 乘 N 乘 4。
+        n 为 0。
+        只要 n 小于 N：
+            可变 pred 为 0。
+            可变 k 为 0。
+            只要 k 小于 lpc_order：
+                past 为 0。
+                若 n 减 k 减 1 大于或等于 0：
+                    past 为 做 内存_读带符号32 用 out_ch 加 (n 减 k 减 1) 乘 4。
+                否则：
+                    state_idx 为 lpc_order 加 (n 减 k 减 1)。
+                    若 state_idx 大于或等于 0：
+                        past 为 做 内存_读带符号32 用 state_ch 加 state_idx 乘 4。
+                    完。
+                完。
+                pred 为 pred 加 做 内存_读带符号32 用 lpc 加 k 乘 4 乘 past 除以 1024。
+                k 为 k 加 1。
+            完。
+            y 为 做 内存_读带符号32 用 exc 加 n 乘 4 加 pred。
+            做 内存_写带符号32 用 out_ch 加 n 乘 4、y。
+            n 为 n 加 1。
+        完。
+        j 为 0。
+        只要 j 小于 lpc_order 并且 j 小于 N：
+            做 内存_写带符号32 用 state_ch 加 j 乘 4、做 内存_读带符号32 用 out_ch 加 (N 减 lpc_order 加 j) 乘 4。
+            j 为 j 加 1。
+        完。
+        做 堆_释放 用 lpc。
+        做 堆_释放 用 exc。
+        c 为 c 加 1。
+    完。
+完。
+
+Opus_CELT_解码 接受 dec、数据、大小、out、N、ch：
+    若 数据 等于 0 或者 大小 小于 2：
+        做 内存_置零 用 out、N 乘 ch 乘 4。
+        返还。
+    完。
+    num_bands 为 21。
+    band_energy 为 做 堆_分配 用 num_bands 乘 ch 乘 4。
+    可变 b 为 0。
+    只要 b 小于 num_bands 乘 ch：
+        byte_idx 为 1 加 b。
+        e 为 若 byte_idx 小于 大小 则 (做 字节取 用 数据、byte_idx 减 128) 乘 64 否则 0。
+        做 内存_写带符号32 用 band_energy 加 b 乘 4、e。
+        b 为 b 加 1。
+    完。
+    spec 为 做 堆_分配 用 N 乘 ch 乘 4。
+    bands_start 为 一组：0、2、4、6、8、10、12、16、20、24、28、34、40、48、60、72、88、108、132、160、200、256。
+    可变 c2 为 0。
+    只要 c2 小于 ch：
+        spec_ch 为 spec 加 c2 乘 N 乘 4。
+        b 为 0。
+        只要 b 小于 num_bands：
+            start 为 bands_start 的 第 b 项 乘 N 除以 256。
+            end 为 bands_start 的 第 b 加 1 项 乘 N 除以 256。
+            energy 为 做 内存_读带符号32 用 band_energy 加 (c2 乘 num_bands 加 b) 乘 4。
+            band_size 为 end 减 start。
+            若 band_size 小于或等于 0：
+                b 为 b 加 1。
+                继续。
+            完。
+            可变 k2 为 start。
+            只要 k2 小于 end 并且 k2 小于 N：
+                pvq_idx 为 1 加 num_bands 乘 ch 加 (c2 乘 N 加 k2)。
+                pvq_val 为 若 pvq_idx 小于 大小 则 做 字节取 用 数据、pvq_idx 减 128 否则 0。
+                做 内存_写带符号32 用 spec_ch 加 k2 乘 4、pvq_val 乘 energy 除以 128。
+                k2 为 k2 加 1。
+            完。
+            b 为 b 加 1。
+        完。
+        c2 为 c2 加 1。
+    完。
+    prev_celt 为 dec 的 opus_celt_prev。
+    若 prev_celt 等于 0：
+        prev_celt 为 做 堆_分配 用 N 乘 ch 乘 4。
+        做 内存_置零 用 prev_celt、N 乘 ch 乘 4。
+        dec 的 opus_celt_prev 为 prev_celt。
+    完。
+    c2 为 0。
+    只要 c2 小于 ch：
+        spec_ch2 为 spec 加 c2 乘 N 乘 4。
+        prev_ch 为 prev_celt 加 c2 乘 N 乘 4。
+        out_ch 为 out 加 c2 乘 N 乘 4。
+        time_buf 为 做 堆_分配 用 N 乘 2 乘 4。
+        做 AAC_IMDCT_N点 用 spec_ch2、time_buf、N。
+        可变 n2 为 0。
+        只要 n2 小于 N：
+            cur 为 做 内存_读带符号32 用 time_buf 加 n2 乘 4。
+            prev_val 为 做 内存_读带符号32 用 prev_ch 加 n2 乘 4。
+            win 为 做 AAC_正弦窗 用 n2、N。
+            做 内存_写带符号32 用 out_ch 加 n2 乘 4、cur 乘 win 除以 1024 加 prev_val。
+            n2 为 n2 加 1。
+        完。
+        n2 为 0。
+        只要 n2 小于 N：
+            tail 为 做 内存_读带符号32 用 time_buf 加 (N 加 n2) 乘 4。
+            win2 为 做 AAC_正弦窗 用 N 减 1 减 n2、N。
+            做 内存_写带符号32 用 prev_ch 加 n2 乘 4、tail 乘 win2 除以 1024。
+            n2 为 n2 加 1。
+        完。
+        做 堆_释放 用 time_buf。
+        c2 为 c2 加 1。
+    完。
+    c2 为 0。
+    只要 c2 小于 ch：
+        out_ch2 为 out 加 c2 乘 N 乘 4。
+        可变 prev_de 为 dec 的 opus_deemph_state 的 第 c2 项。
+        可变 n3 为 0。
+        只要 n3 小于 N：
+            x 为 做 内存_读带符号32 用 out_ch2 加 n3 乘 4。
+            y 为 x 加 prev_de 乘 870 除以 1024。
+            做 内存_写带符号32 用 out_ch2 加 n3 乘 4、y。
+            prev_de 为 y。
+            n3 为 n3 加 1。
+        完。
+        dec 的 opus_deemph_state 的 第 c2 项 为 prev_de。
+        c2 为 c2 加 1。
+    完。
+    做 堆_释放 用 band_energy。
+    做 堆_释放 用 spec。
+完。
+
+Vorbis_完整解码 接受 dec、数据、大小、frame：
+    若 数据 等于 0 或者 frame 等于 0 或者 frame 的 采样 等于 0：
+        返还。
+    完。
+    若 大小 小于 1：
+        返还。
+    完。
+    N 为 frame 的 采样数。
+    ch 为 frame 的 声道数。
+    可变 bit_pos 为 0。
+    packet_type 为 做 Vorbis_读比特 用 数据、bit_pos、1。
+    bit_pos 为 bit_pos 加 1。
+    若 packet_type 不等于 0：
+        返还。
+    完。
+    mode_num 为 做 Vorbis_读比特 用 数据、bit_pos、4。
+    bit_pos 为 bit_pos 加 4。
+    floor 为 做 堆_分配 用 N 乘 ch 乘 4。
+    可变 c 为 0。
+    只要 c 小于 ch：
+        floor_ch 为 floor 加 c 乘 N 乘 4。
+        floor_posts 为 32。
+        Y 为 做 堆_分配 用 floor_posts 乘 4。
+        做 内存_写带符号32 用 Y、做 Vorbis_读比特 用 数据、bit_pos、8。
+        bit_pos 为 bit_pos 加 8。
+        可变 fp 为 1。
+        只要 fp 小于 floor_posts：
+            delta 为 做 Vorbis_读比特 用 数据、bit_pos、5 减 16。
+            bit_pos 为 bit_pos 加 5。
+            prev 为 做 内存_读带符号32 用 Y 加 (fp 减 1) 乘 4。
+            做 内存_写带符号32 用 Y 加 fp 乘 4、prev 加 delta。
+            fp 为 fp 加 1。
+        完。
+        可变 k 为 0。
+        只要 k 小于 N：
+            frac_pos 为 k 乘 floor_posts 除以 N。
+            idx 为 frac_pos。
+            若 idx 大于或等于 floor_posts 减 1：
+                idx 为 floor_posts 减 2。
+            完。
+            y0 为 做 内存_读带符号32 用 Y 加 idx 乘 4。
+            y1 为 做 内存_读带符号32 用 Y 加 (idx 加 1) 乘 4。
+            frac 为 (k 乘 floor_posts 减 idx 乘 N) 乘 1024 除以 N。
+            floor_val 为 y0 乘 (1024 减 frac) 除以 1024 加 y1 乘 frac 除以 1024。
+            lin 为 1024 加 floor_val 乘 4。
+            若 lin 小于 0：
+                lin 为 0。
+            完。
+            做 内存_写带符号32 用 floor_ch 加 k 乘 4、lin。
+            k 为 k 加 1。
+        完。
+        做 堆_释放 用 Y。
+        c 为 c 加 1。
+    完。
+    residue 为 做 堆_分配 用 N 乘 ch 乘 4。
+    c 为 0。
+    只要 c 小于 ch：
+        res_ch 为 residue 加 c 乘 N 乘 4。
+        可变 k2 为 0。
+        只要 k2 小于 N：
+            byte_idx 为 bit_pos 除以 8 加 (c 乘 N 加 k2)。
+            res_val 为 若 byte_idx 小于 大小 则 (做 字节取 用 数据、byte_idx 减 128) 乘 8 否则 0。
+            做 内存_写带符号32 用 res_ch 加 k2 乘 4、res_val。
+            k2 为 k2 加 1。
+        完。
+        c 为 c 加 1。
+    完。
+    若 ch 等于 2：
+        可变 k3 为 0。
+        只要 k3 小于 N：
+            M 为 做 内存_读带符号32 用 residue 加 k3 乘 4。
+            A 为 做 内存_读带符号32 用 residue 加 N 乘 4 加 k3 乘 4。
+            若 A 大于 0：
+                做 内存_写带符号32 用 residue 加 k3 乘 4、M。
+                做 内存_写带符号32 用 residue 加 N 乘 4 加 k3 乘 4、M 减 A。
+            否则：
+                做 内存_写带符号32 用 residue 加 k3 乘 4、M 加 A。
+                做 内存_写带符号32 用 residue 加 N 乘 4 加 k3 乘 4、M。
+            完。
+            k3 为 k3 加 1。
+        完。
+    完。
+    spec 为 做 堆_分配 用 N 乘 ch 乘 4。
+    c 为 0。
+    只要 c 小于 ch：
+        可变 k4 为 0。
+        只要 k4 小于 N：
+            f 为 做 内存_读带符号32 用 floor 加 (c 乘 N 加 k4) 乘 4。
+            r2 为 做 内存_读带符号32 用 residue 加 (c 乘 N 加 k4) 乘 4。
+            做 内存_写带符号32 用 spec 加 (c 乘 N 加 k4) 乘 4、f 乘 r2 除以 1024。
+            k4 为 k4 加 1。
+        完。
+        c 为 c 加 1。
+    完。
+    prev_vorbis 为 dec 的 vorbis_prev。
+    若 prev_vorbis 等于 0：
+        prev_vorbis 为 做 堆_分配 用 N 乘 ch 乘 4。
+        做 内存_置零 用 prev_vorbis、N 乘 ch 乘 4。
+        dec 的 vorbis_prev 为 prev_vorbis。
+    完。
+    c 为 0。
+    只要 c 小于 ch：
+        spec_ch 为 spec 加 c 乘 N 乘 4。
+        prev_ch 为 prev_vorbis 加 c 乘 N 乘 4。
+        time_buf 为 做 堆_分配 用 N 乘 2 乘 4。
+        做 AAC_IMDCT_N点 用 spec_ch、time_buf、N。
+        可变 n 为 0。
+        只要 n 小于 N：
+            cur 为 做 内存_读带符号32 用 time_buf 加 n 乘 4。
+            prev_val 为 做 内存_读带符号32 用 prev_ch 加 n 乘 4。
+            win 为 做 Vorbis_窗函数 用 n、N。
+            pcm_val 为 cur 乘 win 除以 1024 加 prev_val 右移 10。
+            若 pcm_val 大于 32767：
+                pcm_val 为 32767。
+            完。
+            若 pcm_val 小于 负 32768：
+                pcm_val 为 负 32768。
+            完。
+            做 内存_写带符号16 用 frame 的 采样 加 (n 乘 ch 加 c) 乘 2、pcm_val。
+            n 为 n 加 1。
+        完。
+        n 为 0。
+        只要 n 小于 N：
+            tail 为 做 内存_读带符号32 用 time_buf 加 (N 加 n) 乘 4。
+            win2 为 做 Vorbis_窗函数 用 N 减 1 减 n、N。
+            做 内存_写带符号32 用 prev_ch 加 n 乘 4、tail 乘 win2 除以 1024。
+            n 为 n 加 1。
+        完。
+        做 堆_释放 用 time_buf。
+        c 为 c 加 1。
+    完。
+    做 堆_释放 用 floor。
+    做 堆_释放 用 residue。
+    做 堆_释放 用 spec。
+完。
+
+Vorbis_窗函数 接受 n、N：
+    inner 为 做 定点_正弦 用 n 乘 3217 除以 N。
+    sq 为 inner 乘 inner 除以 1024。
+    返还 做 定点_正弦 用 sq 乘 804 除以 1024。
+完。
+
+Vorbis_读比特 接受 数据、pos、n：
+    可变 val 为 0。
+    可变 i 为 0。
+    只要 i 小于 n：
+        byte_idx 为 (pos 加 i) 除以 8。
+        bit_idx 为 (pos 加 i) 取余于 8。
+        val 为 val 位或 (做 字节取 用 数据、byte_idx 右移 bit_idx 位与 1) 左移 i。
+        i 为 i 加 1。
+    完。
+    返还 val。
+完。
+
+本章 收束。

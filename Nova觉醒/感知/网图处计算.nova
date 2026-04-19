@@ -1,0 +1,204 @@
+《网图处计算》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+图处_FORMAT_RGBA8_UNORM 为 0x01。
+
+图处_FORMAT_BGRA8_UNORM 为 0x02。
+
+图处_FORMAT_RGBA16_FLOAT 为 0x03。
+
+图处_FORMAT_DEPTH24_S8 为 0x04。
+
+图处_FORMAT_R32_FLOAT 为 0x05。
+
+图处_BUFFER_VERTEX 为 0x0020。
+
+图处_BUFFER_INDEX 为 0x0010。
+
+图处_BUFFER_UNIFORM 为 0x0040。
+
+图处_BUFFER_STORAGE 为 0x0080。
+
+图处_BUFFER_COPY_SRC 为 0x0004。
+
+图处_BUFFER_COPY_DST 为 0x0008。
+
+图处_BUFFER_MAP_READ 为 0x0001。
+
+图处_BUFFER_MAP_WRITE 为 0x0002。
+
+图处_STAGE_VERTEX 为 0x01。
+
+图处_STAGE_FRAGMENT 为 0x02。
+
+图处_STAGE_COMPUTE 为 0x04。
+
+图处Device 是 一种 事物，含 原生句柄、队列、特性、限制、已丢失。
+
+图处_请求适配器 接受 电源偏好：
+    设备列表 为 做 Vulkan_枚举物理设备。
+    若 做 计数 用 设备列表 等于 0：
+        返还 空。
+    完。
+    可变 最佳 为 设备列表 的 第 0 项。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 设备列表：
+        dev 为 设备列表 的 第 i 项。
+        若 电源偏好 等于 「high-performance」 并且 dev 的 类型 等于 图处_类型_独立：
+            最佳 为 dev。
+        完。
+        若 电源偏好 等于 「low-power」 并且 dev 的 类型 等于 图处_类型_集成：
+            最佳 为 dev。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 最佳。
+完。
+
+图处_请求设备 接受 适配器、需要特性、限制：
+    可变 device 为 新建 图处Device。
+    device 的 原生句柄 为 做 Vulkan_创建逻辑设备 用 适配器、需要特性。
+    device 的 队列 为 做 Vulkan_获取队列 用 device 的 原生句柄、0。
+    device 的 已丢失 为 假。
+    返还 device。
+完。
+
+图处Buffer 是 一种 事物，含 句柄、大小、用途、映射态。
+
+图处_创建缓冲区 接受 device、大小、用途、映射创建：
+    可变 buf 为 新建 图处Buffer。
+    buf 的 大小 为 大小。
+    buf 的 用途 为 用途。
+    buf 的 句柄 为 做 Vulkan_创建缓冲 用 device 的 原生句柄、大小、用途。
+    若 映射创建：
+        buf 的 映射态 为 2。
+    完。
+    返还 buf。
+完。
+
+图处_写缓冲区 接受 device、缓冲、偏移、数据、大小：
+    做 Vulkan_更新缓冲 用 device 的 队列、缓冲 的 句柄、偏移、数据、大小。
+完。
+
+图处Shader模块 是 一种 事物，含 句柄、代码。
+
+图处_创建着色器 接受 device、WGSL代码：
+    SPIRV 为 做 WGSL_编译到SPIRV 用 WGSL代码。
+    若 SPIRV 等于 空：
+        返还 空。
+    完。
+    可变 shader 为 新建 图处Shader模块。
+    shader 的 句柄 为 做 Vulkan_创建着色器模块 用 device 的 原生句柄、SPIRV。
+    shader 的 代码 为 WGSL代码。
+    返还 shader。
+完。
+
+图处BindGroup布局 是 一种 事物，含 句柄、项数。
+
+图处_创建绑定组布局 接受 device、项列表：
+    可变 layout 为 新建 图处BindGroup布局。
+    layout 的 项数 为 做 计数 用 项列表。
+    layout 的 句柄 为 做 Vulkan_创建描述符集布局 用 device 的 原生句柄、项列表。
+    返还 layout。
+完。
+
+图处_创建绑定组 接受 device、布局、绑定列表：
+    返还 做 Vulkan_分配描述符集 用 device 的 原生句柄、布局 的 句柄、绑定列表。
+完。
+
+图处ComputePipeline 是 一种 事物，含 句柄、布局、工作组大小。
+
+图处_创建计算管线 接受 device、着色器、入口点、绑定组布局列表：
+    管线布局 为 做 Vulkan_创建管线布局 用 device 的 原生句柄、绑定组布局列表。
+    可变 pipeline 为 新建 图处ComputePipeline。
+    pipeline 的 句柄 为 做 Vulkan_创建计算管线 用 device 的 原生句柄、着色器 的 句柄、入口点、管线布局。
+    pipeline 的 布局 为 管线布局。
+    返还 pipeline。
+完。
+
+图处渲染Pipeline 是 一种 事物，含 句柄、顶点着色器、片段着色器、顶点布局、基元拓扑、深度模板、多重采样。
+
+图处_创建渲染管线 接受 device、描述：
+    可变 pipeline 为 新建 图处渲染Pipeline。
+    pipeline 的 顶点着色器 为 描述 的 顶点 的 着色器。
+    pipeline 的 片段着色器 为 描述 的 片段 的 着色器。
+    pipeline 的 基元拓扑 为 描述 的 基元 的 拓扑。
+    pipeline 的 多重采样 为 描述 的 多重采样 的 计数。
+    pipeline 的 句柄 为 做 Vulkan_创建图形管线 用 device 的 原生句柄、描述。
+    返还 pipeline。
+完。
+
+图处CommandEncoder 是 一种 事物，含 命令列表。
+
+图处_创建命令编码器 接受 device：
+    可变 enc 为 新建 图处CommandEncoder。
+    enc 的 命令列表 为 做 Vulkan_创建命令缓冲 用 device 的 原生句柄。
+    返还 enc。
+完。
+
+图处_开始计算通道 接受 编码器：
+    返还 做 Vulkan_开始计算 用 编码器 的 命令列表。
+完。
+
+图处_计算通道_设管线 接受 通道、管线：
+    做 Vulkan_绑定计算管线 用 通道、管线 的 句柄。
+完。
+
+图处_计算通道_设绑定组 接受 通道、索引、绑定组：
+    做 Vulkan_绑定描述符集 用 通道、索引、绑定组。
+完。
+
+图处_计算通道_分发 接受 通道、x、y、z：
+    做 Vulkan_分发计算 用 通道、x、y、z。
+完。
+
+图处_计算通道_结束 接受 通道：
+    做 Vulkan_结束计算 用 通道。
+完。
+
+图处_开始渲染通道 接受 编码器、颜色附件、深度附件：
+    返还 做 Vulkan_开始渲染 用 编码器 的 命令列表、颜色附件、深度附件。
+完。
+
+图处_渲染通道_设管线 接受 通道、管线：
+    做 Vulkan_绑定图形管线 用 通道、管线 的 句柄。
+完。
+
+图处_渲染通道_设顶点缓冲 接受 通道、槽、缓冲、偏移：
+    做 Vulkan_绑定顶点缓冲 用 通道、槽、缓冲 的 句柄、偏移。
+完。
+
+图处_渲染通道_绘制 接受 通道、顶点数、实例数、起始顶点、起始实例：
+    做 Vulkan_绘制 用 通道、顶点数、实例数、起始顶点、起始实例。
+完。
+
+图处_渲染通道_结束 接受 通道：
+    做 Vulkan_结束渲染 用 通道。
+完。
+
+图处_提交 接受 device、编码器：
+    命令缓冲 为 做 Vulkan_结束命令缓冲 用 编码器 的 命令列表。
+    做 Vulkan_队列提交 用 device 的 队列、命令缓冲。
+完。
+
+可变 AI_网图处计算_样式缓存命中 为 0。
+
+AI_网图处计算_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+        返还 「高复杂度」。
+    完。
+    若 组合子数 大于 2：
+        返还 「中复杂度」。
+    完。
+    返还 「低复杂度」。
+完。
+
+AI_网图处计算_布局缓存 接受 元素哈希：
+    AI_网图处计算_样式缓存命中 为 AI_网图处计算_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。

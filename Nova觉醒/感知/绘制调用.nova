@@ -1,0 +1,218 @@
+《绘制调用》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+GL_draw数组s 接受 gl、模式、起始、数量：
+    若 gl 等于 0 或者 gl 的 当前程序 等于 0：
+        返还。
+    完。
+    vao 为 gl 的 当前VAO。
+    可变 vi 为 起始。
+    只要 vi 小于 起始 加 数量：
+        vi 为 vi 加 1。
+    完。
+    gl 的 绘制调用数 为 gl 的 绘制调用数 加 1。
+完。
+
+GL_draw元素s 接受 gl、模式、数量、类型、偏移：
+    若 gl 等于 0 或者 gl 的 当前程序 等于 0：
+        返还。
+    完。
+完。
+
+GL_draw数组sInstanced 接受 gl、模式、起始、数量、实例数：
+    若 gl 等于 0 或者 实例数 小于或等于 0：
+        返还。
+    完。
+    可变 inst 为 0。
+    只要 inst 小于 实例数：
+        gl 的 当前实例ID 为 inst。
+        做 GL_draw数组s 用 gl、模式、起始、数量。
+        inst 为 inst 加 1。
+    完。
+    gl 的 当前实例ID 为 0。
+完。
+
+GL_createTexture 接受 gl：
+    tex 为 做 堆_分配 用 GLTexture。
+    tex 的 id 为 gl 的 下一个id。
+    gl 的 下一个id 为 gl 的 下一个id 加 1。
+    tex 的 min_filter 为 0x2601。
+    tex 的 mag_filter 为 0x2601。
+    tex 的 wrap_s 为 0x2901。
+    tex 的 wrap_t 为 0x2901。
+    返还 tex。
+完。
+
+GL_bindTexture 接受 gl、目标、纹理：
+    若 纹理 不等于 0：
+        纹理 的 目标 为 目标。
+    完。
+    做 内存_写64 用 gl 的 纹理单元 加 gl 的 活跃纹理单元 乘 8、纹理。
+完。
+
+GL_tex图像2D 接受 gl、目标、级别、内部格式、宽、高、边框、格式、类型、数据：
+    tex 为 做 内存_读64 用 gl 的 纹理单元 加 gl 的 活跃纹理单元 乘 8。
+    若 tex 等于 0：
+        返还。
+    完。
+    tex 的 宽 为 宽。
+    tex 的 高 为 高。
+    tex 的 格式 为 格式。
+    像素大小 为 4。
+    大小 为 宽 乘 高 乘 像素大小。
+    tex 的 数据 为 做 堆_分配 用 大小。
+    若 数据 不等于 0：
+        做 内存_复制 用 tex 的 数据、数据、大小。
+    完。
+完。
+
+GL_activeTexture 接受 gl、单元：
+    gl 的 活跃纹理单元 为 单元 减 0x84C0。
+完。
+
+GL_generateMipmap 接受 gl、目标：
+    tex 为 做 内存_读64 用 gl 的 纹理单元 加 gl 的 活跃纹理单元 乘 8。
+    若 tex 不等于 0：
+        tex 的 已生成mipmap 为 真。
+    完。
+完。
+
+GL_createFramebuffer 接受 gl：
+    fbo 为 做 堆_分配 用 GLFramebuffer。
+    fbo 的 id 为 gl 的 下一个id。
+    gl 的 下一个id 为 gl 的 下一个id 加 1。
+    返还 fbo。
+完。
+
+GL_bindFramebuffer 接受 gl、目标、fbo：
+    gl 的 当前帧缓冲 为 fbo。
+完。
+
+GL_framebufferTexture2D 接受 gl、目标、附件、tex目标、纹理、级别：
+    fbo 为 gl 的 当前帧缓冲。
+    若 fbo 等于 0：
+        返还。
+    完。
+    若 附件 等于 GL_COLOR_ATTACHMENT0：
+        fbo 的 颜色附件 为 纹理。
+    否则若 附件 等于 GL_DEPTH_ATTACHMENT：
+        fbo 的 深度附件 为 纹理。
+    完。
+完。
+
+GL_enable 接受 gl、功能：
+    若 功能 等于 GL_BLEND：
+        gl 的 启用_混合 为 真。
+    否则若 功能 等于 GL_DEPTH_TEST：
+        gl 的 启用_深度测试 为 真。
+    否则若 功能 等于 GL_CULL_FACE：
+        gl 的 启用_面剔除 为 真。
+    否则若 功能 等于 GL_SCISSOR_TEST：
+        gl 的 启用_裁剪测试 为 真。
+    否则若 功能 等于 GL_STENCIL_TEST：
+        gl 的 启用_模板测试 为 真。
+    完。
+完。
+
+GL_disable 接受 gl、功能：
+    若 功能 等于 GL_BLEND：
+        gl 的 启用_混合 为 假。
+    否则若 功能 等于 GL_DEPTH_TEST：
+        gl 的 启用_深度测试 为 假。
+    否则若 功能 等于 GL_CULL_FACE：
+        gl 的 启用_面剔除 为 假。
+    否则若 功能 等于 GL_SCISSOR_TEST：
+        gl 的 启用_裁剪测试 为 假。
+    否则若 功能 等于 GL_STENCIL_TEST：
+        gl 的 启用_模板测试 为 假。
+    完。
+完。
+
+GL_clear 接受 gl、掩码：
+    若 掩码 位与 0x4000：
+        像素 为 gl 的 清除色a 左移 24 位或 gl 的 清除色r 左移 16 位或 gl 的 清除色g 左移 8 位或 gl 的 清除色b。
+        总像素 为 gl 的 宽 乘 gl 的 高。
+        可变 i 为 0。
+        只要 i 小于 总像素：
+            做 内存_写32 用 gl 的 颜色缓冲 加 i 乘 4、像素。
+            i 为 i 加 1。
+        完。
+    完。
+    若 掩码 位与 0x0100：
+        做 内存_设置 用 gl 的 深度缓冲、0xFF、gl 的 宽 乘 gl 的 高 乘 4。
+    完。
+完。
+
+GL_createVertex数组 接受 gl：
+    vao 为 做 堆_分配 用 GLVAO。
+    vao 的 id 为 gl 的 下一个id。
+    gl 的 下一个id 为 gl 的 下一个id 加 1。
+    vao 的 属性数量 为 16。
+    vao 的 属性缓冲 为 做 堆_分配_数组 用 16 乘 8。
+    vao 的 属性偏移 为 做 堆_分配_数组 用 16 乘 4。
+    vao 的 属性步长 为 做 堆_分配_数组 用 16 乘 4。
+    vao 的 属性类型 为 做 堆_分配_数组 用 16 乘 4。
+    vao 的 属性大小 为 做 堆_分配_数组 用 16 乘 4。
+    vao 的 索引缓冲 为 0。
+    返还 vao。
+完。
+
+GL_bindVertex数组 接受 gl、vao：
+    gl 的 当前VAO 为 vao。
+完。
+
+GL_deleteBuffer 接受 gl、buf：
+    若 buf 不等于 0 并且 buf 的 数据 不等于 0：
+        做 堆_释放 用 buf 的 数据。
+    完。
+完。
+
+GL_deleteTexture 接受 gl、tex：
+    若 tex 不等于 0 并且 tex 的 数据 不等于 0：
+        做 堆_释放 用 tex 的 数据。
+    完。
+完。
+
+GL_deleteProgram 接受 gl、prog：
+    若 prog 不等于 0：
+        prog 的 已删除 为 真。
+        prog 的 顶点着色器 为 0。
+        prog 的 片段着色器 为 0。
+    完。
+完。
+
+GL_deleteShader 接受 gl、shader：
+    若 shader 不等于 0：
+        shader 的 已删除 为 真。
+        shader 的 源码 为 0。
+    完。
+完。
+
+内存_设置 接受 目标、值、长度：
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 内存_写8 用 目标 加 i、值。
+        i 为 i 加 1。
+    完。
+完。
+
+可变 AI_绘制调用_运行指标 为 0。
+
+可变 AI_绘制调用_异常指标 为 0。
+
+AI_绘制调用_自诊断 接受 零参：
+    AI_绘制调用_运行指标 为 0。
+    返还 AI_绘制调用_运行指标。
+完。
+
+AI_绘制调用_优化建议 接受 零参：
+    指标 为 做 AI_绘制调用_自诊断。
+    返还 「绘制调用状态正常」。
+完。
+
+本章 收束。

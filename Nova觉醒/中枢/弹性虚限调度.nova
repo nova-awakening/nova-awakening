@@ -1,0 +1,400 @@
+《弹性虚限调度》
+
+引用《.·类型定义》。
+
+引用《.·进程调度》。
+
+引用《..·执行·内核智能》。
+
+引用《.·红黑树删除》。
+
+引用《.·红黑树创建》。
+
+引用《.·公平调度权重》。
+
+引用《.·张量数学引擎》。
+
+引用《..·推理·总线调度》。
+
+EEVDF_默认slice 为 3000000。
+
+EEVDF_最小slice 为 300000。
+
+EEVDF_最大slice 为 30000000。
+
+EEVDF_min_granularity 为 750000。
+
+EEVDF_唤醒粒度 为 1000000。
+
+EEVDF实体 是 一种 事物，含 Nova虚拟运行时间、vdeadline、slice、slice_剩余、权重、nice、lag、树节点、在队列中、总运行时间、等待时间、调度次数。
+
+EEVDF运行队列 是 一种 事物，含 任务树、任务数、min_Nova虚拟运行时间、总权重、当前实体、调度次数、抢占次数。
+
+EEVDF_初始化 接受 rq：
+    rq 的 任务树 为 做 红黑树_创建。
+    rq 的 任务数 为 0。
+    rq 的 min_Nova虚拟运行时间 为 0。
+    rq 的 总权重 为 0。
+    rq 的 当前实体 为 空。
+    rq 的 调度次数 为 0。
+    rq 的 抢占次数 为 0。
+完。
+
+EEVDF实体_初始化 接受 se、nice：
+    se 的 nice 为 nice。
+    se 的 权重 为 做 nice到权重_Nova公平调度 用 nice。
+    se 的 Nova虚拟运行时间 为 0。
+    se 的 vdeadline 为 0。
+    se 的 slice 为 EEVDF_默认slice。
+    se 的 slice_剩余 为 EEVDF_默认slice。
+    se 的 lag 为 0。
+    se 的 在队列中 为 假。
+    se 的 总运行时间 为 0。
+    se 的 等待时间 为 0。
+    se 的 调度次数 为 0。
+完。
+
+EEVDF_选择下一个 接受 rq：
+    若 rq 的 任务数 等于 0：
+        返还 空。
+    完。
+    可变 最佳 为 空。
+    可变 最佳deadline 为 0x7FFFFFFFFFFFFFFF。
+    可变 节点 为 做 红黑树_最左 用 rq 的 任务树。
+    只要 节点 不等于 空：
+        se 为 做 红黑树_数据 用 节点。
+        若 做 EEVDF_是eligible 用 rq、se：
+            若 se 的 vdeadline 小于 最佳deadline：
+                最佳 为 se。
+                最佳deadline 为 se 的 vdeadline。
+            完。
+        完。
+        节点 为 做 红黑树_下一个 用 节点。
+    完。
+    若 最佳 等于 空：
+        最佳 为 做 红黑树_数据 用 做 红黑树_最左 用 rq 的 任务树。
+    完。
+    rq 的 调度次数 为 rq 的 调度次数 加 1。
+    返还 最佳。
+完。
+
+EEVDF_是eligible 接受 rq、se：
+    返还 se 的 Nova虚拟运行时间 小于或等于 rq 的 min_Nova虚拟运行时间。
+完。
+
+EEVDF_入队 接受 rq、se、标志：
+    若 se 的 在队列中：
+        返还。
+    完。
+    若 标志 位与 入队_新任务 或者 se 的 Nova虚拟运行时间 小于 rq 的 min_Nova虚拟运行时间 减 EEVDF_最大slice：
+        se 的 Nova虚拟运行时间 为 rq 的 min_Nova虚拟运行时间。
+        se 的 lag 为 0。
+    完。
+    若 标志 位与 入队_唤醒：
+        若 se 的 lag 大于 se 的 slice 乘 2：
+            se 的 lag 为 se 的 slice 乘 2。
+        完。
+        se 的 Nova虚拟运行时间 为 rq 的 min_Nova虚拟运行时间 减 se 的 lag 除以 se 的 权重。
+    完。
+    做 EEVDF_更新vdeadline 用 se。
+    AI建议slice 为 做 AI调度_预测slice 用 se。
+    若 AI建议slice 大于 0：
+        se 的 slice 为 做 限制范围 用 AI建议slice、EEVDF_最小slice、EEVDF_最大slice。
+        做 EEVDF_更新vdeadline 用 se。
+    完。
+    做 红黑树_插入 用 rq 的 任务树、se 的 vdeadline、se。
+    se 的 在队列中 为 真。
+    rq 的 任务数 为 rq 的 任务数 加 1。
+    rq 的 总权重 为 rq 的 总权重 加 se 的 权重。
+    做 EEVDF_更新min_Nova虚拟运行时间 用 rq。
+完。
+
+EEVDF_出队 接受 rq、se、标志：
+    若 非 se 的 在队列中：
+        返还。
+    完。
+    se 的 lag 为 (rq 的 min_Nova虚拟运行时间 减 se 的 Nova虚拟运行时间) 乘 se 的 权重。
+    做 红黑树_删除 用 rq 的 任务树、se 的 树节点。
+    se 的 在队列中 为 假。
+    rq 的 任务数 为 rq 的 任务数 减 1。
+    rq 的 总权重 为 rq 的 总权重 减 se 的 权重。
+    做 EEVDF_更新min_Nova虚拟运行时间 用 rq。
+完。
+
+EEVDF_时钟滴答 接受 rq、se、delta_ns：
+    Nova虚拟运行时间_增量 为 做 计算加权Nova虚拟运行时间增量 用 delta_ns、se 的 权重。
+    se 的 Nova虚拟运行时间 为 se 的 Nova虚拟运行时间 加 Nova虚拟运行时间_增量。
+    se 的 slice_剩余 为 se 的 slice_剩余 减 delta_ns。
+    se 的 总运行时间 为 se 的 总运行时间 加 delta_ns。
+    做 EEVDF_更新min_Nova虚拟运行时间 用 rq。
+    若 se 的 slice_剩余 小于或等于 0：
+        se 的 slice_剩余 为 se 的 slice。
+        做 EEVDF_更新vdeadline 用 se。
+        若 se 的 在队列中：
+            做 红黑树_删除 用 rq 的 任务树、se 的 树节点。
+            做 红黑树_插入 用 rq 的 任务树、se 的 vdeadline、se。
+        完。
+        返还 真。
+    完。
+    最佳 为 做 EEVDF_选择下一个 用 rq。
+    若 最佳 不等于 空 并且 最佳 不等于 se：
+        若 最佳 的 vdeadline 小于 se 的 vdeadline 并且 做 EEVDF_是eligible 用 rq、最佳：
+            rq 的 抢占次数 为 rq 的 抢占次数 加 1。
+            返还 真。
+        完。
+    完。
+    返还 假。
+完。
+
+EEVDF_更新vdeadline 接受 se：
+    虚拟slice 为 做 计算加权Nova虚拟运行时间增量 用 se 的 slice、se 的 权重。
+    se 的 vdeadline 为 se 的 Nova虚拟运行时间 加 虚拟slice。
+完。
+
+EEVDF_更新min_Nova虚拟运行时间 接受 rq：
+    可变 新min 为 rq 的 min_Nova虚拟运行时间。
+    若 rq 的 当前实体 不等于 空：
+        当前vr 为 rq 的 当前实体 的 Nova虚拟运行时间。
+        若 当前vr 大于 新min：
+            新min 为 当前vr。
+        完。
+    完。
+    最左 为 做 红黑树_最左 用 rq 的 任务树。
+    若 最左 不等于 空：
+        最左se 为 做 红黑树_数据 用 最左。
+        最左vr 为 最左se 的 Nova虚拟运行时间。
+        若 最左vr 小于 新min：
+            新min 为 (新min 加 最左vr) 除以 2。
+        完。
+    完。
+    若 新min 大于 rq 的 min_Nova虚拟运行时间：
+        rq 的 min_Nova虚拟运行时间 为 新min。
+    完。
+完。
+
+EEVDF_唤醒抢占检查 接受 rq、当前se、唤醒se：
+    若 非 做 EEVDF_是eligible 用 rq、唤醒se：
+        返还 假。
+    完。
+    若 唤醒se 的 vdeadline 加 EEVDF_唤醒粒度 小于 当前se 的 vdeadline：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+EEVDF_自适应slice 接受 se：
+    运行占比 为 se 的 总运行时间 乘 100 除以 (se 的 总运行时间 加 se 的 等待时间 加 1)。
+    若 运行占比 小于 30：
+        se 的 slice 为 做 最大值 用 EEVDF_最小slice、1000000。
+    否则若 运行占比 大于 80：
+        se 的 slice 为 做 最小值 用 EEVDF_最大slice、10000000。
+    否则：
+        se 的 slice 为 EEVDF_默认slice。
+    完。
+完。
+
+EEVDF_获取统计 接受 rq：
+    返还 一组：rq 的 任务数、rq 的 调度次数、rq 的 抢占次数、rq 的 min_Nova虚拟运行时间、rq 的 总权重。
+完。
+
+EEVDF_获取实体lag 接受 se：
+    返还 se 的 lag。
+完。
+
+限制范围 接受 值、下限、上限：
+    若 值 小于 下限：
+        返还 下限。
+    完。
+    若 值 大于 上限：
+        返还 上限。
+    完。
+    返还 值。
+完。
+
+任务类型_未知 为 0。
+
+任务类型_交互 为 1。
+
+任务类型_批处理 为 2。
+
+任务类型_实时 为 3。
+
+任务类型_AI 为 4。
+
+EEVDF_分类任务 接受 se：
+    总时间 为 se 的 总运行时间 加 se 的 等待时间 加 1。
+    运行占比 为 se 的 总运行时间 乘 100 除以 总时间。
+    调度频率 为 0。
+    若 se 的 总运行时间 大于 0：
+        调度频率 为 se 的 调度次数 乘 1000000 除以 se 的 总运行时间。
+    完。
+    若 运行占比 小于 30 并且 调度频率 大于 100：
+        返还 任务类型_交互。
+    完。
+    若 运行占比 大于 80 并且 调度频率 小于 50：
+        返还 任务类型_批处理。
+    完。
+    若 se 的 nice 小于 负 10：
+        返还 任务类型_实时。
+    完。
+    返还 任务类型_未知。
+完。
+
+NUMA_最大节点 为 8。
+
+NUMA_迁移惩罚 为 500000。
+
+可变 NUMA_节点数 为 1。
+
+NUMA亲和信息 是 一种 事物，含 首选节点、上次节点、迁移次数、本地命中、远程命中。
+
+EEVDF_NUMA初始化 接受 se、首选节点：
+    se 的 NUMA信息 为 做 堆_分配 用 NUMA亲和信息。
+    se 的 NUMA信息 的 首选节点 为 首选节点。
+    se 的 NUMA信息 的 上次节点 为 首选节点。
+    se 的 NUMA信息 的 迁移次数 为 0。
+    se 的 NUMA信息 的 本地命中 为 0。
+    se 的 NUMA信息 的 远程命中 为 0。
+完。
+
+EEVDF_NUMA迁移成本 接受 se、目标节点：
+    若 se 的 NUMA信息 等于 0：
+        返还 0。
+    完。
+    若 se 的 NUMA信息 的 上次节点 等于 目标节点：
+        返还 0。
+    完。
+    se 的 NUMA信息 的 迁移次数 为 se 的 NUMA信息 的 迁移次数 加 1。
+    se 的 NUMA信息 的 远程命中 为 se 的 NUMA信息 的 远程命中 加 1。
+    返还 NUMA_迁移惩罚。
+完。
+
+EEVDF_NUMA应在本地 接受 se、当前节点：
+    若 se 的 NUMA信息 等于 0：
+        返还 真。
+    完。
+    返还 se 的 NUMA信息 的 首选节点 等于 当前节点。
+完。
+
+EEVDF_NUMA亲和率 接受 se：
+    若 se 的 NUMA信息 等于 0：
+        返还 1000。
+    完。
+    总 为 se 的 NUMA信息 的 本地命中 加 se 的 NUMA信息 的 远程命中。
+    若 总 等于 0：
+        返还 1000。
+    完。
+    返还 se 的 NUMA信息 的 本地命中 乘 1000 除以 总。
+完。
+
+带宽控制 是 一种 事物，含 配额、周期、已用、周期开始、被节流次数、突发允许。
+
+EEVDF_带宽_初始化 接受 se、配额、周期：
+    se 的 带宽 为 做 堆_分配 用 带宽控制。
+    se 的 带宽 的 配额 为 配额。
+    se 的 带宽 的 周期 为 周期。
+    se 的 带宽 的 已用 为 0。
+    se 的 带宽 的 周期开始 为 0。
+    se 的 带宽 的 被节流次数 为 0。
+    se 的 带宽 的 突发允许 为 真。
+完。
+
+EEVDF_带宽_计费 接受 se、使用时间、当前时间：
+    若 se 的 带宽 等于 0：
+        返还。
+    完。
+    若 当前时间 减 se 的 带宽 的 周期开始 大于或等于 se 的 带宽 的 周期：
+        se 的 带宽 的 已用 为 0。
+        se 的 带宽 的 周期开始 为 当前时间。
+    完。
+    se 的 带宽 的 已用 为 se 的 带宽 的 已用 加 使用时间。
+完。
+
+EEVDF_带宽_被节流 接受 se：
+    若 se 的 带宽 等于 0：
+        返还 假。
+    完。
+    若 se 的 带宽 的 配额 小于或等于 0：
+        返还 假。
+    完。
+    若 se 的 带宽 的 已用 大于或等于 se 的 带宽 的 配额：
+        若 se 的 带宽 的 突发允许 并且 se 的 带宽 的 已用 小于 se 的 带宽 的 配额 乘 3 除以 2：
+            返还 假。
+        完。
+        se 的 带宽 的 被节流次数 为 se 的 带宽 的 被节流次数 加 1。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+EEVDF_带宽_使用率 接受 se：
+    若 se 的 带宽 等于 0 或者 se 的 带宽 的 配额 等于 0：
+        返还 0。
+    完。
+    返还 se 的 带宽 的 已用 乘 1000 除以 se 的 带宽 的 配额。
+完。
+
+可变 调度_总延迟 为 0。
+
+可变 调度_延迟次数 为 0。
+
+可变 调度_最大延迟 为 0。
+
+可变 调度_延迟P99 为 0。
+
+EEVDF_记录延迟 接受 延迟_ns：
+    调度_总延迟 为 调度_总延迟 加 延迟_ns。
+    调度_延迟次数 为 调度_延迟次数 加 1。
+    若 延迟_ns 大于 调度_最大延迟：
+        调度_最大延迟 为 延迟_ns。
+    完。
+完。
+
+EEVDF_平均延迟 接受 零参：
+    若 调度_延迟次数 等于 0：
+        返还 0。
+    完。
+    返还 调度_总延迟 除以 调度_延迟次数。
+完。
+
+EEVDF_公平性分析 接受 rq：
+    若 rq 的 任务数 等于 0：
+        返还 一组：0、0、0。
+    完。
+    可变 lag和 为 0。
+    可变 lag平方和 为 0。
+    可变 最大lag 为 0。
+    可变 节点 为 做 红黑树_最左 用 rq 的 任务树。
+    可变 计数 为 0。
+    只要 节点 不等于 空：
+        se 为 做 红黑树_数据 用 节点。
+        lag和 为 lag和 加 se 的 lag。
+        lag平方和 为 lag平方和 加 se 的 lag 乘 se 的 lag 除以 1000000。
+        可变 abs_lag 为 se 的 lag。
+        若 abs_lag 小于 0：
+            abs_lag 为 0 减 abs_lag。
+        完。
+        若 abs_lag 大于 最大lag：
+            最大lag 为 abs_lag。
+        完。
+        计数 为 计数 加 1。
+        节点 为 做 红黑树_下一个 用 节点。
+    完。
+    若 计数 等于 0：
+        返还 一组：0、0、0。
+    完。
+    lag均值 为 lag和 除以 计数。
+    lag方差 为 lag平方和 除以 计数 减 lag均值 乘 lag均值 除以 1000000。
+    返还 一组：lag均值、lag方差、最大lag。
+完。
+
+EEVDF_完整诊断 接受 rq：
+    公平 为 做 EEVDF_公平性分析 用 rq。
+    返还 一本字典：任务数 对应 rq 的 任务数、调度次数 对应 rq 的 调度次数、抢占次数 对应 rq 的 抢占次数、总权重 对应 rq 的 总权重、min_vruntime 对应 rq 的 min_Nova虚拟运行时间、平均延迟 对应 做 EEVDF_平均延迟、最大延迟 对应 调度_最大延迟、lag均值 对应 公平 的 第 0 项、lag方差 对应 公平 的 第 1 项、最大lag 对应 公平 的 第 2 项、NUMA节点数 对应 NUMA_节点数。
+完。
+
+EEVDF_实体诊断 接受 se：
+    返还 一本字典：vruntime 对应 se 的 Nova虚拟运行时间、vdeadline 对应 se 的 vdeadline、slice 对应 se 的 slice、lag 对应 se 的 lag、nice 对应 se 的 nice、权重 对应 se 的 权重、总运行 对应 se 的 总运行时间、等待 对应 se 的 等待时间、调度次数 对应 se 的 调度次数、任务类型 对应 做 EEVDF_分类任务 用 se。
+完。
+
+本章 收束。

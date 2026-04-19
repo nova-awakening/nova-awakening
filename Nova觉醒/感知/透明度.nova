@@ -1,0 +1,64 @@
+《透明度》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·绘制图层绘》。
+
+引用《.·从布局树构》。
+
+若 s 的 opacity 小于 100：
+    做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_透明度开始、透明度 为 s 的 opacity。
+完。
+
+若 层 的 标志 位与 层标志_有溢出裁剪：
+    做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_裁剪、x 为 绘制x、y 为 绘制y、w 为 绘制w、h 为 绘制h。
+完。
+
+若 s 的 border_radius_tl 大于 0 或者 s 的 border_radius_tr 大于 0：
+    做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_圆角裁剪、x 为 绘制x、y 为 绘制y、w 为 绘制w、h 为 绘制h、圆角半径 为 s 的 border_radius_tl。
+完。
+
+若 s 的 box_shadow 不等于 0：
+    做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_阴影、x 为 绘制x、y 为 绘制y、w 为 绘制w、h 为 绘制h。
+完。
+
+若 s 的 background_color 不等于 0x00000000：
+    做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_背景、x 为 绘制x、y 为 绘制y、w 为 绘制w、h 为 绘制h、颜色 为 s 的 background_color。
+完。
+
+若 s 的 border_top_width 大于 0 或者 s 的 border_left_width 大于 0 或者 s 的 border_right_width 大于 0 或者 s 的 border_bottom_width 大于 0：
+    若 s 的 border_top_width 大于 0：
+        做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_背景、x 为 绘制x、y 为 绘制y、w 为 绘制w、h 为 s 的 border_top_width、颜色 为 s 的 border_top_color。
+    完。
+    若 s 的 border_bottom_width 大于 0：
+        做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_背景、x 为 绘制x、y 为 绘制y 加 绘制h 减 s 的 border_bottom_width、w 为 绘制w、h 为 s 的 border_bottom_width、颜色 为 s 的 border_bottom_color。
+    完。
+    若 s 的 border_left_width 大于 0：
+        做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_背景、x 为 绘制x、y 为 绘制y、w 为 s 的 border_left_width、h 为 绘制h、颜色 为 s 的 border_left_color。
+    完。
+    若 s 的 border_right_width 大于 0：
+        做 绘制Layer_添加显示项 用 显示列表、新建 显示项：类型 为 显示项_背景、x 为 绘制x 加 绘制w 减 s 的 border_right_width、y 为 绘制y、w 为 s 的 border_right_width、h 为 绘制h、颜色 为 s 的 border_right_color。
+    完。
+完。
+
+可变 i 为 0。
+
+只要 i 小于 层 的 负z序数量：
+    子层 为 做 内存_读64 用 层 的 负z序列表 加 i 乘 8。
+    做 绘制Layer_绘制 用 子层、显示列表、偏移x、偏移y。
+    i 为 i 加 1。
+完。
+
+做 绘制Layer_绘制内容 用 层、显示列表、偏移x、偏移y。
+
+i 为 0。
+
+只要 i 小于 层 的 正z序数量：
+    子层 为 做 内存_读64 用 层 的 正z序列表 加 i 乘 8。
+    做 绘制Layer_绘制 用 子层、显示列表、偏移x、偏移y。
+    i 为 i 加 1。
+完。
+
+本章 收束。

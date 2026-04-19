@@ -1,0 +1,650 @@
+《WiFi全局状态》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·中枢·整数转字符串》。
+
+可变 WiFi设备列表 为 一组：（空）。
+
+可变 WiFi_已初始化 为 假。
+
+频道_2G 为 一组：2412、2417、2422、2427、2432、2437、2442、2447、2452、2457、2462、2467、2472。
+
+频道_5G 为 一组：5180、5200、5220、5240、5260、5280、5300、5320、5500、5520、5540、5560、5580、5600、5620、5640、5660、5680、5700、5720、5745、5765、5785、5805、5825。
+
+WiFi_初始化 接受 零参：
+    WiFi设备列表 为 一组：（空）。
+    做 内核信息 用 「WiFi: 初始化802.11框架 (cfg80211+mac80211)」。
+    WiFi_已初始化 为 真。
+完。
+
+WiFi_注册设备 接受 名称、mac、驱动名、频段、ops_scan、ops_connect、ops_disconnect、ops_tx：
+    dev 为 新建 WiFi设备。
+    dev 的 名称 为 名称。
+    dev 的 MAC地址 为 mac。
+    dev 的 驱动名 为 驱动名。
+    dev 的 状态 为 WIFI_STATE_DISCONNECTED。
+    dev 的 扫描结果 为 一组：（空）。
+    dev 的 支持频段 为 频段。
+    dev 的 TX功率 为 20。
+    dev 的 驱动_扫描 为 ops_scan。
+    dev 的 驱动_连接 为 ops_connect。
+    dev 的 驱动_断开 为 ops_disconnect。
+    dev 的 驱动_发送帧 为 ops_tx。
+    做 追加 用 WiFi设备列表、dev。
+    做 内核信息 用 「WiFi: 注册 」 加 名称 加 「 (」 加 驱动名 加 「)」 加 「 MAC=」 加 做 MAC转字符串 用 mac 加 「 频段=」 加 若 频段 位与 1 不等于 0 则 「2.4G」 否则 「」 加 若 频段 位与 2 不等于 0 则 「+5G」 否则 「」 加 若 频段 位与 4 不等于 0 则 「+6G」 否则 「」。
+完。
+
+WiFi_扫描 接受 dev_name：
+    dev 为 做 WiFi_查找设备 用 dev_name。
+    若 dev 等于 空：
+        返还 错误_设备不存在。
+    完。
+    若 dev 的 状态 等于 WIFI_STATE_SCANNING：
+        返还 错误_设备忙。
+    完。
+    做 内核信息 用 「WiFi: 开始扫描 」 加 dev_name。
+    dev 的 状态 为 WIFI_STATE_SCANNING。
+    dev 的 扫描结果 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 频道_2G：
+        若 dev 的 支持频段 位与 1 不等于 0：
+            dev 的 当前频率 为 频道_2G 的 第 i 项。
+            dev 的 当前频道 为 i 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    dev 的 状态 为 WIFI_STATE_DISCONNECTED。
+    做 内核信息 用 「WiFi: 扫描完成 发现 」 加 做 整数转字符串 用 做 计数 用 dev 的 扫描结果 加 「 个网络」。
+    返还 0。
+完。
+
+WiFi_上报BSS 接受 dev、bssid、ssid、频率、信号、加密、认证：
+    bss 为 新建 WiFi_BSS。
+    bss 的 BSSID 为 bssid。
+    bss 的 SSID 为 ssid。
+    bss 的 频率 为 频率。
+    bss 的 频道 为 做 WiFi_频率转频道 用 频率。
+    bss 的 信号强度 为 信号。
+    bss 的 加密类型 为 加密。
+    bss 的 认证类型 为 认证。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 dev 的 扫描结果：
+        若 做 MAC相同 用 dev 的 扫描结果 的 第 i 项 的 BSSID、bssid：
+            dev 的 扫描结果 的 第 i 项 为 bss。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    做 追加 用 dev 的 扫描结果、bss。
+完。
+
+WIFI_STATE_DISCONNECTED 为 0。
+
+WIFI_STATE_SCANNING 为 1。
+
+WIFI_STATE_CONNECTING 为 2。
+
+WIFI_STATE_AUTHENTICATING 为 3。
+
+WIFI_STATE_ASSOCIATED 为 4。
+
+WIFI_STATE_CONNECTED 为 5。
+
+WIFI_STATE_ROAMING 为 6。
+
+WIFI_AUTH_OPEN 为 0。
+
+WIFI_AUTH_WEP 为 1。
+
+WIFI_AUTH_WPA2 为 2。
+
+WIFI_AUTH_WPA3 为 3。
+
+WIFI_CIPHER_NONE 为 0。
+
+WIFI_CIPHER_TKIP 为 1。
+
+WIFI_CIPHER_CCMP 为 2。
+
+WIFI_CIPHER_GCMP 为 3。
+
+可变 NWF_总连接数 为 0。
+
+可变 NWF_总断开数 为 0。
+
+可变 NWF_总漫游数 为 0。
+
+可变 NWF_总扫描数 为 0。
+
+可变 NWF_发送帧数 为 0。
+
+可变 NWF_接收帧数 为 0。
+
+可变 NWF_重传次数 为 0。
+
+WiFi_BSS 是 一种 事物，含 BSSID、SSID、频率、频道、信号强度、加密类型、认证类型、信噪比、负载。
+
+WiFi设备 是 一种 事物，含 名称、MAC地址、驱动名、状态、扫描结果、支持频段、TX功率、当前频率、当前频道、当前BSSID、当前SSID、认证类型、加密类型、信号强度、最后活动时间、重试计数、驱动_扫描、驱动_连接、驱动_断开、驱动_发送帧。
+
+WiFi_连接 接受 dev_name、ssid、密码、认证：
+    dev 为 做 WiFi_查找设备 用 dev_name。
+    若 dev 等于 空：
+        返还 错误_设备不存在。
+    完。
+    若 dev 的 状态 等于 WIFI_STATE_CONNECTED：
+        做 内核信息 用 「WiFi: 已连接, 先断开」。
+        做 WiFi_断开 用 dev_name。
+    完。
+    bss 为 做 WiFi_查找扫描结果 用 dev、ssid。
+    若 bss 等于 空：
+        做 内核信息 用 「WiFi: 未找到网络 '」 加 ssid 加 「', 先扫描」。
+        做 WiFi_扫描 用 dev_name。
+        bss 为 做 WiFi_查找扫描结果 用 dev、ssid。
+        若 bss 等于 空：
+            返还 错误_网络不可达。
+        完。
+    完。
+    dev 的 状态 为 WIFI_STATE_CONNECTING。
+    dev 的 当前BSSID 为 bss 的 BSSID。
+    dev 的 当前SSID 为 ssid。
+    dev 的 当前频率 为 bss 的 频率。
+    dev 的 当前频道 为 bss 的 频道。
+    dev 的 认证类型 为 认证。
+    若 认证 等于 WIFI_AUTH_WPA2 或者 认证 等于 WIFI_AUTH_WPA3：
+        dev 的 状态 为 WIFI_STATE_AUTHENTICATING。
+        结果 为 做 WiFi_WPA握手 用 dev、bss、密码、认证。
+        若 结果 不等于 0：
+            dev 的 状态 为 WIFI_STATE_DISCONNECTED。
+            做 内核错误 用 「WiFi: WPA握手失败」。
+            返还 结果。
+        完。
+    完。
+    若 dev 的 驱动_连接 不等于 空：
+        做 dev 的 驱动_连接 用 dev、bss 的 BSSID、bss 的 频道。
+    完。
+    dev 的 状态 为 WIFI_STATE_CONNECTED。
+    dev 的 信号强度 为 bss 的 信号强度。
+    NWF_总连接数 为 NWF_总连接数 加 1。
+    做 内核信息 用 「WiFi: 已连接 '」 加 ssid 加 「' 信号=」 加 做 整数转字符串 用 bss 的 信号强度 加 「dBm」。
+    返还 0。
+完。
+
+WiFi_断开 接受 dev_name：
+    dev 为 做 WiFi_查找设备 用 dev_name。
+    若 dev 等于 空：
+        返还 错误_设备不存在。
+    完。
+    若 dev 的 状态 不等于 WIFI_STATE_CONNECTED 并且 dev 的 状态 不等于 WIFI_STATE_ROAMING：
+        返还 0。
+    完。
+    若 dev 的 驱动_断开 不等于 空：
+        做 dev 的 驱动_断开 用 dev。
+    完。
+    做 内核信息 用 「WiFi: 断开 '」 加 dev 的 当前SSID 加 「'」。
+    dev 的 状态 为 WIFI_STATE_DISCONNECTED。
+    dev 的 当前BSSID 为 空。
+    dev 的 当前SSID 为 「」。
+    NWF_总断开数 为 NWF_总断开数 加 1。
+    返还 0。
+完。
+
+WiFi_WPA握手 接受 dev、bss、密码、认证类型：
+    pmk 为 做 WiFi_计算PMK 用 密码、bss 的 SSID。
+    若 pmk 等于 0：
+        返还 负 1。
+    完。
+    anonce 为 做 WiFi_生成随机数 用 32。
+    snonce 为 做 WiFi_生成随机数 用 32。
+    ptk 为 做 WiFi_计算PTK 用 pmk、anonce、snonce、bss 的 BSSID、dev 的 MAC地址。
+    若 ptk 等于 0：
+        返还 负 2。
+    完。
+    dev 的 加密类型 为 WIFI_CIPHER_CCMP。
+    若 认证类型 等于 WIFI_AUTH_WPA3：
+        dev 的 加密类型 为 WIFI_CIPHER_GCMP。
+    完。
+    做 内核信息 用 「WiFi: WPA握手完成 加密=」 加 做 WiFi_加密名称 用 dev 的 加密类型。
+    返还 0。
+完。
+
+WiFi_计算PMK 接受 密码、ssid：
+    可变 hash 为 0x6a09e667。
+    可变 i 为 0。
+    只要 i 小于 做 字符串长度 用 密码：
+        hash 为 (hash 左移 5) 加 hash 位异或 做 字符串_字节 用 密码、i。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 做 字符串长度 用 ssid：
+        hash 为 (hash 左移 5) 加 hash 位异或 做 字符串_字节 用 ssid、i。
+        i 为 i 加 1。
+    完。
+    可变 round 为 0。
+    只要 round 小于 4096：
+        hash 为 (hash 左移 7 位异或 hash 右移 25) 加 round。
+        round 为 round 加 1。
+    完。
+    返还 hash。
+完。
+
+WiFi_计算PTK 接受 pmk、anonce、snonce、aa、spa：
+    可变 ptk 为 pmk。
+    ptk 为 ptk 左移 3 位异或 anonce 位异或 snonce。
+    ptk 为 (ptk 右移 11 位或 ptk 左移 21) 加 0xDEADBEEF。
+    返还 ptk。
+完。
+
+WiFi_生成随机数 接受 长度：
+    可变 r 为 做 获取时间戳。
+    r 为 r 位异或 r 右移 17。
+    r 为 r 乘 0xbf58476d1ce4e5b9。
+    r 为 r 位异或 r 右移 31。
+    返还 r。
+完。
+
+WiFi_加密名称 接受 类型：
+    若 类型 等于 WIFI_CIPHER_NONE：
+        返还 「无」。
+    完。
+    若 类型 等于 WIFI_CIPHER_TKIP：
+        返还 「TKIP」。
+    完。
+    若 类型 等于 WIFI_CIPHER_CCMP：
+        返还 「CCMP」。
+    完。
+    若 类型 等于 WIFI_CIPHER_GCMP：
+        返还 「GCMP」。
+    完。
+    返还 「未知」。
+完。
+
+NWF_漫游阈值 为 15。
+
+NWF_信号下限 为 负 75。
+
+WiFi_检查漫游 接受 dev_name：
+    dev 为 做 WiFi_查找设备 用 dev_name。
+    若 dev 等于 空 或者 dev 的 状态 不等于 WIFI_STATE_CONNECTED：
+        返还 0。
+    完。
+    若 dev 的 信号强度 大于 NWF_信号下限：
+        返还 0。
+    完。
+    做 内核信息 用 「WiFi: 信号弱(」 加 做 整数转字符串 用 dev 的 信号强度 加 「dBm), 开始漫游扫描」。
+    做 WiFi_扫描 用 dev_name。
+    可变 最优 为 空。
+    可变 最优信号 为 dev 的 信号强度。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 dev 的 扫描结果：
+        bss 为 dev 的 扫描结果 的 第 i 项。
+        若 做 字符串_等于 用 bss 的 SSID、dev 的 当前SSID 并且 非 做 MAC相同 用 bss 的 BSSID、dev 的 当前BSSID：
+            若 bss 的 信号强度 大于 最优信号 加 NWF_漫游阈值：
+                最优 为 bss。
+                最优信号 为 bss 的 信号强度。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    若 最优 不等于 空：
+        做 内核信息 用 「WiFi: 漫游到 BSSID=」 加 做 MAC转字符串 用 最优 的 BSSID 加 「 信号=」 加 做 整数转字符串 用 最优 的 信号强度 加 「dBm」。
+        dev 的 状态 为 WIFI_STATE_ROAMING。
+        做 WiFi_执行漫游 用 dev、最优。
+        NWF_总漫游数 为 NWF_总漫游数 加 1。
+        返还 1。
+    完。
+    返还 0。
+完。
+
+WiFi_执行漫游 接受 dev、目标bss：
+    若 dev 的 驱动_断开 不等于 空：
+        做 dev 的 驱动_断开 用 dev。
+    完。
+    dev 的 当前BSSID 为 目标bss 的 BSSID。
+    dev 的 当前频率 为 目标bss 的 频率。
+    dev 的 当前频道 为 目标bss 的 频道。
+    dev 的 信号强度 为 目标bss 的 信号强度。
+    若 dev 的 驱动_连接 不等于 空：
+        做 dev 的 驱动_连接 用 dev、目标bss 的 BSSID、目标bss 的 频道。
+    完。
+    dev 的 状态 为 WIFI_STATE_CONNECTED。
+完。
+
+WiFi_设置TX功率 接受 dev_name、功率_dBm：
+    dev 为 做 WiFi_查找设备 用 dev_name。
+    若 dev 等于 空：
+        返还 错误_设备不存在。
+    完。
+    若 功率_dBm 小于 0：
+        功率_dBm 为 0。
+    完。
+    若 功率_dBm 大于 30：
+        功率_dBm 为 30。
+    完。
+    dev 的 TX功率 为 功率_dBm。
+    做 内核信息 用 「WiFi: TX功率设置 」 加 做 整数转字符串 用 功率_dBm 加 「dBm」。
+    返还 0。
+完。
+
+WiFi_评估信道质量 接受 频率：
+    频道 为 做 WiFi_频率转频道 用 频率。
+    基础分 为 50。
+    若 频率 大于 5000：
+        基础分 为 基础分 加 20。
+    完。
+    若 频率 大于或等于 5260 并且 频率 小于或等于 5720：
+        基础分 为 基础分 减 10。
+    完。
+    若 频道 等于 1 或者 频道 等于 6 或者 频道 等于 11：
+        基础分 为 基础分 减 5。
+    完。
+    若 基础分 大于 100：
+        基础分 为 100。
+    完。
+    若 基础分 小于 0：
+        基础分 为 0。
+    完。
+    返还 基础分。
+完。
+
+WiFi_频率转频道 接受 频率：
+    若 频率 大于或等于 2412 并且 频率 小于或等于 2484：
+        若 频率 等于 2484：
+            返还 14。
+        完。
+        返还 (频率 减 2407) 除以 5。
+    完。
+    若 频率 大于或等于 5180 并且 频率 小于或等于 5825：
+        返还 (频率 减 5000) 除以 5。
+    完。
+    返还 0。
+完。
+
+WiFi_查找扫描结果 接受 dev、ssid：
+    可变 i 为 0。
+    可变 最佳 为 空。
+    可变 最佳信号 为 负 9999。
+    只要 i 小于 做 计数 用 dev 的 扫描结果：
+        bss 为 dev 的 扫描结果 的 第 i 项。
+        若 做 字符串_等于 用 bss 的 SSID、ssid 并且 bss 的 信号强度 大于 最佳信号：
+            最佳 为 bss。
+            最佳信号 为 bss 的 信号强度。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 最佳。
+完。
+
+IEEE80211_最大重传 为 7。
+
+IEEE80211_帧类型_数据 为 0x0800。
+
+IEEE80211_帧类型_管理 为 0x0000。
+
+IEEE80211_帧类型_控制 为 0x0400。
+
+WiFi帧 是 一种 事物，含 类型、目标MAC、源MAC、BSSID、序号、负载、负载大小。
+
+可变 NWF_序列号 为 0。
+
+WiFi_发送数据帧 接受 dev、目标MAC、数据、长度：
+    若 dev 的 状态 不等于 WIFI_STATE_CONNECTED：
+        返还 负 1。
+    完。
+    帧 为 新建 WiFi帧。
+    帧 的 类型 为 IEEE80211_帧类型_数据。
+    帧 的 目标MAC 为 目标MAC。
+    帧 的 源MAC 为 dev 的 MAC地址。
+    帧 的 BSSID 为 dev 的 当前BSSID。
+    NWF_序列号 为 NWF_序列号 加 1 位与 0xFFF。
+    帧 的 序号 为 NWF_序列号。
+    帧 的 负载 为 数据。
+    帧 的 负载大小 为 长度。
+    可变 重试 为 0。
+    可变 成功 为 假。
+    只要 重试 小于 IEEE80211_最大重传 并且 非 成功：
+        若 dev 的 驱动_发送帧 不等于 空：
+            ret 为 做 dev 的 驱动_发送帧 用 dev、帧。
+            若 ret 等于 0：
+                成功 为 真。
+            完。
+        否则：
+            成功 为 真。
+        完。
+        重试 为 重试 加 1。
+    完。
+    NWF_发送帧数 为 NWF_发送帧数 加 1。
+    若 重试 大于 1：
+        NWF_重传次数 为 NWF_重传次数 加 重试 减 1。
+    完。
+    若 非 成功：
+        返还 负 2。
+    完。
+    返还 0。
+完。
+
+WiFi_接收帧回调 接受 dev、帧：
+    NWF_接收帧数 为 NWF_接收帧数 加 1。
+    若 帧 的 类型 等于 IEEE80211_帧类型_管理：
+        做 WiFi_处理管理帧 用 dev、帧。
+    否则若 帧 的 类型 等于 IEEE80211_帧类型_数据：
+        做 WiFi_处理数据帧 用 dev、帧。
+    完。
+完。
+
+WiFi_处理管理帧 接受 dev、帧：
+    dev 的 最后活动时间 为 做 获取时间戳。
+完。
+
+WiFi_处理数据帧 接受 dev、帧：
+    dev 的 最后活动时间 为 做 获取时间戳。
+完。
+
+外部。
+
+全局AI总线。
+
+NWF_AI初始化 接受 零参：
+    若 全局AI总线 等于 空：
+        返还。
+    完。
+    做 内核信息 用 「[NWF] AI无线优化引擎已加载」。
+完。
+
+NWF_AI选择最优信道 接受 dev：
+    若 全局AI总线 等于 空：
+        返还 负 1。
+    完。
+    可变 最优频道 为 1。
+    可变 最优分 为 0。
+    可变 ch 为 0。
+    只要 ch 小于 做 计数 用 频道_2G：
+        t 为 做 Tensor_创建 用 8。
+        做 Tensor_写 用 t、0、频道_2G 的 第 ch 项。
+        做 Tensor_写 用 t、1、做 WiFi_评估信道质量 用 频道_2G 的 第 ch 项。
+        做 Tensor_写 用 t、2、做 WiFi_统计信道AP数 用 dev、频道_2G 的 第 ch 项。
+        做 Tensor_写 用 t、3、NWF_重传次数。
+        做 Tensor_写 用 t、4、NWF_发送帧数。
+        做 Tensor_写 用 t、5、NWF_接收帧数。
+        做 Tensor_写 用 t、6、ch 加 1。
+        做 Tensor_写 用 t、7、dev 的 TX功率。
+        分 为 做 AI总线_推理 用 全局AI总线、「wifi_channel_score」、t。
+        若 分 大于 最优分：
+            最优分 为 分。
+            最优频道 为 ch 加 1。
+        完。
+        做 Tensor_释放 用 t。
+        ch 为 ch 加 1。
+    完。
+    做 内核信息 用 「[NWF] AI推荐信道: 」 加 做 整数转字符串 用 最优频道。
+    返还 最优频道。
+完。
+
+WiFi_统计信道AP数 接受 dev、频率：
+    可变 count 为 0。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 dev 的 扫描结果：
+        若 dev 的 扫描结果 的 第 i 项 的 频率 等于 频率：
+            count 为 count 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 count。
+完。
+
+NWF_AI异常检测 接受 dev：
+    若 全局AI总线 等于 空 或者 dev 等于 空：
+        返还 0。
+    完。
+    t 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 t、0、dev 的 信号强度。
+    做 Tensor_写 用 t、1、NWF_重传次数。
+    做 Tensor_写 用 t、2、NWF_发送帧数。
+    做 Tensor_写 用 t、3、NWF_接收帧数。
+    做 Tensor_写 用 t、4、dev 的 重试计数。
+    做 Tensor_写 用 t、5、dev 的 状态。
+    异常分 为 做 AI总线_异常检测 用 全局AI总线、「wifi_anomaly」、t。
+    做 Tensor_释放 用 t。
+    若 异常分 大于 800：
+        做 内核警告 用 「[NWF] AI检测无线异常 分数=」 加 做 整数转字符串 用 异常分。
+    完。
+    返还 异常分。
+完。
+
+MAC转字符串 接受 mac：
+    若 mac 等于 空：
+        返还 「00:00:00:00:00:00」。
+    完。
+    可变 s 为 「」。
+    可变 i 为 0。
+    只要 i 小于 6：
+        b 为 做 内存_读8 用 mac 加 i。
+        hi 为 b 右移 4 位与 0x0F。
+        lo 为 b 位与 0x0F。
+        若 i 大于 0：
+            s 为 s 加 「:」。
+        完。
+        s 为 s 加 做 十六进制字符 用 hi 加 做 十六进制字符 用 lo。
+        i 为 i 加 1。
+    完。
+    返还 s。
+完。
+
+MAC相同 接受 a、b：
+    若 a 等于 空 或者 b 等于 空：
+        返还 假。
+    完。
+    可变 i 为 0。
+    只要 i 小于 6：
+        若 做 内存_读8 用 a 加 i 不等于 做 内存_读8 用 b 加 i：
+            返还 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+十六进制字符 接受 n：
+    若 n 小于 10：
+        返还 做 字符转字符串 用 48 加 n。
+    完。
+    返还 做 字符转字符串 用 97 加 n 减 10。
+完。
+
+WiFi_查找设备 接受 dev_name：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 WiFi设备列表：
+        若 做 字符串_等于 用 WiFi设备列表 的 第 i 项 的 名称、dev_name：
+            返还 WiFi设备列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+NWF_统计 接受 零参：
+    做 内核打印 用 「=== NWF无线统计 ===」。
+    做 内核打印 用 「设备数: 」 加 做 整数转字符串 用 做 计数 用 WiFi设备列表。
+    做 内核打印 用 「总连接: 」 加 做 整数转字符串 用 NWF_总连接数。
+    做 内核打印 用 「总断开: 」 加 做 整数转字符串 用 NWF_总断开数。
+    做 内核打印 用 「总漫游: 」 加 做 整数转字符串 用 NWF_总漫游数。
+    做 内核打印 用 「发送帧: 」 加 做 整数转字符串 用 NWF_发送帧数。
+    做 内核打印 用 「接收帧: 」 加 做 整数转字符串 用 NWF_接收帧数。
+    做 内核打印 用 「重传数: 」 加 做 整数转字符串 用 NWF_重传次数。
+完。
+
+NWF_设备状态名称 接受 状态：
+    若 状态 等于 WIFI_STATE_DISCONNECTED：
+        返还 「已断开」。
+    完。
+    若 状态 等于 WIFI_STATE_SCANNING：
+        返还 「扫描中」。
+    完。
+    若 状态 等于 WIFI_STATE_CONNECTING：
+        返还 「连接中」。
+    完。
+    若 状态 等于 WIFI_STATE_AUTHENTICATING：
+        返还 「认证中」。
+    完。
+    若 状态 等于 WIFI_STATE_CONNECTED：
+        返还 「已连接」。
+    完。
+    若 状态 等于 WIFI_STATE_ROAMING：
+        返还 「漫游中」。
+    完。
+    返还 「未知」。
+完。
+
+无线框架全局_统计 接受 零参：
+    返还 一本字典：WiFi已初始化 对应 WiFi_已初始化、NWF总连接数 对应 NWF_总连接数、NWF总断开数 对应 NWF_总断开数、NWF总漫游数 对应 NWF_总漫游数、NWF总扫描数 对应 NWF_总扫描数、NWF重传次数 对应 NWF_重传次数。
+完。
+
+无线框架全局_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 做 计数 用 WiFi设备列表 大于 10000：
+        做 追加 用 问题、「WiFi设备列表膨胀」。
+    完。
+    若 WiFi_已初始化 等于 假：
+        做 追加 用 问题、「WiFi_已初始化未就绪」。
+    完。
+    若 NWF_重传次数 大于 100000：
+        做 追加 用 问题、「NWF_重传次数异常增长」。
+    完。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+无线框架全局_综合报告 接受 零参：
+    做 打印 用 「[无线框架全局] ═══ 综合报告 ═══」。
+    做 打印 用 「  WiFi_已初始化: 」 加 WiFi_已初始化。
+    做 打印 用 「  NWF_总连接数: 」 加 NWF_总连接数。
+    做 打印 用 「  NWF_总断开数: 」 加 NWF_总断开数。
+    做 打印 用 「  NWF_总漫游数: 」 加 NWF_总漫游数。
+    做 打印 用 「  NWF_总扫描数: 」 加 NWF_总扫描数。
+    做 打印 用 「  NWF_重传次数: 」 加 NWF_重传次数。
+    做 打印 用 「  健康: 」 加 若 做 无线框架全局_健康评估 则 「正常」 否则 「异常」。
+完。
+
+无线框架全局_全局重置 接受 零参：
+    WiFi_已初始化 为 0。
+    NWF_总连接数 为 0。
+    NWF_总断开数 为 0。
+    NWF_总漫游数 为 0。
+    NWF_总扫描数 为 0。
+    NWF_重传次数 为 0。
+    做 打印 用 「[无线框架全局] 统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

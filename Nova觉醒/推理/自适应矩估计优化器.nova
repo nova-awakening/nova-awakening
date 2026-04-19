@@ -1,0 +1,72 @@
+《自适应矩估计优化器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·定点Q算术》。
+
+Adam状态 是 一种 事物，含 m、v、t、beta1、beta2、lr、epsilon。
+
+自适应矩估计_创建 接受 参数行、参数列：
+    s 为 做 堆_分配 用 Adam状态。
+    s 的 m 为 做 Tensor_创建 用 参数行、参数列。
+    s 的 v 为 做 Tensor_创建 用 参数行、参数列。
+    s 的 t 为 0。
+    s 的 beta1 为 922。
+    s 的 beta2 为 1023。
+    s 的 lr 为 1。
+    s 的 epsilon 为 1。
+    返还 s。
+完。
+
+自适应矩估计_更新 接受 状态、权重、梯度：
+    状态 的 t 为 状态 的 t 加 1。
+    可变 i 为 0。
+    只要 i 小于 权重 的 行数：
+        可变 j 为 0。
+        只要 j 小于 权重 的 列数：
+            g 为 做 Tensor_读 用 梯度、i、j。
+            旧m 为 做 Tensor_读 用 状态 的 m、i、j。
+            新m 为 做 Q乘 用 状态 的 beta1、旧m 加 做 Q乘 用 Q_ONE 减 状态 的 beta1、g。
+            做 Tensor_写 用 状态 的 m、i、j、新m。
+            旧v 为 做 Tensor_读 用 状态 的 v、i、j。
+            新v 为 做 Q乘 用 状态 的 beta2、旧v 加 做 Q乘 用 Q_ONE 减 状态 的 beta2、做 Q乘 用 g、g。
+            做 Tensor_写 用 状态 的 v、i、j、新v。
+            sqrt_v 为 做 Q开方 用 新v。
+            若 sqrt_v 小于 状态 的 epsilon：
+                sqrt_v 为 状态 的 epsilon。
+            完。
+            更新量 为 做 Q乘 用 状态 的 lr、做 Q除 用 新m、sqrt_v 加 状态 的 epsilon。
+            旧w 为 做 Tensor_读 用 权重、i、j。
+            做 Tensor_写 用 权重、i、j、旧w 减 更新量。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+ADAM_中文_LR_倍数 为 1300。
+
+ADAM_中文_BETA1 为 870。
+
+自适应矩估计_创建_中文任务 接受 参数行、参数列：
+    s 为 做 自适应矩估计_创建 用 参数行、参数列。
+    s 的 lr 为 s 的 lr 乘 ADAM_中文_LR_倍数 除以 1000。
+    s 的 beta1 为 ADAM_中文_BETA1。
+    返还 s。
+完。
+
+计算_Nova多层感知器推理FLOPS 接受 层维度、层数：
+    可变 总FLOPS 为 0。
+    可变 i 为 0。
+    只要 i 小于 层数 减 1：
+        输入维 为 做 Tensor_读 用 层维度、0、i。
+        输出维 为 做 Tensor_读 用 层维度、0、i 加 1。
+        总FLOPS 为 总FLOPS 加 输入维 乘 输出维 乘 2 加 输出维。
+        i 为 i 加 1。
+    完。
+    返还 总FLOPS。
+完。
+
+本章 收束。

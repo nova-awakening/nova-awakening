@@ -1,0 +1,204 @@
+《命名空间》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·每处理器》。
+
+CLONE_NEWPID 为 0x20000000。
+
+CLONE_NEWNS 为 0x00020000。
+
+CLONE_NEWNET 为 0x40000000。
+
+CLONE_NEWUTS 为 0x04000000。
+
+CLONE_NEWIPC 为 0x08000000。
+
+CLONE_NEWUSER 为 0x10000000。
+
+PID命名空间 是 一种 事物，含 级别、父、PID计数、init_pid。
+
+UTS命名空间 是 一种 事物，含 sysname、节点name、release、version、machine、domainname。
+
+命名空间代理 是 一种 事物，含 pid_ns、mnt_ns、net_ns、uts_ns、Nova通信_ns、user_ns、引用计数。
+
+可变 初始PID命名空间 为 空。
+
+可变 初始UTS命名空间 为 空。
+
+可变 初始命名空间代理 为 空。
+
+命名空间_初始化 接受 零参：
+    初始PID命名空间 为 新建 PID命名空间。
+    初始PID命名空间 的 级别 为 0。
+    初始PID命名空间 的 父 为 空。
+    初始PID命名空间 的 PID计数 为 0。
+    初始PID命名空间 的 init_pid 为 1。
+    初始UTS命名空间 为 新建 UTS命名空间。
+    初始UTS命名空间 的 sysname 为 「NovaOS」。
+    初始UTS命名空间 的 节点name 为 「novaos」。
+    初始UTS命名空间 的 release 为 「0.1.0」。
+    初始UTS命名空间 的 version 为 「#1 Nova」。
+    初始UTS命名空间 的 machine 为 「x86_64」。
+    初始UTS命名空间 的 domainname 为 「(none)」。
+    初始命名空间代理 为 新建 命名空间代理。
+    初始命名空间代理 的 pid_ns 为 初始PID命名空间。
+    初始命名空间代理 的 uts_ns 为 初始UTS命名空间。
+    初始命名空间代理 的 mnt_ns 为 空。
+    初始命名空间代理 的 net_ns 为 空。
+    初始命名空间代理 的 Nova通信_ns 为 空。
+    初始命名空间代理 的 user_ns 为 空。
+    初始命名空间代理 的 引用计数 为 1。
+    做 内核信息 用 「命名空间: 初始化 (PID/UTS/Mount/Net/IPC/User)」。
+完。
+
+创建新命名空间 接受 标志、旧代理：
+    新代理 为 新建 命名空间代理。
+    新代理 的 引用计数 为 1。
+    若 标志 位与 CLONE_NEWPID 不等于 0：
+        新代理 的 pid_ns 为 做 创建PID命名空间 用 旧代理 的 pid_ns。
+    否则：
+        新代理 的 pid_ns 为 旧代理 的 pid_ns。
+    完。
+    若 标志 位与 CLONE_NEWUTS 不等于 0：
+        新代理 的 uts_ns 为 做 复制UTS命名空间 用 旧代理 的 uts_ns。
+    否则：
+        新代理 的 uts_ns 为 旧代理 的 uts_ns。
+    完。
+    新代理 的 mnt_ns 为 旧代理 的 mnt_ns。
+    新代理 的 net_ns 为 旧代理 的 net_ns。
+    新代理 的 Nova通信_ns 为 旧代理 的 Nova通信_ns。
+    新代理 的 user_ns 为 旧代理 的 user_ns。
+    返还 新代理。
+完。
+
+创建PID命名空间 接受 父ns：
+    ns 为 新建 PID命名空间。
+    ns 的 级别 为 父ns 的 级别 加 1。
+    ns 的 父 为 父ns。
+    ns 的 PID计数 为 0。
+    ns 的 init_pid 为 1。
+    返还 ns。
+完。
+
+复制UTS命名空间 接受 旧ns：
+    ns 为 新建 UTS命名空间。
+    ns 的 sysname 为 旧ns 的 sysname。
+    ns 的 节点name 为 旧ns 的 节点name。
+    ns 的 release 为 旧ns 的 release。
+    ns 的 version 为 旧ns 的 version。
+    ns 的 machine 为 旧ns 的 machine。
+    ns 的 domainname 为 旧ns 的 domainname。
+    返还 ns。
+完。
+
+sys_unshare 接受 标志：
+    当前 为 做 获取当前进程。
+    若 当前 等于 空：
+        返还 错误_无效参数。
+    完。
+    旧代理 为 做 进程_获取命名空间 用 当前。
+    若 旧代理 等于 空：
+        旧代理 为 初始命名空间代理。
+    完。
+    新代理 为 做 创建新命名空间 用 标志、旧代理。
+    做 进程_设置命名空间 用 当前、新代理。
+    返还 成功。
+完。
+
+获取hostname 接受 零参：
+    若 初始UTS命名空间 不等于 空：
+        返还 初始UTS命名空间 的 节点name。
+    完。
+    返还 「novaos」。
+完。
+
+设置hostname 接受 名称：
+    若 初始UTS命名空间 不等于 空：
+        初始UTS命名空间 的 节点name 为 名称。
+    完。
+完。
+
+获取uname 接受 零参：
+    若 初始UTS命名空间 等于 空：
+        返还 空。
+    完。
+    返还 一组：初始UTS命名空间 的 sysname、初始UTS命名空间 的 节点name、初始UTS命名空间 的 release、初始UTS命名空间 的 version、初始UTS命名空间 的 machine。
+完。
+
+命名空间代理_获取 接受 代理：
+    若 代理 不等于 空：
+        代理 的 引用计数 为 代理 的 引用计数 加 1。
+    完。
+    返还 代理。
+完。
+
+命名空间代理_释放 接受 代理：
+    若 代理 等于 空：
+        返还。
+    完。
+    代理 的 引用计数 为 代理 的 引用计数 减 1。
+    若 代理 的 引用计数 小于或等于 0：
+    完。
+完。
+
+进程_获取命名空间 接受 进程：
+    若 进程 等于 空：
+        返还 初始命名空间代理。
+    完。
+    若 进程 的 nsproxy 不等于 空：
+        返还 进程 的 nsproxy。
+    完。
+    返还 初始命名空间代理。
+完。
+
+进程_设置命名空间 接受 进程、代理：
+    若 进程 等于 空 或者 代理 等于 空：
+        返还。
+    完。
+    若 进程 的 nsproxy 不等于 空：
+        做 命名空间代理_释放 用 进程 的 nsproxy。
+    完。
+    进程 的 nsproxy 为 做 命名空间代理_获取 用 代理。
+完。
+
+命名空间_类型名 接受 标志：
+    若 标志 等于 CLONE_NEWPID：
+        返还 「pid」。
+    完。
+    若 标志 等于 CLONE_NEWNS：
+        返还 「mnt」。
+    完。
+    若 标志 等于 CLONE_NEWNET：
+        返还 「net」。
+    完。
+    若 标志 等于 CLONE_NEWUTS：
+        返还 「uts」。
+    完。
+    若 标志 等于 CLONE_NEWIPC：
+        返还 「ipc」。
+    完。
+    若 标志 等于 CLONE_NEWUSER：
+        返还 「user」。
+    完。
+    返还 「unknown」。
+完。
+
+PID命名空间_进程数 接受 ns：
+    若 ns 等于 空：
+        返还 0。
+    完。
+    返还 ns 的 PID计数。
+完。
+
+命名空间_统计 接受 零参：
+    pid进程数 为 0。
+    若 初始PID命名空间 不等于 空：
+        pid进程数 为 初始PID命名空间 的 PID计数。
+    完。
+    返还 一组：pid进程数。
+完。
+
+本章 收束。

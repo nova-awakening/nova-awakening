@@ -1,0 +1,227 @@
+《网格布局主》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·布局未知计算》。
+
+引用《.·内核直连层》。
+
+引用《.·轨道大小型》。
+
+引用《.·样式值解析》。
+
+引用《.·CSS网格布局创建》。
+
+引用《..·中枢·内存初始化》。
+
+布局网格_布局 接受 layout：
+    若 layout 等于 0：
+        返还。
+    完。
+    grid 为 做 网格布局_创建 用 layout。
+    可变 子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 不等于 0 并且 子 的 样式 的 display 不等于 0：
+            做 布局Box_计算盒模型 用 子、layout 的 宽度、layout 的 高度。
+            做 网格布局_添加项 用 grid、子。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    若 grid 的 行数 等于 0：
+        grid 的 行数 为 (grid 的 项数量 加 grid 的 列数 减 1) 除以 grid 的 列数。
+        若 grid 的 行数 等于 0：
+            grid 的 行数 为 1。
+        完。
+        可变 i 为 0。
+        只要 i 小于 grid 的 行数：
+            偏移 为 grid 的 行轨道 加 i 乘 32。
+            做 内存_写32 用 偏移、轨道_auto。
+            i 为 i 加 1。
+        完。
+    完。
+    做 网格布局_放置显式项 用 grid。
+    做 网格布局_自动放置 用 grid。
+    做 网格布局_计算列大小 用 grid、layout 的 宽度。
+    做 网格布局_计算行大小 用 grid、layout 的 高度。
+    可变 列位置 为 做 堆_分配_数组 用 grid 的 列数 乘 4。
+    可变 行位置 为 做 堆_分配_数组 用 grid 的 行数 乘 4。
+    可变 x 为 0。
+    可变 ci 为 0。
+    只要 ci 小于 grid 的 列数：
+        做 内存_写32 用 列位置 加 ci 乘 4、x。
+        列偏移 为 grid 的 列轨道 加 ci 乘 32。
+        x 为 x 加 做 内存_读32 用 列偏移 加 4。
+        若 ci 小于 grid 的 列数 减 1：
+            x 为 x 加 grid 的 列间距。
+        完。
+        ci 为 ci 加 1。
+    完。
+    可变 y 为 0。
+    可变 ri 为 0。
+    只要 ri 小于 grid 的 行数：
+        做 内存_写32 用 行位置 加 ri 乘 4、y。
+        行偏移 为 grid 的 行轨道 加 ri 乘 32。
+        y 为 y 加 做 内存_读32 用 行偏移 加 4。
+        若 ri 小于 grid 的 行数 减 1：
+            y 为 y 加 grid 的 行间距。
+        完。
+        ri 为 ri 加 1。
+    完。
+    可变 pi 为 0。
+    只要 pi 小于 grid 的 项数量：
+        item偏移 为 grid 的 项列表 加 pi 乘 48。
+        item_layout 为 做 内存_读64 用 item偏移。
+        col_start 为 做 内存_读32 用 item偏移 加 8 减 1。
+        row_start 为 做 内存_读32 用 item偏移 加 16 减 1。
+        col_end 为 做 内存_读32 用 item偏移 加 12 减 1。
+        row_end 为 做 内存_读32 用 item偏移 加 20 减 1。
+        若 col_start 小于 0：
+            col_start 为 0。
+        完。
+        若 row_start 小于 0：
+            row_start 为 0。
+        完。
+        若 col_end 小于 col_start：
+            col_end 为 col_start 加 1。
+        完。
+        若 row_end 小于 row_start：
+            row_end 为 row_start 加 1。
+        完。
+        item_x 为 做 内存_读32 用 列位置 加 col_start 乘 4。
+        item_y 为 做 内存_读32 用 行位置 加 row_start 乘 4。
+        可变 item_w 为 0。
+        可变 ci2 为 col_start。
+        只要 ci2 小于 col_end 并且 ci2 小于 grid 的 列数：
+            item_w 为 item_w 加 做 内存_读32 用 grid 的 列轨道 加 ci2 乘 32 加 4。
+            若 ci2 大于 col_start：
+                item_w 为 item_w 加 grid 的 列间距。
+            完。
+            ci2 为 ci2 加 1。
+        完。
+        可变 item_h 为 0。
+        可变 ri2 为 row_start。
+        只要 ri2 小于 row_end 并且 ri2 小于 grid 的 行数：
+            item_h 为 item_h 加 做 内存_读32 用 grid 的 行轨道 加 ri2 乘 32 加 4。
+            若 ri2 大于 row_start：
+                item_h 为 item_h 加 grid 的 行间距。
+            完。
+            ri2 为 ri2 加 1。
+        完。
+        若 item_layout 不等于 0：
+            item_layout 的 x 为 item_x 加 layout 的 padding_left 加 layout 的 border_left 加 item_layout 的 margin_left。
+            item_layout 的 y 为 item_y 加 layout 的 padding_top 加 layout 的 border_top 加 item_layout 的 margin_top。
+            item_layout 的 宽度 为 item_w 减 item_layout 的 margin_left 减 item_layout 的 margin_right 减 item_layout 的 padding_left 减 item_layout 的 padding_right 减 item_layout 的 border_left 减 item_layout 的 border_right。
+            若 item_layout 的 宽度 小于 0：
+                item_layout 的 宽度 为 0。
+            完。
+            做 布局块级Flow_布局 用 item_layout。
+            若 item_layout 的 高度 等于 0：
+                item_layout 的 高度 为 item_h 减 item_layout 的 margin_top 减 item_layout 的 margin_bottom 减 item_layout 的 padding_top 减 item_layout 的 padding_bottom 减 item_layout 的 border_top 减 item_layout 的 border_bottom。
+            完。
+        完。
+        pi 为 pi 加 1。
+    完。
+    若 非 layout 的 高度已确定：
+        layout 的 高度 为 y。
+    完。
+    做 堆_释放 用 列位置。
+    做 堆_释放 用 行位置。
+完。
+
+网格布局_添加项 接受 grid、子：
+    若 grid 的 项数量 大于或等于 grid 的 项容量：
+        返还。
+    完。
+    偏移 为 grid 的 项列表 加 grid 的 项数量 乘 48。
+    做 内存_写64 用 偏移、子。
+    若 子 的 样式 不等于 0：
+        做 内存_写32 用 偏移 加 8、子 的 样式 的 grid_column_start。
+        做 内存_写32 用 偏移 加 12、子 的 样式 的 grid_column_end。
+        做 内存_写32 用 偏移 加 16、子 的 样式 的 grid_row_start。
+        做 内存_写32 用 偏移 加 20、子 的 样式 的 grid_row_end。
+    否则：
+        做 内存_写32 用 偏移 加 8、负 1。
+        做 内存_写32 用 偏移 加 12、负 1。
+        做 内存_写32 用 偏移 加 16、负 1。
+        做 内存_写32 用 偏移 加 20、负 1。
+    完。
+    grid 的 项数量 为 grid 的 项数量 加 1。
+完。
+
+网格布局_放置显式项 接受 grid：
+    可变 i 为 0。
+    只要 i 小于 grid 的 项数量：
+        偏移 为 grid 的 项列表 加 i 乘 48。
+        col_s 为 做 内存_读32 用 偏移 加 8。
+        row_s 为 做 内存_读32 用 偏移 加 16。
+        若 col_s 大于 0 并且 row_s 大于 0：
+            col_e 为 做 内存_读32 用 偏移 加 12。
+            row_e 为 做 内存_读32 用 偏移 加 20。
+            若 col_e 小于或等于 col_s：
+                col_e 为 col_s 加 1。
+                做 内存_写32 用 偏移 加 12、col_e。
+            完。
+            若 row_e 小于或等于 row_s：
+                row_e 为 row_s 加 1。
+                做 内存_写32 用 偏移 加 20、row_e。
+            完。
+            做 网格布局_标记占用 用 grid、row_s 减 1、col_s 减 1、row_e 减 1、col_e 减 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+网格布局_自动放置 接受 grid：
+    可变 当前行 为 0。
+    可变 当前列 为 0。
+    可变 i 为 0。
+    只要 i 小于 grid 的 项数量：
+        偏移 为 grid 的 项列表 加 i 乘 48。
+        col_s 为 做 内存_读32 用 偏移 加 8。
+        row_s 为 做 内存_读32 用 偏移 加 16。
+        若 col_s 大于 0 并且 row_s 大于 0：
+            i 为 i 加 1。
+            继续。
+        完。
+        只要 当前行 小于 grid 的 占用行数：
+            只要 当前列 小于 grid 的 列数：
+                若 非 做 网格布局_是否占用 用 grid、当前行、当前列：
+                    做 内存_写32 用 偏移 加 8、当前列 加 1。
+                    做 内存_写32 用 偏移 加 12、当前列 加 2。
+                    做 内存_写32 用 偏移 加 16、当前行 加 1。
+                    做 内存_写32 用 偏移 加 20、当前行 加 2。
+                    做 网格布局_标记占用 用 grid、当前行、当前列、当前行 加 1、当前列 加 1。
+                    当前列 为 当前列 加 1。
+                    跳出。
+                完。
+                当前列 为 当前列 加 1。
+            完。
+            若 当前列 大于或等于 grid 的 列数：
+                当前列 为 0。
+                当前行 为 当前行 加 1。
+            否则：
+                跳出。
+            完。
+        完。
+        若 当前行 大于或等于 grid 的 行数：
+            grid 的 行数 为 当前行 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+网格布局_标记占用 接受 grid、行起、列起、行终、列终：
+    可变 r 为 行起。
+    只要 r 小于 行终 并且 r 小于 grid 的 占用行数：
+        可变 c 为 列起。
+        只要 c 小于 列终 并且 c 小于 grid 的 占用列数：
+            做 内存_写8 用 grid 的 占用网格 加 r 乘 grid 的 占用列数 加 c、1。
+            c 为 c 加 1。
+        完。
+        r 为 r 加 1。
+    完。
+完。
+
+本章 收束。

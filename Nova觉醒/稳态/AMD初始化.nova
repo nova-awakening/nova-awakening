@@ -1,0 +1,404 @@
+《AMD初始化》
+
+引用《..·中枢·类型定义》。
+引用《..·中枢·错误码》。
+引用《..·中枢·中断表注册》。
+引用《..·感知·内核直连层》。
+引用《..·中枢·字符串替换》。
+引用《..·中枢·内存初始化》。
+引用《..·中枢·整数转字符串》。
+
+    否则如果 (did 等于 0x73A5) { gpu.型号名 = 「RX 6950 XT」; AMD状态.CU总数 = 80; AMD状态.架构代 = AMD_ARCH_RDNA2; AMD状态.显存类型 = 「GDDR6」; AMD状态.显存总线宽 = 256; AMD状态.WGP模式 = 真; AMD状态.DCN版本 = 3 }。
+    否则如果 (did 等于 0x73BF) { gpu.型号名 = 「RX 6900 XT」; AMD状态.CU总数 = 80; AMD状态.架构代 = AMD_ARCH_RDNA2; AMD状态.显存类型 = 「GDDR6」; AMD状态.显存总线宽 = 256; AMD状态.WGP模式 = 真; AMD状态.DCN版本 = 3 }。
+    否则如果 (did 等于 0x73DF) { gpu.型号名 = 「RX 6800 XT」; AMD状态.CU总数 = 72; AMD状态.架构代 = AMD_ARCH_RDNA2; AMD状态.显存类型 = 「GDDR6」; AMD状态.显存总线宽 = 256; AMD状态.WGP模式 = 真; AMD状态.DCN版本 = 3 }。
+    否则如果 (did 等于 0x73E0) { gpu.型号名 = 「RX 6800」; AMD状态.CU总数 = 60; AMD状态.架构代 = AMD_ARCH_RDNA2; AMD状态.显存类型 = 「GDDR6」; AMD状态.显存总线宽 = 256; AMD状态.WGP模式 = 真; AMD状态.DCN版本 = 3 }。
+    否则如果 (did 等于 0x73EF) { gpu.型号名 = 「RX 6700 XT」; AMD状态.CU总数 = 40; AMD状态.架构代 = AMD_ARCH_RDNA2; AMD状态.显存类型 = 「GDDR6」; AMD状态.显存总线宽 = 192; AMD状态.WGP模式 = 真; AMD状态.DCN版本 = 3 }。
+    否则如果 (did 等于 0x73FF) { gpu.型号名 = 「RX 6600 XT」; AMD状态.CU总数 = 32; AMD状态.架构代 = AMD_ARCH_RDNA2; AMD状态.显存类型 = 「GDDR6」; AMD状态.显存总线宽 = 128; AMD状态.WGP模式 = 真; AMD状态.DCN版本 = 3 }。
+
+    否则如果 (did 等于 0x731F) { gpu.型号名 = 「RX 5700 XT」; AMD状态.CU总数 = 40; AMD状态.架构代 = AMD_ARCH_RDNA1; AMD状态.显存类型 = 「GDDR6」; AMD状态.显存总线宽 = 256; AMD状态.WGP模式 = 真; AMD状态.DCN版本 = 2 }。
+    否则如果 (did 等于 0x7340) { gpu.型号名 = 「RX 5600 XT」; AMD状态.CU总数 = 36; AMD状态.架构代 = AMD_ARCH_RDNA1; AMD状态.显存类型 = 「GDDR6」; AMD状态.显存总线宽 = 192; AMD状态.WGP模式 = 真; AMD状态.DCN版本 = 2 }。
+
+    否则如果 (did 等于 0x687F) { gpu.型号名 = 「RX Vega 64」; AMD状态.CU总数 = 64; AMD状态.架构代 = AMD_ARCH_GCN5; AMD状态.显存类型 = 「HBM2」; AMD状态.显存总线宽 = 2048; AMD状态.WGP模式 = 假; AMD状态.DCN版本 = 1 }。
+    否则如果 (did 等于 0x6863) { gpu.型号名 = 「RX Vega 56」; AMD状态.CU总数 = 56; AMD状态.架构代 = AMD_ARCH_GCN5; AMD状态.显存类型 = 「HBM2」; AMD状态.显存总线宽 = 2048; AMD状态.WGP模式 = 假; AMD状态.DCN版本 = 1 }。
+
+    否则如果 (did 等于 0x67DF) { gpu.型号名 = 「RX 580」; AMD状态.CU总数 = 36; AMD状态.架构代 = AMD_ARCH_GCN4; AMD状态.显存类型 = 「GDDR5」; AMD状态.显存总线宽 = 256; AMD状态.WGP模式 = 假; AMD状态.DCN版本 = 0 }。
+    否则如果 (did 等于 0x67EF) { gpu.型号名 = 「RX 570」; AMD状态.CU总数 = 32; AMD状态.架构代 = AMD_ARCH_GCN4; AMD状态.显存类型 = 「GDDR5」; AMD状态.显存总线宽 = 256; AMD状态.WGP模式 = 假; AMD状态.DCN版本 = 0 }。
+    否则如果 (did 等于 0x6FDF) { gpu.型号名 = 「RX 580 2048SP」; AMD状态.CU总数 = 32; AMD状态.架构代 = AMD_ARCH_GCN4; AMD状态.显存类型 = 「GDDR5」; AMD状态.显存总线宽 = 256; AMD状态.WGP模式 = 假; AMD状态.DCN版本 = 0 }。
+
+    否则如果 (did 等于 0x7408) { gpu.型号名 = 「Instinct MI300X」; AMD状态.CU总数 = 304; AMD状态.架构代 = AMD_ARCH_CDNA3; AMD状态.显存类型 = 「HBM3」; AMD状态.显存总线宽 = 8192; AMD状态.WGP模式 = 假; AMD状态.DCN版本 = 0 }。
+    否则如果 (did 等于 0x740C) { gpu.型号名 = 「Instinct MI250X」; AMD状态.CU总数 = 220; AMD状态.架构代 = AMD_ARCH_CDNA2; AMD状态.显存类型 = 「HBM2e」; AMD状态.显存总线宽 = 8192; AMD状态.WGP模式 = 假; AMD状态.DCN版本 = 0 }。
+    否则如果 (did 等于 0x7388) { gpu.型号名 = 「Instinct MI100」; AMD状态.CU总数 = 120; AMD状态.架构代 = AMD_ARCH_CDNA1; AMD状态.显存类型 = 「HBM2」; AMD状态.显存总线宽 = 4096; AMD状态.WGP模式 = 假; AMD状态.DCN版本 = 0 }。
+
+    否则 ：
+        gpu.型号名 为 「AMD 图处(0x」 加 整数转十六进制(did) 加 「)」。
+        AMD状态.CU总数 为 0。
+        AMD状态.架构代 为 AMD_ARCH_GCN4。
+        AMD状态.显存类型 为 「GDDR6」。
+        AMD状态.显存总线宽 为 128。
+        AMD状态.DCN版本 为 1。
+    完。
+
+    ※ 能力标志。
+    gpu.能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_COMPUTE 位或 图处_CAP_VULKAN 位或 图处_CAP_VIDEO_DECODE 位或 图处_CAP_VIDEO_ENCODE。
+    若 AMD状态.DCN版本 大于 0：
+    若 AMD状态.架构代 不小于 AMD_ARCH_RDNA2：
+    若 AMD状态.架构代 不小于 AMD_ARCH_CDNA1：
+    gpu.计算单元数 为 AMD状态.CU总数。
+完。
+
+※ §4 完整图处初始化序列。
+
+AMD_初始化 接受 gpu：
+    做 内核信息 用 「AMD驱动: 初始化 」 加 gpu.型号名 加 「 (」 加 AMD状态.显存类型 加 「)」。
+
+    ※ 步骤1: 映射BAR0 MMIO。
+    AMD状态.mmio 为 做 ioremap 用 gpu.BAR0_地址、gpu.BAR0_大小。
+    若 AMD状态.mmio 等于 0：
+        做 内核错误 用 「AMD驱动: BAR0映射失败」。
+        返还 错误_IO。
+    完。
+    AMD状态.gpu 为 gpu。
+
+    ※ 步骤2: 引擎软复位。
+    做 AMD_软复位。
+
+    ※ 步骤3: 探测图处拓扑(SE/SH/CU)。
+    做 AMD_探测拓扑。
+
+    ※ 步骤4: 配置MMHUB(图处页表)。
+    做 AMD_MMHUB_初始化。
+
+    ※ 步骤5: 初始化IH(中断处理)。
+    做 AMD_IH_初始化。
+
+    ※ 步骤6: 初始化GFX环(CP命令处理器)。
+    做 AMD_GFX环_初始化。
+
+    ※ 步骤7: 初始化Compute环。
+    做 AMD_计算环_初始化。
+
+    ※ 步骤8: 初始化S直传。
+    做 AMD_S直传_初始化。
+
+    ※ 步骤9: 初始化DCN(显示)。
+    若 AMD状态.DCN版本 大于 0：
+        做 AMD_DCN_初始化。
+    完。
+
+    ※ 步骤10: 配置MSI中断。
+    做 AMD_中断初始化。
+
+    AMD状态.已初始化 为 真。
+    内核信息(「AMD驱动: 」 加 gpu.型号名 加 「 就绪 CU=」 +。
+             做 整数转字符串 用 AMD状态.CU总数 加 「 SE=」 加 做 整数转字符串 用 AMD状态.SE数 +。
+             「 」 加 AMD状态.显存类型 加 「/」 加 做 整数转字符串 用 AMD状态.显存总线宽 加 「bit」 +。
+             「 DCN=」 加 做 整数转字符串 用 AMD状态.DCN版本)。
+    返还 成功。
+完。
+
+※ §5 引擎软复位 + 拓扑探测。
+
+AMD_软复位 接受 零参：
+    mmio 为 AMD状态.mmio。
+    ※ 等待图处空闲。
+    可变 超时 为 100000。
+    只要 超时 大于 0 并且 (做 MMIO读32 用 mmio 加 mmGNova受限能量网络_STATUS 位与 GNova受限能量网络_STATUS_GUI_ACTIVE) 不等于 0：
+        超时 为 超时 减 1。
+    完。
+    ※ GNova受限能量网络软复位: 复位GFX+CP+S直传。
+    做 MMIO写32 用 mmio 加 mmGNova受限能量网络_SOFT_RESET、0x7FFF。
+    做 AMD_等待us 用 50。
+    做 MMIO写32 用 mmio 加 mmGNova受限能量网络_SOFT_RESET、0。
+    做 AMD_等待us 用 50。
+    做 内核信息 用 「AMD驱动: 软复位完成」。
+完。
+
+AMD_探测拓扑 接受 零参：
+    mmio 为 AMD状态.mmio。
+
+    若 AMD状态.架构代 不小于 AMD_ARCH_GCN1：
+        ※ 通过GNova受限能量网络_GFX_INDEX遍历SE/SH来统计活跃CU。
+        ※ 先用型号数据库值, 再从寄存器验证。
+        若 AMD状态.CU总数 等于 0：
+
+        ※ 估算SE/SH/CU拓扑。
+        若 AMD状态.CU总数 不小于 80：
+            AMD状态.SE数 为 4; AMD状态.SH_每SE = 2; AMD状态.CU_每SH = AMD状态.CU总数 除以 8。
+        否则若 AMD状态.CU总数 不小于 40：
+            AMD状态.SE数 为 2; AMD状态.SH_每SE = 2; AMD状态.CU_每SH = AMD状态.CU总数 除以 4。
+        否则：
+            AMD状态.SE数 为 1; AMD状态.SH_每SE = 2; AMD状态.CU_每SH = AMD状态.CU总数 除以 2。
+        完。
+    完。
+
+    可变 单元名 为 「CU」。
+    若 AMD状态.WGP模式：
+    内核信息(「AMD驱动: 拓扑 SE=」 加 整数转字符串(AMD状态.SE数) +。
+             「 SH/SE=」 加 做 整数转字符串 用 AMD状态.SH_每SE +。
+             「 」 加 单元名 加 「=」 加 做 整数转字符串 用 AMD状态.CU总数)。
+完。
+
+※ §6 MMHUB/IH/GFX环/计算环/S直传/DCN初始化接口。
+
+AMD_MMHUB_初始化 接受 零参：
+    若 AMD状态.mmio 等于 0：
+    做 内核信息 用 「AMD驱动: MMHUB初始化」。
+完。
+
+AMD_IH_初始化 接受 零参：
+    若 AMD状态.mmio 等于 0：
+    AMD状态.IH已初始化 为 真。
+    做 内核信息 用 「AMD驱动: 做 IH 用 中断处理初始化」。
+完。
+
+AMD_GFX环_初始化 接受 零参：
+    若 AMD状态.mmio 等于 0：
+    AMD状态.GFX环已初始化 为 真。
+    做 内核信息 用 「AMD驱动: GFX环初始化」。
+完。
+
+AMD_计算环_初始化 接受 零参：
+    若 AMD状态.mmio 等于 0：
+    AMD状态.计算环已初始化 为 真。
+    做 内核信息 用 「AMD驱动: 计算环初始化」。
+完。
+
+AMD_S直传_初始化 接受 零参：
+    若 AMD状态.mmio 等于 0：
+    AMD状态.S直传已初始化 为 真。
+    做 内核信息 用 「AMD驱动: 做 S直传 用 DMA初始化」。
+完。
+
+AMD_DCN_初始化 接受 零参：
+    若 AMD状态.mmio 等于 0：
+    AMD状态.DCN已初始化 为 真。
+    做 内核信息 用 「AMD驱动: DCN」 加 做 整数转字符串 用 AMD状态.DCN版本 加 「显示初始化」。
+完。
+
+AMD_中断初始化 接受 零参：
+    若 AMD状态.mmio 等于 0：
+    做 内核信息 用 「AMD驱动: MSI中断配置」。
+完。
+
+AMD_等待us 接受 us：
+    可变 i 为 0。
+    只要 i 小于 us 乘 100：
+完。
+
+※ §7 AMD驱动状态结构。
+
+AMD_ARCH_GCN1 为 1。
+AMD_ARCH_GCN2 为 2。
+AMD_ARCH_GCN3 为 3。
+AMD_ARCH_GCN4 为 4。
+AMD_ARCH_GCN5 为 5。
+AMD_ARCH_RDNA1 为 6。
+AMD_ARCH_RDNA2 为 7。
+AMD_ARCH_RDNA3 为 8。
+AMD_ARCH_CDNA1 为 10。
+AMD_ARCH_CDNA2 为 11。
+AMD_ARCH_CDNA3 为 12。
+
+AMD驱动状态 是 一种 事物：
+    gpu,。
+    mmio,。
+    已初始化,。
+    CU总数,。
+    SE数,。
+    SH_每SE,。
+    CU_每SH,。
+    架构代,。
+    显存类型,。
+    显存总线宽,。
+    WGP模式,。
+    DCN版本,。
+    IH已初始化,。
+    GFX环已初始化,。
+    计算环已初始化,。
+    S直传已初始化,。
+    DCN已初始化,。
+    命令提交数,。
+    栅栏完成数,。
+    错误数,。
+    挂起次数,。
+完。
+
+可变 AMD状态 为 AMD驱动状态 {}。
+
+AMD状态_初始化 接受 零参：
+    AMD状态.gpu 为 0。
+    AMD状态.mmio 为 0。
+    AMD状态.已初始化 为 假。
+    AMD状态.CU总数 为 0。
+    AMD状态.SE数 为 1。
+    AMD状态.SH_每SE 为 1。
+    AMD状态.CU_每SH 为 0。
+    AMD状态.架构代 为 AMD_ARCH_GCN4。
+    AMD状态.显存类型 为 「GDDR6」。
+    AMD状态.显存总线宽 为 128。
+    AMD状态.WGP模式 为 假。
+    AMD状态.DCN版本 为 1。
+    AMD状态.IH已初始化 为 假。
+    AMD状态.GFX环已初始化 为 假。
+    AMD状态.计算环已初始化 为 假。
+    AMD状态.S直传已初始化 为 假。
+    AMD状态.DCN已初始化 为 假。
+    AMD状态.命令提交数 为 0。
+    AMD状态.栅栏完成数 为 0。
+    AMD状态.错误数 为 0。
+    AMD状态.挂起次数 为 0。
+完。
+
+※ §8 图处能力标志。
+
+图处_CAP_2D 为 0x01。
+图处_CAP_3D 为 0x02。
+图处_CAP_COMPUTE 为 0x04。
+图处_CAP_VULKAN 为 0x08。
+图处_CAP_VIDEO_DECODE 为 0x10。
+图处_CAP_VIDEO_ENCODE 为 0x20。
+图处_CAP_DISPLAY 为 0x40。
+图处_CAP_RAY_TRACE 为 0x80。
+图处_CAP_智能_ACCEL 为 0x100。
+
+AMD_能力名列表 接受 零参：
+    可变 结果 为 []。
+    若 AMD状态.gpu 等于 0：
+    cap 为 AMD状态.gpu.能力。
+    若 cap 位与 图处_CAP_2D) { 追加(结果, 「2D」：
+    若 cap 位与 图处_CAP_3D) { 追加(结果, 「3D」：
+    若 cap 位与 图处_CAP_COMPUTE) { 追加(结果, 「Compute」：
+    若 cap 位与 图处_CAP_VULKAN) { 追加(结果, 「Vulkan」：
+    若 cap 位与 图处_CAP_VIDEO_DECODE) { 追加(结果, 「VideoDec」：
+    若 cap 位与 图处_CAP_VIDEO_ENCODE) { 追加(结果, 「VideoEnc」：
+    若 cap 位与 图处_CAP_DISPLAY) { 追加(结果, 「Display」：
+    若 cap 位与 图处_CAP_RAY_TRACE) { 追加(结果, 「RayTrace」：
+    若 cap 位与 图处_CAP_智能_ACCEL) { 追加(结果, 「AI」：
+    返还 结果。
+完。
+
+AMD_架构名 接受 代：
+    若 代 等于 AMD_ARCH_GCN1) { 返还 "GCN 1.0 (Southern Islands：
+    若 代 等于 AMD_ARCH_GCN2) { 返还 "GCN 2.0 (Sea Islands：
+    若 代 等于 AMD_ARCH_GCN3) { 返还 "GCN 3.0 (Volcanic Islands：
+    若 代 等于 AMD_ARCH_GCN4) { 返还 "GCN 4.0 (Polaris：
+    若 代 等于 AMD_ARCH_GCN5) { 返还 "GCN 5.0 (Vega：
+    若 代 等于 AMD_ARCH_RDNA1) { 返还 "RDNA 1.0 (Navi：
+    若 代 等于 AMD_ARCH_RDNA2) { 返还 "RDNA 2.0 (Big Navi：
+    若 代 等于 AMD_ARCH_RDNA3：
+    若 代 等于 AMD_ARCH_CDNA1) { 返还 "CDNA 1.0 (MI100：
+    若 代 等于 AMD_ARCH_CDNA2) { 返还 "CDNA 2.0 (MI200：
+    若 代 等于 AMD_ARCH_CDNA3) { 返还 "CDNA 3.0 (MI300：
+    返还 「Unknown」。
+完。
+
+※ §9 寄存器偏移常量。
+
+mmGNova受限能量网络_STATUS 为 0x8010。
+mmGNova受限能量网络_SOFT_RESET 为 0x8020。
+mmGNova受限能量网络_GFX_INDEX 为 0x8030。
+GNova受限能量网络_STATUS_GUI_ACTIVE 为 0x80000000。
+
+MMIO读32 接受 地址：
+    返还 做 内存_读32 用 地址。
+完。
+
+MMIO写32 接受 地址、值：
+    做 内存_写32 用 地址、值。
+完。
+
+ioremap 接受 物理地址、大小：
+    返还 物理地址。
+完。
+
+※ §10 AMD驱动统计与健康检查。
+
+AMD_统计 接受 零参：
+    返还 ：
+        型号: AMD状态.gpu 不等于 0 ? AMD状态.gpu.型号名 : 「未知」,。
+        架构: 做 AMD_架构名 用 AMD状态.架构代,。
+        CU: AMD状态.CU总数,。
+        SE: AMD状态.SE数,。
+        显存类型: AMD状态.显存类型,。
+        总线宽: AMD状态.显存总线宽,。
+        DCN: AMD状态.DCN版本,。
+        已初始化: AMD状态.已初始化,。
+        命令提交: AMD状态.命令提交数,。
+        错误: AMD状态.错误数,。
+    完。
+完。
+
+AMD_健康检查 接受 零参：
+    可变 问题 为 []。
+    若 !AMD状态.已初始化) { 追加(问题, 「AMD驱动未初始化」：
+    若 AMD状态.错误数 大于 10：
+        做 追加 用 问题、「AMD驱动错误过多: 」 加 做 整数转字符串 用 AMD状态.错误数。
+    完。
+    若 AMD状态.挂起次数 大于 3：
+        做 追加 用 问题、「AMD GPU频繁挂起: 」 加 做 整数转字符串 用 AMD状态.挂起次数。
+    完。
+    若 !AMD状态.GFX环已初始化) { 追加(问题, 「GFX环未初始化」：
+    若 做 计数 用 问题 等于 0：
+    返还 问题。
+完。
+
+AMD_重置统计 接受 零参：
+    AMD状态.命令提交数 为 0。
+    AMD状态.栅栏完成数 为 0。
+    AMD状态.错误数 为 0。
+    AMD状态.挂起次数 为 0。
+完。
+
+AMD_打印信息 接受 零参：
+    若 !AMD状态.已初始化) { 内核信息(「AMD驱动: 未初始化」：
+    做 内核信息 用 「AMD GPU: 」 加 AMD状态.gpu.型号名。
+    做 内核信息 用 「  架构: 」 加 做 AMD_架构名 用 AMD状态.架构代。
+    做 内核信息 用 「  CU=」 加 做 整数转字符串 用 AMD状态.CU总数 加 「 SE=」 加 做 整数转字符串 用 AMD状态.SE数。
+    做 内核信息 用 「  显存: 」 加 AMD状态.显存类型 加 「/」 加 做 整数转字符串 用 AMD状态.显存总线宽 加 「bit」。
+    做 内核信息 用 「  DCN: v」 加 做 整数转字符串 用 AMD状态.DCN版本。
+完。
+
+AMD_完整统计 接受 零参：
+    返还 [AMD状态.CU总数, AMD状态.SE数, AMD状态.命令提交数, AMD状态.错误数, AMD状态.挂起次数]。
+完。
+
+AMD_是否就绪 接受 零参：
+    返还 AMD状态.已初始化 并且 AMD状态.GFX环已初始化。
+完。
+
+AMD_支持光追 接受 零参：
+    返还 AMD状态.架构代 不小于 AMD_ARCH_RDNA2。
+完。
+
+AMD_支持AI 接受 零参：
+    返还 AMD状态.架构代 不小于 AMD_ARCH_CDNA1。
+
+双初始化_统计 接受 零参：
+    返还 ：
+        模块: 「双初始化」,。
+        AMD状态。
+    完。
+完。
+
+双初始化_健康评估 接受 零参：
+    可变 问题 为 []。
+
+    返还 做 计数 用 问题 等于 0。
+完。
+
+双初始化_综合报告 接受 零参：
+    做 打印 用 「[双初始化] ═══ 综合报告 ═══」。
+    做 打印 用 「  AMD状态: 」 加 若 (AMD状态 不等于 空) { 「已初始化」 否则： 「未初始化」 }。
+    做 打印 用 「  健康: 」 加 若 (做 双初始化_健康评估) { 「正常」 否则： 「异常」 }。
+完。
+
+双初始化_全局重置 接受 零参：
+    做 打印 用 「[双初始化] 全局统计已重置」。
+    返还 0。
+完。
+
+本章 收束。
+
+本章 收束。
+
+本章 收束。

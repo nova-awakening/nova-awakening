@@ -1,0 +1,95 @@
+《文字排版引擎》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·PNG图片解码器》。
+
+字体 是 一种 事物，含 数据、数据大小、unitsPerEm、ascent、descent、lineGap、cmap偏移、glyf偏移、loca偏移、hmtx偏移、kern偏移、GPOS偏移、GSUB偏移、cmap4_segCount、cmap4_endCode、cmap4_startCode、cmap4_idDelta、cmap4_idRangeOff、字形数、loca格式、字形缓存、缓存大小。
+
+字体_加载 接受 数据、大小：
+    若 数据 等于 0 或者 大小 小于 12：
+        返还 0。
+    完。
+    font 为 做 堆_分配 用 字体。
+    font 的 数据 为 数据。
+    font 的 数据大小 为 大小。
+    sfVersion 为 做 读32大端 用 数据。
+    numTables 为 做 读16大端 用 数据 加 4。
+    可变 i 为 0。
+    只要 i 小于 numTables：
+        entry 为 数据 加 12 加 i 乘 16。
+        tag 为 做 读32大端 用 entry。
+        offset 为 做 读32大端 用 entry 加 8。
+        length 为 做 读32大端 用 entry 加 12。
+        若 tag 等于 0x68656164：
+            做 字体_解析head 用 font、数据 加 offset。
+        否则若 tag 等于 0x68686561：
+            做 字体_解析hhea 用 font、数据 加 offset。
+        否则若 tag 等于 0x636D6170：
+            做 字体_解析cmap 用 font、数据 加 offset、length。
+        否则若 tag 等于 0x6C6F6361：
+            font 的 loca偏移 为 offset。
+        否则若 tag 等于 0x676C7966：
+            font 的 glyf偏移 为 offset。
+        否则若 tag 等于 0x686D7478：
+            font 的 hmtx偏移 为 offset。
+        否则若 tag 等于 0x6B65726E：
+            font 的 kern偏移 为 offset。
+        否则若 tag 等于 0x47504F53：
+            font 的 GPOS偏移 为 offset。
+        否则若 tag 等于 0x47535542：
+            font 的 GSUB偏移 为 offset。
+        否则若 tag 等于 0x6D617870：
+            font 的 字形数 为 做 读16大端 用 数据 加 offset 加 4。
+        完。
+        i 为 i 加 1。
+    完。
+    font 的 缓存大小 为 512。
+    font 的 字形缓存 为 做 堆_分配_数组 用 font 的 缓存大小 乘 16。
+    返还 font。
+完。
+
+字体_解析head 接受 font、数据：
+    font 的 unitsPerEm 为 做 读16大端 用 数据 加 18。
+    font 的 loca格式 为 做 读16大端 用 数据 加 50。
+完。
+
+字体_解析hhea 接受 font、数据：
+    font 的 ascent 为 做 读16大端 用 数据 加 4。
+    font 的 descent 为 做 读16大端 用 数据 加 6。
+    font 的 lineGap 为 做 读16大端 用 数据 加 8。
+完。
+
+字体_解析cmap 接受 font、数据、大小：
+    font 的 cmap偏移 为 数据 减 font 的 数据。
+    numTables 为 做 读16大端 用 数据 加 2。
+    可变 i 为 0。
+    只要 i 小于 numTables：
+        entry 为 数据 加 4 加 i 乘 8。
+        platformID 为 做 读16大端 用 entry。
+        encodingID 为 做 读16大端 用 entry 加 2。
+        offset 为 做 读32大端 用 entry 加 4。
+        若 platformID 等于 3 并且 encodingID 等于 1：
+            subtable 为 数据 加 offset。
+            format 为 做 读16大端 用 subtable。
+            若 format 等于 4：
+                做 字体_解析cmap4 用 font、subtable。
+                返还。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+字体_解析cmap4 接受 font、数据：
+    font 的 cmap4_segCount 为 做 读16大端 用 数据 加 6 除以 2。
+    sc 为 font 的 cmap4_segCount。
+    font 的 cmap4_endCode 为 数据 加 14。
+    font 的 cmap4_startCode 为 数据 加 14 加 sc 乘 2 加 2。
+    font 的 cmap4_idDelta 为 数据 加 14 加 sc 乘 4 加 2。
+    font 的 cmap4_idRangeOff 为 数据 加 14 加 sc 乘 6 加 2。
+完。
+
+本章 收束。

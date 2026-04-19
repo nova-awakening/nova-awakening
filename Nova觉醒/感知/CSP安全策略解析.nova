@@ -1,0 +1,206 @@
+《CSP安全策略解析》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·内核直连层》。
+
+引用《..·执行·底层内存操》。
+
+CSP_解析 接受 头值、模式：
+    若 头值 等于 0：
+        返还 0。
+    完。
+    policy 为 做 堆_分配 用 CSPPolicy。
+    若 policy 等于 0：
+        返还 0。
+    完。
+    policy 的 模式 为 模式。
+    policy 的 原始头 为 头值。
+    policy 的 报告URL 为 0。
+    policy 的 下一个 为 0。
+    做 内存_清零 用 policy 的 指令、14 乘 8。
+    len 为 做 字节长度 用 头值。
+    可变 pos 为 0。
+    只要 pos 小于 len：
+        只要 pos 小于 len 并且 (做 字节取 用 头值、pos 等于 0x20 或者 做 字节取 用 头值、pos 等于 0x3B)：
+            pos 为 pos 加 1。
+        完。
+        若 pos 大于或等于 len：
+            跳出。
+        完。
+        dir_start 为 pos。
+        只要 pos 小于 len 并且 做 字节取 用 头值、pos 不等于 0x20 并且 做 字节取 用 头值、pos 不等于 0x3B：
+            pos 为 pos 加 1。
+        完。
+        dir_len 为 pos 减 dir_start。
+        dir_name 为 做 堆_分配 用 dir_len 加 1。
+        若 dir_name 等于 0：
+            做 堆_释放 用 policy。
+            返还 0。
+        完。
+        做 内存_复制 用 dir_name、头值 加 dir_start、dir_len。
+        做 字节写 用 dir_name、dir_len、0。
+        dir_type 为 做 CSP_识别指令 用 dir_name。
+        src 为 做 堆_分配 用 CSPSourceExpr。
+        src 的 标志 为 0。
+        src 的 主机数 为 0。
+        src 的 nonce数 为 0。
+        src 的 hash数 为 0。
+        只要 pos 小于 len 并且 做 字节取 用 头值、pos 不等于 0x3B：
+            只要 pos 小于 len 并且 做 字节取 用 头值、pos 等于 0x20：
+                pos 为 pos 加 1。
+            完。
+            若 pos 大于或等于 len 或者 做 字节取 用 头值、pos 等于 0x3B：
+                跳出。
+            完。
+            src_start 为 pos。
+            只要 pos 小于 len 并且 做 字节取 用 头值、pos 不等于 0x20 并且 做 字节取 用 头值、pos 不等于 0x3B：
+                pos 为 pos 加 1。
+            完。
+            src_len 为 pos 减 src_start。
+            若 src_len 大于 0：
+                src_str 为 做 堆_分配 用 src_len 加 1。
+                若 src_str 等于 0：
+                    做 堆_释放 用 dir_name。
+                    做 堆_释放 用 policy。
+                    返还 0。
+                完。
+                做 内存_复制 用 src_str、头值 加 src_start、src_len。
+                做 字节写 用 src_str、src_len、0。
+                做 CSP_解析源表达式 用 src、src_str。
+            完。
+        完。
+        若 dir_type 大于或等于 0 并且 dir_type 小于 CSP_DIRECTIVE_COUNT：
+            dir 为 做 堆_分配 用 CSPDirective。
+            若 dir 等于 0：
+                做 堆_释放 用 dir_name。
+                做 堆_释放 用 policy。
+                返还 0。
+            完。
+            dir 的 类型 为 dir_type。
+            dir 的 源 为 src。
+            policy 的 指令 的 第 dir_type 项 为 dir。
+        完。
+        若 做 字符串_相等 用 dir_name、「report-uri」：
+        完。
+    完。
+    返还 policy。
+完。
+
+CSP_识别指令 接受 名称：
+    若 做 字符串_相等 用 名称、「default-src」：
+        返还 CSP_DEFAULT_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「script-src」：
+        返还 CSP_SCRIPT_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「style-src」：
+        返还 CSP_STYLE_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「img-src」：
+        返还 CSP_IMG_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「font-src」：
+        返还 CSP_FONT_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「connect-src」：
+        返还 CSP_CONNECT_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「media-src」：
+        返还 CSP_MEDIA_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「object-src」：
+        返还 CSP_OBJECT_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「frame-src」：
+        返还 CSP_FRAME_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「base-uri」：
+        返还 CSP_BASE_URI。
+    完。
+    若 做 字符串_相等 用 名称、「form-action」：
+        返还 CSP_FORM_ACTION。
+    完。
+    若 做 字符串_相等 用 名称、「frame-ancestors」：
+        返还 CSP_FRAME_ANCESTORS。
+    完。
+    若 做 字符串_相等 用 名称、「worker-src」：
+        返还 CSP_WORKER_SRC。
+    完。
+    若 做 字符串_相等 用 名称、「navigate-to」：
+        返还 CSP_NAVIGATE_TO。
+    完。
+    返还 负 1。
+完。
+
+CSP_解析源表达式 接受 src、值：
+    若 src 等于 0 或者 值 等于 0：
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「'none'」：
+        src 的 标志 为 src 的 标志 位或 SRC_NONE。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「'self'」：
+        src 的 标志 为 src 的 标志 位或 SRC_SELF。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「'unsafe-inline'」：
+        src 的 标志 为 src 的 标志 位或 SRC_UNSAFE_INLINE。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「'unsafe-eval'」：
+        src 的 标志 为 src 的 标志 位或 SRC_UNSAFE_EVAL。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「'strict-dynamic'」：
+        src 的 标志 为 src 的 标志 位或 SRC_STRICT_DYNAMIC。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「https:」：
+        src 的 标志 为 src 的 标志 位或 SRC_HTTPS。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「http:」：
+        src 的 标志 为 src 的 标志 位或 SRC_HTTP。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「data:」：
+        src 的 标志 为 src 的 标志 位或 SRC_DATA。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「blob:」：
+        src 的 标志 为 src 的 标志 位或 SRC_BLOB。
+        返还。
+    完。
+    若 做 字符串_相等 用 值、「*」：
+        src 的 标志 为 src 的 标志 位或 SRC_WILDCARD。
+        返还。
+    完。
+    若 做 字节长度 用 值 大于 8 并且 做 字节取 用 值、0 等于 0x27 并且 做 字节取 用 值、1 等于 0x6E：
+        若 src 的 nonce数 小于 8：
+            src 的 nonce 的 第 src 的 nonce数 项 为 值。
+            src 的 nonce数 为 src 的 nonce数 加 1。
+        完。
+        返还。
+    完。
+    若 做 字节长度 用 值 大于 10 并且 做 字节取 用 值、0 等于 0x27 并且 做 字节取 用 值、1 等于 0x73：
+        若 src 的 hash数 小于 8：
+            src 的 hash 的 第 src 的 hash数 项 为 值。
+            src 的 hash数 为 src 的 hash数 加 1。
+        完。
+        返还。
+    完。
+    若 src 的 主机数 小于 16：
+        src 的 主机 的 第 src 的 主机数 项 为 值。
+        src 的 主机数 为 src 的 主机数 加 1。
+    完。
+完。
+
+本章 收束。

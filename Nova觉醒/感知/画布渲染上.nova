@@ -1,0 +1,189 @@
+《画布渲染上》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《.·像素混合》。
+
+引用《.·Path2D路径》。
+
+引用《.·图像数据像》。
+
+引用《.·渐变》。
+
+画布渲染ingContext2D 是 一种 事物，含 画布宽、画布高、像素缓冲、当前状态、当前路径、是离屏、脏区x、脏区y、脏区w、脏区h、有脏区。
+
+Ctx2D_创建 接受 宽度、高度：
+    ctx 为 做 堆_分配 用 画布渲染ingContext2D。
+    ctx 的 画布宽 为 宽度。
+    ctx 的 画布高 为 高度。
+    ctx 的 像素缓冲 为 做 堆_分配 用 宽度 乘 高度 乘 4。
+    做 内存_填充 用 ctx 的 像素缓冲、0、宽度 乘 高度 乘 4。
+    ctx 的 当前状态 为 做 画布State_创建。
+    ctx 的 当前路径 为 做 Path2D_创建。
+    ctx 的 是离屏 为 假。
+    ctx 的 有脏区 为 假。
+    返还 ctx。
+完。
+
+Ctx2D_save 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    新状态 为 做 画布State_创建。
+    做 内存_复制 用 新状态、ctx 的 当前状态、做 大小of 用 画布State。
+    新状态 的 上一个状态 为 ctx 的 当前状态。
+    ctx 的 当前状态 为 新状态。
+完。
+
+Ctx2D_restore 接受 ctx：
+    若 ctx 等于 0 或者 ctx 的 当前状态 等于 0：
+        返还。
+    完。
+    旧 为 ctx 的 当前状态。
+    若 旧 的 上一个状态 不等于 0：
+        ctx 的 当前状态 为 旧 的 上一个状态。
+    完。
+完。
+
+Ctx2D_translate 接受 ctx、tx、ty：
+    若 ctx 等于 0 或者 ctx 的 当前状态 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 当前状态。
+    s 的 变换 的 第 4 项 为 s 的 变换 的 第 4 项 加 tx。
+    s 的 变换 的 第 5 项 为 s 的 变换 的 第 5 项 加 ty。
+完。
+
+Ctx2D_scale 接受 ctx、sx、sy：
+    若 ctx 等于 0 或者 ctx 的 当前状态 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 当前状态。
+    s 的 变换 的 第 0 项 为 s 的 变换 的 第 0 项 乘 sx 除以 1024。
+    s 的 变换 的 第 3 项 为 s 的 变换 的 第 3 项 乘 sy 除以 1024。
+完。
+
+Ctx2D_rotate 接受 ctx、angle：
+    若 ctx 等于 0 或者 ctx 的 当前状态 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 当前状态。
+完。
+
+Ctx2D_setTransform 接受 ctx、a、b、c、d、e、f：
+    若 ctx 等于 0 或者 ctx 的 当前状态 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 当前状态。
+    s 的 变换 的 第 0 项 为 a。
+    s 的 变换 的 第 1 项 为 b。
+    s 的 变换 的 第 2 项 为 c。
+    s 的 变换 的 第 3 项 为 d。
+    s 的 变换 的 第 4 项 为 e。
+    s 的 变换 的 第 5 项 为 f。
+完。
+
+Ctx2D_resetTransform 接受 ctx：
+    做 Ctx2D_setTransform 用 ctx、1024、0、0、1024、0、0。
+完。
+
+Ctx2D_变换点 接受 s、x、y、ox、oy：
+    若 s 等于 0：
+        ox 为 x。
+        oy 为 y。
+        返还。
+    完。
+    ox 为 (s 的 变换 的 第 0 项 乘 x 加 s 的 变换 的 第 2 项 乘 y) 除以 1024 加 s 的 变换 的 第 4 项。
+    oy 为 (s 的 变换 的 第 1 项 乘 x 加 s 的 变换 的 第 3 项 乘 y) 除以 1024 加 s 的 变换 的 第 5 项。
+完。
+
+Ctx2D_clearRect 接受 ctx、x、y、w、h：
+    若 ctx 等于 0 或者 ctx 的 像素缓冲 等于 0：
+        返还。
+    完。
+    可变 py 为 y。
+    只要 py 小于 y 加 h 并且 py 小于 ctx 的 画布高：
+        若 py 大于或等于 0：
+            可变 px 为 x。
+            只要 px 小于 x 加 w 并且 px 小于 ctx 的 画布宽：
+                若 px 大于或等于 0：
+                    偏移 为 (py 乘 ctx 的 画布宽 加 px) 乘 4。
+                    做 内存_写32 用 ctx 的 像素缓冲 加 偏移、0。
+                完。
+                px 为 px 加 1。
+            完。
+        完。
+        py 为 py 加 1。
+    完。
+完。
+
+Ctx2D_fillRect 接受 ctx、x、y、w、h：
+    若 ctx 等于 0 或者 ctx 的 像素缓冲 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 当前状态。
+    若 s 等于 0：
+        返还。
+    完。
+    颜色 为 s 的 fill样式_颜色。
+    alpha 为 s 的 globalAlpha。
+    可变 py 为 y。
+    只要 py 小于 y 加 h 并且 py 小于 ctx 的 画布高：
+        若 py 大于或等于 0：
+            可变 px 为 x。
+            只要 px 小于 x 加 w 并且 px 小于 ctx 的 画布宽：
+                若 px 大于或等于 0：
+                    最终颜色 为 颜色。
+                    若 s 的 fill样式_渐变 不等于 0：
+                        t 为 (px 减 x) 乘 1024 除以 w。
+                        最终颜色 为 做 Gradient_采样 用 s 的 fill样式_渐变、t。
+                    完。
+                    若 alpha 小于 1024：
+                        a 为 (最终颜色 右移 24 位与 0xFF) 乘 alpha 除以 1024。
+                        最终颜色 为 a 左移 24 位或 最终颜色 位与 0x00FFFFFF。
+                    完。
+                    做 Ctx2D_混合像素 用 ctx、px、py、最终颜色、s 的 globalCompositeOperation。
+                完。
+                px 为 px 加 1。
+            完。
+        完。
+        py 为 py 加 1。
+    完。
+    做 Ctx2D_标记脏区 用 ctx、x、y、w、h。
+完。
+
+Ctx2D_strokeRect 接受 ctx、x、y、w、h：
+    若 ctx 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 当前状态。
+    若 s 等于 0：
+        返还。
+    完。
+    lw 为 s 的 lineWidth 除以 1024。
+    若 lw 小于 1：
+        lw 为 1。
+    完。
+    做 Ctx2D_fillRect 用 ctx、x、y、w、lw。
+    做 Ctx2D_fillRect 用 ctx、x、y 加 h 减 lw、w、lw。
+    做 Ctx2D_fillRect 用 ctx、x、y、lw、h。
+    做 Ctx2D_fillRect 用 ctx、x 加 w 减 lw、y、lw、h。
+完。
+
+Ctx2D_fill 接受 ctx：
+    若 ctx 等于 0 或者 ctx 的 当前路径 等于 0：
+        返还。
+    完。
+完。
+
+Ctx2D_stroke 接受 ctx：
+    若 ctx 等于 0 或者 ctx 的 当前路径 等于 0：
+        返还。
+    完。
+完。
+
+本章 收束。

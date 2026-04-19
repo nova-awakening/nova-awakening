@@ -1,0 +1,307 @@
+《端口IO》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+端口写8 接受 端口、值：
+    汇编。
+    块：
+        「mov dx, [rbp+24]」。
+        「mov al, [rbp+16]」。
+        「out dx, al」。
+    完。
+完。
+
+端口写16 接受 端口、值：
+    汇编。
+    块：
+        「mov dx, [rbp+24]」。
+        「mov ax, [rbp+16]」。
+        「out dx, ax」。
+    完。
+完。
+
+端口写32 接受 端口、值：
+    汇编。
+    块：
+        「mov dx, [rbp+24]」。
+        「mov eax, [rbp+16]」。
+        「out dx, eax」。
+    完。
+完。
+
+端口读8 接受 端口：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov dx, [rbp+16]」。
+        「xor eax, eax」。
+        「in al, dx」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+端口读16 接受 端口：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov dx, [rbp+16]」。
+        「xor eax, eax」。
+        「in ax, dx」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+端口读32 接受 端口：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov dx, [rbp+16]」。
+        「xor eax, eax」。
+        「in eax, dx」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+端口读串8 接受 端口、缓冲、计数值：
+    汇编。
+    块：
+        「mov dx, [rbp+32]」。
+        「mov rdi, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「cld」。
+        「rep insb」。
+    完。
+完。
+
+端口写串8 接受 端口、缓冲、计数值：
+    汇编。
+    块：
+        「mov dx, [rbp+32]」。
+        「mov rsi, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「cld」。
+        「rep outsb」。
+    完。
+完。
+
+端口读串16 接受 端口、缓冲、计数值：
+    汇编。
+    块：
+        「mov dx, [rbp+32]」。
+        「mov rdi, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「cld」。
+        「rep insw」。
+    完。
+完。
+
+端口写串16 接受 端口、缓冲、计数值：
+    汇编。
+    块：
+        「mov dx, [rbp+32]」。
+        「mov rsi, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「cld」。
+        「rep outsw」。
+    完。
+完。
+
+端口读串32 接受 端口、缓冲、计数值：
+    汇编。
+    块：
+        「mov dx, [rbp+32]」。
+        「mov rdi, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「cld」。
+        「rep insd」。
+    完。
+完。
+
+端口写串32 接受 端口、缓冲、计数值：
+    汇编。
+    块：
+        「mov dx, [rbp+32]」。
+        「mov rsi, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「cld」。
+        「rep outsd」。
+    完。
+完。
+
+内存读8 接受 地址：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rdi, [rbp+16]」。
+        「xor eax, eax」。
+        「mov al, [rdi]」。
+        「mfence」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+内存写8 接受 地址、值：
+    汇编。
+    块：
+        「mov rdi, [rbp+24]」。
+        「mov al, [rbp+16]」。
+        「mov [rdi], al」。
+        「mfence」。
+    完。
+完。
+
+内存读16 接受 地址：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rdi, [rbp+16]」。
+        「xor eax, eax」。
+        「mov ax, [rdi]」。
+        「mfence」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+内存写16 接受 地址、值：
+    汇编。
+    块：
+        「mov rdi, [rbp+24]」。
+        「mov ax, [rbp+16]」。
+        「mov [rdi], ax」。
+        「mfence」。
+    完。
+完。
+
+内存读32 接受 地址：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rdi, [rbp+16]」。
+        「xor eax, eax」。
+        「mov eax, [rdi]」。
+        「mfence」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+内存写32 接受 地址、值：
+    汇编。
+    块：
+        「mov rdi, [rbp+24]」。
+        「mov eax, [rbp+16]」。
+        「mov [rdi], eax」。
+        「mfence」。
+    完。
+完。
+
+内存读64 接受 地址：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rdi, [rbp+16]」。
+        「mov rax, [rdi]」。
+        「mfence」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+内存写64 接受 地址、值：
+    汇编。
+    块：
+        「mov rdi, [rbp+24]」。
+        「mov rax, [rbp+16]」。
+        「mov [rdi], rax」。
+        「mfence」。
+    完。
+完。
+
+读屏障 接受 零参：
+    汇编。
+    块：
+        「lfence」。
+    完。
+完。
+
+写屏障 接受 零参：
+    汇编。
+    块：
+        「sfence」。
+    完。
+完。
+
+编译器屏障 接受 零参：
+    汇编。
+    块：
+        「」。
+    完。
+完。
+
+内存清零 接受 地址、字节数：
+    汇编。
+    块：
+        「mov rdi, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「shr rcx, 3」。
+        「xor rax, rax」。
+        「cld」。
+        「rep stosq」。
+    完。
+完。
+
+内存拷贝 接受 目标、源、字节数：
+    汇编。
+    块：
+        「mov rdi, [rbp+32]」。
+        「mov rsi, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「cld」。
+        「rep movsb」。
+    完。
+完。
+
+内存填充 接受 地址、值、字节数：
+    汇编。
+    块：
+        「mov rdi, [rbp+32]」。
+        「mov al, [rbp+24]」。
+        「mov rcx, [rbp+16]」。
+        「cld」。
+        「rep stosb」。
+    完。
+完。
+
+端口IO_暂停 接受 零参：
+    汇编。
+    块：
+        「pause」。
+    完。
+完。
+
+端口IO_完整统计 接受 零参：
+    返还 一组：端口IO_读次数、端口IO_写次数。
+完。
+
+可变 AI_端口输入_运行指标 为 0。
+
+可变 AI_端口输入_异常指标 为 0。
+
+AI_端口输入_自诊断 接受 零参：
+    AI_端口输入_运行指标 为 0。
+    返还 AI_端口输入_运行指标。
+完。
+
+AI_端口输入_优化建议 接受 零参：
+    指标 为 做 AI_端口输入_自诊断。
+    返还 「端口输入状态正常」。
+完。
+
+本章 收束。

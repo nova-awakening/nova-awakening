@@ -1,0 +1,189 @@
+《请求构造器》
+
+引用《..·中枢·类型定义》。
+引用《..·中枢·系统调用表》。
+引用《..·中枢·整数转字符串》。
+引用《..·中枢·硬链接》。
+
+※ NovaOS · 统一请求构造器
+※ 将统一消息格式→转换为各模型的真实接口 序列请求体
+※ 每个模型接口的请求格式都不同:
+※ Nova智能: {"model":"Nova语言模型-4o","messages":[...],"max_令牌s":4096
+※ Anthropic: {"model":"claude-...","system":"...","messages":[...],"max_令牌s":4096
+※ GLM: {"model":"glm-4","messages":[...],"max_令牌s":4096,"temperature":0.7
+※ MiniMax: {"model":"MiniMax-Text-01","messages":[...],"令牌s_to_generate":16384
+※ Qwen: Nova智能兼容 + enable_search扩展
+※ 文心: {"messages":[...],"temperature":0.7} (model在URL里)
+※ Kimi: Nova智能兼容格式
+※ 本构造器统一输入: (Provider配置, 系统提示, 消息列表, 参数)
+※ 输出: 正确的序列字符串
+
+※ 消息 = [角色, 内容]  角色: "system"/"user"/"assistant"
+
+请求_构造 接受 cfg、系统提示、消息列表)：
+    格式 为 cfg.消息格式版本。
+    若 格式 等于 0：
+    若 格式 等于 1：
+    若 格式 等于 2：
+    若 格式 等于 3：
+    若 格式 等于 4：
+    返还 做 请求_Nova智能格式 用 cfg、系统提示、消息列表
+完。
+
+※ 适用: Nova语言模型-4o, Kimi, 本地Ollama, vLLM, LM Studio
+
+请求_Nova智能格式 接受 cfg、系统提示、消息列表)：
+    可变 json 为 「{\」model\「:\」「 加 cfg.模型标识 加 」\「」。
+    json 为 json 加 「,\」max_令牌s\「:」 加 做 整数转字符串 用 cfg.最大输出令牌。
+    json 为 json 加 「,\」temperature\「:」 加 做 请求_浮点字符串 用 cfg.温度。
+    json 为 json 加 「,\」top_p\「:」 加 做 请求_浮点字符串 用 cfg.TopP。
+    若 cfg.启用流式 等于 1：
+
+    ※ messages数组
+    json 为 json 加 「,\」messages\「:[」。
+    ※ 系统提示作为第一条message
+    若 做 字符串长度 用 系统提示 大于 0：
+        json 为 json 加 「{\」role\「:\」system\「,\」content\「:」 加 做 请求_转义序列字符串 用 系统提示 加 「},」。
+    完。
+    ※ 用户/助手消息
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 消息列表：
+        若 i 大于 0 或者 做 字符串长度 用 系统提示 大于 0：
+        json 为 json 加 「{\」role\「:」 加 做 请求_转义序列字符串 用 消息列表[i][0]。
+        json 为 json 加 「,\」content\「:」 加 做 请求_转义序列字符串 用 消息列表[i][1] 加 「}」。
+        i 为 i 加 1。
+    完。
+    json 为 json 加 「]}」。
+    返还 json。
+完。
+
+※ 关键差异: system是顶层字段, 不在messages里; 需要anthropic-version头
+
+请求_Anthropic格式 接受 cfg、系统提示、消息列表)：
+    可变 json 为 「{\」model\「:\」「 加 cfg.模型标识 加 」\「」。
+    json 为 json 加 「,\」max_令牌s\「:」 加 做 整数转字符串 用 cfg.最大输出令牌。
+    json 为 json 加 「,\」temperature\「:」 加 做 请求_浮点字符串 用 cfg.温度。
+    若 cfg.启用流式 等于 1：
+
+    ※ Anthropic: system是顶层字段
+    若 做 字符串长度 用 系统提示 大于 0：
+        json 为 json 加 「,\」system\「:」 加 做 请求_转义序列字符串 用 系统提示。
+    完。
+
+    ※ messages (Anthropic不允许system角色在messages里)
+    json 为 json 加 「,\」messages\「:[」。
+    可变 i 为 0。
+    可变 第一个 为 真。
+    只要 i 小于 做 计数 用 消息列表：
+        若 消息列表[i][0] 不等于 「system」：
+            若 !第一个：
+            json 为 json 加 「{\」role\「:」 加 做 请求_转义序列字符串 用 消息列表[i][0]。
+            json 为 json 加 「,\」content\「:」 加 做 请求_转义序列字符串 用 消息列表[i][1] 加 「}」。
+            第一个 为 假。
+        完。
+        i 为 i 加 1。
+    完。
+    json 为 json 加 「]}」。
+    返还 json。
+完。
+
+※ 智谱: 基本兼容Nova智能, 但有tool_choice/web_search扩展
+
+请求_GLM格式 接受 cfg、系统提示、消息列表)：
+    可变 json 为 「{\」model\「:\」「 加 cfg.模型标识 加 」\「」。
+    json 为 json 加 「,\」max_令牌s\「:」 加 做 整数转字符串 用 cfg.最大输出令牌。
+    json 为 json 加 「,\」temperature\「:」 加 做 请求_浮点字符串 用 cfg.温度。
+    json 为 json 加 「,\」top_p\「:」 加 做 请求_浮点字符串 用 cfg.TopP。
+    若 cfg.启用流式 等于 1：
+
+    json 为 json 加 「,\」messages\「:[」。
+    若 做 字符串长度 用 系统提示 大于 0：
+        json 为 json 加 「{\」role\「:\」system\「,\」content\「:」 加 做 请求_转义序列字符串 用 系统提示 加 「},」。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 消息列表：
+        若 i 大于 0：
+        json 为 json 加 「{\」role\「:」 加 做 请求_转义序列字符串 用 消息列表[i][0]。
+        json 为 json 加 「,\」content\「:」 加 做 请求_转义序列字符串 用 消息列表[i][1] 加 「}」。
+        i 为 i 加 1。
+    完。
+    json 为 json 加 「]}」。
+    返还 json。
+完。
+
+※ MiniMax: 令牌s_to_generate替代max_令牌s, role_meta扩展
+
+请求_MiniMax格式 接受 cfg、系统提示、消息列表)：
+    可变 json 为 「{\」model\「:\」「 加 cfg.模型标识 加 」\「」。
+    json 为 json 加 「,\」令牌s_to_generate\「:」 加 做 整数转字符串 用 cfg.最大输出令牌。
+    json 为 json 加 「,\」temperature\「:」 加 做 请求_浮点字符串 用 cfg.温度。
+    json 为 json 加 「,\」top_p\「:」 加 做 请求_浮点字符串 用 cfg.TopP。
+    若 cfg.启用流式 等于 1：
+
+    json 为 json 加 「,\」messages\「:[」。
+    若 做 字符串长度 用 系统提示 大于 0：
+        json 为 json 加 「{\」role\「:\」system\「,\」content\「:」 加 做 请求_转义序列字符串 用 系统提示 加 「},」。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 消息列表：
+        若 i 大于 0：
+        json 为 json 加 「{\」role\「:」 加 做 请求_转义序列字符串 用 消息列表[i][0]。
+        json 为 json 加 「,\」content\「:」 加 做 请求_转义序列字符串 用 消息列表[i][1] 加 「}」。
+        i 为 i 加 1。
+    完。
+    json 为 json 加 「]}」。
+    返还 json。
+完。
+
+※ 通义千问: Nova智能兼容模式, 通过DashScope 接口
+
+请求_Qwen格式 接受 cfg、系统提示、消息列表)：
+    ※ Qwen的compatible-mode就是标准Nova智能格式
+    返还 做 请求_Nova智能格式 用 cfg、系统提示、消息列表。
+完。
+
+请求_构造头 接受 cfg、api密钥)：
+    可变 头列表 为 []。
+    ※ Content-Type
+    做 追加 用 头列表、[「Content-Type」、「application/json」]。
+    ※ 认证头
+    若 做 字符串长度 用 api密钥 大于 0：
+        做 追加 用 头列表、[cfg.认证头名、cfg.认证头前缀 加 api密钥]。
+    完。
+    ※ Anthropic特殊头
+    若 cfg.类型 等于 提供者_Anthropic：
+        做 追加 用 头列表、[「anthropic-version」、「2023-06-01」]。
+    完。
+    返还 头列表。
+完。
+
+请求_浮点字符串 接受 千分值)：
+    ※ 700 → "0.700"
+    整数部分 为 千分值 除以 1000。
+    小数部分 为 千分值 取余于 1000。
+    可变 结果 为 做 整数转字符串 用 整数部分 加 「.」。
+    若 小数部分 小于 100：
+    若 小数部分 小于 10：
+    结果 为 结果 加 做 整数转字符串 用 小数部分。
+    返还 结果。
+完。
+
+请求_转义序列字符串 接受 s)：
+    ※ 简单序列字符串转义: 加引号, 转义\和"和换行
+    可变 结果 为 「\」"。
+    可变 i 为 0。
+    只要 i 小于 做 字符串长度 用 s：
+        ch 为 做 字符串字符 用 s、i。
+        若 ch 等于 34：
+        否则 若 (ch 等于 92) { 做 追加 用 部件、「\\\\」 }     // \。
+        否则 若 (ch 等于 10) { 做 追加 用 部件、「\\n」 }      // \n。
+        否则 若 (ch 等于 13) { 做 追加 用 部件、「\\r」 }      // \r。
+        否则 若 (ch 等于 9) { 做 追加 用 部件、「\\t」 }       // \t。
+        否则 { 做 追加 用 部件、做 字符串从字符 用 ch }。
+        i 为 i 加 1。
+    完。
+    做 追加 用 部件、「\」"。
+    返还 做 字符串_连接列表 用 部件、「」。
+完。
+
+本章 收束。

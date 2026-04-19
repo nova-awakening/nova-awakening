@@ -1,0 +1,1291 @@
+《编译引擎》
+
+引用《..·..·IR·字节码·指令集》。
+
+引用《..·..·标准库·基础》。
+
+引用《..·..·自举兼容桥》。
+
+引用《..·原语桩》。
+
+JIT_默认代码缓冲大小 为 0x100000。
+
+JIT_默认最大编译单元 为 4096。
+
+可变 JIT_配置表 为 一组：JIT_默认代码缓冲大小、JIT_默认最大编译单元。
+
+可变 JIT_统计表 为 一组：0、0。
+
+JIT_配置 接受 代码缓冲大小、最大编译单元：
+    若 代码缓冲大小 大于 0：
+        JIT_配置表 的 第 0 项 为 代码缓冲大小。
+    完。
+    若 最大编译单元 大于 0：
+        JIT_配置表 的 第 1 项 为 最大编译单元。
+    完。
+完。
+
+JIT_读取配置 接受 零参：
+    返还 一组：JIT_配置表 的 第 0 项、JIT_配置表 的 第 1 项。
+完。
+
+JIT_模式_快速 为 0。
+
+JIT_模式_标准 为 1。
+
+JIT_模式_激进 为 2。
+
+可变 JIT_当前jit 为 空。
+
+可变 JIT_当前字节码 为 一组：（空）。
+
+可变 JIT_当前pc 为 0。
+
+可变 JIT_当前跳转回填表 为 一组：（空）。
+
+JIT编译器_创建 接受 零参：
+    返还 一组：做 缓冲区 用 JIT_配置表 的 第 0 项、0、做 字典、一组：0、0、0、0、0、0、JIT_模式_标准、一组：0、0、0、一组：JIT_配置表 的 第 0 项、JIT_配置表 的 第 1 项。
+完。
+
+JIT编译器_代码位 接受 jit：
+    返还 jit 的 第 1 项。
+完。
+
+JIT_发射 接受 jit、b：
+    做 缓冲写 用 jit 的 第 0 项、jit 的 第 1 项、b。
+    jit 的 第 1 项 为 jit 的 第 1 项 加 1。
+完。
+
+JIT_发射32 接受 jit、v：
+    做 缓冲写32 用 jit 的 第 0 项、jit 的 第 1 项、v。
+    jit 的 第 1 项 为 jit 的 第 1 项 加 4。
+完。
+
+JIT_发射64 接受 jit、v：
+    做 缓冲写64 用 jit 的 第 0 项、jit 的 第 1 项、v。
+    jit 的 第 1 项 为 jit 的 第 1 项 加 8。
+完。
+
+JIT_推rax 接受 jit：
+    做 JIT_发射 用 jit、0x50。
+完。
+
+JIT_弹rax 接受 jit：
+    做 JIT_发射 用 jit、0x58。
+完。
+
+JIT_弹rcx 接受 jit：
+    做 JIT_发射 用 jit、0x59。
+完。
+
+JIT_载入立即 接受 jit、值：
+    做 JIT_发射 用 jit、0x48。
+    做 JIT_发射 用 jit、0xB8。
+    做 JIT_发射64 用 jit、值。
+完。
+
+JIT_加 接受 jit：
+    做 JIT_发射 用 jit、0x48。
+    做 JIT_发射 用 jit、0x01。
+    做 JIT_发射 用 jit、0xC8。
+完。
+
+JIT_减 接受 jit：
+    做 JIT_发射 用 jit、0x48。
+    做 JIT_发射 用 jit、0x29。
+    做 JIT_发射 用 jit、0xC8。
+完。
+
+JIT_乘 接受 jit：
+    做 JIT_发射 用 jit、0x48。
+    做 JIT_发射 用 jit、0x0F。
+    做 JIT_发射 用 jit、0xAF。
+    做 JIT_发射 用 jit、0xC1。
+完。
+
+JIT_除 接受 jit：
+    做 JIT_发射 用 jit、0x48。
+    做 JIT_发射 用 jit、0x99。
+    做 JIT_发射 用 jit、0x48。
+    做 JIT_发射 用 jit、0xF7。
+    做 JIT_发射 用 jit、0xF9。
+完。
+
+JIT_返回 接受 jit：
+    做 JIT_发射 用 jit、0xC3。
+完。
+
+JIT编译器_处理_PUSH_I64 接受 vm：
+    可变 值 为 0。
+    可变 i 为 0。
+    只要 i 小于 8：
+        值 为 值 加 JIT_当前字节码 的 第 JIT_当前pc 项 乘 做 幂 用 256、i。
+        JIT_当前pc 为 JIT_当前pc 加 1。
+        i 为 i 加 1。
+    完。
+    做 JIT_载入立即 用 JIT_当前jit、值。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_ADD 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_加 用 JIT_当前jit。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_SUB 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_减 用 JIT_当前jit。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_MUL 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_乘 用 JIT_当前jit。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_DIV 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x85。
+    做 JIT_发射 用 JIT_当前jit、0xC9。
+    做 JIT_发射 用 JIT_当前jit、0x75。
+    做 JIT_发射 用 JIT_当前jit、0x05。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x31。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_发射 用 JIT_当前jit、0xEB。
+    做 JIT_发射 用 JIT_当前jit、0x05。
+    做 JIT_除 用 JIT_当前jit。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_MOD 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x85。
+    做 JIT_发射 用 JIT_当前jit、0xC9。
+    做 JIT_发射 用 JIT_当前jit、0x75。
+    做 JIT_发射 用 JIT_当前jit、0x05。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x31。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_发射 用 JIT_当前jit、0xEB。
+    做 JIT_发射 用 JIT_当前jit、0x08。
+    做 JIT_除 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x89。
+    做 JIT_发射 用 JIT_当前jit、0xD0。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_NEG 接受 vm：
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0xF7。
+    做 JIT_发射 用 JIT_当前jit、0xD8。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_NOT 接受 vm：
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x85。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_发射 用 JIT_当前jit、0x0F。
+    做 JIT_发射 用 JIT_当前jit、0x94。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x0F。
+    做 JIT_发射 用 JIT_当前jit、0xB6。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_BITNOT 接受 vm：
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0xF7。
+    做 JIT_发射 用 JIT_当前jit、0xD0。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_BITAND 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x21。
+    做 JIT_发射 用 JIT_当前jit、0xC8。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_BITOR 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x09。
+    做 JIT_发射 用 JIT_当前jit、0xC8。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_BITXOR 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x31。
+    做 JIT_发射 用 JIT_当前jit、0xC8。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_SHL 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0xD3。
+    做 JIT_发射 用 JIT_当前jit、0xE0。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_SHR 接受 vm：
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0xD3。
+    做 JIT_发射 用 JIT_当前jit、0xF8。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_DUP 接受 vm：
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x8B。
+    做 JIT_发射 用 JIT_当前jit、0x04。
+    做 JIT_发射 用 JIT_当前jit、0x24。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_SWAP 接受 vm：
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_弹rcx 用 JIT_当前jit。
+    做 JIT_推rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x51。
+完。
+
+JIT编译器_处理_JMP 接受 vm：
+    目标PC 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    做 JIT_发射 用 JIT_当前jit、0xE9。
+    占位 为 JIT_当前jit 的 第 1 项。
+    做 JIT_发射32 用 JIT_当前jit、0。
+    做 追加 用 JIT_当前跳转回填表、一组：占位、目标PC。
+完。
+
+JIT编译器_处理_JMP_IF 接受 vm：
+    目标PC 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x85。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_发射 用 JIT_当前jit、0x0F。
+    做 JIT_发射 用 JIT_当前jit、0x85。
+    占位 为 JIT_当前jit 的 第 1 项。
+    做 JIT_发射32 用 JIT_当前jit、0。
+    做 追加 用 JIT_当前跳转回填表、一组：占位、目标PC。
+完。
+
+JIT编译器_处理_JMP_IFNOT 接受 vm：
+    目标PC 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x85。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_发射 用 JIT_当前jit、0x0F。
+    做 JIT_发射 用 JIT_当前jit、0x84。
+    占位 为 JIT_当前jit 的 第 1 项。
+    做 JIT_发射32 用 JIT_当前jit、0。
+    做 追加 用 JIT_当前跳转回填表、一组：占位、目标PC。
+完。
+
+JIT编译器_处理_LOAD_LOCAL 接受 vm：
+    idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    偏移 为 0 减 (idx 加 1) 乘 8。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x8B。
+    做 JIT_发射 用 JIT_当前jit、0x85。
+    做 JIT_发射32 用 JIT_当前jit、偏移。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_STORE_LOCAL 接受 vm：
+    idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    偏移 为 0 减 (idx 加 1) 乘 8。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x89。
+    做 JIT_发射 用 JIT_当前jit、0x85。
+    做 JIT_发射32 用 JIT_当前jit、偏移。
+完。
+
+JIT编译器_处理_PUSH_NIL 接受 vm：
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x31。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_PUSH_FALSE 接受 vm：
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x31。
+    做 JIT_发射 用 JIT_当前jit、0xC0。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_RETURN 接受 vm：
+    做 JIT_弹rax 用 JIT_当前jit。
+完。
+
+JIT编译器_编译块 接受 jit、字节码、起始PC、长度：
+    可变 ri 为 0。
+    若 长度 大于 jit 的 第 6 项 的 第 1 项：
+        返还 空。
+    完。
+    入口 为 jit 的 第 1 项。
+    可变 pc 为 起始PC。
+    结束 为 起始PC 加 长度。
+    JIT_当前jit 为 jit。
+    JIT_当前字节码 为 字节码。
+    JIT_当前跳转回填表 为 一组：（空）。
+    可变 PC映射 为 做 字典。
+    可变 不安全操作码数 为 0。
+    可变 已显式返回 为 假。
+    做 JIT_发射 用 jit、0x55。
+    做 JIT_发射 用 jit、0x48。
+    做 JIT_发射 用 jit、0x89。
+    做 JIT_发射 用 jit、0xE5。
+    做 JIT_发射 用 jit、0x48。
+    做 JIT_发射 用 jit、0x81。
+    做 JIT_发射 用 jit、0xEC。
+    做 JIT_发射32 用 jit、256。
+    只要 pc 小于 结束 并且 pc 小于 做 计数 用 字节码：
+        做 字典设置 用 PC映射、做 转字符串 用 pc、jit 的 第 1 项。
+        op 为 字节码 的 第 pc 项。
+        pc 为 pc 加 1。
+        JIT_当前pc 为 pc。
+        若 op 等于 指令_压入整数：
+            做 JIT编译器_处理_PUSH_I64 用 vm。
+        否则若 op 等于 指令_压入浮点：
+            做 JIT编译器_处理_PUSH_F64 用 vm。
+        否则若 op 等于 指令_加：
+            做 JIT编译器_处理_ADD 用 vm。
+        否则若 op 等于 指令_减：
+            做 JIT编译器_处理_SUB 用 vm。
+        否则若 op 等于 指令_乘：
+            做 JIT编译器_处理_MUL 用 vm。
+        否则若 op 等于 指令_除：
+            做 JIT编译器_处理_DIV 用 vm。
+        否则若 op 等于 指令_余：
+            做 JIT编译器_处理_MOD 用 vm。
+        否则若 op 等于 指令_取负：
+            做 JIT编译器_处理_NEG 用 vm。
+        否则若 op 等于 指令_非：
+            做 JIT编译器_处理_NOT 用 vm。
+        否则若 op 等于 指令_位非：
+            做 JIT编译器_处理_BITNOT 用 vm。
+        否则若 op 等于 指令_位与：
+            做 JIT编译器_处理_BITAND 用 vm。
+        否则若 op 等于 指令_位或：
+            做 JIT编译器_处理_BITOR 用 vm。
+        否则若 op 等于 指令_位异或：
+            做 JIT编译器_处理_BITXOR 用 vm。
+        否则若 op 等于 指令_左移：
+            做 JIT编译器_处理_SHL 用 vm。
+        否则若 op 等于 指令_右移：
+            做 JIT编译器_处理_SHR 用 vm。
+        否则若 op 等于 指令_复制：
+            做 JIT编译器_处理_DUP 用 vm。
+        否则若 op 等于 指令_交换：
+            做 JIT编译器_处理_SWAP 用 vm。
+        否则若 op 等于 指令_比等 或者 op 等于 指令_比不等 或者 op 等于 指令_比小 或者 op 等于 指令_比小等 或者 op 等于 指令_比大 或者 op 等于 指令_比大等：
+            做 JIT_弹rcx 用 jit。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x39。
+            做 JIT_发射 用 jit、0xC8。
+            做 JIT_发射 用 jit、0x0F。
+            若 op 等于 指令_比等：
+                做 JIT_发射 用 jit、0x94。
+            否则若 op 等于 指令_比不等：
+                做 JIT_发射 用 jit、0x95。
+            否则若 op 等于 指令_比小：
+                做 JIT_发射 用 jit、0x9C。
+            否则若 op 等于 指令_比小等：
+                做 JIT_发射 用 jit、0x9E。
+            否则若 op 等于 指令_比大：
+                做 JIT_发射 用 jit、0x9F。
+            否则：
+                做 JIT_发射 用 jit、0x9D。
+            完。
+            做 JIT_发射 用 jit、0xC0。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x0F。
+            做 JIT_发射 用 jit、0xB6。
+            做 JIT_发射 用 jit、0xC0。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_跳转：
+            做 JIT编译器_处理_JMP 用 vm。
+        否则若 op 等于 指令_真跳：
+            做 JIT编译器_处理_JMP_IF 用 vm。
+        否则若 op 等于 指令_假跳：
+            做 JIT编译器_处理_JMP_IFNOT 用 vm。
+        否则若 op 等于 指令_循环：
+            做 JIT编译器_处理_LOOP 用 vm。
+        否则若 op 等于 指令_载局部：
+            做 JIT编译器_处理_LOAD_LOCAL 用 vm。
+        否则若 op 等于 指令_存局部：
+            做 JIT编译器_处理_STORE_LOCAL 用 vm。
+        否则若 op 等于 指令_压入空：
+            做 JIT编译器_处理_PUSH_NIL 用 vm。
+        否则若 op 等于 指令_压入真：
+            做 JIT_载入立即 用 jit、1。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_压入假：
+            做 JIT编译器_处理_PUSH_FALSE 用 vm。
+        否则若 op 等于 指令_弹出：
+            做 JIT_弹rax 用 jit。
+        否则若 op 等于 指令_载全局：
+            做 JIT编译器_处理_LOAD_GLOBAL 用 vm。
+        否则若 op 等于 指令_存全局：
+            做 JIT编译器_处理_STORE_GLOBAL 用 vm。
+        否则若 op 等于 指令_调用：
+            做 JIT编译器_处理_CALL 用 vm。
+        否则若 op 等于 指令_打印：
+            做 JIT编译器_处理_PRINT 用 vm。
+        否则若 op 等于 指令_建列表：
+            做 JIT编译器_处理_NEW_LIST 用 vm。
+        否则若 op 等于 指令_返回 或者 op 等于 指令_返回空：
+            若 op 等于 指令_返回：
+                做 JIT编译器_处理_RETURN 用 vm。
+            否则：
+                做 JIT_发射 用 jit、0x48。
+                做 JIT_发射 用 jit、0x31。
+                做 JIT_发射 用 jit、0xC0。
+            完。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xEC。
+            做 JIT_发射 用 jit、0x5D。
+            做 JIT_返回 用 jit。
+            已显式返回 为 真。
+            pc 为 结束。
+            JIT_当前pc 为 pc。
+        否则若 op 等于 指令_停机：
+            pc 为 结束。
+            JIT_当前pc 为 pc。
+        否则若 op 等于 指令_取索引：
+            做 JIT_弹rcx 用 jit。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xCE。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x18。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_设索引：
+            做 JIT_发射 用 jit、0x5A。
+            做 JIT_弹rcx 用 jit。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xCE。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x20。
+        否则若 op 等于 指令_建字典：
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x10。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_长度：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x28。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_是空：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x85。
+            做 JIT_发射 用 jit、0xC0。
+            做 JIT_发射 用 jit、0x0F。
+            做 JIT_发射 用 jit、0x94。
+            做 JIT_发射 用 jit、0xC0。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x0F。
+            做 JIT_发射 用 jit、0xB6。
+            做 JIT_发射 用 jit、0xC0。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_是列表 或者 op 等于 指令_是字典 或者 op 等于 指令_是字串 或者 op 等于 指令_是整数 或者 op 等于 指令_是浮点 或者 op 等于 指令_是函数：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_载入立即 用 jit、op 减 指令_是整数。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC6。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x30。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_断言：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x85。
+            做 JIT_发射 用 jit、0xC0。
+            做 JIT_发射 用 jit、0x75。
+            做 JIT_发射 用 jit、0x01。
+            做 JIT_发射 用 jit、0xCC。
+        否则若 op 等于 指令_压入字串：
+            str_idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            pc 为 JIT_当前pc。
+            做 JIT_发射 用 jit、0xBF。
+            做 JIT_发射32 用 jit、str_idx。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x38。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_原生调用：
+            nat_idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            nat_argc 为 JIT_当前字节码 的 第 JIT_当前pc 加 2 项。
+            JIT_当前pc 为 JIT_当前pc 加 3。
+            pc 为 JIT_当前pc。
+            若 nat_argc 大于或等于 4：
+                做 JIT_弹rcx 用 jit。
+            完。
+            若 nat_argc 大于或等于 3：
+                做 JIT_发射 用 jit、0x5A。
+            完。
+            若 nat_argc 大于或等于 2：
+                做 JIT_发射 用 jit、0x5E。
+            完。
+            若 nat_argc 大于或等于 1：
+                做 JIT_发射 用 jit、0x5F。
+            完。
+            做 JIT_发射 用 jit、0x49。
+            做 JIT_发射 用 jit、0x8B。
+            做 JIT_发射 用 jit、0x84。
+            做 JIT_发射 用 jit、0x24。
+            做 JIT_发射32 用 jit、nat_idx 乘 8。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0xD0。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_尾调用：
+            tc_idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            tc_argc 为 JIT_当前字节码 的 第 JIT_当前pc 加 2 项。
+            JIT_当前pc 为 JIT_当前pc 加 3。
+            pc 为 JIT_当前pc。
+            若 tc_argc 大于或等于 6：
+                做 JIT_发射 用 jit、0x41。
+                做 JIT_发射 用 jit、0x59。
+            完。
+            若 tc_argc 大于或等于 5：
+                做 JIT_发射 用 jit、0x41。
+                做 JIT_发射 用 jit、0x58。
+            完。
+            若 tc_argc 大于或等于 4：
+                做 JIT_弹rcx 用 jit。
+            完。
+            若 tc_argc 大于或等于 3：
+                做 JIT_发射 用 jit、0x5A。
+            完。
+            若 tc_argc 大于或等于 2：
+                做 JIT_发射 用 jit、0x5E。
+            完。
+            若 tc_argc 大于或等于 1：
+                做 JIT_发射 用 jit、0x5F。
+            完。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xEC。
+            做 JIT_发射 用 jit、0x5D。
+            做 JIT_发射 用 jit、0x49。
+            做 JIT_发射 用 jit、0x8B。
+            做 JIT_发射 用 jit、0x84。
+            做 JIT_发射 用 jit、0x24。
+            做 JIT_发射32 用 jit、tc_idx 乘 8。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0xE0。
+            已显式返回 为 真。
+        否则若 op 等于 指令_载闭包：
+            uv_idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_发射 用 jit、0x49。
+            做 JIT_发射 用 jit、0x8B。
+            做 JIT_发射 用 jit、0x87。
+            做 JIT_发射32 用 jit、uv_idx 乘 8。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_存闭包：
+            uv_idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x49。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0x87。
+            做 JIT_发射32 用 jit、uv_idx 乘 8。
+        否则若 op 等于 指令_建结构：
+            字段数 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_发射 用 jit、0xBF。
+            做 JIT_发射32 用 jit、字段数。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x50。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_取字段：
+            fi 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0xBE。
+            做 JIT_发射32 用 jit、fi。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x40。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_设字段：
+            fi 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_发射 用 jit、0x5A。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0xBE。
+            做 JIT_发射32 用 jit、fi。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x48。
+        否则若 op 等于 指令_取字典：
+            做 JIT_弹rcx 用 jit。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xCE。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x58。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_设字典：
+            做 JIT_发射 用 jit、0x5A。
+            做 JIT_弹rcx 用 jit。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xCE。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x60。
+        否则若 op 等于 指令_间接调用：
+            ind_argc 为 JIT_当前字节码 的 第 JIT_当前pc 项。
+            JIT_当前pc 为 JIT_当前pc 加 1。
+            若 ind_argc 大于或等于 6：
+                做 JIT_发射 用 jit、0x41。
+                做 JIT_发射 用 jit、0x59。
+            完。
+            若 ind_argc 大于或等于 5：
+                做 JIT_发射 用 jit、0x41。
+                做 JIT_发射 用 jit、0x58。
+            完。
+            若 ind_argc 大于或等于 4：
+                做 JIT_弹rcx 用 jit。
+            完。
+            若 ind_argc 大于或等于 3：
+                做 JIT_发射 用 jit、0x5A。
+            完。
+            若 ind_argc 大于或等于 2：
+                做 JIT_发射 用 jit、0x5E。
+            完。
+            若 ind_argc 大于或等于 1：
+                做 JIT_发射 用 jit、0x5F。
+            完。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0xD0。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_外部调用：
+            ffi_idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            ffi_argc 为 JIT_当前字节码 的 第 JIT_当前pc 加 2 项。
+            JIT_当前pc 为 JIT_当前pc 加 3。
+            若 ffi_argc 大于或等于 4：
+                做 JIT_弹rcx 用 jit。
+            完。
+            若 ffi_argc 大于或等于 3：
+                做 JIT_发射 用 jit、0x5A。
+            完。
+            若 ffi_argc 大于或等于 2：
+                做 JIT_发射 用 jit、0x5E。
+            完。
+            若 ffi_argc 大于或等于 1：
+                做 JIT_发射 用 jit、0x5F。
+            完。
+            做 JIT_发射 用 jit、0x49。
+            做 JIT_发射 用 jit、0x8B。
+            做 JIT_发射 用 jit、0x84。
+            做 JIT_发射 用 jit、0x24。
+            做 JIT_发射32 用 jit、(ffi_idx 加 4096) 乘 8。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0xD0。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_闭包：
+            cl_idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_发射 用 jit、0xBF。
+            做 JIT_发射32 用 jit、cl_idx。
+            做 JIT_发射 用 jit、0x4C。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xFE。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x68。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_让出：
+            做 JIT_载入立即 用 jit、pc。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xEC。
+            做 JIT_发射 用 jit、0x5D。
+            做 JIT_返回 用 jit。
+        否则若 op 等于 指令_恢复：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x70。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_类型检查：
+            tc_typeid 为 JIT_当前字节码 的 第 JIT_当前pc 项。
+            JIT_当前pc 为 JIT_当前pc 加 1。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_载入立即 用 jit、tc_typeid。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC6。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x30。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_类型转换：
+            cast_type 为 JIT_当前字节码 的 第 JIT_当前pc 项。
+            JIT_当前pc 为 JIT_当前pc 加 1。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_载入立即 用 jit、cast_type。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC6。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x55。
+            做 JIT_发射 用 jit、0x78。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_转整数：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x95。
+            做 JIT_发射32 用 jit、0x80。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_转浮点：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x95。
+            做 JIT_发射32 用 jit、0x88。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_转字串：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x95。
+            做 JIT_发射32 用 jit、0x90。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_尝试：
+            catch_pc 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_发射 用 jit、0x49。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xE6。
+            做 JIT_载入立即 用 jit、catch_pc。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_捕获：
+            做 JIT_发射 用 jit、0x4C。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xF4。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_抛出：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x95。
+            做 JIT_发射32 用 jit、0x98。
+        否则若 op 等于 指令_导入：
+            mod_idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_发射 用 jit、0xBF。
+            做 JIT_发射32 用 jit、mod_idx。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x95。
+            做 JIT_发射32 用 jit、0xA0。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_断点：
+            做 JIT_发射 用 jit、0xCC。
+        否则若 op 等于 指令_即时编译入 或者 op 等于 指令_即时编译出：
+        否则若 op 等于 指令_匹配：
+            分支数 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_载入立即 用 jit、分支数。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC6。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x95。
+            做 JIT_发射32 用 jit、0xA8。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_遍历：
+            结束跳转 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+            JIT_当前pc 为 JIT_当前pc 加 2。
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x95。
+            做 JIT_发射32 用 jit、0xB0。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x85。
+            做 JIT_发射 用 jit、0xC0。
+            做 JIT_发射 用 jit、0x0F。
+            做 JIT_发射 用 jit、0x84。
+            fe_占位 为 jit 的 第 1 项。
+            做 JIT_发射32 用 jit、0。
+            做 追加 用 JIT_当前跳转回填表、一组：fe_占位、结束跳转。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_展开：
+            做 JIT_弹rax 用 jit。
+            做 JIT_发射 用 jit、0x48。
+            做 JIT_发射 用 jit、0x89。
+            做 JIT_发射 用 jit、0xC7。
+            做 JIT_发射 用 jit、0x41。
+            做 JIT_发射 用 jit、0xFF。
+            做 JIT_发射 用 jit、0x95。
+            做 JIT_发射32 用 jit、0xB8。
+            做 JIT_推rax 用 jit。
+        否则若 op 等于 指令_空操作 或者 op 等于 指令_热点计 或者 op 等于 指令_行号：
+            大小 为 做 Nova指令_操作数大小 用 op。
+            pc 为 pc 加 大小。
+        否则：
+            做 JIT_发射 用 jit、0xCC。
+            不安全操作码数 为 不安全操作码数 加 1。
+            大小 为 做 Nova指令_操作数大小 用 op。
+            pc 为 pc 加 大小。
+        完。
+        pc 为 JIT_当前pc。
+    完。
+    做 字典设置 用 PC映射、做 转字符串 用 pc、jit 的 第 1 项。
+    若 已显式返回 等于 假：
+        做 JIT_发射 用 jit、0x48。
+        做 JIT_发射 用 jit、0x89。
+        做 JIT_发射 用 jit、0xEC。
+        做 JIT_发射 用 jit、0x5D。
+        做 JIT_返回 用 jit。
+    完。
+    只要 ri 小于 做 计数 用 JIT_当前跳转回填表：
+        条目 为 JIT_当前跳转回填表 的 第 ri 项。
+        占位位置 为 条目 的 第 0 项。
+        目标字节码PC 为 条目 的 第 1 项。
+        目标机器码 为 做 字典获取 用 PC映射、做 转字符串 用 目标字节码PC。
+        若 目标机器码 不等于 空：
+            偏移值 为 目标机器码 减 (占位位置 加 4)。
+            做 缓冲写32 用 jit 的 第 0 项、占位位置、偏移值。
+        完。
+        ri 为 ri 加 1。
+    完。
+    机器码大小 为 jit 的 第 1 项 减 入口。
+    jit 的 第 5 项 的 第 0 项 为 jit 的 第 5 项 的 第 0 项 加 1。
+    jit 的 第 5 项 的 第 1 项 为 jit 的 第 5 项 的 第 1 项 加 长度。
+    jit 的 第 5 项 的 第 2 项 为 jit 的 第 5 项 的 第 2 项 加 机器码大小。
+    返还 一组：入口、机器码大小、不安全操作码数。
+完。
+
+JIT编译器_使用率 接受 jit：
+    若 jit 的 第 6 项 的 第 0 项 等于 0：
+        返还 0。
+    完。
+    返还 jit 的 第 1 项 乘 100 除以 jit 的 第 6 项 的 第 0 项。
+完。
+
+执行缓冲码 接受 缓冲区、入口偏移：
+    返还 做 __即时编译_执行 用 缓冲区、入口偏移。
+完。
+
+外部。
+
+__即时编译_执行。
+
+JIT_记录编译 接受 字节数：
+    JIT_统计表 的 第 0 项 为 JIT_统计表 的 第 0 项 加 1。
+    JIT_统计表 的 第 1 项 为 JIT_统计表 的 第 1 项 加 字节数。
+完。
+
+JIT_效率评估 接受 零参：
+    若 JIT_统计表 的 第 0 项 等于 0：
+        返还 「无编译记录」。
+    完。
+    平均 为 JIT_统计表 的 第 1 项 除以 JIT_统计表 的 第 0 项。
+    若 平均 小于 64：
+        返还 「紧凑(高效)」。
+    完。
+    若 平均 小于 256：
+        返还 「ok」。
+    完。
+    返还 「膨胀(需优化)」。
+完。
+
+JIT编译器_处理_PUSH_F64 接受 vm：
+    可变 值 为 0。
+    可变 i 为 0。
+    只要 i 小于 8：
+        值 为 值 加 JIT_当前字节码 的 第 JIT_当前pc 项 乘 做 幂 用 256、i。
+        JIT_当前pc 为 JIT_当前pc 加 1。
+        i 为 i 加 1。
+    完。
+    做 JIT_载入立即 用 JIT_当前jit、值。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_LOOP 接受 vm：
+    目标PC 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    做 JIT_发射 用 JIT_当前jit、0xE9。
+    占位 为 JIT_当前jit 的 第 1 项。
+    做 JIT_发射32 用 JIT_当前jit、0。
+    做 追加 用 JIT_当前跳转回填表、一组：占位、目标PC。
+完。
+
+JIT编译器_处理_LOAD_GLOBAL 接受 vm：
+    idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x8B。
+    做 JIT_发射 用 JIT_当前jit、0x83。
+    做 JIT_发射32 用 JIT_当前jit、idx 乘 8。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_STORE_GLOBAL 接受 vm：
+    idx 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x89。
+    做 JIT_发射 用 JIT_当前jit、0x83。
+    做 JIT_发射32 用 JIT_当前jit、idx 乘 8。
+完。
+
+JIT编译器_处理_CALL 接受 vm：
+    函数索引 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    参数数 为 JIT_当前字节码 的 第 JIT_当前pc 加 2 项。
+    JIT_当前pc 为 JIT_当前pc 加 3。
+    若 参数数 大于或等于 6：
+        做 JIT_发射 用 JIT_当前jit、0x41。
+        做 JIT_发射 用 JIT_当前jit、0x59。
+    完。
+    若 参数数 大于或等于 5：
+        做 JIT_发射 用 JIT_当前jit、0x41。
+        做 JIT_发射 用 JIT_当前jit、0x58。
+    完。
+    若 参数数 大于或等于 4：
+        做 JIT_弹rcx 用 JIT_当前jit。
+    完。
+    若 参数数 大于或等于 3：
+        做 JIT_发射 用 JIT_当前jit、0x5A。
+    完。
+    若 参数数 大于或等于 2：
+        做 JIT_发射 用 JIT_当前jit、0x5E。
+    完。
+    若 参数数 大于或等于 1：
+        做 JIT_发射 用 JIT_当前jit、0x5F。
+    完。
+    做 JIT_发射 用 JIT_当前jit、0x49。
+    做 JIT_发射 用 JIT_当前jit、0x8B。
+    做 JIT_发射 用 JIT_当前jit、0x84。
+    做 JIT_发射 用 JIT_当前jit、0x24。
+    做 JIT_发射32 用 JIT_当前jit、函数索引 乘 8。
+    做 JIT_发射 用 JIT_当前jit、0xFF。
+    做 JIT_发射 用 JIT_当前jit、0xD0。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+JIT编译器_处理_PRINT 接受 vm：
+    做 JIT_弹rax 用 JIT_当前jit。
+    做 JIT_发射 用 JIT_当前jit、0x48。
+    做 JIT_发射 用 JIT_当前jit、0x89。
+    做 JIT_发射 用 JIT_当前jit、0xC7。
+    做 JIT_发射 用 JIT_当前jit、0x41。
+    做 JIT_发射 用 JIT_当前jit、0xFF。
+    做 JIT_发射 用 JIT_当前jit、0x55。
+    做 JIT_发射 用 JIT_当前jit、0x00。
+完。
+
+JIT编译器_处理_NEW_LIST 接受 vm：
+    元素数 为 JIT_当前字节码 的 第 JIT_当前pc 项 加 JIT_当前字节码 的 第 JIT_当前pc 加 1 项 乘 256。
+    JIT_当前pc 为 JIT_当前pc 加 2。
+    做 JIT_发射 用 JIT_当前jit、0xBF。
+    做 JIT_发射32 用 JIT_当前jit、元素数。
+    做 JIT_发射 用 JIT_当前jit、0x41。
+    做 JIT_发射 用 JIT_当前jit、0xFF。
+    做 JIT_发射 用 JIT_当前jit、0x55。
+    做 JIT_发射 用 JIT_当前jit、0x08。
+    做 JIT_推rax 用 JIT_当前jit。
+完。
+
+可变 _AOT_已编译 为 假。
+
+可变 _AOT_入口偏移 为 0。
+
+可变 _AOT_代码大小 为 0。
+
+可变 _AOT_函数数 为 0。
+
+AOT_编译全部 接受 jit、函数表、字节码表：
+    可变 成功数 为 0。
+    若 jit 等于 空 或者 函数表 等于 空：
+        返还 假。
+    完。
+    所有键 为 做 字典键 用 函数表。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 所有键：
+        函数名 为 所有键 的 第 i 项。
+        偏移信息 为 做 字典取 用 函数表、函数名。
+        若 偏移信息 不等于 空 并且 做 是列表 用 偏移信息 等于 真 并且 做 计数 用 偏移信息 大于或等于 2：
+            起始 为 偏移信息 的 第 0 项。
+            长度 为 偏移信息 的 第 1 项。
+            若 长度 大于 0 并且 长度 小于 JIT_配置表 的 第 1 项：
+                结果 为 做 JIT编译器_编译块 用 jit、字节码表、起始、长度。
+                若 结果 不等于 空 并且 结果 的 第 2 项 等于 0：
+                    做 字典设 用 jit 的 第 2 项、函数名、一组：结果 的 第 0 项、结果 的 第 1 项。
+                    成功数 为 成功数 加 1。
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    _AOT_已编译 为 真。
+    _AOT_函数数 为 成功数。
+    _AOT_代码大小 为 jit 的 第 1 项。
+    返还 真。
+完。
+
+AOT_已编译 接受 零参：
+    返还 _AOT_已编译。
+完。
+
+AOT_函数数 接受 零参：
+    返还 _AOT_函数数。
+完。
+
+AOT_代码大小 接受 零参：
+    返还 _AOT_代码大小。
+完。
+
+AOT_查找并执行 接受 jit、函数名：
+    若 jit 等于 空：
+        返还 空。
+    完。
+    记录 为 做 字典取 用 jit 的 第 2 项、函数名。
+    若 记录 等于 空：
+        返还 空。
+    完。
+    返还 做 执行缓冲码 用 jit 的 第 0 项、记录 的 第 0 项。
+完。
+
+AOT_报告 接受 零参：
+    可变 r 为 做 字典。
+    做 字典设 用 r、「compiled」、做 转字符串 用 _AOT_已编译。
+    做 字典设 用 r、「函数数」、做 转字符串 用 _AOT_函数数。
+    做 字典设 用 r、「代码大小」、做 转字符串 用 _AOT_代码大小。
+    返还 r。
+完。
+
+执行路径_AOT 为 1。
+
+执行路径_JIT 为 2。
+
+执行路径_解释 为 3。
+
+可变 _当前执行路径 为 执行路径_解释。
+
+可变 _执行路径统计 为 一组：0、0、0。
+
+执行路径_设置 接受 路径：
+    _当前执行路径 为 路径。
+完。
+
+执行路径_获取 接受 零参：
+    返还 _当前执行路径。
+完。
+
+执行路径名 接受 p：
+    若 p 等于 执行路径_AOT：
+        返还 「AOT-production」。
+    完。
+    若 p 等于 执行路径_JIT：
+        返还 「JIT-hotspot」。
+    完。
+    若 p 等于 执行路径_解释：
+        返还 「Interpreter-debug」。
+    完。
+    返还 「unknown」。
+完。
+
+执行路径_记录调用 接受 路径：
+    若 路径 等于 执行路径_AOT：
+        _执行路径统计 的 第 0 项 为 _执行路径统计 的 第 0 项 加 1。
+    完。
+    若 路径 等于 执行路径_JIT：
+        _执行路径统计 的 第 1 项 为 _执行路径统计 的 第 1 项 加 1。
+    完。
+    若 路径 等于 执行路径_解释：
+        _执行路径统计 的 第 2 项 为 _执行路径统计 的 第 2 项 加 1。
+    完。
+完。
+
+可变 _JIT覆盖_总opcode 为 86。
+
+可变 _JIT覆盖_已实现 为 86。
+
+JIT覆盖_设置 接受 总数、已实现：
+    _JIT覆盖_总opcode 为 总数。
+    _JIT覆盖_已实现 为 已实现。
+完。
+
+JIT覆盖率 接受 零参：
+    若 _JIT覆盖_总opcode 等于 0：
+        返还 0。
+    完。
+    返还 _JIT覆盖_已实现 乘 100 除以 _JIT覆盖_总opcode。
+完。
+
+性能路径_报告 接受 零参：
+    可变 r 为 做 字典。
+    做 字典设 用 r、「当前路径」、做 执行路径名 用 _当前执行路径。
+    做 字典设 用 r、「AOT调用数」、做 转字符串 用 _执行路径统计 的 第 0 项。
+    做 字典设 用 r、「JIT调用数」、做 转字符串 用 _执行路径统计 的 第 1 项。
+    做 字典设 用 r、「解释调用数」、做 转字符串 用 _执行路径统计 的 第 2 项。
+    做 字典设 用 r、「JIT覆盖率」、做 字符串拼接 用 做 转字符串 用 做 JIT覆盖率、「%」。
+    做 字典设 用 r、「JIT已实现」、做 转字符串 用 _JIT覆盖_已实现。
+    做 字典设 用 r、「JIT总opcode」、做 转字符串 用 _JIT覆盖_总opcode。
+    做 字典设 用 r、「AOT已编译」、做 转字符串 用 _AOT_已编译。
+    做 字典设 用 r、「AOT函数数」、做 转字符串 用 _AOT_函数数。
+    做 字典设 用 r、「AOT代码大小」、做 转字符串 用 _AOT_代码大小。
+    返还 r。
+完。
+
+性能路径_打印报告 接受 零参：
+    r 为 做 性能路径_报告。
+    做 打印文本 用 做 字符串拼接 用 「[PERF-REPORT] 路径=」、做 字符串拼接 用 做 字典取 用 r、「当前路径」、做 字符串拼接 用 「 JIT覆盖=」、做 字符串拼接 用 做 字典取 用 r、「JIT覆盖率」、做 字符串拼接 用 「 AOT=」、做 字符串拼接 用 做 字典取 用 r、「AOT已编译」、做 字符串拼接 用 「/」、做 字典取 用 r、「AOT函数数」。
+完。
+
+性能_报告 接受 零参：
+    返还 做 性能路径_报告。
+完。
+
+即时编译_覆盖率报告 接受 零参：
+    r 为 做 字典。
+    做 字典设 用 r、「总opcode」、做 转字符串 用 _JIT覆盖_总opcode。
+    做 字典设 用 r、「已实现opcode」、做 转字符串 用 _JIT覆盖_已实现。
+    做 字典设 用 r、「覆盖率%」、做 转字符串 用 做 JIT覆盖率。
+    做 字典设 用 r、「未知opcode处理」、「INT3陷阱」。
+    做 字典设 用 r、「已覆盖」、「全部86条基础指令: 运算23+内存15+分支10+调用10+类型15+特殊13」。
+    返还 r。
+完。
+
+提前编译_执行报告 接受 零参：
+    r 为 做 字典。
+    做 字典设 用 r、「AOT已编译」、做 转字符串 用 _AOT_已编译。
+    做 字典设 用 r、「AOT函数数」、做 转字符串 用 _AOT_函数数。
+    做 字典设 用 r、「AOT代码大小」、做 转字符串 用 _AOT_代码大小。
+    做 字典设 用 r、「编译策略」、「全量预编译」。
+    做 字典设 用 r、「回退策略」、「AOT自动编译→JIT热路径→解释器三级降级」。
+    返还 r。
+完。
+
+本章 收束。

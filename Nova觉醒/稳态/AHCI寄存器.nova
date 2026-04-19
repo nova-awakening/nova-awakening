@@ -1,0 +1,97 @@
+《AHCI寄存器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+AHCI_CAP 为 0x00。
+
+AHCI_GHC 为 0x04。
+
+AHCI_IS 为 0x08。
+
+AHCI_PI 为 0x0C。
+
+AHCI_VS 为 0x10。
+
+AHCI_CAP2 为 0x24。
+
+PORT_CLB 为 0x00。
+
+PORT_CLBU 为 0x04。
+
+PORT_FB 为 0x08。
+
+PORT_FBU 为 0x0C。
+
+PORT_IS 为 0x10。
+
+PORT_IE 为 0x14。
+
+PORT_CMD 为 0x18。
+
+PORT_TFD 为 0x20。
+
+PORT_SIG 为 0x24。
+
+PORT_SSTS 为 0x28。
+
+PORT_SCTL 为 0x2C。
+
+PORT_SERR 为 0x30。
+
+PORT_SACT 为 0x34。
+
+PORT_CI 为 0x38。
+
+PORT_CMD_ST 为 0x0001。
+
+PORT_CMD_SUD 为 0x0002。
+
+PORT_CMD_POD 为 0x0004。
+
+PORT_CMD_FRE 为 0x0010。
+
+PORT_CMD_FR 为 0x4000。
+
+PORT_CMD_CR 为 0x8000。
+
+SATA_SIG_ATA 为 0x00000101。
+
+SATA_SIG_AT接口 为 0xEB140101。
+
+SATA_SIG_PM 为 0x96690101。
+
+ATA_CMD_READ_直传_EXT 为 0x25。
+
+ATA_CMD_WRITE_直传_EXT 为 0x35。
+
+ATA_CMD_IDENTIFY 为 0xEC。
+
+ATA_CMD_IDENTIFY_PACKET 为 0xA1。
+
+ATA_CMD_FLUSH_CACHE_EXT 为 0xEA。
+
+ATA_CMD_SET_FEATURES 为 0xEF。
+
+FIS_TYPE_REG_H2D 为 0x27。
+
+FIS_TYPE_REG_D2H 为 0x34。
+
+FIS_TYPE_直传_SETUP 为 0x41。
+
+FIS_TYPE_DATA 为 0x46。
+
+FIS_TYPE_PIO_SETUP 为 0x5F。
+
+AHCI控制器 是 一种 事物，含 MMIO基址、端口数、命令槽数、版本、端口实现位图、支持64位、支持NCQ、设备列表。
+
+AHCI端口 是 一种 事物，含 端口号、控制器、端口基址、命令列表、FIS接收区、命令表、设备类型、已连接、设备信息。
+
+SATA设备信息 是 一种 事物，含 型号、序列号、固件版本、扇区数、扇区大小、支持NCQ、支持TRIM、支持48位LBA、转速。
+
+AHCI命令头 是 一种 事物，含 描述、PRDBC、CTBA、CTBAU、保留、保留2。
+
+PRDT条目 是 一种 事物，含 DBA、DBAU、保留、DBC。
+
+本章 收束。

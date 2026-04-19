@@ -1,0 +1,273 @@
+《网络过滤》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·中枢·链表后继》。
+
+引用《.·网络缓冲读》。
+
+引用《.·网缓冲分配》。
+
+NF_INET_PRE_ROUTING 为 0。
+
+NF_INET_LOCAL_IN 为 1。
+
+NF_INET_FORWARD 为 2。
+
+NF_INET_LOCAL_OUT 为 3。
+
+NF_INET_POST_ROUTING 为 4。
+
+NF_INET_NUMHOOKS 为 5。
+
+NF_DROP 为 0。
+
+NF_ACCEPT 为 1。
+
+NF_STOLEN 为 2。
+
+NF_QUEUE 为 3。
+
+NF_REPEAT 为 4。
+
+NFPROTO_IPV4 为 2。
+
+NFPROTO_IPV6 为 10。
+
+nf_hook_ops 是 一种 事物，含 回调、协议族、hook点、优先级、数据。
+
+可变 nf_hooks 为 一组：（空）。
+
+可变 nf_规则总数 为 0。
+
+可变 nf_通过数 为 0。
+
+可变 nf_丢弃数 为 0。
+
+netfilter_初始化 接受 零参：
+    nf_hooks 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 NF_INET_NUMHOOKS：
+        做 追加 用 nf_hooks、一组：（空）。
+        i 为 i 加 1。
+    完。
+    做 内核信息 用 「netfilter: 初始化 (5个hook点: PRE/IN/FWD/OUT/POST)」。
+完。
+
+nf_register_hook 接受 ops：
+    若 ops 的 hook点 大于或等于 NF_INET_NUMHOOKS：
+        返还 错误_无效参数。
+    完。
+    链 为 nf_hooks 的 第 ops 的 hook点 项。
+    做 追加 用 链、ops。
+    nf_规则总数 为 nf_规则总数 加 1。
+    返还 成功。
+完。
+
+nf_unregister_hook 接受 ops：
+    若 ops 的 hook点 大于或等于 NF_INET_NUMHOOKS：
+        返还 错误_无效参数。
+    完。
+    链 为 nf_hooks 的 第 ops 的 hook点 项。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 链：
+        若 链 的 第 i 项 等于 ops：
+            做 链表_删除 用 链、i。
+            nf_规则总数 为 nf_规则总数 减 1。
+            返还 成功。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 错误_不存在。
+完。
+
+nf_hook 接受 hook点、Nova缓冲：
+    若 hook点 大于或等于 NF_INET_NUMHOOKS：
+        返还 NF_ACCEPT。
+    完。
+    链 为 nf_hooks 的 第 hook点 项。
+    若 做 计数 用 链 等于 0：
+        返还 NF_ACCEPT。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 链：
+        ops 为 链 的 第 i 项。
+        若 ops 的 回调 不等于 空：
+            verdict 为 做 ops 的 回调 用 hook点、Nova缓冲、空、空、空。
+            若 verdict 等于 NF_DROP：
+                nf_丢弃数 为 nf_丢弃数 加 1。
+                返还 NF_DROP。
+            完。
+            若 verdict 等于 NF_STOLEN：
+                返还 NF_STOLEN。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    nf_通过数 为 nf_通过数 加 1。
+    返还 NF_ACCEPT。
+完。
+
+防火墙规则 是 一种 事物，含 源IP、目标IP、源端口、目标端口、协议、动作。
+
+可变 防火墙规则表 为 一组：（空）。
+
+防火墙_添加规则 接受 规则：
+    做 追加 用 防火墙规则表、规则。
+完。
+
+防火墙_匹配 接受 Nova缓冲：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 防火墙规则表：
+        规则 为 防火墙规则表 的 第 i 项。
+        若 规则 的 源IP 等于 0 或者 规则 的 源IP 等于 做 Nova缓冲_源IP 用 Nova缓冲：
+            若 规则 的 目标IP 等于 0 或者 规则 的 目标IP 等于 做 Nova缓冲_目标IP 用 Nova缓冲：
+                返还 规则 的 动作。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 NF_ACCEPT。
+完。
+
+Nova缓冲_源IP 接受 Nova缓冲：
+    若 Nova缓冲 等于 空：
+        返还 0。
+    完。
+    返还 做 Nova缓冲_读32 用 Nova缓冲、12。
+完。
+
+Nova缓冲_目标IP 接受 Nova缓冲：
+    若 Nova缓冲 等于 空：
+        返还 0。
+    完。
+    返还 做 Nova缓冲_读32 用 Nova缓冲、16。
+完。
+
+netfilter_统计 接受 零参：
+    返还 一组：nf_规则总数、nf_通过数、nf_丢弃数。
+完。
+
+nf_hook_名称 接受 hook点：
+    若 hook点 等于 NF_INET_PRE_ROUTING：
+        返还 「PREROUTING」。
+    完。
+    若 hook点 等于 NF_INET_LOCAL_IN：
+        返还 「INPUT」。
+    完。
+    若 hook点 等于 NF_INET_FORWARD：
+        返还 「FORWARD」。
+    完。
+    若 hook点 等于 NF_INET_LOCAL_OUT：
+        返还 「OUTPUT」。
+    完。
+    若 hook点 等于 NF_INET_POST_ROUTING：
+        返还 「POSTROUTING」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+可变 nf_默认策略 为 NF_ACCEPT。
+
+netfilter_设置默认策略 接受 策略：
+    nf_默认策略 为 策略。
+完。
+
+防火墙_清除全部 接受 零参：
+    防火墙规则表 为 一组：（空）。
+完。
+
+防火墙_规则数 接受 零参：
+    返还 做 计数 用 防火墙规则表。
+完。
+
+防火墙_匹配_完整 接受 Nova缓冲：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 防火墙规则表：
+        规则 为 防火墙规则表 的 第 i 项。
+        可变 匹配 为 真。
+        若 规则 的 源IP 不等于 0 并且 规则 的 源IP 不等于 做 Nova缓冲_源IP 用 Nova缓冲：
+            匹配 为 假。
+        完。
+        若 规则 的 目标IP 不等于 0 并且 规则 的 目标IP 不等于 做 Nova缓冲_目标IP 用 Nova缓冲：
+            匹配 为 假。
+        完。
+        若 规则 的 协议 不等于 0 并且 规则 的 协议 不等于 做 Nova缓冲_协议 用 Nova缓冲：
+            匹配 为 假。
+        完。
+        若 匹配：
+            返还 规则 的 动作。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 nf_默认策略。
+完。
+
+netfilter_Nova缓冲_协议 接受 Nova缓冲：
+    若 Nova缓冲 等于 空：
+        返还 0。
+    完。
+    返还 做 Nova缓冲_读8 用 Nova缓冲、9。
+完。
+
+netfilter_完整统计 接受 零参：
+    返还 一组：nf_规则总数、nf_通过数、nf_丢弃数、做 计数 用 防火墙规则表、nf_默认策略。
+完。
+
+nf_判定名称 接受 判定：
+    若 判定 等于 NF_DROP：
+        返还 「DROP」。
+    完。
+    若 判定 等于 NF_ACCEPT：
+        返还 「ACCEPT」。
+    完。
+    若 判定 等于 NF_STOLEN：
+        返还 「STOLEN」。
+    完。
+    若 判定 等于 NF_QUEUE：
+        返还 「QUEUE」。
+    完。
+    若 判定 等于 NF_REPEAT：
+        返还 「REPEAT」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+nf_丢弃率 接受 零参：
+    总 为 nf_通过数 加 nf_丢弃数。
+    若 总 等于 0：
+        返还 0。
+    完。
+    返还 nf_丢弃数 乘 100 除以 总。
+完。
+
+可变 AI_网络过滤_带宽估计 为 0。
+
+可变 AI_网络过滤_丢包窗口 为 一组：（空）。
+
+AI_网络过滤_带宽预测 接受 发送字节、耗时毫秒：
+    若 耗时毫秒 等于 0：
+        返还 AI_网络过滤_带宽估计。
+    完。
+    当前 为 发送字节 乘 1000 除以 耗时毫秒。
+    AI_网络过滤_带宽估计 为 AI_网络过滤_带宽估计 乘 700 除以 1000 加 当前 乘 300 除以 1000。
+    返还 AI_网络过滤_带宽估计。
+完。
+
+AI_网络过滤_拥塞建议 接受 丢包率：
+    做 追加 用 AI_网络过滤_丢包窗口、丢包率。
+    若 做 计数 用 AI_网络过滤_丢包窗口 大于 10：
+        做 列表_移除 用 AI_网络过滤_丢包窗口、0。
+    完。
+    若 丢包率 大于 50：
+        返还 「减半窗口」。
+    完。
+    若 丢包率 小于 5：
+        返还 「增大窗口」。
+    完。
+    返还 「保持」。
+完。
+
+本章 收束。

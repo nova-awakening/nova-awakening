@@ -1,0 +1,329 @@
+《跳过不参与布》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·日志中枢》。
+
+引用《..·中枢·公共智能》。
+
+引用《..·引导·引导加载器》。
+
+引用《.·图绘渲染上下》。
+
+引用《.·弹性布局深度》。
+
+定位_静态 为 0。
+
+定位_相对 为 1。
+
+定位_绝对 为 2。
+
+定位_固定 为 3。
+
+定位_粘性 为 4。
+
+可变 块级布局_总次数 为 0。
+
+可变 块级布局_浮动处理 为 0。
+
+可变 块级布局_margin折叠 为 0。
+
+布局块级Flow_布局 接受 layout、包含块宽、包含块高：
+    若 layout 等于 0：
+        返还。
+    完。
+    块级布局_总次数 为 块级布局_总次数 加 1。
+    可变 左浮动边界 为 0。
+    可变 右浮动边界 为 包含块宽。
+    可变 左浮动底部 为 0。
+    可变 右浮动底部 为 0。
+    可变 上一个margin_bottom 为 0。
+    可变 是第一个子 为 真。
+    可变 当前Y 为 0。
+    内容x 为 layout 的 padding_left 加 layout 的 border_left。
+    内容y_起始 为 layout 的 padding_top 加 layout 的 border_top。
+    当前Y 为 内容y_起始。
+    可变 子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        子style 为 子 的 样式。
+        若 子style 不等于 0 并且 子style 的 display 等于 0：
+            子 为 子 的 后一兄弟布局。
+            继续。
+        完。
+        若 子style 不等于 0 并且 (子style 的 position 等于 定位_绝对 或者 子style 的 position 等于 定位_固定)：
+            子 为 子 的 后一兄弟布局。
+            继续。
+        完。
+        做 布局Box_计算盒模型 用 子、包含块宽、包含块高。
+        若 子style 不等于 0 并且 子style 的 float_type 不等于 0：
+            做 布局块级Flow_布局浮动 用 layout、子、包含块宽、左浮动边界、右浮动边界、左浮动底部、右浮动底部、当前Y。
+            若 子style 的 float_type 等于 1：
+                左浮动边界 为 子 的 x 加 子 的 宽度 加 子 的 margin_right 加 子 的 border_right 加 子 的 padding_right。
+                若 子 的 y 加 子 的 高度 大于 左浮动底部：
+                    左浮动底部 为 子 的 y 加 子 的 高度 加 子 的 margin_bottom。
+                完。
+            否则：
+                右浮动边界 为 子 的 x 减 子 的 margin_left。
+                若 子 的 y 加 子 的 高度 大于 右浮动底部：
+                    右浮动底部 为 子 的 y 加 子 的 高度 加 子 的 margin_bottom。
+                完。
+            完。
+            子 为 子 的 后一兄弟布局。
+            继续。
+        完。
+        若 子style 不等于 0 并且 子style 的 clear 不等于 0：
+            若 子style 的 clear 等于 1 或者 子style 的 clear 等于 3：
+                若 当前Y 小于 左浮动底部：
+                    当前Y 为 左浮动底部。
+                完。
+            完。
+            若 子style 的 clear 等于 2 或者 子style 的 clear 等于 3：
+                若 当前Y 小于 右浮动底部：
+                    当前Y 为 右浮动底部。
+                完。
+            完。
+        完。
+        子margin_top 为 子 的 margin_top。
+        若 子margin_top 小于 0：
+            子margin_top 为 0。
+        完。
+        可变 折叠后margin 为 0。
+        若 是第一个子：
+            若 layout 的 border_top 等于 0 并且 layout 的 padding_top 等于 0 并且 非 做 布局块级Flow_建立BFC 用 layout：
+                父margin 为 layout 的 margin_top。
+                若 父margin 小于 0：
+                    父margin 为 0。
+                完。
+                若 子margin_top 大于 父margin：
+                    layout 的 margin_top 为 子margin_top。
+                完。
+                折叠后margin 为 0。
+            否则：
+                折叠后margin 为 子margin_top。
+            完。
+            是第一个子 为 假。
+        否则：
+            折叠后margin 为 做 布局块级Flow_折叠margin 用 上一个margin_bottom、子margin_top。
+        完。
+        当前Y 为 当前Y 加 折叠后margin。
+        可用宽度 为 右浮动边界 减 左浮动边界。
+        若 当前Y 小于 左浮动底部 或者 当前Y 小于 右浮动底部：
+        否则：
+            可用宽度 为 包含块宽 减 内容x 乘 2。
+        完。
+        若 子 的 宽度 小于或等于 0 或者 子style 的 width_auto：
+            子 的 宽度 为 可用宽度 减 子 的 margin_left 减 子 的 margin_right 减 子 的 border_left 减 子 的 border_right 减 子 的 padding_left 减 子 的 padding_right。
+            若 子 的 宽度 小于 0：
+                子 的 宽度 为 0。
+            完。
+        完。
+        若 子style 不等于 0：
+            若 子style 的 min_width 大于 0 并且 子 的 宽度 小于 子style 的 min_width：
+                子 的 宽度 为 子style 的 min_width。
+            完。
+            若 子style 的 max_width 大于 0 并且 子style 的 max_width 不等于 负 1 并且 子 的 宽度 大于 子style 的 max_width：
+                子 的 宽度 为 子style 的 max_width。
+            完。
+        完。
+        可变 子X 为 内容x 加 子 的 margin_left 加 子 的 border_left 加 子 的 padding_left。
+        若 子style 不等于 0 并且 子style 的 margin_left_auto 并且 子style 的 margin_right_auto：
+            剩余 为 可用宽度 减 子 的 宽度。
+            若 剩余 大于 0：
+                子X 为 内容x 加 剩余 除以 2。
+            完。
+        完。
+        子 的 x 为 layout 的 x 加 子X。
+        子 的 y 为 layout 的 y 加 当前Y。
+        若 子style 不等于 0 并且 子style 的 display_flex：
+            做 布局弹性_入口 用 子。
+        否则若 子 的 第一子 不等于 0：
+            做 布局块级Flow_布局 用 子、子 的 宽度、子 的 高度。
+        完。
+        若 子 的 高度 小于或等于 0 或者 子style 的 height_auto：
+            子 的 高度 为 做 布局块级Flow_计算内容高度 用 子。
+        完。
+        若 子style 不等于 0：
+            若 子style 的 min_height 大于 0 并且 子 的 高度 小于 子style 的 min_height：
+                子 的 高度 为 子style 的 min_height。
+            完。
+            若 子style 的 max_height 大于 0 并且 子style 的 max_height 不等于 负 1 并且 子 的 高度 大于 子style 的 max_height：
+                子 的 高度 为 子style 的 max_height。
+            完。
+        完。
+        当前Y 为 当前Y 加 子 的 高度 加 子 的 padding_bottom 加 子 的 border_bottom。
+        若 子style 不等于 0 并且 子style 的 position 等于 定位_相对：
+            子 的 x 为 子 的 x 加 子style 的 left 减 子style 的 right。
+            子 的 y 为 子 的 y 加 子style 的 top 减 子style 的 bottom。
+        完。
+        上一个margin_bottom 为 子 的 margin_bottom。
+        子 为 子 的 后一兄弟布局。
+    完。
+    若 当前Y 小于 左浮动底部：
+        当前Y 为 左浮动底部。
+    完。
+    若 当前Y 小于 右浮动底部：
+        当前Y 为 右浮动底部。
+    完。
+    若 layout 的 高度 小于或等于 0 或者 layout 的 样式 等于 0 或者 layout 的 样式 的 height_auto：
+        layout 的 高度 为 当前Y 减 内容y_起始 加 layout 的 padding_bottom 加 layout 的 border_bottom。
+    完。
+完。
+
+布局块级Flow_布局浮动 接受 layout、子、包含块宽、左边界、右边界、左底、右底、当前Y：
+    块级布局_浮动处理 为 块级布局_浮动处理 加 1。
+    子style 为 子 的 样式。
+    若 子 的 宽度 小于或等于 0：
+        子 的 宽度 为 做 布局块级Flow_shrink_to_fit宽度 用 子、包含块宽。
+    完。
+    若 子style 的 float_type 等于 1：
+        子 的 x 为 layout 的 x 加 左边界 加 子 的 margin_left。
+        子 的 y 为 layout 的 y 加 当前Y 加 子 的 margin_top。
+    否则：
+        子 的 x 为 layout 的 x 加 右边界 减 子 的 宽度 减 子 的 margin_right。
+        子 的 y 为 layout 的 y 加 当前Y 加 子 的 margin_top。
+    完。
+    若 子 的 第一子 不等于 0：
+        做 布局块级Flow_布局 用 子、子 的 宽度、子 的 高度。
+    完。
+    若 子 的 高度 小于或等于 0：
+        子 的 高度 为 做 布局块级Flow_计算内容高度 用 子。
+    完。
+完。
+
+布局块级Flow_shrink_to_fit宽度 接受 子、可用宽度：
+    首选 为 可用宽度 除以 2。
+    若 子 的 样式 不等于 0 并且 子 的 样式 的 width 大于 0：
+        首选 为 子 的 样式 的 width。
+    完。
+    若 首选 大于 可用宽度：
+        首选 为 可用宽度。
+    完。
+    返还 首选。
+完。
+
+布局块级Flow_建立BFC 接受 layout：
+    若 layout 等于 0 或者 layout 的 样式 等于 0：
+        返还 假。
+    完。
+    s 为 layout 的 样式。
+    若 s 的 overflow 不等于 0：
+        返还 真。
+    完。
+    若 s 的 float_type 不等于 0：
+        返还 真。
+    完。
+    若 s 的 position 等于 定位_绝对 或者 s 的 position 等于 定位_固定：
+        返还 真。
+    完。
+    若 s 的 display_inline_block：
+        返还 真。
+    完。
+    若 s 的 display_flex：
+        返还 真。
+    完。
+    若 s 的 display_grid：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+布局块级Flow_折叠margin 接受 margin_a、margin_b：
+    块级布局_margin折叠 为 块级布局_margin折叠 加 1。
+    若 margin_a 大于或等于 0 并且 margin_b 大于或等于 0：
+        若 margin_a 大于 margin_b：
+            返还 margin_a。
+        完。
+        返还 margin_b。
+    完。
+    若 margin_a 小于 0 并且 margin_b 小于 0：
+        若 margin_a 小于 margin_b：
+            返还 margin_a。
+        完。
+        返还 margin_b。
+    完。
+    返还 margin_a 加 margin_b。
+完。
+
+布局块级Flow_计算内容高度 接受 layout：
+    若 layout 等于 0：
+        返还 0。
+    完。
+    可变 最大底部 为 0。
+    可变 子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 不等于 0 并且 子 的 样式 的 display 不等于 0：
+            底部 为 子 的 y 减 layout 的 y 加 子 的 高度 加 子 的 margin_bottom。
+            若 底部 大于 最大底部：
+                最大底部 为 底部。
+            完。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    返还 最大底部。
+完。
+
+布局Box_计算盒模型 接受 子、父宽、父高：
+    若 子 等于 0 或者 子 的 样式 等于 0：
+        返还。
+    完。
+    s 为 子 的 样式。
+    若 s 的 width 大于 0 并且 非 s 的 width_auto：
+        子 的 宽度 为 做 CSS值_解析 用 s 的 width、父宽。
+    完。
+    若 s 的 height 大于 0 并且 非 s 的 height_auto：
+        子 的 高度 为 做 CSS值_解析 用 s 的 height、父高。
+    完。
+    子 的 margin_top 为 做 CSS值_解析 用 s 的 margin_top、父宽。
+    子 的 margin_right 为 做 CSS值_解析 用 s 的 margin_right、父宽。
+    子 的 margin_bottom 为 做 CSS值_解析 用 s 的 margin_bottom、父宽。
+    子 的 margin_left 为 做 CSS值_解析 用 s 的 margin_left、父宽。
+    子 的 padding_top 为 做 CSS值_解析 用 s 的 padding_top、父宽。
+    子 的 padding_right 为 做 CSS值_解析 用 s 的 padding_right、父宽。
+    子 的 padding_bottom 为 做 CSS值_解析 用 s 的 padding_bottom、父宽。
+    子 的 padding_left 为 做 CSS值_解析 用 s 的 padding_left、父宽。
+    子 的 border_top 为 s 的 border_top_width。
+    子 的 border_right 为 s 的 border_right_width。
+    子 的 border_bottom 为 s 的 border_bottom_width。
+    子 的 border_left 为 s 的 border_left_width。
+    若 s 的 box_sizing 等于 1 并且 子 的 宽度 大于 0：
+        子 的 宽度 为 子 的 宽度 减 子 的 padding_left 减 子 的 padding_right 减 子 的 border_left 减 子 的 border_right。
+        若 子 的 宽度 小于 0：
+            子 的 宽度 为 0。
+        完。
+    完。
+    若 s 的 box_sizing 等于 1 并且 子 的 高度 大于 0：
+        子 的 高度 为 子 的 高度 减 子 的 padding_top 减 子 的 padding_bottom 减 子 的 border_top 减 子 的 border_bottom。
+        若 子 的 高度 小于 0：
+            子 的 高度 为 0。
+        完。
+    完。
+完。
+
+CSS值_解析 接受 值、参照：
+    若 值 小于或等于 0：
+        返还 0。
+    完。
+    返还 值。
+完。
+
+布局_根 接受 根节点、视口宽、视口高：
+    若 根节点 等于 0：
+        返还。
+    完。
+    根节点 的 x 为 0。
+    根节点 的 y 为 0。
+    根节点 的 宽度 为 视口宽。
+    若 根节点 的 样式 不等于 0 并且 根节点 的 样式 的 display_flex：
+        做 布局弹性_入口 用 根节点。
+    否则：
+        做 布局块级Flow_布局 用 根节点、视口宽、视口高。
+    完。
+完。
+
+块级布局_统计 接受 零参：
+    返还 一本字典：总布局 对应 块级布局_总次数、浮动处理 对应 块级布局_浮动处理、margin折叠 对应 块级布局_margin折叠。
+完。
+
+本章 收束。

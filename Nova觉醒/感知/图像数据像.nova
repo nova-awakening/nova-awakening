@@ -1,0 +1,88 @@
+《图像数据像》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《..·执行·控制台输出》。
+
+图像Data 是 一种 事物，含 数据、宽度、高度、色彩空间。
+
+图像Data_创建 接受 宽度、高度：
+    id 为 做 堆_分配 用 图像Data。
+    id 的 宽度 为 宽度。
+    id 的 高度 为 高度。
+    id 的 色彩空间 为 0。
+    大小 为 宽度 乘 高度 乘 4。
+    id 的 数据 为 做 堆_分配 用 大小。
+    做 内存_填充 用 id 的 数据、0、大小。
+    返还 id。
+完。
+
+图像Data_获取像素 接受 id、x、y：
+    若 id 等于 0 或者 x 大于或等于 id 的 宽度 或者 y 大于或等于 id 的 高度：
+        返还 0。
+    完。
+    偏移 为 (y 乘 id 的 宽度 加 x) 乘 4。
+    r 为 做 字节取 用 id 的 数据、偏移。
+    g 为 做 字节取 用 id 的 数据、偏移 加 1。
+    b 为 做 字节取 用 id 的 数据、偏移 加 2。
+    a 为 做 字节取 用 id 的 数据、偏移 加 3。
+    返还 a 左移 24 位或 r 左移 16 位或 g 左移 8 位或 b。
+完。
+
+图像Data_设置像素 接受 id、x、y、rgba：
+    若 id 等于 0 或者 x 大于或等于 id 的 宽度 或者 y 大于或等于 id 的 高度：
+        返还。
+    完。
+    偏移 为 (y 乘 id 的 宽度 加 x) 乘 4。
+    做 字节写 用 id 的 数据、偏移、rgba 右移 16 位与 0xFF。
+    做 字节写 用 id 的 数据、偏移 加 1、rgba 右移 8 位与 0xFF。
+    做 字节写 用 id 的 数据、偏移 加 2、rgba 位与 0xFF。
+    做 字节写 用 id 的 数据、偏移 加 3、rgba 右移 24 位与 0xFF。
+完。
+
+画布State 是 一种 事物，含 变换、裁剪路径、fill样式_颜色、fill样式_渐变、fill样式_图案、stroke样式_颜色、stroke样式_渐变、stroke样式_图案、lineWidth、lineCap、lineJoin、miterLimit、lineDash、lineDash数、lineDashOffset、shadowColor、shadowBlur、shadowOffsetX、shadowOffsetY、font、fontSize、textAlign、textBaseline、direction、letterSpacing、wordSpacing、globalAlpha、globalCompositeOperation、filter、imageSmoothingEnabled、imageSmoothingQuality、上一个状态。
+
+画布State_创建 接受 零参：
+    s 为 做 堆_分配 用 画布State。
+    s 的 变换 的 第 0 项 为 1024。
+    s 的 变换 的 第 1 项 为 0。
+    s 的 变换 的 第 2 项 为 0。
+    s 的 变换 的 第 3 项 为 1024。
+    s 的 变换 的 第 4 项 为 0。
+    s 的 变换 的 第 5 项 为 0。
+    s 的 裁剪路径 为 0。
+    s 的 fill样式_颜色 为 0xFF000000。
+    s 的 fill样式_渐变 为 0。
+    s 的 fill样式_图案 为 0。
+    s 的 stroke样式_颜色 为 0xFF000000。
+    s 的 stroke样式_渐变 为 0。
+    s 的 stroke样式_图案 为 0。
+    s 的 lineWidth 为 1024。
+    s 的 lineCap 为 CAP_BUTT。
+    s 的 lineJoin 为 JOIN_MITER。
+    s 的 miterLimit 为 10240。
+    s 的 lineDash数 为 0。
+    s 的 lineDashOffset 为 0。
+    s 的 shadowColor 为 0。
+    s 的 shadowBlur 为 0。
+    s 的 shadowOffsetX 为 0。
+    s 的 shadowOffsetY 为 0。
+    s 的 font 为 0。
+    s 的 fontSize 为 10240。
+    s 的 textAlign 为 TEXT_ALIGN_START。
+    s 的 textBaseline 为 TEXT_BASE_ALPHABETIC。
+    s 的 direction 为 TEXT_DIR_INHERIT。
+    s 的 globalAlpha 为 1024。
+    s 的 globalCompositeOperation 为 COMP_SOURCE_OVER。
+    s 的 filter 为 0。
+    s 的 imageSmoothingEnabled 为 真。
+    s 的 imageSmoothingQuality 为 SMOOTH_LOW。
+    s 的 上一个状态 为 0。
+    返还 s。
+完。
+
+本章 收束。

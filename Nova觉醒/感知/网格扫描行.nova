@@ -1,0 +1,201 @@
+《网格扫描行》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·CSS网格repeat》。
+
+网格_扫描行可用列 接受 occ、行、列跨：
+    若 occ 等于 0：
+        返还 0。
+    完。
+    可变 c 为 0。
+    只要 c 小于或等于 occ 的 列数 减 列跨：
+        若 做 网格Occupancy_区域可用 用 occ、行、c、1、列跨：
+            返还 c。
+        完。
+        c 为 c 加 1。
+    完。
+    返还 occ 的 列数。
+完。
+
+网格_扫描列可用行 接受 occ、列、行跨：
+    若 occ 等于 0：
+        返还 0。
+    完。
+    可变 r 为 0。
+    只要 r 小于或等于 occ 的 行数 减 行跨：
+        若 做 网格Occupancy_区域可用 用 occ、r、列、行跨、1：
+            返还 r。
+        完。
+        r 为 r 加 1。
+    完。
+    返还 occ 的 行数。
+完。
+
+TrackSize 是 一种 事物，含 base、growth_limit、类型、fr值、最终大小。
+
+网格_计算轨道大小 接受 轨道、轨道数、items、items数、可用空间、gap、轴：
+    若 轨道 等于 0 或者 轨道数 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 轨道数：
+        t 为 轨道 加 i 乘 做 大小of 用 TrackSize。
+        若 t 的 类型 等于 0：
+            t 的 base 为 t 的 fr值。
+            t 的 growth_limit 为 t 的 fr值。
+        否则若 t 的 类型 等于 3：
+            t 的 base 为 0。
+            t 的 growth_limit 为 负 1。
+        否则若 t 的 类型 等于 5：
+            t 的 base 为 0。
+            t 的 growth_limit 为 0。
+        否则若 t 的 类型 等于 6：
+            t 的 base 为 0。
+            t 的 growth_limit 为 负 1。
+        否则若 t 的 类型 等于 4：
+            t 的 base 为 t 的 base。
+            t 的 growth_limit 为 t 的 growth_limit。
+        否则若 t 的 类型 等于 2：
+            t 的 base 为 0。
+            t 的 growth_limit 为 负 1。
+        完。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 items数：
+        item 为 items 加 i 乘 做 大小of 用 网格Placement。
+        跨度 为 若 轴 等于 0 则 item 的 列跨 否则 item 的 行跨。
+        若 跨度 等于 1：
+            轨道idx 为 若 轴 等于 0 则 item 的 列起始 减 1 否则 item 的 行起始 减 1。
+            若 轨道idx 大于或等于 0 并且 轨道idx 小于 轨道数：
+                t 为 轨道 加 轨道idx 乘 做 大小of 用 TrackSize。
+                minC 为 0。
+                maxC 为 0。
+                若 minC 大于 t 的 base：
+                    t 的 base 为 minC。
+                完。
+                若 t 的 growth_limit 大于或等于 0 并且 maxC 大于 t 的 growth_limit：
+                    t 的 growth_limit 为 maxC。
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 items数：
+        item 为 items 加 i 乘 做 大小of 用 网格Placement。
+        跨度 为 若 轴 等于 0 则 item 的 列跨 否则 item 的 行跨。
+        若 跨度 大于 1：
+            起始 为 若 轴 等于 0 则 item 的 列起始 减 1 否则 item 的 行起始 减 1。
+            若 起始 小于 0：
+                i 为 i 加 1。
+                继续。
+            完。
+            可变 当前总 为 0。
+            可变 j 为 0。
+            只要 j 小于 跨度 并且 起始 加 j 小于 轨道数：
+                t 为 轨道 加 (起始 加 j) 乘 做 大小of 用 TrackSize。
+                当前总 为 当前总 加 t 的 base。
+                j 为 j 加 1。
+            完。
+            当前总 为 当前总 加 (跨度 减 1) 乘 gap。
+            需要 为 0。
+            若 需要 大于 当前总：
+                额外 为 (需要 减 当前总) 除以 跨度。
+                j 为 0。
+                只要 j 小于 跨度 并且 起始 加 j 小于 轨道数：
+                    t 为 轨道 加 (起始 加 j) 乘 做 大小of 用 TrackSize。
+                    t 的 base 为 t 的 base 加 额外。
+                    j 为 j 加 1。
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 轨道数：
+        t 为 轨道 加 i 乘 做 大小of 用 TrackSize。
+        若 t 的 growth_limit 大于或等于 0 并且 t 的 growth_limit 小于 t 的 base：
+            t 的 growth_limit 为 t 的 base。
+        完。
+        i 为 i 加 1。
+    完。
+    可变 已用 为 0。
+    可变 fr总 为 0。
+    i 为 0。
+    只要 i 小于 轨道数：
+        t 为 轨道 加 i 乘 做 大小of 用 TrackSize。
+        若 t 的 类型 等于 2：
+            fr总 为 fr总 加 t 的 fr值。
+        否则：
+            已用 为 已用 加 t 的 base。
+        完。
+        i 为 i 加 1。
+    完。
+    已用 为 已用 加 (轨道数 减 1) 乘 gap。
+    若 fr总 大于 0 并且 可用空间 大于 已用：
+        剩余 为 可用空间 减 已用。
+        每fr 为 剩余 乘 1024 除以 fr总。
+        i 为 0。
+        只要 i 小于 轨道数：
+            t 为 轨道 加 i 乘 做 大小of 用 TrackSize。
+            若 t 的 类型 等于 2：
+                t 的 base 为 t 的 fr值 乘 每fr 除以 1024。
+                若 t 的 base 小于 0：
+                    t 的 base 为 0。
+                完。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+    可变 auto数 为 0。
+    已用 为 0。
+    i 为 0。
+    只要 i 小于 轨道数：
+        t 为 轨道 加 i 乘 做 大小of 用 TrackSize。
+        已用 为 已用 加 t 的 base。
+        若 t 的 类型 等于 3：
+            auto数 为 auto数 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    已用 为 已用 加 (轨道数 减 1) 乘 gap。
+    若 auto数 大于 0 并且 可用空间 大于 已用：
+        额外每auto 为 (可用空间 减 已用) 除以 auto数。
+        i 为 0。
+        只要 i 小于 轨道数：
+            t 为 轨道 加 i 乘 做 大小of 用 TrackSize。
+            若 t 的 类型 等于 3：
+                t 的 base 为 t 的 base 加 额外每auto。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+    i 为 0。
+    只要 i 小于 轨道数：
+        t 为 轨道 加 i 乘 做 大小of 用 TrackSize。
+        t 的 最终大小 为 t 的 base。
+        i 为 i 加 1。
+    完。
+完。
+
+可变 AI_网格扫描行_调用数 为 0。
+
+可变 AI_网格扫描行_异常数 为 0。
+
+AI_网格扫描行_监控 接受 零参：
+    AI_网格扫描行_调用数 为 AI_网格扫描行_调用数 加 1。
+    返还 AI_网格扫描行_异常数 等于 0。
+完。
+
+AI_网格扫描行_健康检查 接受 零参：
+    若 AI_网格扫描行_调用数 大于 0 并且 AI_网格扫描行_异常数 乘 100 除以 AI_网格扫描行_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

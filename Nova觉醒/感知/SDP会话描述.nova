@@ -1,0 +1,151 @@
+《SDP会话描述》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+RTCSessionDescription 是 一种 事物，含 类型、sdp。
+
+SDP媒体Section 是 一种 事物，含 类型、端口、协议、codecs、codec数、ufrag、pwd、fingerprint、setup、direction、mid。
+
+SDP_解析 接受 sdp字符串：
+    若 sdp字符串 等于 0：
+        返还 0。
+    完。
+    desc 为 做 堆_分配 用 RTCSessionDescription。
+    desc 的 sdp 为 sdp字符串。
+    返还 desc。
+完。
+
+SDP_生成Offer 接受 pc：
+    若 pc 等于 0：
+        返还 0。
+    完。
+    sdp 为 「v=0\r\no=- 0 0 IN IP4 0.0.0.0\r\ns=-\r\nt=0 0\r\n」。
+    desc 为 做 堆_分配 用 RTCSessionDescription。
+    desc 的 类型 为 SDP_OFFER。
+    desc 的 sdp 为 sdp。
+    返还 desc。
+完。
+
+SDP_生成Answer 接受 pc：
+    若 pc 等于 0：
+        返还 0。
+    完。
+    desc 为 做 堆_分配 用 RTCSessionDescription。
+    desc 的 类型 为 SDP_ANSWER。
+    desc 的 sdp 为 「」。
+    返还 desc。
+完。
+
+媒体StreamTrack 是 一种 事物，含 id、kind、label、enabled、muted、readyState、约束、宽度、高度、帧率、采样率、声道数、onended、onmute、onunmute。
+
+媒体Stream 是 一种 事物，含 id、音频轨道、音频轨道数、视频轨道、视频轨道数、active。
+
+媒体Stream_创建 接受 零参：
+    ms 为 做 堆_分配 用 媒体Stream。
+    ms 的 id 为 0。
+    ms 的 音频轨道数 为 0。
+    ms 的 视频轨道数 为 0。
+    ms 的 active 为 假。
+    返还 ms。
+完。
+
+媒体Stream_addTrack 接受 ms、track：
+    若 ms 等于 0 或者 track 等于 0：
+        返还。
+    完。
+    若 track 的 kind 等于 0 并且 ms 的 音频轨道数 小于 8：
+        ms 的 音频轨道 的 第 ms 的 音频轨道数 项 为 track。
+        ms 的 音频轨道数 为 ms 的 音频轨道数 加 1。
+    否则若 track 的 kind 等于 1 并且 ms 的 视频轨道数 小于 4：
+        ms 的 视频轨道 的 第 ms 的 视频轨道数 项 为 track。
+        ms 的 视频轨道数 为 ms 的 视频轨道数 加 1。
+    完。
+    ms 的 active 为 真。
+完。
+
+媒体Stream_removeTrack 接受 ms、track：
+    若 ms 等于 0 或者 track 等于 0：
+        返还。
+    完。
+完。
+
+媒体StreamTrack_stop 接受 track：
+    若 track 等于 0：
+        返还。
+    完。
+    track 的 readyState 为 TRACK_ENDED。
+    若 track 的 onended 不等于 0：
+    完。
+完。
+
+媒体StreamTrack_clone 接受 track：
+    若 track 等于 0：
+        返还 0。
+    完。
+    新track 为 做 堆_分配 用 媒体StreamTrack。
+    做 内存_复制 用 新track、track、做 大小of 用 媒体StreamTrack。
+    返还 新track。
+完。
+
+GetUser媒体 接受 音频、视频：
+    ms 为 做 媒体Stream_创建。
+    若 音频：
+        at 为 做 堆_分配 用 媒体StreamTrack。
+        at 的 kind 为 0。
+        at 的 label 为 「默认音频」。
+        at 的 enabled 为 真。
+        at 的 readyState 为 TRACK_LIVE。
+        at 的 采样率 为 48000。
+        at 的 声道数 为 1。
+        做 媒体Stream_addTrack 用 ms、at。
+    完。
+    若 视频：
+        vt 为 做 堆_分配 用 媒体StreamTrack。
+        vt 的 kind 为 1。
+        vt 的 label 为 「默认摄像头」。
+        vt 的 enabled 为 真。
+        vt 的 readyState 为 TRACK_LIVE。
+        vt 的 宽度 为 1280。
+        vt 的 高度 为 720。
+        vt 的 帧率 为 30 乘 1024。
+        做 媒体Stream_addTrack 用 ms、vt。
+    完。
+    返还 ms。
+完。
+
+GetDisplay媒体 接受 零参：
+    ms 为 做 媒体Stream_创建。
+    vt 为 做 堆_分配 用 媒体StreamTrack。
+    vt 的 kind 为 1。
+    vt 的 label 为 「屏幕共享」。
+    vt 的 enabled 为 真。
+    vt 的 readyState 为 TRACK_LIVE。
+    vt 的 宽度 为 1920。
+    vt 的 高度 为 1080。
+    vt 的 帧率 为 30 乘 1024。
+    做 媒体Stream_addTrack 用 ms、vt。
+    返还 ms。
+完。
+
+可变 AI_感知戊_热点函数 为 一组：（空）。
+
+AI_感知戊_JIT候选 接受 函数名、调用次数：
+    若 调用次数 大于 100：
+        做 追加 用 AI_感知戊_热点函数、函数名。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_感知戊_内联建议 接受 函数体大小、调用次数：
+    若 函数体大小 小于 30 并且 调用次数 大于 50：
+        返还 「内联」。
+    完。
+    返还 「不内联」。
+完。
+
+本章 收束。

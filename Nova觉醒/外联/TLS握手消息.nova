@@ -1,0 +1,131 @@
+《TLS握手消息》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·感知·内核直连层》。
+
+引用《.·密码学原语》。
+
+引用《.·TLS数据收发》。
+
+引用《.·TLS密钥派生》。
+
+引用《..·执行·控制台输出》。
+
+安全13_处理握手消息 接受 conn、数据、长度：
+    若 conn 等于 0 或者 数据 等于 0：
+        返还。
+    完。
+    可变 pos 为 0。
+    只要 pos 加 4 小于或等于 长度：
+        msg_type 为 做 字节取 用 数据、pos。
+        msg_len 为 做 字节取 用 数据、pos 加 1 左移 16 位或 做 字节取 用 数据、pos 加 2 左移 8 位或 做 字节取 用 数据、pos 加 3。
+        pos 为 pos 加 4。
+        若 pos 加 msg_len 大于 长度：
+            跳出。
+        完。
+        若 msg_type 等于 HS_ENCRYPTED_EXT：
+        完。
+        若 msg_type 等于 HS_CERTIFICATE：
+            conn 的 服务器证书 为 做 X509_解析证书 用 数据 加 pos、msg_len。
+        完。
+        若 msg_type 等于 HS_CERT_VERIFY：
+        完。
+        若 msg_type 等于 HS_FINISHED：
+            conn 的 状态 为 安全_STATE_FINISHED。
+        完。
+        做 SHA256_更新 用 conn 的 transcript_hash、数据 加 pos 减 4、msg_len 加 4。
+        pos 为 pos 加 msg_len。
+    完。
+完。
+
+安全13_构造Finished 接受 conn、buf、最大：
+    若 conn 等于 0 或者 buf 等于 0：
+        返还 0。
+    完。
+    做 字节写 用 buf、0、HS_FINISHED。
+    做 字节写 用 buf、1、0。
+    做 字节写 用 buf、2、0。
+    做 字节写 用 buf、3、32。
+    可变 i 为 0。
+    只要 i 小于 32：
+        做 字节写 用 buf、4 加 i、conn 的 transcript_hash 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    返还 36。
+完。
+
+安全_发送 接受 conn、数据、长度：
+    若 conn 等于 0 或者 conn 的 状态 不等于 安全_STATE_CONNECTED：
+        返还 负 1。
+    完。
+    密文 为 做 堆_分配 用 长度 加 16 加 1。
+    明文 为 做 堆_分配 用 长度 加 1。
+    做 内存_复制 用 明文、数据、长度。
+    做 字节写 用 明文、长度、REC_APPLICATION。
+    密文长 为 做 AES_GCM_加密 用 conn 的 client_app_key、conn 的 client_app_iv、conn 的 client_seq、明文、长度 加 1、密文。
+    conn 的 client_seq 为 conn 的 client_seq 加 1。
+    做 安全_发送记录 用 conn、REC_APPLICATION、密文、密文长。
+    做 堆_释放 用 密文。
+    做 堆_释放 用 明文。
+    返还 长度。
+完。
+
+安全_接收 接受 conn、buf、最大：
+    若 conn 等于 0 或者 conn 的 状态 不等于 安全_STATE_CONNECTED：
+        返还 负 1。
+    完。
+    密文 为 做 堆_分配 用 最大 加 16。
+    密文长 为 做 安全_接收记录 用 conn、密文、最大 加 16。
+    若 密文长 小于或等于 0：
+        做 堆_释放 用 密文。
+        返还 密文长。
+    完。
+    明文长 为 做 AES_GCM_解密 用 conn 的 server_app_key、conn 的 server_app_iv、conn 的 server_seq、密文、密文长、buf。
+    conn 的 server_seq 为 conn 的 server_seq 加 1。
+    做 堆_释放 用 密文。
+    若 明文长 小于或等于 0：
+        返还 负 1。
+    完。
+    返还 明文长 减 1。
+完。
+
+安全_关闭 接受 conn：
+    若 conn 等于 0：
+        返还。
+    完。
+    alert 为 做 堆_分配 用 2。
+    做 字节写 用 alert、0、ALERT_WARNING。
+    做 字节写 用 alert、1、ALERT_CLOSE_NOTIFY。
+    若 conn 的 状态 等于 安全_STATE_CONNECTED：
+        密文 为 做 堆_分配 用 18。
+        做 AES_GCM_加密 用 conn 的 client_app_key、conn 的 client_app_iv、conn 的 client_seq、alert、2、密文。
+        做 安全_发送记录 用 conn、REC_APPLICATION、密文、18。
+        做 堆_释放 用 密文。
+    完。
+    做 堆_释放 用 alert。
+    conn 的 状态 为 安全_STATE_INIT。
+完。
+
+X509Certificate 是 一种 事物，含 der_data、der_长度、subject_CN、issuer_CN、not_before、not_after、san_dns、san_数量、公钥类型、公钥数据、公钥长度、下一个。
+
+X509_解析证书 接受 数据、长度：
+    若 数据 等于 0 或者 长度 小于 10：
+        返还 0。
+    完。
+    cert 为 做 堆_分配 用 X509Certificate。
+    cert 的 der_data 为 数据。
+    cert 的 der_长度 为 长度。
+    返还 cert。
+完。
+
+X509_验证证书链 接受 cert、主机名：
+    若 cert 等于 0：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

@@ -1,0 +1,51 @@
+《弹性盒布局》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+FLEX_DIR_ROW 为 0。
+
+FLEX_DIR_ROW_REVERSE 为 1。
+
+FLEX_DIR_COLUMN 为 2。
+
+FLEX_DIR_COLUMN_REVERSE 为 3。
+
+FLEX_WRAP_NOWRAP 为 0。
+
+FLEX_WRAP_WRAP 为 1。
+
+FLEX_WRAP_WRAP_REVERSE 为 2。
+
+JUSTIFY_FLEX_START 为 0。
+
+JUSTIFY_FLEX_END 为 1。
+
+JUSTIFY_CENTER 为 2。
+
+JUSTIFY_SPACE_BETWEEN 为 3。
+
+JUSTIFY_SPACE_AROUND 为 4。
+
+JUSTIFY_SPACE_EVENLY 为 5。
+
+ALIGN_STRETCH 为 0。
+
+ALIGN_FLEX_START 为 1。
+
+ALIGN_FLEX_END 为 2。
+
+ALIGN_CENTER 为 3。
+
+ALIGN_BASELINE 为 4。
+
+ALIGN_AUTO 为 5。
+
+弹性Container 是 一种 事物，含 方向、换行、主轴对齐、交叉轴对齐、多行对齐、行间距、列间距、可用主轴、可用交叉轴、项目、项目数、行、行数。
+
+弹性Item 是 一种 事物，含 布局对象、flex_grow、flex_shrink、flex_basis、order、align_self、外部主轴尺寸、外部交叉轴尺寸、主轴尺寸、交叉轴尺寸、基准尺寸、假设主尺寸、主轴margin前、主轴margin后、交叉margin前、交叉margin后、主轴位置、交叉轴位置、已冻结、是auto_margin。
+
+弹性Line 是 一种 事物，含 起始索引、结束索引、主轴已用、交叉轴尺寸、交叉轴位置、剩余空间、总grow、总shrink。
+
+本章 收束。

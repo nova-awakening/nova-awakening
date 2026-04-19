@@ -1,0 +1,522 @@
+《矢量图变换矩》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·边界框计算》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·内存初始化》。
+
+SVGTransform 是 一种 事物，含 a。
+
+SVGTransform_单位 接受 零参：
+    t 为 做 堆_分配 用 SVGTransform。
+    t 的 a 为 1024。
+    t 的 b 为 0。
+    t 的 c 为 0。
+    t 的 d 为 1024。
+    t 的 e 为 0。
+    t 的 f 为 0。
+    返还 t。
+完。
+
+SVGTransform_平移 接受 tx、ty：
+    t 为 做 SVGTransform_单位。
+    t 的 e 为 tx。
+    t 的 f 为 ty。
+    返还 t。
+完。
+
+SVGTransform_缩放 接受 sx、sy：
+    t 为 做 SVGTransform_单位。
+    t 的 a 为 sx。
+    t 的 d 为 sy。
+    返还 t。
+完。
+
+SVGTransform_旋转 接受 角度_度数：
+    弧度 为 角度_度数 乘 18 除以 1024。
+    cos 为 做 SVG_cos 用 弧度。
+    sin 为 做 SVG_sin 用 弧度。
+    t 为 做 堆_分配 用 SVGTransform。
+    t 的 a 为 cos。
+    t 的 b 为 sin。
+    t 的 c 为 负 sin。
+    t 的 d 为 cos。
+    t 的 e 为 0。
+    t 的 f 为 0。
+    返还 t。
+完。
+
+SVGTransform_乘 接受 A、B：
+    t 为 做 堆_分配 用 SVGTransform。
+    t 的 a 为 (A 的 a 乘 B 的 a 加 A 的 c 乘 B 的 b) 除以 1024。
+    t 的 b 为 (A 的 b 乘 B 的 a 加 A 的 d 乘 B 的 b) 除以 1024。
+    t 的 c 为 (A 的 a 乘 B 的 c 加 A 的 c 乘 B 的 d) 除以 1024。
+    t 的 d 为 (A 的 b 乘 B 的 c 加 A 的 d 乘 B 的 d) 除以 1024。
+    t 的 e 为 (A 的 a 乘 B 的 e 加 A 的 c 乘 B 的 f) 除以 1024 加 A 的 e。
+    t 的 f 为 (A 的 b 乘 B 的 e 加 A 的 d 乘 B 的 f) 除以 1024 加 A 的 f。
+    返还 t。
+完。
+
+SVGTransform_点 接受 t、x、y：
+    tx 为 (t 的 a 乘 x 加 t 的 c 乘 y) 除以 1024 加 t 的 e。
+    ty 为 (t 的 b 乘 x 加 t 的 d 乘 y) 除以 1024 加 t 的 f。
+    返还 一组：tx、ty。
+完。
+
+SVGTransform_解析 接受 字符串：
+    若 字符串 等于 0：
+        返还 做 SVGTransform_单位。
+    完。
+    可变 结果 为 做 SVGTransform_单位。
+    长度 为 做 字节长度 用 字符串。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        只要 i 小于 长度 并且 (做 字节取 用 字符串、i 等于 32 或者 做 字节取 用 字符串、i 等于 44)：
+            i 为 i 加 1。
+        完。
+        若 i 大于或等于 长度：
+            跳出。
+        完。
+        若 做 字符串_区间匹配 用 字符串、i、「translate」：
+            i 为 i 加 10。
+            tx 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            ty 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            i 为 i 加 1。
+            结果 为 做 SVGTransform_乘 用 结果、做 SVGTransform_平移 用 tx、ty。
+        否则若 做 字符串_区间匹配 用 字符串、i、「rotate」：
+            i 为 i 加 7。
+            角度 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            i 为 i 加 1。
+            结果 为 做 SVGTransform_乘 用 结果、做 SVGTransform_旋转 用 角度。
+        否则若 做 字符串_区间匹配 用 字符串、i、「scale」：
+            i 为 i 加 6。
+            sx 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            sy 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            若 sy 等于 0：
+                sy 为 sx。
+            完。
+            i 为 i 加 1。
+            结果 为 做 SVGTransform_乘 用 结果、做 SVGTransform_缩放 用 sx、sy。
+        否则若 做 字符串_区间匹配 用 字符串、i、「skewX」：
+            i 为 i 加 6。
+            角 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            i 为 i 加 1。
+            结果 为 做 SVGTransform_乘 用 结果、做 SVGTransform_斜切X 用 角。
+        否则若 做 字符串_区间匹配 用 字符串、i、「skewY」：
+            i 为 i 加 6。
+            角 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            i 为 i 加 1。
+            结果 为 做 SVGTransform_乘 用 结果、做 SVGTransform_斜切Y 用 角。
+        否则若 做 字符串_区间匹配 用 字符串、i、「matrix」：
+            i 为 i 加 7。
+            ma 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            mb 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            mc 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            md 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            me 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            mf 为 做 SVG_读数字_从 用 字符串、i。
+            i 为 做 SVG_跳过数字 用 字符串、i。
+            i 为 i 加 1。
+            m 为 做 堆_分配 用 SVGTransform。
+            m 的 a 为 ma。
+            m 的 b 为 mb。
+            m 的 c 为 mc。
+            m 的 d 为 md。
+            m 的 e 为 me。
+            m 的 f 为 mf。
+            结果 为 做 SVGTransform_乘 用 结果、m。
+        否则：
+            i 为 i 加 1。
+        完。
+    完。
+    返还 结果。
+完。
+
+Q10 为 1024。
+
+Q10_半 为 512。
+
+可变 NSTM_变换计数 为 0。
+
+可变 NSTM_点变换计数 为 0。
+
+可变 NSTM_矩阵乘法计数 为 0。
+
+可变 NSTM_求逆计数 为 0。
+
+可变 NSTM_插值计数 为 0。
+
+可变 NSTM_AI检测计数 为 0。
+
+SVGTransform_斜切X 接受 角度_度数：
+    tan 为 做 SVG_tan 用 角度_度数 乘 18 除以 1024。
+    t 为 做 SVGTransform_单位。
+    t 的 c 为 tan。
+    NSTM_变换计数 为 NSTM_变换计数 加 1。
+    返还 t。
+完。
+
+SVGTransform_斜切Y 接受 角度_度数：
+    tan 为 做 SVG_tan 用 角度_度数 乘 18 除以 1024。
+    t 为 做 SVGTransform_单位。
+    t 的 b 为 tan。
+    NSTM_变换计数 为 NSTM_变换计数 加 1。
+    返还 t。
+完。
+
+SVGTransform_行列式 接受 t：
+    返还 (t 的 a 乘 t 的 d 减 t 的 b 乘 t 的 c) 除以 Q10。
+完。
+
+SVGTransform_是可逆 接受 t：
+    返还 做 SVGTransform_行列式 用 t 不等于 0。
+完。
+
+SVGTransform_逆 接受 t：
+    NSTM_求逆计数 为 NSTM_求逆计数 加 1。
+    det 为 做 SVGTransform_行列式 用 t。
+    若 det 等于 0：
+        返还 做 SVGTransform_单位。
+    完。
+    inv 为 做 堆_分配 用 SVGTransform。
+    inv 的 a 为 t 的 d 乘 Q10 除以 det。
+    inv 的 b 为 负 t 的 b 乘 Q10 除以 det。
+    inv 的 c 为 负 t 的 c 乘 Q10 除以 det。
+    inv 的 d 为 t 的 a 乘 Q10 除以 det。
+    inv 的 e 为 (t 的 c 乘 t 的 f 减 t 的 d 乘 t 的 e) 除以 Q10 乘 Q10 除以 det。
+    inv 的 f 为 (t 的 b 乘 t 的 e 减 t 的 a 乘 t 的 f) 除以 Q10 乘 Q10 除以 det。
+    返还 inv。
+完。
+
+SVGTransform_反向点 接受 t、x、y：
+    inv 为 做 SVGTransform_逆 用 t。
+    返还 做 SVGTransform_点 用 inv、x、y。
+完。
+
+SVGTransform_插值 接受 T0、T1、alpha_q10：
+    NSTM_插值计数 为 NSTM_插值计数 加 1。
+    反 为 Q10 减 alpha_q10。
+    r 为 做 堆_分配 用 SVGTransform。
+    r 的 a 为 (反 乘 T0 的 a 加 alpha_q10 乘 T1 的 a) 除以 Q10。
+    r 的 b 为 (反 乘 T0 的 b 加 alpha_q10 乘 T1 的 b) 除以 Q10。
+    r 的 c 为 (反 乘 T0 的 c 加 alpha_q10 乘 T1 的 c) 除以 Q10。
+    r 的 d 为 (反 乘 T0 的 d 加 alpha_q10 乘 T1 的 d) 除以 Q10。
+    r 的 e 为 (反 乘 T0 的 e 加 alpha_q10 乘 T1 的 e) 除以 Q10。
+    r 的 f 为 (反 乘 T0 的 f 加 alpha_q10 乘 T1 的 f) 除以 Q10。
+    返还 r。
+完。
+
+AABB 是 一种 事物，含 最小X、最小Y、最大X、最大Y。
+
+AABB_创建 接受 x1、y1、x2、y2：
+    b 为 做 堆_分配 用 AABB。
+    b 的 最小X 为 x1。
+    b 的 最小Y 为 y1。
+    b 的 最大X 为 x2。
+    b 的 最大Y 为 y2。
+    返还 b。
+完。
+
+AABB_变换 接受 t、box：
+    p1 为 做 SVGTransform_点 用 t、box 的 最小X、box 的 最小Y。
+    p2 为 做 SVGTransform_点 用 t、box 的 最大X、box 的 最小Y。
+    p3 为 做 SVGTransform_点 用 t、box 的 最小X、box 的 最大Y。
+    p4 为 做 SVGTransform_点 用 t、box 的 最大X、box 的 最大Y。
+    结果 为 做 堆_分配 用 AABB。
+    结果 的 最小X 为 做 NSTM_min4 用 p1 的 第 0 项、p2 的 第 0 项、p3 的 第 0 项、p4 的 第 0 项。
+    结果 的 最小Y 为 做 NSTM_min4 用 p1 的 第 1 项、p2 的 第 1 项、p3 的 第 1 项、p4 的 第 1 项。
+    结果 的 最大X 为 做 NSTM_max4 用 p1 的 第 0 项、p2 的 第 0 项、p3 的 第 0 项、p4 的 第 0 项。
+    结果 的 最大Y 为 做 NSTM_max4 用 p1 的 第 1 项、p2 的 第 1 项、p3 的 第 1 项、p4 的 第 1 项。
+    返还 结果。
+完。
+
+NSTM_min4 接受 a、b、c、d：
+    可变 m 为 a。
+    若 b 小于 m：
+        m 为 b。
+    完。
+    若 c 小于 m：
+        m 为 c。
+    完。
+    若 d 小于 m：
+        m 为 d。
+    完。
+    返还 m。
+完。
+
+NSTM_max4 接受 a、b、c、d：
+    可变 m 为 a。
+    若 b 大于 m：
+        m 为 b。
+    完。
+    若 c 大于 m：
+        m 为 c。
+    完。
+    若 d 大于 m：
+        m 为 d。
+    完。
+    返还 m。
+完。
+
+AABB_相交 接受 a、b：
+    返还 a 的 最小X 小于或等于 b 的 最大X 并且 a 的 最大X 大于或等于 b 的 最小X 并且 a 的 最小Y 小于或等于 b 的 最大Y 并且 a 的 最大Y 大于或等于 b 的 最小Y。
+完。
+
+AABB_合并 接受 a、b：
+    r 为 做 堆_分配 用 AABB。
+    若 a 的 最小X 小于 b 的 最小X：
+        r 的 最小X 为 a 的 最小X。
+    否则：
+        r 的 最小X 为 b 的 最小X。
+    完。
+    若 a 的 最小Y 小于 b 的 最小Y：
+        r 的 最小Y 为 a 的 最小Y。
+    否则：
+        r 的 最小Y 为 b 的 最小Y。
+    完。
+    若 a 的 最大X 大于 b 的 最大X：
+        r 的 最大X 为 a 的 最大X。
+    否则：
+        r 的 最大X 为 b 的 最大X。
+    完。
+    若 a 的 最大Y 大于 b 的 最大Y：
+        r 的 最大Y 为 a 的 最大Y。
+    否则：
+        r 的 最大Y 为 b 的 最大Y。
+    完。
+    返还 r。
+完。
+
+SVGTransform_提取平移 接受 t：
+    返还 一组：t 的 e、t 的 f。
+完。
+
+SVGTransform_提取缩放 接受 t：
+    sx2 为 (t 的 a 乘 t 的 a 加 t 的 b 乘 t 的 b) 除以 Q10。
+    sy2 为 (t 的 c 乘 t 的 c 加 t 的 d 乘 t 的 d) 除以 Q10。
+    返还 一组：做 NSTM_isqrt 用 sx2、做 NSTM_isqrt 用 sy2。
+完。
+
+NSTM_isqrt 接受 x：
+    若 x 小于或等于 0：
+        返还 0。
+    完。
+    可变 g 为 x。
+    可变 i 为 0。
+    只要 i 小于 16：
+        若 g 等于 0：
+            返还 0。
+        完。
+        g 为 (g 加 x 除以 g) 除以 2。
+        i 为 i 加 1。
+    完。
+    返还 g。
+完。
+
+SVGTransform_提取旋转角度 接受 t：
+    返还 做 NSTM_atan2_q10 用 t 的 b、t 的 a。
+完。
+
+NSTM_atan2_q10 接受 y、x：
+    若 x 等于 0 并且 y 等于 0：
+        返还 0。
+    完。
+    若 x 等于 0：
+        若 y 大于 0：
+            返还 90 乘 Q10。
+        否则：
+            返还 负 90 乘 Q10。
+        完。
+    完。
+    abs_x 为 x。
+    若 abs_x 小于 0：
+        abs_x 为 负 abs_x。
+    完。
+    角度 为 y 乘 57 乘 Q10 除以 (x 加 abs_x 乘 287 除以 Q10)。
+    返还 角度。
+完。
+
+变换栈最大深度 为 64。
+
+变换栈 是 一种 事物，含 元素、栈顶。
+
+变换栈_创建 接受 零参：
+    s 为 做 堆_分配 用 变换栈。
+    s 的 元素 为 做 堆_分配_数组 用 变换栈最大深度 乘 24。
+    s 的 栈顶 为 0。
+    id 为 做 SVGTransform_单位。
+    做 内存_拷贝 用 s 的 元素、id、24。
+    s 的 栈顶 为 1。
+    返还 s。
+完。
+
+变换栈_压入 接受 栈、t：
+    若 栈 的 栈顶 大于或等于 变换栈最大深度：
+        返还 假。
+    完。
+    当前 为 做 变换栈_获取栈顶 用 栈。
+    新 为 做 SVGTransform_乘 用 当前、t。
+    做 内存_拷贝 用 栈 的 元素 加 栈 的 栈顶 乘 24、新、24。
+    栈 的 栈顶 为 栈 的 栈顶 加 1。
+    返还 真。
+完。
+
+变换栈_弹出 接受 栈：
+    若 栈 的 栈顶 小于或等于 1：
+        返还 假。
+    完。
+    栈 的 栈顶 为 栈 的 栈顶 减 1。
+    返还 真。
+完。
+
+变换栈_获取栈顶 接受 栈：
+    若 栈 的 栈顶 等于 0：
+        返还 做 SVGTransform_单位。
+    完。
+    偏移 为 (栈 的 栈顶 减 1) 乘 24。
+    t 为 做 堆_分配 用 SVGTransform。
+    做 内存_拷贝 用 t、栈 的 元素 加 偏移、24。
+    返还 t。
+完。
+
+NSTM_AI初始化 接受 零参：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还。
+    完。
+    t 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 t、0、NSTM_变换计数。
+    做 Tensor_写 用 t、1、NSTM_点变换计数。
+    做 Tensor_写 用 t、2、NSTM_矩阵乘法计数。
+    做 Tensor_写 用 t、3、NSTM_求逆计数。
+    做 Tensor_写 用 t、4、NSTM_插值计数。
+    做 Tensor_写 用 t、5、NSTM_AI检测计数。
+    做 AI总线_推理 用 bus、「NSTM_模块注册」、t。
+    做 Tensor_释放 用 t。
+完。
+
+NSTM_AI变换复杂度评估 接受 t：
+    NSTM_AI检测计数 为 NSTM_AI检测计数 加 1。
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 0。
+    完。
+    feat 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 feat、0、t 的 a。
+    做 Tensor_写 用 feat、1、t 的 b。
+    做 Tensor_写 用 feat、2、t 的 c。
+    做 Tensor_写 用 feat、3、t 的 d。
+    做 Tensor_写 用 feat、4、t 的 e。
+    做 Tensor_写 用 feat、5、t 的 f。
+    复杂度 为 做 AI总线_推理 用 bus、「NSTM_复杂度」、feat。
+    做 Tensor_释放 用 feat。
+    返还 复杂度。
+完。
+
+NSTM_获取统计 接受 零参：
+    s 为 做 堆_分配_数组 用 48。
+    做 内存_写64 用 s 加 0、NSTM_变换计数。
+    做 内存_写64 用 s 加 8、NSTM_点变换计数。
+    做 内存_写64 用 s 加 16、NSTM_矩阵乘法计数。
+    做 内存_写64 用 s 加 24、NSTM_求逆计数。
+    做 内存_写64 用 s 加 32、NSTM_插值计数。
+    做 内存_写64 用 s 加 40、NSTM_AI检测计数。
+    返还 s。
+完。
+
+NSTM_诊断打印 接受 零参：
+    做 内核打印 用 「[NSTM] 变换=」、NSTM_变换计数、「 点变换=」、NSTM_点变换计数。
+    做 内核打印 用 「[NSTM] 矩阵乘=」、NSTM_矩阵乘法计数、「 求逆=」、NSTM_求逆计数。
+    做 内核打印 用 「[NSTM] 插值=」、NSTM_插值计数、「 AI=」、NSTM_AI检测计数。
+完。
+
+NSTM_初始化 接受 零参：
+    做 内核打印 用 「[NSTM] Nova矢量变换矩阵 v1.0 启动」。
+    做 NSTM_AI初始化。
+    返还 真。
+完。
+
+SVG_cos 接受 弧度_q10：
+    x2 为 弧度_q10 乘 弧度_q10 除以 Q10。
+    x4 为 x2 乘 x2 除以 Q10。
+    返还 Q10 减 x2 除以 2 加 x4 除以 24。
+完。
+
+SVG_sin 接受 弧度_q10：
+    x2 为 弧度_q10 乘 弧度_q10 除以 Q10。
+    x3 为 x2 乘 弧度_q10 除以 Q10。
+    返还 弧度_q10 减 x3 除以 6。
+完。
+
+SVG_tan 接受 弧度_q10：
+    c 为 做 SVG_cos 用 弧度_q10。
+    若 c 等于 0：
+        返还 0x7FFFFFFF。
+    完。
+    返还 做 SVG_sin 用 弧度_q10 乘 Q10 除以 c。
+完。
+
+SVGTransform_批量点 接受 变换、点数组、点数、输出数组：
+    NSTM_点变换计数 为 NSTM_点变换计数 加 点数。
+    可变 i 为 0。
+    只要 i 小于 点数：
+        偏 为 i 乘 8。
+        x 为 做 内存_读32 用 点数组 加 偏。
+        y 为 做 内存_读32 用 点数组 加 偏 加 4。
+        tx 为 (变换 的 a 乘 x 加 变换 的 c 乘 y) 除以 Q10 加 变换 的 e。
+        ty 为 (变换 的 b 乘 x 加 变换 的 d 乘 y) 除以 Q10 加 变换 的 f。
+        做 内存_写32 用 输出数组 加 偏、tx。
+        做 内存_写32 用 输出数组 加 偏 加 4、ty。
+        i 为 i 加 1。
+    完。
+完。
+
+SVGTransform_是单位 接受 t：
+    返还 t 的 a 等于 Q10 并且 t 的 d 等于 Q10 并且 t 的 b 等于 0 并且 t 的 c 等于 0 并且 t 的 e 等于 0 并且 t 的 f 等于 0。
+完。
+
+SVGTransform_仅平移 接受 t：
+    返还 t 的 a 等于 Q10 并且 t 的 d 等于 Q10 并且 t 的 b 等于 0 并且 t 的 c 等于 0。
+完。
+
+SVGTransform_仅缩放平移 接受 t：
+    返还 t 的 b 等于 0 并且 t 的 c 等于 0。
+完。
+
+SVGTransform_复制 接受 src：
+    dst 为 做 堆_分配 用 SVGTransform。
+    dst 的 a 为 src 的 a。
+    dst 的 b 为 src 的 b。
+    dst 的 c 为 src 的 c。
+    dst 的 d 为 src 的 d。
+    dst 的 e 为 src 的 e。
+    dst 的 f 为 src 的 f。
+    返还 dst。
+完。
+
+SVGTransform_相等 接受 a、b：
+    返还 a 的 a 等于 b 的 a 并且 a 的 b 等于 b 的 b 并且 a 的 c 等于 b 的 c 并且 a 的 d 等于 b 的 d 并且 a 的 e 等于 b 的 e 并且 a 的 f 等于 b 的 f。
+完。
+
+本章 收束。

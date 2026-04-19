@@ -1,0 +1,245 @@
+《PE生成器》
+
+引用《..·..·..·标准库·基础》。
+
+引用《..·..·..·编译器·规划·核心·常量》。
+
+引用《..·..·..·自举兼容桥》。
+
+写pe字符串 接受 buf、pos、s：
+    可变 i 为 0。
+    只要 i 小于 做 字节长度 用 s：
+        做 缓冲写 用 buf、pos 加 i、做 字节取 用 s、i。
+        i 为 i 加 1。
+    完。
+完。
+
+构建PE_处理__call_ 接受 修位、目标名：
+    目标偏移 为 做 字典取 用 函数表、目标名。
+    若 目标偏移 不等于 空：
+        可变 相对 为 目标偏移 减 (修位 加 4)。
+        做 缓冲写32 用 pe、文件对齐 加 修位、相对。
+    否则：
+        做 打印文本 用 做 字符串拼接 用 「错误: 未定义函数 」、目标名。
+    完。
+完。
+
+构建PE_处理__str_ 接受 修位、索引：
+    字串位 为 字串偏移 的 第 索引 项。
+    相对 为 字串位 减 (修位 加 4)。
+    做 缓冲写32 用 pe、文件对齐 加 修位、相对。
+完。
+
+构建PE 接受 入口偏移、代码大小：
+    可变 ii 为 0。
+    做 打印 用 「构建 PE 文件...」。
+    文件对齐 为 0x200。
+    段对齐 为 0x1000。
+    代码段RVA 为 0x1000。
+    代码段虚大 为 (代码大小 加 段对齐 减 1) 除以 段对齐 乘 段对齐。
+    导入段RVA 为 代码段RVA 加 代码段虚大。
+    代码段原大 为 (代码大小 加 文件对齐 减 1) 除以 文件对齐 乘 文件对齐。
+    文件大小 为 文件对齐 加 代码段原大 加 文件对齐。
+    映像大小 为 导入段RVA 加 段对齐。
+    可变 pe 为 做 缓冲区 用 文件大小。
+    做 缓冲写16 用 pe、0x00、0x5A4D。
+    做 缓冲写32 用 pe、0x3C、0x40。
+    做 缓冲写32 用 pe、0x40、0x4550。
+    做 缓冲写16 用 pe、0x44、0x8664。
+    做 缓冲写16 用 pe、0x46、2。
+    做 缓冲写16 用 pe、0x54、0xF0。
+    做 缓冲写16 用 pe、0x56、0x22。
+    做 缓冲写16 用 pe、0x58、0x020B。
+    做 缓冲写 用 pe、0x5A、14。
+    做 缓冲写32 用 pe、0x5C、代码段原大。
+    做 缓冲写32 用 pe、0x60、文件对齐。
+    做 缓冲写32 用 pe、0x68、代码段RVA 加 入口偏移。
+    做 缓冲写32 用 pe、0x6C、代码段RVA。
+    做 缓冲写32 用 pe、0x70、0x400000。
+    做 缓冲写32 用 pe、0x78、段对齐。
+    做 缓冲写32 用 pe、0x7C、文件对齐。
+    做 缓冲写16 用 pe、0x80、6。
+    做 缓冲写16 用 pe、0x88、6。
+    做 缓冲写32 用 pe、0x90、映像大小。
+    做 缓冲写32 用 pe、0x94、文件对齐。
+    做 缓冲写16 用 pe、0x9C、3。
+    做 缓冲写32 用 pe、0xA0、0x800000。
+    做 缓冲写32 用 pe、0xA8、0x10000。
+    做 缓冲写32 用 pe、0xB0、0x800000。
+    做 缓冲写32 用 pe、0xB8、0x1000。
+    做 缓冲写32 用 pe、0xC4、16。
+    做 缓冲写32 用 pe、0xD0、导入段RVA。
+    做 缓冲写32 用 pe、0xD4、40。
+    做 缓冲写32 用 pe、0x128、导入段RVA 加 0xA0。
+    做 缓冲写32 用 pe、0x12C、120。
+    做 写pe字符串 用 pe、0x148、「.text」。
+    做 缓冲写32 用 pe、0x150、代码大小。
+    做 缓冲写32 用 pe、0x154、代码段RVA。
+    做 缓冲写32 用 pe、0x158、代码段原大。
+    做 缓冲写32 用 pe、0x15C、文件对齐。
+    做 缓冲写32 用 pe、0x16C、0x60000020。
+    做 写pe字符串 用 pe、0x170、「.idata」。
+    做 缓冲写32 用 pe、0x178、0x200。
+    做 缓冲写32 用 pe、0x17C、导入段RVA。
+    做 缓冲写32 用 pe、0x180、文件对齐。
+    做 缓冲写32 用 pe、0x184、文件对齐 加 代码段原大。
+    做 缓冲写32 用 pe、0x194、0xC0000040。
+    可变 ci 为 0。
+    只要 ci 小于 代码大小：
+        做 缓冲写 用 pe、文件对齐 加 ci、做 缓冲读 用 代码、ci。
+        ci 为 ci 加 1。
+    完。
+    导入基 为 文件对齐 加 代码段原大。
+    IDT 为 0。
+    ILT 为 0x28。
+    IAT 为 0xA0。
+    HNT 为 0x118。
+    DLL名 为 0x1D8。
+    做 缓冲写32 用 pe、导入基 加 IDT 加 0、导入段RVA 加 ILT。
+    做 缓冲写32 用 pe、导入基 加 IDT 加 12、导入段RVA 加 DLL名。
+    做 缓冲写32 用 pe、导入基 加 IDT 加 16、导入段RVA 加 IAT。
+    只要 ii 小于 14：
+        可变 hnt偏移 为 0。
+        若 ii 等于 0：
+            hnt偏移 为 0。
+        否则若 ii 等于 1：
+            hnt偏移 为 16。
+        否则若 ii 等于 2：
+            hnt偏移 为 32。
+        否则若 ii 等于 3：
+            hnt偏移 为 46。
+        否则若 ii 等于 4：
+            hnt偏移 为 60。
+        否则若 ii 等于 5：
+            hnt偏移 为 72。
+        否则若 ii 等于 6：
+            hnt偏移 为 86。
+        否则若 ii 等于 7：
+            hnt偏移 为 102。
+        否则若 ii 等于 8：
+            hnt偏移 为 114。
+        否则若 ii 等于 9：
+            hnt偏移 为 132。
+        否则若 ii 等于 10：
+            hnt偏移 为 148。
+        否则若 ii 等于 11：
+            hnt偏移 为 166。
+        否则若 ii 等于 12：
+            hnt偏移 为 180。
+        否则若 ii 等于 13：
+            hnt偏移 为 194。
+        完。
+        做 缓冲写64 用 pe、导入基 加 ILT 加 ii 乘 8、导入段RVA 加 HNT 加 hnt偏移。
+        做 缓冲写64 用 pe、导入基 加 IAT 加 ii 乘 8、导入段RVA 加 HNT 加 hnt偏移。
+        ii 为 ii 加 1。
+    完。
+    做 缓冲写16 用 pe、导入基 加 HNT、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 2、「GetStdHandle」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 16、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 18、「WriteConsoleA」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 32、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 34、「ExitProcess」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 46、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 48、「CreateFileA」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 60、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 62、「WriteFile」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 72、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 74、「CloseHandle」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 86、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 88、「VirtualAlloc」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 102、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 104、「ReadFile」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 114、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 116、「GetCommandLineA」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 132、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 134、「LoadLibraryA」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 148、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 150、「GetProcAddress」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 166、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 168、「GetFileSize」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 180、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 182、「CreateFileW」。
+    做 缓冲写16 用 pe、导入基 加 HNT 加 194、0。
+    做 写pe字符串 用 pe、导入基 加 HNT 加 196、「MultiByteToWideChar」。
+    做 写pe字符串 用 pe、导入基 加 DLL名、「kernel32.dll」。
+    IAT_GetStdHandle 为 导入段RVA 加 IAT。
+    IAT_WriteConsoleA 为 导入段RVA 加 IAT 加 8。
+    IAT_ExitProcess 为 导入段RVA 加 IAT 加 16。
+    IAT_CreateFileA 为 导入段RVA 加 IAT 加 24。
+    IAT_WriteFile 为 导入段RVA 加 IAT 加 32。
+    IAT_CloseHandle 为 导入段RVA 加 IAT 加 40。
+    IAT_VirtualAlloc 为 导入段RVA 加 IAT 加 48。
+    IAT_ReadFile 为 导入段RVA 加 IAT 加 56。
+    IAT_GetCommandLineA 为 导入段RVA 加 IAT 加 64。
+    IAT_LoadLibraryA 为 导入段RVA 加 IAT 加 72。
+    IAT_GetProcAddress 为 导入段RVA 加 IAT 加 80。
+    IAT_GetFileSize 为 导入段RVA 加 IAT 加 88。
+    IAT_CreateFileW 为 导入段RVA 加 IAT 加 96。
+    IAT_MultiByteToWideChar 为 导入段RVA 加 IAT 加 104。
+    可变 fi 为 0。
+    只要 fi 小于 做 计数 用 修正表：
+        修类 为 做 修正表_取类型 用 修正表、fi。
+        修位 为 做 修正表_取位置 用 修正表、fi。
+        修附 为 做 修正表_取附加 用 修正表、fi。
+        步长 为 做 修正表_项步长 用 修正表、fi。
+        若 修类 等于 「call」：
+            做 构建PE_处理__call_ 用 修位、修附。
+        否则若 修类 等于 「iat_exit」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_ExitProcess 减 下一指令指针。
+        否则若 修类 等于 「iat_gethandle」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_GetStdHandle 减 下一指令指针。
+        否则若 修类 等于 「iat_writeconsole」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_WriteConsoleA 减 下一指令指针。
+        否则若 修类 等于 「iat_createfile」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_CreateFileA 减 下一指令指针。
+        否则若 修类 等于 「iat_writefile」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_WriteFile 减 下一指令指针。
+        否则若 修类 等于 「iat_closehandle」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_CloseHandle 减 下一指令指针。
+        否则若 修类 等于 「iat_virtualalloc」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_VirtualAlloc 减 下一指令指针。
+        否则若 修类 等于 「iat_readfile」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_ReadFile 减 下一指令指针。
+        否则若 修类 等于 「iat_getcmdline」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_GetCommandLineA 减 下一指令指针。
+        否则若 修类 等于 「iat_loadlibrary」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_LoadLibraryA 减 下一指令指针。
+        否则若 修类 等于 「iat_getprocaddr」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_GetProcAddress 减 下一指令指针。
+        否则若 修类 等于 「iat_getfilesize」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_GetFileSize 减 下一指令指针。
+        否则若 修类 等于 「iat_createfilew」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_CreateFileW 减 下一指令指针。
+        否则若 修类 等于 「iat_multibytetowidechar」：
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、IAT_MultiByteToWideChar 减 下一指令指针。
+        否则若 修类 等于 「rt_heap」：
+            rt_rva 为 导入段RVA 加 0x1F0。
+            可变 下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、rt_rva 减 下一指令指针。
+        否则若 修类 等于 「rt_globals」：
+            rg_rva 为 导入段RVA 加 0x1F8。
+            下一指令指针 为 代码段RVA 加 修位 加 4。
+            做 缓冲写32 用 pe、文件对齐 加 修位、rg_rva 减 下一指令指针。
+        否则若 修类 等于 「str」：
+            做 构建PE_处理__str_ 用 修位、修附。
+        完。
+        fi 为 fi 加 步长。
+    完。
+    返还 一组：pe、文件大小。
+完。
+
+本章 收束。

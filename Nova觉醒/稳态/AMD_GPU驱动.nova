@@ -1,0 +1,440 @@
+《AMD_GPU驱动》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·日志中枢》。
+
+引用《..·中枢·中断管理系统》。
+
+引用《..·中枢·同步原语》。
+
+引用《..·中枢·进程调度》。
+
+引用《..·中枢·内存物理》。
+
+引用《.·总线解析》。
+
+引用《..·中枢·公共智能》。
+
+引用《..·感知·图绘渲染上下》。
+
+引用《..·引导·引导加载器》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·中枢·哈希函数》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·输入原语》。
+
+引用《..·中枢·每核页释放》。
+
+mmMC_VM_FB_LOCATION_BASE 为 0x2024。
+
+mmMC_VM_FB_LOCATION_TOP 为 0x2028。
+
+mmMC_VM_SYSTEM_APERTURE_LOW 为 0x2034。
+
+mmMC_VM_SYSTEM_APERTURE_HIGH 为 0x2038。
+
+mmVM_CONTEXT0_CNTL 为 0x2100。
+
+mmVM_L2_CNTL 为 0x2110。
+
+mmCP_ME_CNTL 为 0x3040。
+
+mmCP_RB_BASE 为 0x3080。
+
+mmCP_RB_CNTL 为 0x3084。
+
+mmCP_RB_RPTR 为 0x3088。
+
+mmCP_RB_WPTR 为 0x308C。
+
+mmGRBM_STATUS 为 0x3050。
+
+GRBM_STATUS_CP_BUSY 为 0x20000000。
+
+mmCP_COMPUTE_RB_BASE 为 0x3200。
+
+mmCP_COMPUTE_RB_CNTL 为 0x3204。
+
+mmCP_COMPUTE_RB_RPTR 为 0x3208。
+
+mmCP_COMPUTE_RB_WPTR 为 0x320C。
+
+mmSDMA0_RB_BASE 为 0x3400。
+
+mmSDMA0_RB_CNTL 为 0x3404。
+
+mmSDMA0_RB_RPTR 为 0x3408。
+
+mmSDMA0_RB_WPTR 为 0x340C。
+
+mmSDMA0_CNTL 为 0x3410。
+
+PM4_TYPE3 为 3。
+
+PM4_NOP 为 0x10。
+
+PM4_SET_DATA 为 0x68。
+
+PM4_DRAW_INDEX 为 0x2A。
+
+PM4_DISPATCH 为 0x29。
+
+PM4_DMA_COPY 为 0x51。
+
+PM4_FENCE 为 0x46。
+
+PM4_EVENT_WRITE 为 0x47。
+
+GTT 为 0。
+
+VRAM 为 1。
+
+用途_命令缓冲 为 0。
+
+用途_顶点缓冲 为 1。
+
+用途_纹理 为 2。
+
+用途_帧缓冲 为 3。
+
+AMD_GPU状态 是 一种 事物，含 mmio、gpu、GFX环_地址、GFX环_大小、GFX环_WPTR、计算环_地址、计算环_大小、计算环_WPTR、SDMA环_地址、SDMA环_大小、SDMA环_WPTR、fence_值、fence_地址、VRAM_已用、VRAM_总量、GTT_已用、GTT_总量、命令提交数、绘制调用数、计算分派数、DMA复制数、fence同步数、AI_GPU利用率、AI_命令批大小。
+
+可变 AMD状态 为 空。
+
+可变 GPU_已初始化 为 假。
+
+AMD_MMHUB_初始化 接受 零参：
+    mmio 为 AMD状态 的 mmio。
+    做 MMIO写32 用 mmio 加 mmMC_VM_FB_LOCATION_BASE、0。
+    做 MMIO写32 用 mmio 加 mmMC_VM_FB_LOCATION_TOP、AMD状态 的 gpu 的 显存大小_MB。
+    做 MMIO写32 用 mmio 加 mmMC_VM_SYSTEM_APERTURE_LOW、AMD状态 的 gpu 的 BAR1_地址 位与 0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 mmMC_VM_SYSTEM_APERTURE_HIGH、AMD状态 的 gpu 的 BAR1_地址 加 AMD状态 的 gpu 的 BAR1_大小 位与 0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 mmVM_CONTEXT0_CNTL、0x01。
+    做 MMIO写32 用 mmio 加 mmVM_L2_CNTL、0x03。
+    做 内核信息 用 「AMD驱动: MMHUB初始化 VRAM=」 加 做 整数转字符串 用 AMD状态 的 gpu 的 显存大小_MB 加 「MB」。
+完。
+
+AMD_GFX环_初始化 接受 零参：
+    mmio 为 AMD状态 的 mmio。
+    AMD状态 的 GFX环_大小 为 262144。
+    AMD状态 的 GFX环_地址 为 做 图处内存_分配 用 AMD状态 的 GFX环_大小、GTT、用途_命令缓冲。
+    若 AMD状态 的 GFX环_地址 等于 空：
+        做 内核错误 用 「AMD驱动: GFX环分配失败」。
+        返还。
+    完。
+    做 MMIO写32 用 mmio 加 mmCP_ME_CNTL、0x10000000。
+    基地址 为 AMD状态 的 GFX环_地址 的 物理地址。
+    做 MMIO写32 用 mmio 加 mmCP_RB_BASE、基地址 右移 8 位与 0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 mmCP_RB_CNTL、14 位或 1 左移 27。
+    做 MMIO写32 用 mmio 加 mmCP_RB_RPTR、0。
+    做 MMIO写32 用 mmio 加 mmCP_RB_WPTR、0。
+    AMD状态 的 GFX环_WPTR 为 0。
+    做 MMIO写32 用 mmio 加 mmCP_ME_CNTL、0。
+    可变 超时 为 10000。
+    只要 超时 大于 0 并且 做 MMIO读32 用 mmio 加 mmGNova受限能量网络_STATUS 位与 GNova受限能量网络_STATUS_CP_BUSY 不等于 0：
+        超时 为 超时 减 1。
+    完。
+    做 内核信息 用 「AMD驱动: GFX环就绪 」 加 做 整数转字符串 用 AMD状态 的 GFX环_大小 除以 1024 加 「KB」。
+完。
+
+AMD_计算环_初始化 接受 零参：
+    mmio 为 AMD状态 的 mmio。
+    AMD状态 的 计算环_大小 为 131072。
+    AMD状态 的 计算环_地址 为 做 图处内存_分配 用 AMD状态 的 计算环_大小、GTT、用途_命令缓冲。
+    若 AMD状态 的 计算环_地址 等于 空：
+        做 内核警告 用 「AMD驱动: Compute环分配失败」。
+        返还。
+    完。
+    基地址 为 AMD状态 的 计算环_地址 的 物理地址。
+    做 MMIO写32 用 mmio 加 mmCP_COMPUTE_RB_BASE、基地址 右移 8 位与 0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 mmCP_COMPUTE_RB_CNTL、13 位或 1 左移 27。
+    做 MMIO写32 用 mmio 加 mmCP_COMPUTE_RB_RPTR、0。
+    做 MMIO写32 用 mmio 加 mmCP_COMPUTE_RB_WPTR、0。
+    AMD状态 的 计算环_WPTR 为 0。
+    做 内核信息 用 「AMD驱动: Compute环就绪 」 加 做 整数转字符串 用 AMD状态 的 计算环_大小 除以 1024 加 「KB」。
+完。
+
+AMD_S直传_初始化 接受 零参：
+    mmio 为 AMD状态 的 mmio。
+    AMD状态 的 S直传环_大小 为 65536。
+    AMD状态 的 S直传环_地址 为 做 图处内存_分配 用 AMD状态 的 S直传环_大小、GTT、用途_命令缓冲。
+    若 AMD状态 的 S直传环_地址 等于 空：
+        返还。
+    完。
+    基地址 为 AMD状态 的 S直传环_地址 的 物理地址。
+    做 MMIO写32 用 mmio 加 mmS直传0_RB_BASE、基地址 右移 8 位与 0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 mmS直传0_RB_CNTL、12 位或 1 左移 27。
+    做 MMIO写32 用 mmio 加 mmS直传0_RB_RPTR、0。
+    做 MMIO写32 用 mmio 加 mmS直传0_RB_WPTR、0。
+    做 MMIO写32 用 mmio 加 mmS直传0_CNTL、1。
+    AMD状态 的 S直传环_WPTR 为 0。
+    做 内核信息 用 「AMD驱动: S直传0就绪」。
+完。
+
+PM4_构建头 接受 操作码、DW数：
+    返还 PM4_TYPE3 左移 30 位或 操作码 左移 8 位或 DW数 减 2。
+完。
+
+GFX环_写DW 接受 值：
+    若 AMD状态 等于 空 或者 AMD状态 的 GFX环_地址 等于 空：
+        返还。
+    完。
+    偏移 为 AMD状态 的 GFX环_WPTR 取余于 (AMD状态 的 GFX环_大小 除以 4)。
+    做 内存_写32 用 AMD状态 的 GFX环_地址 加 偏移 乘 4、值。
+    AMD状态 的 GFX环_WPTR 为 AMD状态 的 GFX环_WPTR 加 1。
+完。
+
+GFX环_提交 接受 零参：
+    若 AMD状态 等于 空：
+        返还。
+    完。
+    做 MMIO写32 用 AMD状态 的 mmio 加 mmCP_RB_WPTR、AMD状态 的 GFX环_WPTR。
+    AMD状态 的 命令提交数 为 AMD状态 的 命令提交数 加 1。
+完。
+
+GFX_提交NOP 接受 数量：
+    可变 i 为 0。
+    只要 i 小于 数量：
+        做 GFX环_写DW 用 做 PM4_构建头 用 PM4_NOP、1。
+        i 为 i 加 1。
+    完。
+    做 GFX环_提交。
+完。
+
+GFX_提交绘制 接受 索引数、实例数、起始索引：
+    做 GFX环_写DW 用 做 PM4_构建头 用 PM4_DRAW_INDEX、4。
+    做 GFX环_写DW 用 索引数。
+    做 GFX环_写DW 用 实例数。
+    做 GFX环_写DW 用 起始索引。
+    做 GFX环_写DW 用 0。
+    做 GFX环_提交。
+    AMD状态 的 绘制调用数 为 AMD状态 的 绘制调用数 加 1。
+完。
+
+计算_提交分派 接受 线程组X、线程组Y、线程组Z：
+    若 AMD状态 等于 空 或者 AMD状态 的 计算环_地址 等于 空：
+        返还。
+    完。
+    偏移 为 AMD状态 的 计算环_WPTR 取余于 (AMD状态 的 计算环_大小 除以 4)。
+    做 内存_写32 用 AMD状态 的 计算环_地址 加 偏移 乘 4、做 PM4_构建头 用 PM4_DISPATCH、4。
+    做 内存_写32 用 AMD状态 的 计算环_地址 加 (偏移 加 1) 乘 4、线程组X。
+    做 内存_写32 用 AMD状态 的 计算环_地址 加 (偏移 加 2) 乘 4、线程组Y。
+    做 内存_写32 用 AMD状态 的 计算环_地址 加 (偏移 加 3) 乘 4、线程组Z。
+    做 内存_写32 用 AMD状态 的 计算环_地址 加 (偏移 加 4) 乘 4、0。
+    AMD状态 的 计算环_WPTR 为 AMD状态 的 计算环_WPTR 加 5。
+    做 MMIO写32 用 AMD状态 的 mmio 加 mmCP_COMPUTE_RB_WPTR、AMD状态 的 计算环_WPTR。
+    AMD状态 的 计算分派数 为 AMD状态 的 计算分派数 加 1。
+完。
+
+GPU_fence_初始化 接受 零参：
+    若 AMD状态 等于 空：
+        返还。
+    完。
+    AMD状态 的 fence_地址 为 做 直传_分配 用 4096。
+    若 AMD状态 的 fence_地址 不等于 0：
+        做 内存_置零 用 AMD状态 的 fence_地址、4096。
+    完。
+    AMD状态 的 fence_值 为 0。
+完。
+
+GPU_fence_发射 接受 零参：
+    若 AMD状态 等于 空 或者 AMD状态 的 fence_地址 等于 0：
+        返还 0。
+    完。
+    AMD状态 的 fence_值 为 AMD状态 的 fence_值 加 1。
+    做 GFX环_写DW 用 做 PM4_构建头 用 PM4_FENCE、4。
+    做 GFX环_写DW 用 AMD状态 的 fence_地址 位与 0xFFFFFFFF。
+    做 GFX环_写DW 用 0。
+    做 GFX环_写DW 用 AMD状态 的 fence_值。
+    做 GFX环_写DW 用 0。
+    做 GFX环_提交。
+    AMD状态 的 fence同步数 为 AMD状态 的 fence同步数 加 1。
+    返还 AMD状态 的 fence_值。
+完。
+
+GPU_fence_等待 接受 目标值：
+    若 AMD状态 等于 空 或者 AMD状态 的 fence_地址 等于 0：
+        返还 错误_未初始化。
+    完。
+    可变 超时 为 1000000。
+    只要 超时 大于 0：
+        当前 为 做 内存_读32 用 AMD状态 的 fence_地址。
+        若 当前 大于或等于 目标值：
+            返还 成功。
+        完。
+        超时 为 超时 减 1。
+    完。
+    做 内核警告 用 「[GPU] fence等待超时: 目标=」 加 做 整数转字符串 用 目标值。
+    返还 错误_超时。
+完。
+
+GPU_fence_已完成 接受 目标值：
+    若 AMD状态 等于 空 或者 AMD状态 的 fence_地址 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 AMD状态 的 fence_地址 大于或等于 目标值。
+完。
+
+GPU内存块 是 一种 事物，含 物理地址、大小、类型、用途、引用计数。
+
+可变 GPU内存块列表 为 一组：（空）。
+
+图处内存_分配 接受 大小、类型、用途：
+    若 AMD状态 等于 空：
+        返还 空。
+    完。
+    对齐大小 为 大小 加 4095 位与 按位取反 4095。
+    若 类型 等于 VRAM：
+        若 AMD状态 的 VRAM_已用 加 对齐大小 大于 AMD状态 的 VRAM_总量：
+            返还 空。
+        完。
+        AMD状态 的 VRAM_已用 为 AMD状态 的 VRAM_已用 加 对齐大小。
+    否则：
+        若 AMD状态 的 GTT_已用 加 对齐大小 大于 AMD状态 的 GTT_总量：
+            返还 空。
+        完。
+        AMD状态 的 GTT_已用 为 AMD状态 的 GTT_已用 加 对齐大小。
+    完。
+    物理 为 做 伙伴系统_分配 用 对齐大小 除以 4096。
+    若 物理 等于 0：
+        返还 空。
+    完。
+    块 为 新建 GPU内存块：物理地址 为 物理、大小 为 对齐大小、类型 为 类型、用途 为 用途、引用计数 为 1。
+    做 追加 用 GPU内存块列表、块。
+    返还 块。
+完。
+
+图处内存_释放 接受 块：
+    若 块 等于 空 或者 AMD状态 等于 空：
+        返还。
+    完。
+    块 的 引用计数 为 块 的 引用计数 减 1。
+    若 块 的 引用计数 大于 0：
+        返还。
+    完。
+    若 块 的 类型 等于 VRAM：
+        AMD状态 的 VRAM_已用 为 AMD状态 的 VRAM_已用 减 块 的 大小。
+    否则：
+        AMD状态 的 GTT_已用 为 AMD状态 的 GTT_已用 减 块 的 大小。
+    完。
+    做 释放内存 用 块 的 物理地址。
+完。
+
+GPU_DMA复制 接受 源地址、目标地址、大小：
+    若 AMD状态 等于 空 或者 AMD状态 的 SDMA环_地址 等于 空：
+        返还 错误_未初始化。
+    完。
+    偏移 为 AMD状态 的 SDMA环_WPTR 取余于 (AMD状态 的 SDMA环_大小 除以 4)。
+    基址 为 AMD状态 的 SDMA环_地址。
+    做 内存_写32 用 基址 加 偏移 乘 4、做 PM4_构建头 用 PM4_DMA_COPY、6。
+    做 内存_写32 用 基址 加 (偏移 加 1) 乘 4、大小。
+    做 内存_写32 用 基址 加 (偏移 加 2) 乘 4、0。
+    做 内存_写32 用 基址 加 (偏移 加 3) 乘 4、源地址 位与 0xFFFFFFFF。
+    做 内存_写32 用 基址 加 (偏移 加 4) 乘 4、0。
+    做 内存_写32 用 基址 加 (偏移 加 5) 乘 4、目标地址 位与 0xFFFFFFFF。
+    做 内存_写32 用 基址 加 (偏移 加 6) 乘 4、0。
+    AMD状态 的 SDMA环_WPTR 为 AMD状态 的 SDMA环_WPTR 加 7。
+    做 MMIO写32 用 AMD状态 的 mmio 加 mmSDMA0_RB_WPTR、AMD状态 的 SDMA环_WPTR。
+    AMD状态 的 DMA复制数 为 AMD状态 的 DMA复制数 加 1。
+    返还 成功。
+完。
+
+AMD_GPU中断处理 接受 零参：
+    若 AMD状态 等于 空：
+        返还。
+    完。
+    状态 为 做 MMIO读32 用 AMD状态 的 mmio 加 mmGRBM_STATUS。
+完。
+
+AI_GPU利用率_更新 接受 零参：
+    若 AMD状态 等于 空：
+        返还。
+    完。
+    状态 为 做 MMIO读32 用 AMD状态 的 mmio 加 mmGRBM_STATUS。
+    忙碌 为 状态 位与 GRBM_STATUS_CP_BUSY 不等于 0。
+    若 忙碌：
+        AMD状态 的 AI_GPU利用率 为 (AMD状态 的 AI_GPU利用率 乘 7 加 1000) 除以 8。
+    否则：
+        AMD状态 的 AI_GPU利用率 为 AMD状态 的 AI_GPU利用率 乘 7 除以 8。
+    完。
+    若 AMD状态 的 AI_GPU利用率 大于 800：
+        AMD状态 的 AI_命令批大小 为 16。
+    否则若 AMD状态 的 AI_GPU利用率 大于 500：
+        AMD状态 的 AI_命令批大小 为 8。
+    否则：
+        AMD状态 的 AI_命令批大小 为 4。
+    完。
+完。
+
+GPU_统计 接受 零参：
+    若 AMD状态 等于 空：
+        返还 空。
+    完。
+    返还 一本字典：命令提交 对应 AMD状态 的 命令提交数、绘制调用 对应 AMD状态 的 绘制调用数、计算分派 对应 AMD状态 的 计算分派数、DMA复制 对应 AMD状态 的 DMA复制数、fence同步 对应 AMD状态 的 fence同步数、VRAM已用MB 对应 AMD状态 的 VRAM_已用 除以 (1024 乘 1024)、VRAM总量MB 对应 AMD状态 的 VRAM_总量 除以 (1024 乘 1024)、GTT已用MB 对应 AMD状态 的 GTT_已用 除以 (1024 乘 1024)、GPU利用率 对应 AMD状态 的 AI_GPU利用率、命令批大小 对应 AMD状态 的 AI_命令批大小、显存块数 对应 做 计数 用 GPU内存块列表。
+完。
+
+GPU_健康检查 接受 零参：
+    若 AMD状态 等于 空：
+        返还 「GPU未初始化」。
+    完。
+    可变 问题 为 一组：（空）。
+    若 AMD状态 的 VRAM_已用 大于 AMD状态 的 VRAM_总量 乘 90 除以 100：
+        做 追加 用 问题、「VRAM接近满: 」 加 做 整数转字符串 用 AMD状态 的 VRAM_已用 乘 100 除以 AMD状态 的 VRAM_总量 加 「%」。
+    完。
+    若 AMD状态 的 AI_GPU利用率 大于 950：
+        做 追加 用 问题、「GPU利用率过高: 」 加 做 整数转字符串 用 AMD状态 的 AI_GPU利用率 除以 10 加 「%」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「GPU健康」。
+    完。
+    返还 问题。
+完。
+
+图处_数量 接受 零参：
+    若 GPU_已初始化：
+        返还 1。
+    完。
+    返还 0。
+完。
+
+图处_获取主设备 接受 零参：
+    若 AMD状态 不等于 空：
+        返还 AMD状态。
+    完。
+    返还 空。
+完。
+
+图处_枚举 接受 零参：
+    GPU_已初始化 为 真。
+完。
+
+图处驱动_初始化 接受 设备：
+    若 设备 等于 空：
+        返还。
+    完。
+    做 AMD_MMHUB_初始化。
+    做 AMD_GFX环_初始化。
+    做 AMD_计算环_初始化。
+    做 AMD_S直传_初始化。
+    做 GPU_fence_初始化。
+    做 内核打印 用 「[GPU] AMD驱动全部初始化完成」。
+完。
+
+获取图处驱动句柄 接受 零参：
+    返还 AMD状态。
+完。
+
+本章 收束。

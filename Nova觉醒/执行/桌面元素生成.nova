@@ -1,0 +1,238 @@
+《桌面元素生成》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·生成窗口元》。
+
+引用《..·中枢·硬链接》。
+
+引用《.·桌面文本工具》。
+
+引用《..·中枢·时钟中枢》。
+
+引用《..·中枢·整数转字符串》。
+
+外部。
+
+系统时间_获取秒。
+
+外部。
+
+读取毫秒。
+
+Nova原生桌面_补零 接受 n：
+    若 n 小于 10：
+        返还 「0」 加 做 整数转字符串 用 n。
+    完。
+    返还 做 整数转字符串 用 n。
+完。
+
+Nova原生桌面_格式化时钟文本 接受 零参：
+    可变 秒 为 做 系统时间_获取秒。
+    若 秒 小于或等于 0：
+        秒 为 做 读取毫秒 除以 1000。
+    完。
+    时 为 秒 取余于 86400 除以 3600。
+    分 为 秒 取余于 3600 除以 60。
+    返还 做 Nova原生桌面_补零 用 时 加 「:」 加 做 Nova原生桌面_补零 用 分。
+完。
+
+Nova原生桌面_格式化运行时文本 接受 零参：
+    运行毫秒 为 做 读取毫秒。
+    总秒 为 运行毫秒 除以 1000。
+    时 为 总秒 除以 3600。
+    分 为 总秒 取余于 3600 除以 60。
+    秒余 为 总秒 取余于 60。
+    若 时 大于 0：
+        返还 「up 」 加 做 Nova原生桌面_补零 用 时 加 「h 」 加 做 Nova原生桌面_补零 用 分 加 「m」。
+    完。
+    若 分 大于 0：
+        返还 「up 」 加 做 Nova原生桌面_补零 用 分 加 「m 」 加 做 Nova原生桌面_补零 用 秒余 加 「s」。
+    完。
+    返还 「up 」 加 做 Nova原生桌面_补零 用 秒余 加 「s」。
+完。
+
+Nova原生桌面_构建桌面NML 接受 零参：
+    可变 html 为 「<!DOCTYPE html><html><head>」。
+    html 为 html 加 「<meta charset='UTF-8'>」。
+    html 为 html 加 「<title>NovaOS Desktop</title>」。
+    html 为 html 加 「<style>」 加 桌面 的 主题CSS 加 「</style>」。
+    html 为 html 加 「</head><body class='nova-desktop'>」。
+    可变 壳前台文本 为 桌面 的 壳输入提示。
+    若 做 字符串长度 用 桌面 的 壳输入缓冲 大于 0：
+        壳前台文本 为 「> 」 加 桌面 的 壳输入缓冲。
+    否则若 做 字符串长度 用 桌面 的 壳最后输入 大于 0：
+        壳前台文本 为 桌面 的 壳最后输入。
+    完。
+    壳结果文本 为 桌面 的 壳最后结果。
+    若 做 字符串长度 用 壳结果文本 等于 0：
+        壳结果文本 为 「系统主壳前台就绪」。
+    完。
+    系统时钟文本 为 做 Nova原生桌面_格式化时钟文本。
+    运行时文本 为 做 Nova原生桌面_格式化运行时文本。
+    html 为 html 加 「<div id='wallpaper' class='wallpaper-layer'></div>」。
+    html 为 html 加 做 Nova原生桌面_生成桌面工作区NML_新版。
+    html 为 html 加 「<div id='icons' class='icon-layer'>」。
+    html 为 html 加 做 Nova原生桌面_生成图标NML。
+    html 为 html 加 「</div>」。
+    html 为 html 加 「<div id='windows' class='window-layer'>」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 桌面 的 窗口列表：
+        若 桌面 的 窗口列表 的 第 i 项 的 可见：
+            html 为 html 加 做 Nova原生桌面_生成窗口NML 用 桌面 的 窗口列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    html 为 html 加 「</div>」。
+    html 为 html 加 「<div id='notifications' class='notification-layer'></div>」。
+    html 为 html 加 「<div id='sysbar' class='system-bar'>」。
+    html 为 html 加 「  <div class='sysbar-left'><span class='sysbar-brand-mark'>N</span><span>NovaOS Workspace</span></div>」。
+    html 为 html 加 「  <div class='sysbar-center'>」。
+    html 为 html 加 「    <div class='sysbar-omnibox'><span class='sysbar-omnibox-text'>」 加 做 Nova原生桌面_转义HTML文本 用 做 Nova原生桌面_截断文本 用 壳前台文本、96 加 「</span><span class='sysbar-omnibox-meta'>」 加 做 Nova原生桌面_转义HTML文本 用 做 Nova原生桌面_截断文本 用 壳结果文本、52 加 「</span></div>」。
+    html 为 html 加 「  </div>」。
+    html 为 html 加 「  <span class='sysbar-right'>」。
+    html 为 html 加 「    <span class='sysbar-item sysbar-live' id='core'>Core 」 加 做 Nova原生桌面_转义HTML文本 用 桌面 的 核心状态 加 「</span>」。
+    html 为 html 加 「    <span class='sysbar-item' id='vision'>Vision 」 加 做 Nova原生桌面_转义HTML文本 用 桌面 的 视觉状态 加 「</span>」。
+    html 为 html 加 「    <span class='sysbar-item' id='voice'>Voice 」 加 做 Nova原生桌面_转义HTML文本 用 桌面 的 声音状态 加 「</span>」。
+    html 为 html 加 「    <span class='sysbar-item' id='avatar'>Avatar 」 加 做 Nova原生桌面_转义HTML文本 用 桌面 的 形象状态 加 「</span>」。
+    html 为 html 加 「    <span class='sysbar-item' id='clock'>」 加 做 Nova原生桌面_转义HTML文本 用 系统时钟文本 加 「</span>」。
+    html 为 html 加 「  </span>」。
+    html 为 html 加 「</div>」。
+    html 为 html 加 「<div id='taNova缓冲ar' class='taNova缓冲ar'>」。
+    html 为 html 加 「  <div class='taNova缓冲ar-launcher' id='launcher'>Nova 终端</div>」。
+    html 为 html 加 「  <div class='taNova缓冲ar-apps' id='taNova缓冲ar-apps'>」。
+    html 为 html 加 做 Nova原生桌面_生成任务栏NML。
+    html 为 html 加 「  </div>」。
+    html 为 html 加 「  <div class='taNova缓冲ar-tray' id='taNova缓冲ar-tray'><span class='tray-pill'>core 」 加 做 Nova原生桌面_转义HTML文本 用 桌面 的 核心状态 加 「</span><span class='tray-pill'>vision 」 加 做 Nova原生桌面_转义HTML文本 用 桌面 的 视觉状态 加 「</span><span class='tray-pill'>voice 」 加 做 Nova原生桌面_转义HTML文本 用 桌面 的 声音状态 加 「</span><span class='tray-pill'>avatar 」 加 做 Nova原生桌面_转义HTML文本 用 桌面 的 形象状态 加 「</span><span class='tray-pill'>」 加 做 Nova原生桌面_转义HTML文本 用 运行时文本 加 「</span><span class='tray-pill'>」 加 做 Nova原生桌面_转义HTML文本 用 做 Nova原生桌面_截断文本 用 桌面 的 壳最后动作、16 加 「</span></div>」。
+    html 为 html 加 「</div>」。
+    html 为 html 加 「</body></html>」。
+    文档 为 做 DOM_解析NML 用 html、「nova://desktop」。
+    返还 文档。
+完。
+
+Nova原生桌面_生成桌面CSS 接受 零参：
+    可变 css 为 「」。
+    css 为 css 加 「*{margin:0;padding:0;box-sizing:border-box;}」。
+    css 为 css 加 「body{overflow:hidden;font-family:'Nova Sans',system-ui,sans-serif;}」。
+    css 为 css 加 「.nova-desktop{width:100vw;height:100vh;background:#0f0a1e;color:#f0e6ff;}」。
+    css 为 css 加 「.tray-pill{color:#c084fc;background:rgba(88,28,135,0.35);border:1px solid rgba(168,85,247,0.2);border-radius:999px;padding:4px 8px;font-size:11px;}」。
+    css 为 css 加 「.wallpaper-layer{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;」。
+    css 为 css 加 「background:radial-gradient(ellipse at 18% 12%,rgba(88,28,135,0.4),transparent 40%),」。
+    css 为 css 加 「radial-gradient(ellipse at 82% 14%,rgba(168,85,247,0.2),transparent 35%),」。
+    css 为 css 加 「radial-gradient(ellipse at 50% 80%,rgba(251,191,36,0.1),transparent 30%),」。
+    css 为 css 加 「linear-gradient(145deg,#0f0a1e 0%,#1a0f2e 40%,#0d0b1a 100%);}」。
+    css 为 css 加 「.icon-layer{position:fixed;top:78px;left:0;right:0;bottom:110px;z-index:1;}」。
+    css 为 css 加 「.desktop-icon{display:flex;flex-direction:column;align-items:center;width:92px;height:108px;」。
+    css 为 css 加 「position:absolute;cursor:pointer;border-radius:20px;padding:12px 8px;」。
+    css 为 css 加 「background:linear-gradient(180deg,rgba(88,28,135,0.35),rgba(30,15,60,0.5));」。
+    css 为 css 加 「border:1px solid rgba(168,85,247,0.25);backdrop-filter:blur(18px);」。
+    css 为 css 加 「box-shadow:0 18px 34px rgba(88,28,135,0.2);transition:all 0.3s ease;}」。
+    css 为 css 加 「.desktop-icon:hover{background:linear-gradient(180deg,rgba(168,85,247,0.4),rgba(88,28,135,0.5));」。
+    css 为 css 加 「border-color:rgba(168,85,247,0.55);box-shadow:0 22px 38px rgba(168,85,247,0.3),0 0 20px rgba(168,85,247,0.15);」。
+    css 为 css 加 「transform:translateY(-2px);}」。
+    css 为 css 加 「.desktop-icon .icon-img{width:48px;height:48px;border-radius:14px;display:flex;」。
+    css 为 css 加 「align-items:center;justify-content:center;margin-bottom:4px;overflow:hidden;」。
+    css 为 css 加 「box-shadow:0 8px 18px rgba(88,28,135,0.3);}」。
+    css 为 css 加 「.desktop-icon .icon-img img{width:100%;height:100%;object-fit:cover;}」。
+    css 为 css 加 「.desktop-icon .icon-name{font-size:12px;color:#d8b4fe;text-align:center;font-weight:700;text-shadow:0 1px 4px rgba(0,0,0,0.5);}」。
+    css 为 css 加 「.system-bar{position:fixed;top:18px;left:20px;right:20px;height:48px;z-index:100;」。
+    css 为 css 加 「background:linear-gradient(180deg,rgba(30,15,60,0.7),rgba(15,10,30,0.75));backdrop-filter:blur(26px);」。
+    css 为 css 加 「display:flex;align-items:center;justify-content:space-between;padding:0 16px 0 18px;font-size:12px;」。
+    css 为 css 加 「border:1px solid rgba(168,85,247,0.2);border-radius:20px;」。
+    css 为 css 加 「box-shadow:0 18px 44px rgba(88,28,135,0.25),inset 0 1px 0 rgba(168,85,247,0.1);}」。
+    css 为 css 加 「.sysbar-left{font-weight:700;color:#d8b4fe;display:flex;align-items:center;gap:10px;}」。
+    css 为 css 加 「.sysbar-brand-mark{color:#fbbf24;}」。
+    css 为 css 加 「.sysbar-center{flex:1;display:flex;justify-content:center;padding:0 18px;}」。
+    css 为 css 加 「.sysbar-omnibox{min-width:480px;max-width:780px;width:100%;height:32px;border-radius:999px;」。
+    css 为 css 加 「background:rgba(88,28,135,0.3);border:1px solid rgba(168,85,247,0.2);」。
+    css 为 css 加 「display:flex;align-items:center;justify-content:flex-start;color:#c084fc;padding:0 16px;」。
+    css 为 css 加 「overflow:hidden;white-space:nowrap;box-shadow:inset 0 1px 0 rgba(168,85,247,0.1);}」。
+    css 为 css 加 「.sysbar-omnibox-text{color:#d8b4fe;}」。
+    css 为 css 加 「.sysbar-omnibox-meta{color:#a78bfa;margin-left:8px;font-size:11px;}」。
+    css 为 css 加 「.sysbar-right{display:flex;gap:10px;align-items:center;}」。
+    css 为 css 加 「.sysbar-item{color:#c084fc;padding:6px 10px;border-radius:999px;background:rgba(88,28,135,0.35);border:1px solid rgba(168,85,247,0.2);font-weight:600;}」。
+    css 为 css 加 「.sysbar-item.sysbar-live{color:#fbbf24;border-color:rgba(251,191,36,0.3);}」。
+    css 为 css 加 「.taNova缓冲ar{position:fixed;bottom:18px;left:20px;right:20px;height:64px;z-index:100;」。
+    css 为 css 加 「background:linear-gradient(180deg,rgba(30,15,60,0.7),rgba(15,10,30,0.75));backdrop-filter:blur(28px);」。
+    css 为 css 加 「display:flex;align-items:center;padding:0 12px;gap:10px;」。
+    css 为 css 加 「border:1px solid rgba(168,85,247,0.2);border-radius:24px;」。
+    css 为 css 加 「box-shadow:0 22px 46px rgba(88,28,135,0.25),inset 0 1px 0 rgba(168,85,247,0.1);}」。
+    css 为 css 加 「.taNova缓冲ar-launcher{min-width:118px;height:44px;border-radius:16px;」。
+    css 为 css 加 「background:linear-gradient(135deg,rgba(168,85,247,0.5),rgba(88,28,135,0.6),rgba(251,191,36,0.2));」。
+    css 为 css 加 「display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;」。
+    css 为 css 加 「color:#f0e6ff;font-weight:800;border:1px solid rgba(168,85,247,0.35);」。
+    css 为 css 加 「box-shadow:0 12px 24px rgba(88,28,135,0.3);}」。
+    css 为 css 加 「.taNova缓冲ar-apps{flex:1;display:flex;gap:10px;padding:0 4px;align-items:center;}」。
+    css 为 css 加 「.taNova缓冲ar-app{min-width:52px;height:44px;border-radius:16px;display:flex;」。
+    css 为 css 加 「align-items:center;justify-content:center;cursor:pointer;font-size:16px;」。
+    css 为 css 加 「background:rgba(88,28,135,0.3);border:1px solid rgba(168,85,247,0.15);」。
+    css 为 css 加 「color:#d8b4fe;transition:all 0.2s ease;}」。
+    css 为 css 加 「.taNova缓冲ar-app:hover{background:rgba(168,85,247,0.4);border-color:rgba(168,85,247,0.4);}」。
+    css 为 css 加 「.taNova缓冲ar-app.active{background:linear-gradient(135deg,rgba(168,85,247,0.45),rgba(88,28,135,0.5));」。
+    css 为 css 加 「border-color:rgba(168,85,247,0.5);box-shadow:0 0 16px rgba(168,85,247,0.25);}」。
+    css 为 css 加 「.window-layer{position:fixed;top:78px;left:0;right:0;bottom:110px;z-index:10;}」。
+    css 为 css 加 「.nova-window{position:absolute;border-radius:14px;overflow:hidden;」。
+    css 为 css 加 「background:linear-gradient(180deg,rgba(25,12,50,0.82),rgba(15,10,30,0.88));」。
+    css 为 css 加 「border:1px solid rgba(168,85,247,0.18);」。
+    css 为 css 加 「box-shadow:0 30px 70px rgba(88,28,135,0.3);display:flex;flex-direction:column;backdrop-filter:blur(26px);}」。
+    css 为 css 加 「.nova-window.focused{border-color:rgba(168,85,247,0.5);」。
+    css 为 css 加 「box-shadow:0 34px 80px rgba(88,28,135,0.35),0 0 0 1px rgba(168,85,247,0.3),0 0 40px rgba(168,85,247,0.1);}」。
+    css 为 css 加 「.window-titlebar{height:48px;background:linear-gradient(180deg,rgba(40,20,75,0.7),rgba(25,12,50,0.6));display:flex;」。
+    css 为 css 加 「align-items:center;padding:0 12px;cursor:grab;user-select:none;}」。
+    css 为 css 加 「.window-titlebar .title{flex:1;font-size:13px;color:#d8b4fe;font-weight:700;}」。
+    css 为 css 加 「.window-controls{display:flex;gap:8px;}」。
+    css 为 css 加 「.window-btn{width:12px;height:12px;border-radius:50%;cursor:pointer;}」。
+    css 为 css 加 「.window-btn.close{background:#ef4444;}」。
+    css 为 css 加 「.window-btn.minimize{background:#f59e0b;}」。
+    css 为 css 加 「.window-btn.maximize{background:#22c55e;}」。
+    css 为 css 加 「.window-content{flex:1;overflow:auto;background:linear-gradient(180deg,rgba(15,10,30,0.9),rgba(10,6,20,0.95));}」。
+    css 为 css 加 「.window-page-终端{padding:16px;display:flex;flex-direction:column;gap:8px;color:#c084fc;}」。
+    css 为 css 加 「.window-page-url{font-size:12px;color:#5d7ea6;word-break:break-all;}」。
+    css 为 css 加 「.window-page-title{font-size:18px;font-weight:600;color:#10233f;}」。
+    css 为 css 加 「.window-page-status{font-size:12px;color:#6e829c;}」。
+    css 为 css 加 「.window-终端-actions{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0 10px 0;}」。
+    css 为 css 加 「.window-终端-actions a{padding:6px 10px;border-radius:10px;background:rgba(255,255,255,0.78);border:1px solid rgba(226,232,240,0.92);color:#173b68;text-decoration:none;font-size:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,0.96);}」。
+    css 为 css 加 「.window-page-终端 .nova-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:6px;}」。
+    css 为 css 加 「.window-page-终端 .nova-panel{padding:14px;background:linear-gradient(180deg,rgba(255,255,255,0.84),rgba(244,247,251,0.74));border:1px solid rgba(226,232,240,0.92);border-radius:14px;box-shadow:0 16px 36px rgba(148,163,184,0.14);}」。
+    css 为 css 加 「.window-page-终端 .nova-panel h2{margin:0 0 8px 0;color:#17304d;font-size:16px;}」。
+    css 为 css 加 「.window-page-终端 .nova-panel p{margin:0 0 8px 0;color:#586d88;line-height:1.5;}」。
+    css 为 css 加 「.window-page-终端 .nova-panel ul{margin:0;padding-left:18px;color:#395169;}」。
+    css 为 css 加 「.window-page-终端 .nova-panel li{margin-bottom:6px;}」。
+    css 为 css 加 「.window-page-终端 .nova-input{margin-top:8px;padding:10px 12px;border-radius:10px;background:rgba(255,255,255,0.8);border:1px solid rgba(226,232,240,0.92);color:#17304d;}」。
+    css 为 css 加 「.window-page-终端 .nova-bar{height:8px;border-radius:999px;background:rgba(148,163,184,0.18);margin-top:10px;overflow:hidden;}」。
+    css 为 css 加 「.window-page-终端 .nova-bar span{display:block;height:8px;border-radius:999px;background:linear-gradient(90deg,#60a5fa,#93c5fd,#2dd4bf);}」。
+    css 为 css 加 「.notification-layer{position:fixed;top:84px;right:20px;z-index:200;}」。
+    css 为 css 加 「.notification{width:320px;padding:12px 16px;margin-bottom:8px;border-radius:14px;」。
+    css 为 css 加 「background:linear-gradient(180deg,rgba(40,20,75,0.8),rgba(25,12,50,0.85));backdrop-filter:blur(16px);」。
+    css 为 css 加 「border:1px solid rgba(168,85,247,0.25);color:#d8b4fe;」。
+    css 为 css 加 「box-shadow:0 18px 36px rgba(88,28,135,0.25),0 0 20px rgba(168,85,247,0.08);}」。
+    css 为 css 加 做 Nova原生桌面_生成桌面新版覆盖CSS。
+    返还 css。
+完。
+
+可变 AI_桌面元素生_热节点缓存 为 0。
+
+AI_桌面元素生_节点热度 接受 节点、操作类型：
+    若 操作类型 等于 「查询」：
+        返还 「缓存」。
+    完。
+    若 操作类型 等于 「修改」：
+        AI_桌面元素生_热节点缓存 为 0。
+        返还 「失效」。
+    完。
+    返还 「普通」。
+完。
+
+AI_桌面元素生_批量DOM优化 接受 操作数：
+    若 操作数 大于 100：
+        返还 「延迟重排」。
+    完。
+    若 操作数 大于 10：
+        返还 「批量重排」。
+    完。
+    返还 「即时重排」。
+完。
+
+本章 收束。

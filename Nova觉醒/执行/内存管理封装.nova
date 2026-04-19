@@ -1,0 +1,199 @@
+《内存管理封装》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·底层系统调用原语》。
+
+引用《..·感知·内核直连层》。
+
+系统调用_Nova内存映射 接受 addr、length、prot、flags、fd、offset：
+    返还 做 系统调用6 用 SYS_Nova内存映射、addr、length、prot、flags、fd、offset。
+完。
+
+系统调用_munmap 接受 addr、length：
+    返还 做 系统调用2 用 SYS_munmap、addr、length。
+完。
+
+系统调用_mprotect 接受 addr、length、prot：
+    返还 做 系统调用3 用 SYS_mprotect、addr、length、prot。
+完。
+
+系统调用_mremap 接受 old_addr、old_size、new_size、flags：
+    返还 做 系统调用4 用 SYS_mremap、old_addr、old_size、new_size、flags。
+完。
+
+系统调用_madvise 接受 addr、length、advice：
+    返还 做 系统调用3 用 SYS_madvise、addr、length、advice。
+完。
+
+系统调用_brk 接受 addr：
+    返还 做 系统调用1 用 SYS_brk、addr。
+完。
+
+系统调用_memfd_create 接受 name、flags：
+    返还 做 系统调用2 用 SYS_memfd_create、name、flags。
+完。
+
+平台_匿名Nova内存映射 接受 大小：
+    返还 做 系统调用_Nova内存映射 用 0、大小、PROT_READ 位或 PROT_WRITE、MAP_PRIVATE 位或 MAP_ANONYMOUS、负 1、0。
+完。
+
+系统调用_fork 接受 零参：
+    返还 做 系统调用5 用 SYS_clone、SIGCHLD、0、0、0、0。
+完。
+
+系统调用_exit 接受 code：
+    做 系统调用1 用 SYS_exit_group、code。
+完。
+
+系统调用_waitpid 接受 pid、status、options：
+    返还 做 系统调用4 用 SYS_wait4、pid、status、options、0。
+完。
+
+系统调用_kill 接受 pid、sig：
+    返还 做 系统调用2 用 SYS_kill、pid、sig。
+完。
+
+系统调用_getpid 接受 零参：
+    返还 做 系统调用0 用 SYS_getpid。
+完。
+
+系统调用_gettid 接受 零参：
+    返还 做 系统调用0 用 SYS_gettid。
+完。
+
+系统调用_execve 接受 路径、argv、envp：
+    返还 做 系统调用3 用 SYS_execve、路径、argv、envp。
+完。
+
+系统调用_clone_线程 接受 fn、stack、flags、arg：
+    thread_flags 为 flags 位或 0x100 位或 0x200 位或 0x400 位或 0x800 位或 0x10000。
+    返还 做 系统调用5 用 SYS_clone、thread_flags 位或 SIGCHLD、stack、0、0、0。
+完。
+
+系统调用_Nova快速锁 接受 uaddr、op、val、timeout：
+    返还 做 系统调用4 用 SYS_Nova快速锁、uaddr、op、val、timeout。
+完。
+
+系统调用_sched_yield 接受 零参：
+    返还 做 系统调用0 用 SYS_sched_yield。
+完。
+
+系统调用_prctl 接受 option、arg2、arg3、arg4、arg5：
+    返还 做 系统调用5 用 SYS_prctl、option、arg2、arg3、arg4、arg5。
+完。
+
+系统调用_socket 接受 domain、type、protocol：
+    返还 做 系统调用3 用 SYS_socket、domain、type、protocol。
+完。
+
+系统调用_connect 接受 fd、addr、addrlen：
+    返还 做 系统调用3 用 SYS_connect、fd、addr、addrlen。
+完。
+
+系统调用_bind 接受 fd、addr、addrlen：
+    返还 做 系统调用3 用 SYS_bind、fd、addr、addrlen。
+完。
+
+系统调用_listen 接受 fd、backlog：
+    返还 做 系统调用2 用 SYS_listen、fd、backlog。
+完。
+
+系统调用_accept4 接受 fd、addr、addrlen、flags：
+    返还 做 系统调用4 用 SYS_accept4、fd、addr、addrlen、flags。
+完。
+
+系统调用_sendto 接受 fd、buf、len、flags、addr、addrlen：
+    返还 做 系统调用6 用 SYS_sendto、fd、buf、len、flags、addr、addrlen。
+完。
+
+系统调用_recvfrom 接受 fd、buf、len、flags、addr、addrlen：
+    返还 做 系统调用6 用 SYS_recvfrom、fd、buf、len、flags、addr、addrlen。
+完。
+
+系统调用_sendmsg 接受 fd、msg、flags：
+    返还 做 系统调用3 用 SYS_sendmsg、fd、msg、flags。
+完。
+
+系统调用_recvmsg 接受 fd、msg、flags：
+    返还 做 系统调用3 用 SYS_recvmsg、fd、msg、flags。
+完。
+
+系统调用_shutdown 接受 fd、how：
+    返还 做 系统调用2 用 SYS_shutdown、fd、how。
+完。
+
+系统调用_setsockopt 接受 fd、level、optname、optval、optlen：
+    返还 做 系统调用5 用 SYS_setsockopt、fd、level、optname、optval、optlen。
+完。
+
+系统调用_getsockopt 接受 fd、level、optname、optval、optlen：
+    返还 做 系统调用5 用 SYS_getsockopt、fd、level、optname、optval、optlen。
+完。
+
+系统调用_socketpair 接受 domain、type、protocol、fds：
+    返还 做 系统调用4 用 SYS_socketpair、domain、type、protocol、fds。
+完。
+
+平台_socket_发送 接受 fd、buf、len：
+    返还 做 系统调用_sendto 用 fd、buf、len、0、0、0。
+完。
+
+平台_socket_接收 接受 fd、buf、max：
+    返还 做 系统调用_recvfrom 用 fd、buf、max、0、0、0。
+完。
+
+平台_设置传控无延迟 接受 fd：
+    val 为 做 堆_分配 用 4。
+    做 内存_写32 用 val、1。
+    做 系统调用_setsockopt 用 fd、IPPROTO_传控、传控_节点LAY、val、4。
+    做 堆_释放 用 val。
+完。
+
+平台_设置非阻塞 接受 fd：
+    flags 为 做 系统调用_fcntl 用 fd、F_GETFL、0。
+    做 系统调用_fcntl 用 fd、F_SETFL、flags 位或 O_NONBLOCK。
+完。
+
+网络_htons 接受 v：
+    返还 (v 位与 0xFF) 左移 8 位或 v 右移 8 位与 0xFF。
+完。
+
+网络_htonl 接受 v：
+    返还 (v 位与 0xFF) 左移 24 位或 (v 右移 8 位与 0xFF) 左移 16 位或 (v 右移 16 位与 0xFF) 左移 8 位或 v 右移 24 位与 0xFF。
+完。
+
+网络_ntohs 接受 v：
+    返还 做 网络_htons 用 v。
+完。
+
+网络_ntohl 接受 v：
+    返还 做 网络_htonl 用 v。
+完。
+
+平台_构建IPv4地址 接受 ip、port：
+    addr 为 做 堆_分配 用 16。
+    做 内存_写16 用 addr、AF_INET。
+    做 内存_写16 用 addr 加 2、做 网络_htons 用 port。
+    做 内存_写32 用 addr 加 4、ip。
+    做 内存_置零 用 addr 加 8、8。
+    返还 addr。
+完。
+
+可变 AI_内存管理封_运行指标 为 0。
+
+可变 AI_内存管理封_异常指标 为 0。
+
+AI_内存管理封_自诊断 接受 零参：
+    AI_内存管理封_运行指标 为 0。
+    返还 AI_内存管理封_运行指标。
+完。
+
+AI_内存管理封_优化建议 接受 零参：
+    指标 为 做 AI_内存管理封_自诊断。
+    返还 「内存管理封状态正常」。
+完。
+
+本章 收束。

@@ -1,0 +1,91 @@
+《获取》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·内容可见性》。
+
+GEO_PERMISSION_DENIED 为 1。
+
+GEO_POSITION_UNAVAILABLE 为 2。
+
+GEO_TIMEOUT 为 3。
+
+GeolocationPosition 是 一种 事物，含 纬度、经度、海拔、精度、海拔精度、航向、速度、时间戳。
+
+GeolocationOptions 是 一种 事物，含 enableHighAccuracy、timeout、maximumAge。
+
+GeolocationWatch 是 一种 事物，含 ID、成功回调、错误回调、选项、活跃。
+
+Geolocation 是 一种 事物，含 权限、最后位置、最后时间、watches、watch数、下一个watchID。
+
+可变 全局Geo 为 0。
+
+Geo_获取 接受 零参：
+    若 全局Geo 等于 0：
+        全局Geo 为 做 堆_分配 用 Geolocation。
+        全局Geo 的 权限 为 0。
+        全局Geo 的 最后位置 为 0。
+        全局Geo 的 最后时间 为 0。
+        全局Geo 的 watch数 为 0。
+        全局Geo 的 下一个watchID 为 1。
+    完。
+    返还 全局Geo。
+完。
+
+Geo_getCurrentPosition 接受 成功回调、错误回调、highAccuracy、timeout、maxAge：
+    geo 为 做 Geo_获取。
+    若 geo 的 权限 等于 2：
+        若 错误回调 不等于 0：
+        完。
+        返还。
+    完。
+    若 geo 的 最后位置 不等于 0 并且 maxAge 大于 0：
+        age 为 做 平台_获取高精度时间 减 geo 的 最后时间。
+        若 age 小于或等于 maxAge：
+            若 成功回调 不等于 0：
+            完。
+            返还。
+        完。
+    完。
+    pos 为 做 堆_分配 用 GeolocationPosition。
+    pos 的 时间戳 为 做 平台_获取高精度时间。
+    geo 的 最后位置 为 pos。
+    geo 的 最后时间 为 pos 的 时间戳。
+    若 成功回调 不等于 0：
+    完。
+完。
+
+Geo_watchPosition 接受 成功回调、错误回调、highAccuracy、timeout、maxAge：
+    geo 为 做 Geo_获取。
+    若 geo 的 watch数 大于或等于 16：
+        返还 0。
+    完。
+    id 为 geo 的 下一个watchID。
+    geo 的 下一个watchID 为 geo 的 下一个watchID 加 1。
+    idx 为 geo 的 watch数。
+    geo 的 watches 的 第 idx 项 的 ID 为 id。
+    geo 的 watches 的 第 idx 项 的 成功回调 为 成功回调。
+    geo 的 watches 的 第 idx 项 的 错误回调 为 错误回调。
+    geo 的 watches 的 第 idx 项 的 选项 的 enableHighAccuracy 为 highAccuracy。
+    geo 的 watches 的 第 idx 项 的 选项 的 timeout 为 timeout。
+    geo 的 watches 的 第 idx 项 的 选项 的 maximumAge 为 maxAge。
+    geo 的 watches 的 第 idx 项 的 活跃 为 真。
+    geo 的 watch数 为 geo 的 watch数 加 1。
+    返还 id。
+完。
+
+Geo_clearWatch 接受 id：
+    geo 为 做 Geo_获取。
+    可变 i 为 0。
+    只要 i 小于 geo 的 watch数：
+        若 geo 的 watches 的 第 i 项 的 ID 等于 id：
+            geo 的 watches 的 第 i 项 的 活跃 为 假。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

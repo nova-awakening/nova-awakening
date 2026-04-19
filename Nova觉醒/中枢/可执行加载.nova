@@ -1,0 +1,317 @@
+《可执行加载》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《..·记忆·VFS文件读写》。
+
+引用《.·字符串替换》。
+
+引用《.·进程描述符》。
+
+引用《..·引导·端口IO》。
+
+引用《.·整数转字符串》。
+
+引用《.·内核打印》。
+
+引用《..·感知·内核直连层》。
+
+ELF_MAGIC 为 0x464C457F。
+
+ELFCLASS64 为 2。
+
+ELFDATA2LSB 为 1。
+
+ET_EXEC 为 2。
+
+ET_DYN 为 3。
+
+EM_X86_64 为 62。
+
+PT_NULL 为 0。
+
+PT_LOAD 为 1。
+
+PT_DYNAMIC 为 2。
+
+PT_INTERP 为 3。
+
+PT_NOTE 为 4。
+
+PT_PHDR 为 6。
+
+PF_X 为 1。
+
+PF_W 为 2。
+
+PF_R 为 4。
+
+Elf64_Ehdr 是 一种 事物，含 e_ident、e_type、e_machine、e_version、e_entry、e_phoff、e_shoff、e_flags、e_ehsize、e_phentsize、e_phnum、e_shentsize、e_shnum、e_shstrndx。
+
+Elf64_Phdr 是 一种 事物，含 p_type、p_flags、p_offset、p_vaddr、p_paddr、p_filesz、p_memsz、p_align。
+
+AT_NULL 为 0。
+
+AT_PHDR 为 3。
+
+AT_PHENT 为 4。
+
+AT_PHNUM 为 5。
+
+AT_PAGESZ 为 6。
+
+AT_BASE 为 7。
+
+AT_ENTRY 为 9。
+
+AT_UID 为 11。
+
+AT_EUID 为 12。
+
+AT_GID 为 13。
+
+AT_EGID 为 14。
+
+AT_RANDOM 为 25。
+
+ELF加载_解析 接受 路径：
+    返还 做 加载ELF二进制 用 路径、空。
+完。
+
+加载ELF二进制 接受 路径、任务：
+    文件 为 做 vfs_打开 用 路径、O_RDONLY。
+    若 文件 等于 空：
+        返还 错误_不存在。
+    完。
+    头数据 为 做 vfs_读取 用 文件、0、64。
+    若 头数据 等于 空 或者 做 长度 用 头数据 小于 64：
+        做 vfs_关闭 用 文件。
+        返还 错误_格式。
+    完。
+    魔数 为 做 读取u32 用 头数据、0。
+    若 魔数 不等于 ELF_MAGIC：
+        做 vfs_关闭 用 文件。
+        返还 错误_格式。
+    完。
+    若 头数据 的 第 4 项 不等于 ELFCLASS64：
+        做 vfs_关闭 用 文件。
+        返还 错误_格式。
+    完。
+    若 头数据 的 第 5 项 不等于 ELFDATA2LSB：
+        做 vfs_关闭 用 文件。
+        返还 错误_格式。
+    完。
+    e_type 为 做 读取u16 用 头数据、16。
+    若 e_type 不等于 ET_EXEC 并且 e_type 不等于 ET_DYN：
+        做 vfs_关闭 用 文件。
+        返还 错误_格式。
+    完。
+    e_machine 为 做 读取u16 用 头数据、18。
+    若 e_machine 不等于 EM_X86_64：
+        做 vfs_关闭 用 文件。
+        返还 错误_格式。
+    完。
+    e_entry 为 做 读取u64 用 头数据、24。
+    e_phoff 为 做 读取u64 用 头数据、32。
+    e_phentsize 为 做 读取u16 用 头数据、54。
+    e_phnum 为 做 读取u16 用 头数据、56。
+    若 e_phnum 等于 0 或者 e_phnum 大于 128：
+        做 vfs_关闭 用 文件。
+        返还 错误_格式。
+    完。
+    ph_大小 为 e_phnum 乘 e_phentsize。
+    ph数据 为 做 vfs_读取 用 文件、e_phoff、ph_大小。
+    若 ph数据 等于 空：
+        做 vfs_关闭 用 文件。
+        返还 错误_格式。
+    完。
+    可变 加载偏移 为 0。
+    若 e_type 等于 ET_DYN：
+        加载偏移 为 0x400000。
+    完。
+    可变 brk结束 为 0。
+    可变 interp路径 为 「」。
+    可变 phdr_地址 为 0。
+    可变 i 为 0。
+    只要 i 小于 e_phnum：
+        偏移 为 i 乘 e_phentsize。
+        p_type 为 做 读取u32 用 ph数据、偏移 加 0。
+        p_flags 为 做 读取u32 用 ph数据、偏移 加 4。
+        p_offset 为 做 读取u64 用 ph数据、偏移 加 8。
+        p_vaddr 为 做 读取u64 用 ph数据、偏移 加 16。
+        p_filesz 为 做 读取u64 用 ph数据、偏移 加 32。
+        p_memsz 为 做 读取u64 用 ph数据、偏移 加 40。
+        若 p_type 等于 PT_LOAD：
+            映射地址 为 p_vaddr 加 加载偏移。
+            保护 为 做 elf_flags到prot 用 p_flags。
+            映射大小 为 做 页对齐 用 p_memsz。
+            结果 为 做 进程_Nova内存映射 用 任务、映射地址、映射大小、保护、文件、p_offset。
+            若 做 是错误 用 结果：
+                做 vfs_关闭 用 文件。
+                返还 结果。
+            完。
+            段结束 为 映射地址 加 p_memsz。
+            若 段结束 大于 brk结束：
+                brk结束 为 段结束。
+            完。
+            若 p_memsz 大于 p_filesz：
+                bss起始 为 映射地址 加 p_filesz。
+                bss大小 为 p_memsz 减 p_filesz。
+                做 内存清零 用 bss起始、bss大小。
+            完。
+        完。
+        若 p_type 等于 PT_INTERP：
+            interp数据 为 做 vfs_读取 用 文件、p_offset、p_filesz。
+            若 interp数据 不等于 空：
+                interp路径 为 做 字节到字符串 用 interp数据。
+            完。
+        完。
+        若 p_type 等于 PT_PHDR：
+            phdr_地址 为 p_vaddr 加 加载偏移。
+        完。
+        i 为 i 加 1。
+    完。
+    做 vfs_关闭 用 文件。
+    做 进程_设brk 用 任务、做 页对齐 用 brk结束。
+    可变 实际入口 为 e_entry 加 加载偏移。
+    若 interp路径 不等于 「」：
+        interp结果 为 做 加载ELF解释器 用 interp路径、任务。
+        若 非 做 是错误 用 interp结果：
+            实际入口 为 interp结果。
+        完。
+    完。
+    做 进程_设入口点 用 任务、实际入口。
+    栈顶 为 用户栈顶 减 16。
+    栈顶 为 做 设置辅助向量 用 任务、栈顶、e_entry 加 加载偏移、phdr_地址、e_phentsize、e_phnum。
+    做 进程_设用户RSP 用 任务、栈顶。
+    做 内核调试 用 「ELF加载完成: 」 加 路径 加 「 入口=0x」 加 做 整数转十六进制 用 实际入口。
+    返还 成功。
+完。
+
+elf_flags到prot 接受 flags：
+    可变 prot 为 0。
+    若 flags 位与 PF_R 不等于 0：
+        prot 为 prot 位或 PROT_READ。
+    完。
+    若 flags 位与 PF_W 不等于 0：
+        prot 为 prot 位或 PROT_WRITE。
+    完。
+    若 flags 位与 PF_X 不等于 0：
+        prot 为 prot 位或 PROT_EXEC。
+    完。
+    返还 prot。
+完。
+
+页对齐 接受 地址：
+    返还 地址 加 4095 位与 按位取反 4095。
+完。
+
+设置辅助向量 接受 任务、栈顶、入口点、phdr地址、phent大小、phnum：
+    可变 sp 为 栈顶。
+    sp 为 sp 减 16。
+    做 内存写64 用 sp、AT_PAGESZ。
+    做 内存写64 用 sp 加 8、4096。
+    sp 为 sp 减 16。
+    做 内存写64 用 sp、AT_PHDR。
+    做 内存写64 用 sp 加 8、phdr地址。
+    sp 为 sp 减 16。
+    做 内存写64 用 sp、AT_PHENT。
+    做 内存写64 用 sp 加 8、phent大小。
+    sp 为 sp 减 16。
+    做 内存写64 用 sp、AT_PHNUM。
+    做 内存写64 用 sp 加 8、phnum。
+    sp 为 sp 减 16。
+    做 内存写64 用 sp、AT_ENTRY。
+    做 内存写64 用 sp 加 8、入口点。
+    sp 为 sp 减 16。
+    做 内存写64 用 sp、AT_NULL。
+    做 内存写64 用 sp 加 8、0。
+    返还 sp。
+完。
+
+加载ELF解释器 接受 路径、任务：
+    做 内核调试 用 「加载动态链接器: 」 加 路径。
+    返还 错误_不支持。
+完。
+
+读取u16 接受 数据、偏移：
+    返还 数据 的 第 偏移 项 位或 数据 的 第 偏移 加 1 项 左移 8。
+完。
+
+读取u32 接受 数据、偏移：
+    返还 数据 的 第 偏移 项 位或 数据 的 第 偏移 加 1 项 左移 8 位或 数据 的 第 偏移 加 2 项 左移 16 位或 数据 的 第 偏移 加 3 项 左移 24。
+完。
+
+读取u64 接受 数据、偏移：
+    返还 做 读取u32 用 数据、偏移 位或 做 读取u32 用 数据、偏移 加 4 左移 32。
+完。
+
+用户栈顶 为 0x7FFFFFFFE000。
+
+ELF加载器_完整统计 接受 零参：
+    返还 一组：ELF_加载总数、ELF_加载失败数。
+完。
+
+ELF加载器_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 ELF_加载失败数 大于 ELF_加载总数 除以 3 并且 ELF_加载总数 大于 10：
+        做 追加 用 问题、「ELF加载失败率过高」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「ELF加载器健康」。
+    完。
+    返还 问题。
+完。
+
+ELF_验证魔数 接受 头部：
+    若 头部 等于 空：
+        返还 假。
+    完。
+    若 做 内存_读8 用 头部 不等于 0x7F：
+        返还 假。
+    完。
+    若 做 内存_读8 用 头部 加 1 不等于 0x45：
+        返还 假。
+    完。
+    若 做 内存_读8 用 头部 加 2 不等于 0x4C：
+        返还 假。
+    完。
+    若 做 内存_读8 用 头部 加 3 不等于 0x46：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+ELF_是64位 接受 头部：
+    返还 做 内存_读8 用 头部 加 4 等于 2。
+完。
+
+ELF_入口点 接受 头部：
+    返还 做 内存_读64 用 头部 加 24。
+完。
+
+ELF_PT_LOAD 为 1。
+
+ELF_PT_DYNAMIC 为 2。
+
+ELF_PT_INTERP 为 3。
+
+ELF_PT_PHDR 为 6。
+
+可变 AI_可执行加载_运行指标 为 0。
+
+可变 AI_可执行加载_异常指标 为 0。
+
+AI_可执行加载_自诊断 接受 零参：
+    AI_可执行加载_运行指标 为 0。
+    返还 AI_可执行加载_运行指标。
+完。
+
+AI_可执行加载_优化建议 接受 零参：
+    指标 为 做 AI_可执行加载_自诊断。
+    返还 「可执行加载状态正常」。
+完。
+
+本章 收束。

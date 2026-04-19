@@ -1,0 +1,77 @@
+《NVMe寄存器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+NVME_CAP 为 0x00。
+
+NVME_VS 为 0x08。
+
+NVME_INTMS 为 0x0C。
+
+NVME_INTMC 为 0x10。
+
+NVME_CC 为 0x14。
+
+NVME_CSTS 为 0x1C。
+
+NVME_AQA 为 0x24。
+
+NVME_ASQ 为 0x28。
+
+NVME_ACQ 为 0x30。
+
+NVME_CC_EN 为 0x01。
+
+NVME_CC_CSS_NVM 为 0x00。
+
+NVME_CC_MPS_SHIFT 为 7。
+
+NVME_CC_IOSQES 为 6 左移 16。
+
+NVME_CC_IOCQES 为 4 左移 20。
+
+NVME_CSTS_RDY 为 0x01。
+
+NVME_CSTS_Nova公平调度 为 0x02。
+
+NVME_CSTS_SHST 为 0x0C。
+
+NVME_ADM_DELETE_SQ 为 0x00。
+
+NVME_ADM_CREATE_SQ 为 0x01。
+
+NVME_ADM_DELETE_CQ 为 0x04。
+
+NVME_ADM_CREATE_CQ 为 0x05。
+
+NVME_ADM_IDENTIFY 为 0x06。
+
+NVME_ADM_SET_FEATURES 为 0x09。
+
+NVME_ADM_GET_FEATURES 为 0x0A。
+
+NVME_IO_READ 为 0x02。
+
+NVME_IO_WRITE 为 0x01。
+
+NVME_IO_FLUSH 为 0x00。
+
+NVME_IO_DISCARD 为 0x08。
+
+NVME_ID_CNS_NS 为 0x00。
+
+NVME_ID_CNS_CTRL 为 0x01。
+
+NVMe_SQE 是 一种 事物，含 操作码、标志、命令ID、NSID、保留、元数据、PRP1、PRP2、CDW10、CDW11、CDW12、CDW13、CDW14、CDW15。
+
+NVMe_CQE 是 一种 事物，含 结果、保留、SQ头指针、SQ标识、命令ID、状态。
+
+NVMe_队列 是 一种 事物，含 ID、深度、SQ地址、CQ地址、SQ尾指针、CQ头指针、Phase位、SQ门铃、CQ门铃、下一个命令ID。
+
+NVMe控制器 是 一种 事物，含 MMIO基址、门铃步长、最大队列深度、版本、序列号、型号、固件版本、管理队列、IO队列、命名空间、已初始化。
+
+NVMe命名空间 是 一种 事物，含 NSID、容量、块大小、格式化LBA大小、名称。
+
+本章 收束。

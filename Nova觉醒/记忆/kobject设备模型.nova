@@ -1,0 +1,240 @@
+《kobject设备模型》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《.·sysfs框架》。
+
+引用《..·中枢·链表后继》。
+
+引用《..·中枢·内核打印》。
+
+kobject 是 一种 事物，含 名称、父、子列表、引用计数、ktype、kset、sysfs目录、状态。
+
+KOBJ_未初始化 为 0。
+
+KOBJ_已初始化 为 1。
+
+KOBJ_已注册 为 2。
+
+kobj_type 是 一种 事物，含 释放、属性列表、sysfs_ops。
+
+kset 是 一种 事物，含 kobj、成员列表、u事件_ops。
+
+sysfs_属性 是 一种 事物，含 名称、模式、show、store。
+
+KOBJ_ADD 为 0。
+
+KOBJ_REMOVE 为 1。
+
+KOBJ_CHANGE 为 2。
+
+KOBJ_MOVE 为 3。
+
+KOBJ_ONLINE 为 4。
+
+KOBJ_OFFLINE 为 5。
+
+可变 kobject_总数 为 0。
+
+kobject_创建 接受 名称、父：
+    kobj 为 新建 kobject。
+    kobj 的 名称 为 名称。
+    kobj 的 父 为 父。
+    kobj 的 子列表 为 一组：（空）。
+    kobj 的 引用计数 为 1。
+    kobj 的 ktype 为 空。
+    kobj 的 kset 为 空。
+    kobj 的 sysfs目录 为 空。
+    kobj 的 状态 为 KOBJ_已初始化。
+    kobject_总数 为 kobject_总数 加 1。
+    返还 kobj。
+完。
+
+kobject_创建_并注册 接受 名称、父、ktype：
+    kobj 为 做 kobject_创建 用 名称、父。
+    kobj 的 ktype 为 ktype。
+    做 kobject_注册 用 kobj。
+    返还 kobj。
+完。
+
+kobject_注册 接受 kobj：
+    若 kobj 等于 空：
+        返还 错误_无效参数。
+    完。
+    若 kobj 的 状态 小于 KOBJ_已初始化：
+        返还 错误_无效参数。
+    完。
+    若 kobj 的 父 不等于 空：
+        做 追加 用 kobj 的 父 的 子列表、kobj。
+    完。
+    若 kobj 的 kset 不等于 空：
+        做 追加 用 kobj 的 kset 的 成员列表、kobj。
+    完。
+    kobj 的 sysfs目录 为 做 sysfs_创建kobject目录 用 kobj。
+    若 kobj 的 ktype 不等于 空 并且 kobj 的 ktype 的 属性列表 不等于 空：
+        可变 i 为 0。
+        只要 i 小于 做 计数 用 kobj 的 ktype 的 属性列表：
+            做 sysfs_创建属性文件 用 kobj、kobj 的 ktype 的 属性列表 的 第 i 项。
+            i 为 i 加 1。
+        完。
+    完。
+    kobj 的 状态 为 KOBJ_已注册。
+    做 kobject_u事件 用 kobj、KOBJ_ADD。
+    返还 成功。
+完。
+
+kobject_注销 接受 kobj：
+    若 kobj 等于 空：
+        返还。
+    完。
+    做 kobject_u事件 用 kobj、KOBJ_REMOVE。
+    若 kobj 的 sysfs目录 不等于 空：
+        做 sysfs_移除kobject目录 用 kobj。
+    完。
+    若 kobj 的 父 不等于 空：
+        可变 i 为 0。
+        只要 i 小于 做 计数 用 kobj 的 父 的 子列表：
+            若 kobj 的 父 的 子列表 的 第 i 项 等于 kobj：
+                做 链表_删除 用 kobj 的 父 的 子列表、i。
+                中断。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+    若 kobj 的 kset 不等于 空：
+        可变 i 为 0。
+        只要 i 小于 做 计数 用 kobj 的 kset 的 成员列表：
+            若 kobj 的 kset 的 成员列表 的 第 i 项 等于 kobj：
+                做 链表_删除 用 kobj 的 kset 的 成员列表、i。
+                中断。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+    kobj 的 状态 为 KOBJ_未初始化。
+完。
+
+kobject_get 接受 kobj：
+    若 kobj 不等于 空：
+        kobj 的 引用计数 为 kobj 的 引用计数 加 1。
+    完。
+    返还 kobj。
+完。
+
+kobject_put 接受 kobj：
+    若 kobj 等于 空：
+        返还。
+    完。
+    kobj 的 引用计数 为 kobj 的 引用计数 减 1。
+    若 kobj 的 引用计数 小于或等于 0：
+        若 kobj 的 ktype 不等于 空 并且 kobj 的 ktype 的 释放 不等于 空：
+            做 kobj 的 ktype 的 释放 用 kobj。
+        完。
+        kobject_总数 为 kobject_总数 减 1。
+    完。
+完。
+
+kobject_u事件 接受 kobj、动作：
+    若 kobj 等于 空：
+        返还 错误_无效参数。
+    完。
+    动作名 为 做 u事件_动作名 用 动作。
+    路径 为 做 kobject_路径 用 kobj。
+    做 内核调试 用 「u事件: 」 加 动作名 加 「 」 加 路径。
+    返还 成功。
+完。
+
+u事件_动作名 接受 动作：
+    若 动作 等于 KOBJ_ADD：
+        返还 「add」。
+    完。
+    若 动作 等于 KOBJ_REMOVE：
+        返还 「remove」。
+    完。
+    若 动作 等于 KOBJ_CHANGE：
+        返还 「change」。
+    完。
+    若 动作 等于 KOBJ_MOVE：
+        返还 「move」。
+    完。
+    若 动作 等于 KOBJ_ONLINE：
+        返还 「online」。
+    完。
+    若 动作 等于 KOBJ_OFFLINE：
+        返还 「offline」。
+    完。
+    返还 「unknown」。
+完。
+
+kset_创建 接受 名称、父：
+    ks 为 新建 kset。
+    ks 的 kobj 为 做 kobject_创建 用 名称、父。
+    ks 的 成员列表 为 一组：（空）。
+    ks 的 u事件_ops 为 空。
+    返还 ks。
+完。
+
+kset_注册 接受 ks：
+    返还 做 kobject_注册 用 ks 的 kobj。
+完。
+
+kobject_路径 接受 kobj：
+    若 kobj 等于 空：
+        返还 「」。
+    完。
+    可变 路径 为 kobj 的 名称。
+    可变 当前 为 kobj 的 父。
+    只要 当前 不等于 空：
+        路径 为 当前 的 名称 加 「/」 加 路径。
+        当前 为 当前 的 父。
+    完。
+    返还 「/sys/」 加 路径。
+完。
+
+kobject_名称 接受 kobj：
+    返还 kobj 的 名称。
+完。
+
+kobject_父 接受 kobj：
+    返还 kobj 的 父。
+完。
+
+kobject_子列表 接受 kobj：
+    返还 kobj 的 子列表。
+完。
+
+kobject_添加子 接受 父、子：
+    做 追加 用 父 的 子列表、子。
+完。
+
+kobject_完整统计 接受 零参：
+    返还 一组：kobject_总数。
+完。
+
+可变 AI_记忆丙_热文件表 为 一组：（空）。
+
+AI_记忆丙_访问模式 接受 路径：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 AI_记忆丙_热文件表：
+        若 AI_记忆丙_热文件表 的 第 i 项 的 路径 等于 路径：
+            AI_记忆丙_热文件表 的 第 i 项 的 频率 为 AI_记忆丙_热文件表 的 第 i 项 的 频率 加 1。
+            返还 AI_记忆丙_热文件表 的 第 i 项 的 频率。
+        完。
+        i 为 i 加 1。
+    完。
+    若 做 计数 用 AI_记忆丙_热文件表 小于 128：
+        做 追加 用 AI_记忆丙_热文件表、一本字典：路径 对应 路径、频率 对应 1。
+    完。
+    返还 1。
+完。
+
+AI_记忆丙_预读建议 接受 文件大小、已读偏移：
+    若 已读偏移 大于 文件大小 乘 80 除以 100：
+        返还 0。
+    完。
+    返还 32768。
+完。
+
+本章 收束。

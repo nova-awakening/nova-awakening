@@ -1,0 +1,186 @@
+《布局块级折》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·布局未知计算》。
+
+引用《.·样式值解析》。
+
+引用《..·执行·配置获取》。
+
+引用《.·弹性布局深度》。
+
+布局块级Flow_折叠margin 接受 margin_a、margin_b：
+    若 margin_a 大于或等于 0 并且 margin_b 大于或等于 0：
+        若 margin_a 大于 margin_b：
+            返还 margin_a。
+        完。
+        返还 margin_b。
+    完。
+    若 margin_a 小于 0 并且 margin_b 小于 0：
+        若 margin_a 小于 margin_b：
+            返还 margin_a。
+        完。
+        返还 margin_b。
+    完。
+    返还 margin_a 加 margin_b。
+完。
+
+布局块级Flow_建立BFC 接受 layout：
+    style 为 layout 的 样式。
+    若 style 等于 0：
+        返还 假。
+    完。
+    若 layout 的 父布局 等于 0：
+        返还 真。
+    完。
+    若 style 的 float_type 不等于 0：
+        返还 真。
+    完。
+    若 style 的 position 等于 定位_绝对 或者 style 的 position 等于 定位_固定：
+        返还 真。
+    完。
+    若 style 的 display 等于 显示_行内块 或者 style 的 display 等于 显示_flex 或者 style 的 display 等于 显示_grid 或者 style 的 display 等于 显示_表格单元：
+        返还 真。
+    完。
+    若 style 的 overflow 不等于 0：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+布局块级Flow_布局浮动 接受 layout、浮动子、包含块宽、左浮动边界、右浮动边界、左浮动底部、右浮动底部、当前Y：
+    子style 为 浮动子 的 样式。
+    子总宽 为 浮动子 的 宽度 加 浮动子 的 padding_left 加 浮动子 的 padding_right 加 浮动子 的 border_left 加 浮动子 的 border_right 加 浮动子 的 margin_left 加 浮动子 的 margin_right。
+    做 布局块级Flow_布局 用 浮动子。
+    子总高 为 浮动子 的 高度 加 浮动子 的 padding_top 加 浮动子 的 padding_bottom 加 浮动子 的 border_top 加 浮动子 的 border_bottom。
+    若 子style 的 float_type 等于 1：
+        可变 x 为 左浮动边界 加 浮动子 的 margin_left。
+        可变 y 为 当前Y 加 浮动子 的 margin_top。
+        若 x 加 子总宽 大于 右浮动边界 并且 当前Y 小于 左浮动底部：
+            y 为 左浮动底部 加 浮动子 的 margin_top。
+            x 为 浮动子 的 margin_left。
+        完。
+        浮动子 的 x 为 x 加 layout 的 padding_left 加 layout 的 border_left。
+        浮动子 的 y 为 y。
+    否则若 子style 的 float_type 等于 2：
+        可变 x 为 右浮动边界 减 子总宽 加 浮动子 的 margin_left。
+        可变 y 为 当前Y 加 浮动子 的 margin_top。
+        若 x 小于 左浮动边界 并且 当前Y 小于 右浮动底部：
+            y 为 右浮动底部 加 浮动子 的 margin_top。
+            x 为 包含块宽 减 子总宽 加 浮动子 的 margin_left。
+        完。
+        浮动子 的 x 为 x 加 layout 的 padding_left 加 layout 的 border_left。
+        浮动子 的 y 为 y。
+    完。
+完。
+
+布局块级Flow_布局定位子元素 接受 layout、包含块宽、包含块高：
+    可变 子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        子style 为 子 的 样式。
+        若 子style 等于 0：
+            子 为 子 的 后一兄弟布局。
+            继续。
+        完。
+        若 子style 的 position 等于 定位_相对：
+            若 子style 的 left 不等于 负 1 并且 子style 的 left 不等于 0：
+                子 的 x 为 子 的 x 加 做 CSS值_解析为像素 用 子style 的 left、包含块宽。
+            否则若 子style 的 right 不等于 负 1 并且 子style 的 right 不等于 0：
+                子 的 x 为 子 的 x 减 做 CSS值_解析为像素 用 子style 的 right、包含块宽。
+            完。
+            若 子style 的 top 不等于 负 1 并且 子style 的 top 不等于 0：
+                子 的 y 为 子 的 y 加 做 CSS值_解析为像素 用 子style 的 top、包含块高。
+            否则若 子style 的 bottom 不等于 负 1 并且 子style 的 bottom 不等于 0：
+                子 的 y 为 子 的 y 减 做 CSS值_解析为像素 用 子style 的 bottom、包含块高。
+            完。
+        完。
+        若 子style 的 position 等于 定位_绝对：
+            做 布局Box_计算盒模型 用 子、包含块宽、包含块高。
+            做 布局块级Flow_布局 用 子。
+            可变 x 为 0。
+            可变 y 为 0。
+            可变 x已设 为 假。
+            可变 y已设 为 假。
+            若 子style 的 left 不等于 负 1：
+                x 为 做 CSS值_解析为像素 用 子style 的 left、包含块宽 加 子 的 margin_left。
+                x已设 为 真。
+            完。
+            若 子style 的 right 不等于 负 1 并且 非 x已设：
+                right_val 为 做 CSS值_解析为像素 用 子style 的 right、包含块宽。
+                子外宽 为 子 的 宽度 加 子 的 padding_left 加 子 的 padding_right 加 子 的 border_left 加 子 的 border_right 加 子 的 margin_right。
+                x 为 包含块宽 减 right_val 减 子外宽。
+                x已设 为 真。
+            完。
+            若 非 x已设：
+                x 为 子 的 margin_left。
+            完。
+            若 子style 的 top 不等于 负 1：
+                y 为 做 CSS值_解析为像素 用 子style 的 top、包含块高 加 子 的 margin_top。
+                y已设 为 真。
+            完。
+            若 子style 的 bottom 不等于 负 1 并且 非 y已设：
+                bottom_val 为 做 CSS值_解析为像素 用 子style 的 bottom、包含块高。
+                子外高 为 子 的 高度 加 子 的 padding_top 加 子 的 padding_bottom 加 子 的 border_top 加 子 的 border_bottom 加 子 的 margin_bottom。
+                y 为 包含块高 减 bottom_val 减 子外高。
+                y已设 为 真。
+            完。
+            若 非 y已设：
+                y 为 子 的 margin_top。
+            完。
+            若 子style 的 left 不等于 负 1 并且 子style 的 right 不等于 负 1 并且 子style 的 width 等于 负 1：
+                l 为 做 CSS值_解析为像素 用 子style 的 left、包含块宽。
+                r 为 做 CSS值_解析为像素 用 子style 的 right、包含块宽。
+                子 的 宽度 为 包含块宽 减 l 减 r 减 子 的 margin_left 减 子 的 margin_right 减 子 的 padding_left 减 子 的 padding_right 减 子 的 border_left 减 子 的 border_right。
+                若 子 的 宽度 小于 0：
+                    子 的 宽度 为 0。
+                完。
+            完。
+            若 子style 的 top 不等于 负 1 并且 子style 的 bottom 不等于 负 1 并且 子style 的 height 等于 负 1：
+                t 为 做 CSS值_解析为像素 用 子style 的 top、包含块高。
+                b 为 做 CSS值_解析为像素 用 子style 的 bottom、包含块高。
+                子 的 高度 为 包含块高 减 t 减 b 减 子 的 margin_top 减 子 的 margin_bottom 减 子 的 padding_top 减 子 的 padding_bottom 减 子 的 border_top 减 子 的 border_bottom。
+                若 子 的 高度 小于 0：
+                    子 的 高度 为 0。
+                完。
+            完。
+            若 子style 的 margin_left 等于 负 1 并且 子style 的 margin_right 等于 负 1 并且 子style 的 left 不等于 负 1 并且 子style 的 right 不等于 负 1：
+                l 为 做 CSS值_解析为像素 用 子style 的 left、包含块宽。
+                r 为 做 CSS值_解析为像素 用 子style 的 right、包含块宽。
+                子外宽 为 子 的 宽度 加 子 的 padding_left 加 子 的 padding_right 加 子 的 border_left 加 子 的 border_right。
+                剩余 为 包含块宽 减 l 减 r 减 子外宽。
+                若 剩余 大于 0：
+                    子 的 margin_left 为 剩余 除以 2。
+                    子 的 margin_right 为 剩余 减 子 的 margin_left。
+                    x 为 l 加 子 的 margin_left。
+                完。
+            完。
+            子 的 x 为 x 加 layout 的 padding_left 加 layout 的 border_left。
+            子 的 y 为 y 加 layout 的 padding_top 加 layout 的 border_top。
+        完。
+        若 子style 的 position 等于 定位_固定：
+            vp_宽 为 做 Config_视口宽 乘 100。
+            vp_高 为 做 Config_视口高 乘 100。
+            做 布局Box_计算盒模型 用 子、vp_宽、vp_高。
+            可变 x 为 0。
+            可变 y 为 0。
+            若 子style 的 left 不等于 负 1：
+                x 为 做 CSS值_解析为像素 用 子style 的 left、vp_宽。
+            否则若 子style 的 right 不等于 负 1：
+                x 为 vp_宽 减 做 CSS值_解析为像素 用 子style 的 right、vp_宽 减 子 的 宽度。
+            完。
+            若 子style 的 top 不等于 负 1：
+                y 为 做 CSS值_解析为像素 用 子style 的 top、vp_高。
+            否则若 子style 的 bottom 不等于 负 1：
+                y 为 vp_高 减 做 CSS值_解析为像素 用 子style 的 bottom、vp_高 减 子 的 高度。
+            完。
+            子 的 x 为 x。
+            子 的 y 为 y。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+完。
+
+本章 收束。

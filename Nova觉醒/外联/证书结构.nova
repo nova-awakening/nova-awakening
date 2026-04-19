@@ -1,0 +1,171 @@
+《证书结构》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·ASN1证书解析》。
+
+引用《..·感知·内核直连层》。
+
+引用《.·X509公钥解析》。
+
+X509证书 是 一种 事物，含 der数据、der长度、tbs偏移、tbs长度、版本、序列号、签名算法、签名算法长度、颁发者_CN、颁发者_O、生效时间、过期时间、主题_CN、主题_O、公钥算法、公钥数据、公钥长度、签名数据、签名长度、是CA、路径长度约束、密钥用途、SAN列表、SAN数量。
+
+X509_解析 接受 der数据、der长度：
+    cert 为 做 堆_分配 用 X509证书。
+    cert 的 der数据 为 der数据。
+    cert 的 der长度 为 der长度。
+    cert 的 是CA 为 假。
+    cert 的 路径长度约束 为 负 1。
+    cert 的 密钥用途 为 0。
+    cert 的 SAN列表 为 0。
+    cert 的 SAN数量 为 0。
+    top 为 做 ASN1_解析元素 用 der数据、0、der长度。
+    若 top 等于 0 或者 top 的 标签 不等于 ASN1_SEQUENCE：
+        返还 0。
+    完。
+    tbs 为 做 ASN1_解析元素 用 der数据、top 的 值偏移、der长度。
+    若 tbs 等于 0 或者 tbs 的 标签 不等于 ASN1_SEQUENCE：
+        返还 0。
+    完。
+    cert 的 tbs偏移 为 top 的 值偏移。
+    cert 的 tbs长度 为 tbs 的 总长度。
+    可变 pos 为 tbs 的 值偏移。
+    elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    若 elem 的 标签 等于 ASN1_CONTEXT_0：
+        ver_int 为 做 ASN1_解析元素 用 der数据、elem 的 值偏移、der长度。
+        cert 的 版本 为 做 ASN1_读整数 用 der数据、ver_int。
+        pos 为 pos 加 elem 的 总长度。
+        elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    否则：
+        cert 的 版本 为 0。
+    完。
+    若 elem 的 标签 等于 ASN1_INTEGER：
+        cert 的 序列号 为 做 ASN1_读整数 用 der数据、elem。
+        pos 为 pos 加 elem 的 总长度。
+    完。
+    elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    若 elem 的 标签 等于 ASN1_SEQUENCE：
+        oid_elem 为 做 ASN1_解析元素 用 der数据、elem 的 值偏移、der长度。
+        若 oid_elem 的 标签 等于 ASN1_OID：
+            cert 的 签名算法 为 做 堆_分配 用 128。
+            cert 的 签名算法长度 为 做 ASN1_读OID 用 der数据、oid_elem、cert 的 签名算法、128。
+        完。
+        pos 为 pos 加 elem 的 总长度。
+    完。
+    elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    若 elem 的 标签 等于 ASN1_SEQUENCE：
+        做 X509_解析RDN 用 der数据、elem、cert、0。
+        pos 为 pos 加 elem 的 总长度。
+    完。
+    elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    若 elem 的 标签 等于 ASN1_SEQUENCE：
+        not_before 为 做 ASN1_解析元素 用 der数据、elem 的 值偏移、der长度。
+        cert 的 生效时间 为 做 ASN1_解析时间 用 der数据、not_before。
+        not_after 为 做 ASN1_解析元素 用 der数据、elem 的 值偏移 加 not_before 的 总长度、der长度。
+        cert 的 过期时间 为 做 ASN1_解析时间 用 der数据、not_after。
+        pos 为 pos 加 elem 的 总长度。
+    完。
+    elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    若 elem 的 标签 等于 ASN1_SEQUENCE：
+        做 X509_解析RDN 用 der数据、elem、cert、1。
+        pos 为 pos 加 elem 的 总长度。
+    完。
+    elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    若 elem 的 标签 等于 ASN1_SEQUENCE：
+        做 X509_解析公钥 用 der数据、elem、cert。
+        pos 为 pos 加 elem 的 总长度。
+    完。
+    若 cert 的 版本 大于或等于 2：
+        elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+        若 elem 的 标签 等于 ASN1_CONTEXT_3：
+            做 X509_解析扩展 用 der数据、elem、cert。
+            pos 为 pos 加 elem 的 总长度。
+        完。
+    完。
+    pos 为 top 的 值偏移 加 tbs 的 总长度。
+    elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    pos 为 pos 加 elem 的 总长度。
+    elem 为 做 ASN1_解析元素 用 der数据、pos、der长度。
+    若 elem 的 标签 等于 ASN1_BIT_STRING：
+        cert 的 签名数据 为 der数据 加 elem 的 值偏移 加 1。
+        cert 的 签名长度 为 elem 的 长度 减 1。
+    完。
+    返还 cert。
+完。
+
+X509_解析RDN 接受 数据、seq_elem、cert、类型：
+    可变 pos 为 seq_elem 的 值偏移。
+    end 为 seq_elem 的 值偏移 加 seq_elem 的 长度。
+    只要 pos 小于 end：
+        set_elem 为 做 ASN1_解析元素 用 数据、pos、end。
+        若 set_elem 等于 0：
+            跳出。
+        完。
+        若 set_elem 的 标签 等于 ASN1_SET：
+            attr_seq 为 做 ASN1_解析元素 用 数据、set_elem 的 值偏移、end。
+            若 attr_seq 不等于 0 并且 attr_seq 的 标签 等于 ASN1_SEQUENCE：
+                oid 为 做 ASN1_解析元素 用 数据、attr_seq 的 值偏移、end。
+                若 oid 不等于 0 并且 oid 的 标签 等于 ASN1_OID：
+                    val 为 做 ASN1_解析元素 用 数据、attr_seq 的 值偏移 加 oid 的 总长度、end。
+                    若 val 不等于 0：
+                        若 做 X509_OID是CN 用 数据、oid：
+                            str 为 做 堆_分配 用 val 的 长度 加 1。
+                            做 内存_复制 用 str、数据 加 val 的 值偏移、val 的 长度。
+                            做 内存_写8 用 str 加 val 的 长度、0。
+                            若 类型 等于 0：
+                                cert 的 颁发者_CN 为 str。
+                            否则：
+                                cert 的 主题_CN 为 str。
+                            完。
+                        否则若 做 X509_OID是O 用 数据、oid：
+                            str 为 做 堆_分配 用 val 的 长度 加 1。
+                            做 内存_复制 用 str、数据 加 val 的 值偏移、val 的 长度。
+                            做 内存_写8 用 str 加 val 的 长度、0。
+                            若 类型 等于 0：
+                                cert 的 颁发者_O 为 str。
+                            否则：
+                                cert 的 主题_O 为 str。
+                            完。
+                        完。
+                    完。
+                完。
+            完。
+        完。
+        pos 为 pos 加 set_elem 的 总长度。
+    完。
+完。
+
+X509_OID是CN 接受 数据、oid_elem：
+    若 oid_elem 的 长度 等于 3：
+        返还 做 内存_读8 用 数据 加 oid_elem 的 值偏移 等于 0x55 并且 做 内存_读8 用 数据 加 oid_elem 的 值偏移 加 1 等于 0x04 并且 做 内存_读8 用 数据 加 oid_elem 的 值偏移 加 2 等于 0x03。
+    完。
+    返还 假。
+完。
+
+X509_OID是O 接受 数据、oid_elem：
+    若 oid_elem 的 长度 等于 3：
+        返还 做 内存_读8 用 数据 加 oid_elem 的 值偏移 等于 0x55 并且 做 内存_读8 用 数据 加 oid_elem 的 值偏移 加 1 等于 0x04 并且 做 内存_读8 用 数据 加 oid_elem 的 值偏移 加 2 等于 0x0A。
+    完。
+    返还 假。
+完。
+
+可变 AI_证书结构_热点函数 为 一组：（空）。
+
+AI_证书结构_JIT候选 接受 函数名、调用次数：
+    若 调用次数 大于 100：
+        做 追加 用 AI_证书结构_热点函数、函数名。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_证书结构_内联建议 接受 函数体大小、调用次数：
+    若 函数体大小 小于 30 并且 调用次数 大于 50：
+        返还 「内联」。
+    完。
+    返还 「不内联」。
+完。
+
+本章 收束。

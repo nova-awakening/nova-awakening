@@ -1,0 +1,974 @@
+《协议增强》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·外联·URL解析辅助》。
+
+引用《.·IO多路复用》。
+
+引用《..·中枢·整数转字符串》。
+
+壳层主题_浅色 为 1。
+
+壳层主题_深色 为 2。
+
+壳层主题_高对比 为 3。
+
+壳层主题_护眼 为 4。
+
+壳层密度_紧凑 为 1。
+
+壳层密度_标准 为 2。
+
+壳层密度_宽松 为 3。
+
+壳层动效_关闭 为 0。
+
+壳层动效_低 为 1。
+
+壳层动效_标准 为 2。
+
+协议类型_未知 为 0。
+
+协议类型_系统 为 1。
+
+协议类型_AI 为 2。
+
+协议类型_多模态 为 3。
+
+协议类型_语音 为 4。
+
+协议类型_形象 为 5。
+
+协议类型_诊断 为 6。
+
+协议类型_设置 为 7。
+
+协议类型_工作流 为 8。
+
+路由策略_严格 为 1。
+
+路由策略_兼容 为 2。
+
+路由策略_实验 为 3。
+
+最大参数数 为 32。
+
+最大卡片数 为 24。
+
+最大标签数 为 20。
+
+最大埋点数 为 256。
+
+壳层视觉上下文 是 一种 事物，含 主题、密度、动效级别、字号缩放、圆角缩放、对比度增强、阴影强度、玻璃化强度、噪点抑制、可访问模式、减少动态、触控优先。
+
+协议参数 是 一种 事物，含 键、值。
+
+协议请求 是 一种 事物，含 原始URL、协议名、主机、路径、查询、类型、参数列表、参数数。
+
+协议响应 是 一种 事物，含 状态码、标题、描述、主内容HTML、扩展元数据。
+
+壳层埋点 是 一种 事物，含 事件名、时间戳、数值1、数值2、标签。
+
+壳层埋点缓冲 是 一种 事物，含 列表、写索引、总写入。
+
+路由决策 是 一种 事物，含 是否命中、命中模块、风险评分、置信度、回退模块。
+
+可变 全局_埋点缓冲 为 空。
+
+可变 全局_默认策略 为 路由策略_兼容。
+
+限幅 接受 v、lo、hi：
+    若 v 小于 lo：
+        返还 lo。
+    完。
+    若 v 大于 hi：
+        返还 hi。
+    完。
+    返还 v。
+完。
+
+是否空串 接受 s：
+    若 s 等于 空：
+        返还 真。
+    完。
+    返还 做 字符串长度 用 s 等于 0。
+完。
+
+布尔转文本 接受 v：
+    若 v：
+        返还 「true」。
+    完。
+    返还 「false」。
+完。
+
+字符串安全值 接受 s、默认值：
+    若 s 等于 空 或者 做 字符串长度 用 s 等于 0：
+        返还 默认值。
+    完。
+    返还 s。
+完。
+
+数值转百分比文本 接受 v：
+    返还 做 字符串拼接 用 做 整数转字符串 用 v、「%」。
+完。
+
+CSS_追加 接受 css、片段：
+    返还 做 字符串拼接 用 css、片段。
+完。
+
+HTML_包裹 接受 tag、cls、内容：
+    可变 out 为 「」。
+    out 为 做 字符串拼接 用 out、「<」。
+    out 为 做 字符串拼接 用 out、tag。
+    out 为 做 字符串拼接 用 out、「 class='」。
+    out 为 做 字符串拼接 用 out、cls。
+    out 为 做 字符串拼接 用 out、「'>」。
+    out 为 做 字符串拼接 用 out、内容。
+    out 为 做 字符串拼接 用 out、「</」。
+    out 为 做 字符串拼接 用 out、tag。
+    out 为 做 字符串拼接 用 out、「>」。
+    返还 out。
+完。
+
+壳层_时间戳_ms 接受 零参：
+    返还 做 平台_获取时间_ms。
+完。
+
+壳层埋点_初始化 接受 零参：
+    若 全局_埋点缓冲 不等于 空：
+        返还。
+    完。
+    b 为 做 堆_分配 用 壳层埋点缓冲。
+    b 的 列表 为 做 堆_分配_数组 用 最大埋点数 乘 40。
+    b 的 写索引 为 0。
+    b 的 总写入 为 0。
+    全局_埋点缓冲 为 b。
+完。
+
+壳层埋点_记录 接受 事件名、数值1、数值2、标签：
+    若 全局_埋点缓冲 等于 空：
+        做 壳层埋点_初始化。
+    完。
+    b 为 全局_埋点缓冲。
+    idx 为 b 的 写索引 取余于 最大埋点数。
+    b 的 列表 的 第 idx 项 的 事件名 为 事件名。
+    b 的 列表 的 第 idx 项 的 时间戳 为 做 壳层_时间戳_ms。
+    b 的 列表 的 第 idx 项 的 数值1 为 数值1。
+    b 的 列表 的 第 idx 项 的 数值2 为 数值2。
+    b 的 列表 的 第 idx 项 的 标签 为 标签。
+    b 的 写索引 为 b 的 写索引 加 1。
+    b 的 总写入 为 b 的 总写入 加 1。
+完。
+
+壳层埋点_导出JSON 接受 零参：
+    若 全局_埋点缓冲 等于 空：
+        返还 「[]」。
+    完。
+    b 为 全局_埋点缓冲。
+    可变 out 为 「[」。
+    可变 n 为 做 最小值 用 b 的 总写入、最大埋点数。
+    可变 i 为 0。
+    只要 i 小于 n：
+        idx 为 (b 的 写索引 减 n 加 i 加 最大埋点数) 取余于 最大埋点数。
+        e 为 b 的 列表 的 第 idx 项。
+        若 i 大于 0：
+            out 为 做 字符串拼接 用 out、「,」。
+        完。
+        out 为 做 字符串拼接 用 out、「{\"event\":\"」。
+        out 为 做 字符串拼接 用 out、做 字符串安全值 用 e 的 事件名、「」。
+        out 为 做 字符串拼接 用 out、「\",\"ts\":」。
+        out 为 做 字符串拼接 用 out、做 整数转字符串 用 e 的 时间戳。
+        out 为 做 字符串拼接 用 out、「,\"v1\":」。
+        out 为 做 字符串拼接 用 out、做 整数转字符串 用 e 的 数值1。
+        out 为 做 字符串拼接 用 out、「,\"v2\":」。
+        out 为 做 字符串拼接 用 out、做 整数转字符串 用 e 的 数值2。
+        out 为 做 字符串拼接 用 out、「,\"tag\":\"」。
+        out 为 做 字符串拼接 用 out、做 字符串安全值 用 e 的 标签、「」。
+        out 为 做 字符串拼接 用 out、「\"}」。
+        i 为 i 加 1。
+    完。
+    out 为 做 字符串拼接 用 out、「]」。
+    返还 out。
+完。
+
+壳层视觉上下文_默认 接受 零参：
+    ctx 为 新建 壳层视觉上下文。
+    ctx 的 主题 为 壳层主题_浅色。
+    ctx 的 密度 为 壳层密度_标准。
+    ctx 的 动效级别 为 壳层动效_标准。
+    ctx 的 字号缩放 为 1024。
+    ctx 的 圆角缩放 为 1024。
+    ctx 的 对比度增强 为 1024。
+    ctx 的 阴影强度 为 1024。
+    ctx 的 玻璃化强度 为 900。
+    ctx 的 噪点抑制 为 1024。
+    ctx 的 可访问模式 为 假。
+    ctx 的 减少动态 为 假。
+    ctx 的 触控优先 为 假。
+    返还 ctx。
+完。
+
+壳层视觉上下文_应用可访问 接受 ctx：
+    ctx 的 可访问模式 为 真。
+    ctx 的 字号缩放 为 1180。
+    ctx 的 对比度增强 为 1320。
+    ctx 的 阴影强度 为 700。
+    ctx 的 动效级别 为 壳层动效_低。
+    ctx 的 减少动态 为 真。
+完。
+
+壳层视觉上下文_应用触控 接受 ctx：
+    ctx 的 触控优先 为 真。
+    ctx 的 密度 为 壳层密度_宽松。
+    ctx 的 圆角缩放 为 1200。
+完。
+
+壳层视觉上下文_设置主题 接受 ctx、主题：
+    ctx 的 主题 为 主题。
+完。
+
+壳层_CSS_变量_浅色 接受 零参：
+    可变 css 为 「:root{」。
+    css 为 做 CSS_追加 用 css、「--nova-bg:#eef4fb;」。
+    css 为 做 CSS_追加 用 css、「--nova-bg2:#f7fbff;」。
+    css 为 做 CSS_追加 用 css、「--nova-card:#ffffff;」。
+    css 为 做 CSS_追加 用 css、「--nova-ink:#10233f;」。
+    css 为 做 CSS_追加 用 css、「--nova-sub:#5f748f;」。
+    css 为 做 CSS_追加 用 css、「--nova-line:#d8e3f1;」。
+    css 为 做 CSS_追加 用 css、「--nova-primary:#2563eb;」。
+    css 为 做 CSS_追加 用 css、「--nova-success:#16a34a;」。
+    css 为 做 CSS_追加 用 css、「--nova-warn:#f59e0b;」。
+    css 为 做 CSS_追加 用 css、「--nova-danger:#dc2626;」。
+    css 为 做 CSS_追加 用 css、「--nova-glass:rgba(255,255,255,0.78);」。
+    css 为 做 CSS_追加 用 css、「--nova-shadow:0 24px 60px rgba(15,23,42,0.12);」。
+    css 为 做 CSS_追加 用 css、「}」。
+    返还 css。
+完。
+
+壳层_CSS_变量_深色 接受 零参：
+    可变 css 为 「:root{」。
+    css 为 做 CSS_追加 用 css、「--nova-bg:#0a1426;」。
+    css 为 做 CSS_追加 用 css、「--nova-bg2:#0f1d34;」。
+    css 为 做 CSS_追加 用 css、「--nova-card:#11233d;」。
+    css 为 做 CSS_追加 用 css、「--nova-ink:#dbeafe;」。
+    css 为 做 CSS_追加 用 css、「--nova-sub:#9bb3cf;」。
+    css 为 做 CSS_追加 用 css、「--nova-line:#1f3656;」。
+    css 为 做 CSS_追加 用 css、「--nova-primary:#60a5fa;」。
+    css 为 做 CSS_追加 用 css、「--nova-success:#34d399;」。
+    css 为 做 CSS_追加 用 css、「--nova-warn:#fbbf24;」。
+    css 为 做 CSS_追加 用 css、「--nova-danger:#f87171;」。
+    css 为 做 CSS_追加 用 css、「--nova-glass:rgba(17,35,61,0.68);」。
+    css 为 做 CSS_追加 用 css、「--nova-shadow:0 28px 72px rgba(0,0,0,0.45);」。
+    css 为 做 CSS_追加 用 css、「}」。
+    返还 css。
+完。
+
+壳层_CSS_变量_高对比 接受 零参：
+    可变 css 为 「:root{」。
+    css 为 做 CSS_追加 用 css、「--nova-bg:#ffffff;」。
+    css 为 做 CSS_追加 用 css、「--nova-bg2:#ffffff;」。
+    css 为 做 CSS_追加 用 css、「--nova-card:#ffffff;」。
+    css 为 做 CSS_追加 用 css、「--nova-ink:#000000;」。
+    css 为 做 CSS_追加 用 css、「--nova-sub:#111111;」。
+    css 为 做 CSS_追加 用 css、「--nova-line:#000000;」。
+    css 为 做 CSS_追加 用 css、「--nova-primary:#0000ff;」。
+    css 为 做 CSS_追加 用 css、「--nova-success:#006400;」。
+    css 为 做 CSS_追加 用 css、「--nova-warn:#7c2d12;」。
+    css 为 做 CSS_追加 用 css、「--nova-danger:#7f1d1d;」。
+    css 为 做 CSS_追加 用 css、「--nova-glass:#ffffff;」。
+    css 为 做 CSS_追加 用 css、「--nova-shadow:none;」。
+    css 为 做 CSS_追加 用 css、「}」。
+    返还 css。
+完。
+
+壳层_CSS_变量_护眼 接受 零参：
+    可变 css 为 「:root{」。
+    css 为 做 CSS_追加 用 css、「--nova-bg:#f5f6ea;」。
+    css 为 做 CSS_追加 用 css、「--nova-bg2:#f1f2e3;」。
+    css 为 做 CSS_追加 用 css、「--nova-card:#fcfcf2;」。
+    css 为 做 CSS_追加 用 css、「--nova-ink:#1f2937;」。
+    css 为 做 CSS_追加 用 css、「--nova-sub:#4b5563;」。
+    css 为 做 CSS_追加 用 css、「--nova-line:#d1d5db;」。
+    css 为 做 CSS_追加 用 css、「--nova-primary:#2563eb;」。
+    css 为 做 CSS_追加 用 css、「--nova-success:#15803d;」。
+    css 为 做 CSS_追加 用 css、「--nova-warn:#b45309;」。
+    css 为 做 CSS_追加 用 css、「--nova-danger:#b91c1c;」。
+    css 为 做 CSS_追加 用 css、「--nova-glass:rgba(252,252,242,0.86);」。
+    css 为 做 CSS_追加 用 css、「--nova-shadow:0 18px 40px rgba(31,41,55,0.10);」。
+    css 为 做 CSS_追加 用 css、「}」。
+    返还 css。
+完。
+
+壳层_CSS_变量_按主题 接受 ctx：
+    若 ctx 的 主题 等于 壳层主题_深色：
+        返还 做 壳层_CSS_变量_深色。
+    完。
+    若 ctx 的 主题 等于 壳层主题_高对比：
+        返还 做 壳层_CSS_变量_高对比。
+    完。
+    若 ctx 的 主题 等于 壳层主题_护眼：
+        返还 做 壳层_CSS_变量_护眼。
+    完。
+    返还 做 壳层_CSS_变量_浅色。
+完。
+
+壳层_CSS_基础布局 接受 ctx：
+    可变 css 为 「」。
+    css 为 做 CSS_追加 用 css、「body{margin:0;padding:0;background:linear-gradient(145deg,var(--nova-bg2),var(--nova-bg));color:var(--nova-ink);font-family:'Nova Sans','Segoe UI',sans-serif;}」。
+    css 为 做 CSS_追加 用 css、「.nova-shell{max-width:1240px;margin:0 auto;padding:24px;position:relative;}」。
+    css 为 做 CSS_追加 用 css、「.nova-shell::before{content:'';position:fixed;right:42px;top:22px;width:280px;height:280px;border-radius:999px;background:rgba(147,197,253,0.24);filter:blur(36px);pointer-events:none;}」。
+    css 为 做 CSS_追加 用 css、「.nova-shell::after{content:'';position:fixed;left:36px;bottom:28px;width:240px;height:240px;border-radius:999px;background:rgba(52,211,153,0.20);filter:blur(42px);pointer-events:none;}」。
+    css 为 做 CSS_追加 用 css、「.nova-stack{display:flex;flex-direction:column;gap:18px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-row{display:flex;gap:12px;align-items:center;}」。
+    css 为 做 CSS_追加 用 css、「.nova-col{display:flex;flex-direction:column;gap:8px;}」。
+    返还 css。
+完。
+
+壳层_CSS_头图卡片 接受 ctx：
+    可变 css 为 「」。
+    css 为 做 CSS_追加 用 css、「.nova-hero{padding:30px;border:1px solid var(--nova-line);border-radius:28px;background:var(--nova-glass);box-shadow:var(--nova-shadow);backdrop-filter:blur(24px);}」。
+    css 为 做 CSS_追加 用 css、「.nova-eyebrow{font-size:12px;letter-spacing:0.14em;text-transform:uppercase;color:var(--nova-sub);font-weight:700;}」。
+    css 为 做 CSS_追加 用 css、「.nova-title{font-size:40px;line-height:1.08;font-weight:800;margin:10px 0 8px 0;}」。
+    css 为 做 CSS_追加 用 css、「.nova-lead{font-size:15px;line-height:1.74;color:var(--nova-sub);max-width:840px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-chip{padding:8px 12px;border-radius:999px;border:1px solid var(--nova-line);background:var(--nova-card);font-size:12px;color:var(--nova-sub);font-weight:650;}」。
+    css 为 做 CSS_追加 用 css、「.nova-chip-accent{background:linear-gradient(90deg,rgba(219,234,254,0.92),rgba(207,250,254,0.82));color:#0f2f53;border-color:rgba(147,197,253,0.7);}」。
+    css 为 做 CSS_追加 用 css、「.nova-nav{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-nav a{padding:9px 13px;border-radius:12px;border:1px solid var(--nova-line);background:var(--nova-card);text-decoration:none;color:var(--nova-ink);font-size:13px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-nav a:hover{border-color:var(--nova-primary);color:var(--nova-primary);}」。
+    返还 css。
+完。
+
+壳层_CSS_面板系统 接受 ctx：
+    可变 css 为 「」。
+    css 为 做 CSS_追加 用 css、「.nova-panel{padding:18px;border:1px solid var(--nova-line);border-radius:20px;background:var(--nova-glass);box-shadow:var(--nova-shadow);}」。
+    css 为 做 CSS_追加 用 css、「.nova-panel h2{margin:0 0 8px 0;font-size:20px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-panel h3{margin:0 0 6px 0;font-size:16px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-panel p{margin:0;color:var(--nova-sub);line-height:1.66;}」。
+    css 为 做 CSS_追加 用 css、「.nova-list{margin:10px 0 0 0;padding-left:18px;color:var(--nova-sub);}」。
+    css 为 做 CSS_追加 用 css、「.nova-list li{margin:6px 0;}」。
+    css 为 做 CSS_追加 用 css、「.nova-kv{display:grid;grid-template-columns:160px 1fr;gap:8px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-k{color:var(--nova-sub);font-size:12px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-v{color:var(--nova-ink);font-size:13px;font-weight:600;}」。
+    css 为 做 CSS_追加 用 css、「.nova-divider{height:1px;background:var(--nova-line);margin:10px 0;}」。
+    返还 css。
+完。
+
+壳层_CSS_命令甲板 接受 ctx：
+    可变 css 为 「」。
+    css 为 做 CSS_追加 用 css、「.nova-command-deck{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-command-item{padding:14px;border-radius:16px;border:1px solid var(--nova-line);background:var(--nova-card);}」。
+    css 为 做 CSS_追加 用 css、「.nova-command-item strong{display:block;font-size:13px;margin-bottom:6px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-command-item span{font-size:12px;color:var(--nova-sub);line-height:1.58;}」。
+    css 为 做 CSS_追加 用 css、「.nova-command-item:hover{border-color:var(--nova-primary);transform:translateY(-1px);}」。
+    css 为 做 CSS_追加 用 css、「.nova-progress{height:10px;border-radius:999px;background:rgba(148,163,184,0.24);overflow:hidden;}」。
+    css 为 做 CSS_追加 用 css、「.nova-progress span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#60a5fa,#34d399);}」。
+    css 为 做 CSS_追加 用 css、「.nova-status-ok{color:var(--nova-success);}」。
+    css 为 做 CSS_追加 用 css、「.nova-status-warn{color:var(--nova-warn);}」。
+    css 为 做 CSS_追加 用 css、「.nova-status-err{color:var(--nova-danger);}」。
+    返还 css。
+完。
+
+壳层_CSS_表单与输入 接受 ctx：
+    可变 css 为 「」。
+    css 为 做 CSS_追加 用 css、「.nova-input{padding:11px 13px;border-radius:12px;border:1px solid var(--nova-line);background:var(--nova-card);color:var(--nova-ink);}」。
+    css 为 做 CSS_追加 用 css、「.nova-input:focus{outline:none;border-color:var(--nova-primary);box-shadow:0 0 0 3px rgba(37,99,235,0.15);}」。
+    css 为 做 CSS_追加 用 css、「.nova-select{padding:11px 13px;border-radius:12px;border:1px solid var(--nova-line);background:var(--nova-card);color:var(--nova-ink);}」。
+    css 为 做 CSS_追加 用 css、「.nova-btn{padding:10px 14px;border-radius:12px;border:1px solid var(--nova-line);background:var(--nova-card);color:var(--nova-ink);font-weight:700;}」。
+    css 为 做 CSS_追加 用 css、「.nova-btn:hover{border-color:var(--nova-primary);color:var(--nova-primary);}」。
+    css 为 做 CSS_追加 用 css、「.nova-btn-primary{background:var(--nova-primary);border-color:var(--nova-primary);color:#fff;}」。
+    css 为 做 CSS_追加 用 css、「.nova-btn-primary:hover{filter:brightness(1.04);}」。
+    css 为 做 CSS_追加 用 css、「.nova-tag{display:inline-flex;padding:4px 10px;border-radius:999px;border:1px solid var(--nova-line);background:var(--nova-card);font-size:11px;}」。
+    css 为 做 CSS_追加 用 css、「.nova-footer{padding:14px 16px;border-radius:16px;border:1px solid var(--nova-line);background:var(--nova-glass);font-size:12px;color:var(--nova-sub);}」。
+    css 为 做 CSS_追加 用 css、「.nova-link{color:var(--nova-primary);text-decoration:none;}」。
+    返还 css。
+完。
+
+壳层_CSS_媒体与响应式 接受 ctx：
+    可变 css 为 「」。
+    css 为 做 CSS_追加 用 css、「@media (max-width:1100px){.nova-grid{grid-template-columns:1fr;}.nova-grid-3{grid-template-columns:1fr 1fr;}.nova-title{font-size:34px;}}」。
+    css 为 做 CSS_追加 用 css、「@media (max-width:760px){.nova-shell{padding:14px;}.nova-hero{padding:20px;}.nova-grid-3{grid-template-columns:1fr;}.nova-command-deck{grid-template-columns:1fr;}.nova-title{font-size:28px;}}」。
+    css 为 做 CSS_追加 用 css、「@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;}}」。
+    css 为 做 CSS_追加 用 css、「@media (prefers-contrast: more){.nova-panel,.nova-hero,.nova-command-item{border-width:2px;}}」。
+    css 为 做 CSS_追加 用 css、「@media (pointer: coarse){.nova-btn,.nova-nav a{padding:12px 16px;}}」。
+    返还 css。
+完。
+
+壳层_CSS_动效层 接受 ctx：
+    可变 css 为 「」。
+    若 ctx 的 动效级别 等于 壳层动效_关闭 或者 ctx 的 减少动态：
+        css 为 做 CSS_追加 用 css、「.nova-hero,.nova-panel,.nova-command-item{transition:none;}」。
+        返还 css。
+    完。
+    若 ctx 的 动效级别 等于 壳层动效_低：
+        css 为 做 CSS_追加 用 css、「.nova-hero,.nova-panel,.nova-command-item{transition:border-color .16s ease,color .16s ease;}」。
+        返还 css。
+    完。
+    css 为 做 CSS_追加 用 css、「@keyframes novaFloat{0%{transform:translateY(0)}50%{transform:translateY(-2px)}100%{transform:translateY(0)}}」。
+    css 为 做 CSS_追加 用 css、「.nova-hero{animation:novaFloat 6s ease-in-out infinite;}」。
+    css 为 做 CSS_追加 用 css、「.nova-panel{transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;}」。
+    css 为 做 CSS_追加 用 css、「.nova-panel:hover{transform:translateY(-1px);}」。
+    css 为 做 CSS_追加 用 css、「.nova-command-item{transition:transform .16s ease,border-color .16s ease;}」。
+    返还 css。
+完。
+
+壳层_CSS_生成 接受 ctx：
+    可变 css 为 「」。
+    css 为 做 CSS_追加 用 css、做 壳层_CSS_变量_按主题 用 ctx。
+    css 为 做 CSS_追加 用 css、做 壳层_CSS_基础布局 用 ctx。
+    css 为 做 CSS_追加 用 css、做 壳层_CSS_头图卡片 用 ctx。
+    css 为 做 CSS_追加 用 css、做 壳层_CSS_面板系统 用 ctx。
+    css 为 做 CSS_追加 用 css、做 壳层_CSS_命令甲板 用 ctx。
+    css 为 做 CSS_追加 用 css、做 壳层_CSS_表单与输入 用 ctx。
+    css 为 做 CSS_追加 用 css、做 壳层_CSS_媒体与响应式 用 ctx。
+    css 为 做 CSS_追加 用 css、做 壳层_CSS_动效层 用 ctx。
+    返还 css。
+完。
+
+协议_识别类型 接受 主机：
+    若 主机 等于 「system」：
+        返还 协议类型_系统。
+    完。
+    若 主机 等于 「ai」：
+        返还 协议类型_AI。
+    完。
+    若 主机 等于 「multimodal」：
+        返还 协议类型_多模态。
+    完。
+    若 主机 等于 「voice」：
+        返还 协议类型_语音。
+    完。
+    若 主机 等于 「avatar」：
+        返还 协议类型_形象。
+    完。
+    若 主机 等于 「diag」：
+        返还 协议类型_诊断。
+    完。
+    若 主机 等于 「settings」：
+        返还 协议类型_设置。
+    完。
+    若 主机 等于 「workflow」：
+        返还 协议类型_工作流。
+    完。
+    返还 协议类型_未知。
+完。
+
+协议_拆分URL 接受 url：
+    req 为 新建 协议请求。
+    req 的 原始URL 为 url。
+    req 的 协议名 为 「nova」。
+    req 的 主机 为 「」。
+    req 的 路径 为 「/」。
+    req 的 查询 为 「」。
+    req 的 类型 为 协议类型_未知。
+    req 的 参数列表 为 做 堆_分配_数组 用 最大参数数 乘 16。
+    req 的 参数数 为 0。
+    p 为 做 字符串查找 用 url、「://」。
+    若 p 小于 0：
+        返还 req。
+    完。
+    余 为 做 字符串子串 用 url、p 加 3、做 字符串长度 用 url。
+    slash 为 做 字符串查找 用 余、「/」。
+    qmark 为 做 字符串查找 用 余、「?」。
+    若 slash 小于 0 并且 qmark 小于 0：
+        req 的 主机 为 余。
+    完。
+    做 否则如果 用 slash 大于或等于 0 并且 (qmark 小于 0 或者 slash 小于 qmark)。
+    块：
+        req 的 主机 为 做 字符串子串 用 余、0、slash。
+        若 qmark 大于或等于 0：
+            req 的 路径 为 做 字符串子串 用 余、slash、qmark。
+            req 的 查询 为 做 字符串子串 用 余、qmark 加 1、做 字符串长度 用 余。
+        否则：
+            req 的 路径 为 做 字符串子串 用 余、slash、做 字符串长度 用 余。
+        完。
+    完。
+    否则。
+    块：
+        req 的 主机 为 做 字符串子串 用 余、0、qmark。
+        req 的 查询 为 做 字符串子串 用 余、qmark 加 1、做 字符串长度 用 余。
+    完。
+    req 的 类型 为 做 协议_识别类型 用 req 的 主机。
+    做 协议_解析查询参数 用 req。
+    返还 req。
+完。
+
+协议_解析查询参数 接受 req：
+    若 做 是否空串 用 req 的 查询：
+        返还。
+    完。
+    可变 start 为 0。
+    可变 q 为 req 的 查询。
+    只要 start 小于 做 字符串长度 用 q 并且 req 的 参数数 小于 最大参数数：
+        andPos 为 做 字符串查找_从 用 q、「&」、start。
+        item 为 「」。
+        若 andPos 小于 0：
+            item 为 做 字符串子串 用 q、start、做 字符串长度 用 q。
+            start 为 做 字符串长度 用 q。
+        否则：
+            item 为 做 字符串子串 用 q、start、andPos。
+            start 为 andPos 加 1。
+        完。
+        eqPos 为 做 字符串查找 用 item、「=」。
+        kv 为 新建 协议参数。
+        若 eqPos 小于 0：
+            kv 的 键 为 item。
+            kv 的 值 为 「」。
+        否则：
+            kv 的 键 为 做 字符串子串 用 item、0、eqPos。
+            kv 的 值 为 做 字符串子串 用 item、eqPos 加 1、做 字符串长度 用 item。
+        完。
+        req 的 参数列表 的 第 req 的 参数数 项 为 kv。
+        req 的 参数数 为 req 的 参数数 加 1。
+    完。
+完。
+
+协议_取参数 接受 req、键、默认值：
+    可变 i 为 0。
+    只要 i 小于 req 的 参数数：
+        若 req 的 参数列表 的 第 i 项 的 键 等于 键：
+            返还 req 的 参数列表 的 第 i 项 的 值。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 默认值。
+完。
+
+协议_路径风险评分 接受 req：
+    可变 风险 为 0。
+    若 做 字符串查找 用 req 的 路径、「..」 大于或等于 0：
+        风险 为 风险 加 60。
+    完。
+    若 做 字符串查找 用 req 的 查询、「<script」 大于或等于 0：
+        风险 为 风险 加 80。
+    完。
+    若 做 字符串查找 用 req 的 查询、「javascript:」 大于或等于 0：
+        风险 为 风险 加 80。
+    完。
+    若 做 字符串查找 用 req 的 查询、「DROP」 大于或等于 0：
+        风险 为 风险 加 50。
+    完。
+    若 做 字符串长度 用 req 的 查询 大于 1200：
+        风险 为 风险 加 25。
+    完。
+    返还 做 限幅 用 风险、0、100。
+完。
+
+协议_路由决策 接受 req、策略：
+    d 为 新建 路由决策。
+    d 的 是否命中 为 真。
+    d 的 命中模块 为 「壳层主页」。
+    d 的 风险评分 为 做 协议_路径风险评分 用 req。
+    d 的 置信度 为 220。
+    d 的 回退模块 为 「壳层主页」。
+    若 req 的 类型 等于 协议类型_系统：
+        d 的 命中模块 为 「系统总控面板」。
+    完。
+    做 否则如果 用 req 的 类型 等于 协议类型_AI。
+    块：
+        d 的 命中模块 为 「AI工作台」。
+    完。
+    做 否则如果 用 req 的 类型 等于 协议类型_多模态。
+    块：
+        d 的 命中模块 为 「多模态中枢」。
+    完。
+    做 否则如果 用 req 的 类型 等于 协议类型_语音。
+    块：
+        d 的 命中模块 为 「语音中枢」。
+    完。
+    做 否则如果 用 req 的 类型 等于 协议类型_形象。
+    块：
+        d 的 命中模块 为 「全息形象中枢」。
+    完。
+    做 否则如果 用 req 的 类型 等于 协议类型_诊断。
+    块：
+        d 的 命中模块 为 「诊断中心」。
+    完。
+    做 否则如果 用 req 的 类型 等于 协议类型_设置。
+    块：
+        d 的 命中模块 为 「系统设置」。
+    完。
+    做 否则如果 用 req 的 类型 等于 协议类型_工作流。
+    块：
+        d 的 命中模块 为 「工作流编排」。
+    完。
+    否则。
+    块：
+        d 的 是否命中 为 假。
+        d 的 命中模块 为 「未知模块」。
+        d 的 置信度 为 120。
+    完。
+    若 策略 等于 路由策略_严格 并且 d 的 风险评分 大于或等于 40：
+        d 的 是否命中 为 假。
+        d 的 命中模块 为 「访问阻断」。
+        d 的 回退模块 为 「安全提示页」。
+    完。
+    若 策略 等于 路由策略_实验 并且 d 的 风险评分 小于 30：
+        d 的 置信度 为 240。
+    完。
+    返还 d。
+完。
+
+壳层_AI_评估主题 接受 用户画像文本：
+    若 做 字符串查找 用 用户画像文本、「night」 大于或等于 0：
+        返还 壳层主题_深色。
+    完。
+    若 做 字符串查找 用 用户画像文本、「contrast」 大于或等于 0：
+        返还 壳层主题_高对比。
+    完。
+    若 做 字符串查找 用 用户画像文本、「eye-care」 大于或等于 0：
+        返还 壳层主题_护眼。
+    完。
+    返还 壳层主题_浅色。
+完。
+
+壳层_AI_评估密度 接受 会话长度、任务复杂度：
+    若 任务复杂度 大于或等于 80：
+        返还 壳层密度_紧凑。
+    完。
+    若 会话长度 小于或等于 3：
+        返还 壳层密度_宽松。
+    完。
+    返还 壳层密度_标准。
+完。
+
+壳层_AI_评估动效 接受 设备负载、用户偏好：
+    若 做 字符串查找 用 用户偏好、「reduce-motion」 大于或等于 0：
+        返还 壳层动效_关闭。
+    完。
+    若 设备负载 大于或等于 85：
+        返还 壳层动效_低。
+    完。
+    返还 壳层动效_标准。
+完。
+
+壳层_AI_生成上下文 接受 用户画像文本、会话长度、任务复杂度、设备负载、用户偏好：
+    ctx 为 做 壳层视觉上下文_默认。
+    ctx 的 主题 为 做 壳层_AI_评估主题 用 用户画像文本。
+    ctx 的 密度 为 做 壳层_AI_评估密度 用 会话长度、任务复杂度。
+    ctx 的 动效级别 为 做 壳层_AI_评估动效 用 设备负载、用户偏好。
+    若 做 字符串查找 用 用户偏好、「accessibility」 大于或等于 0：
+        做 壳层视觉上下文_应用可访问 用 ctx。
+    完。
+    若 做 字符串查找 用 用户偏好、「touch」 大于或等于 0：
+        做 壳层视觉上下文_应用触控 用 ctx。
+    完。
+    返还 ctx。
+完。
+
+壳层_HTML_头部标签 接受 零参：
+    可变 html 为 「」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-chips'>」。
+    html 为 做 字符串拼接 用 html、「<span class='nova-chip nova-chip-accent'>nova://终端</span>」。
+    html 为 做 字符串拼接 用 html、「<span class='nova-chip'>AI 即入口</span>」。
+    html 为 做 字符串拼接 用 html、「<span class='nova-chip'>语音 / 形象 / 多模态</span>」。
+    html 为 做 字符串拼接 用 html、「<span class='nova-chip'>热更新与回滚</span>」。
+    html 为 做 字符串拼接 用 html、「<span class='nova-chip'>browser-终端 单路径桌面</span>」。
+    html 为 做 字符串拼接 用 html、「</div>」。
+    返还 html。
+完。
+
+壳层_HTML_导航 接受 零参：
+    可变 html 为 「」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-nav'>」。
+    html 为 做 字符串拼接 用 html、「<a href='nova://system'>系统总控</a>」。
+    html 为 做 字符串拼接 用 html、「<a href='nova://ai'>AI 工作台</a>」。
+    html 为 做 字符串拼接 用 html、「<a href='nova://multimodal'>多模态中枢</a>」。
+    html 为 做 字符串拼接 用 html、「<a href='nova://voice'>语音中枢</a>」。
+    html 为 做 字符串拼接 用 html、「<a href='nova://avatar'>全息形象</a>」。
+    html 为 做 字符串拼接 用 html、「<a href='nova://diag'>诊断中心</a>」。
+    html 为 做 字符串拼接 用 html、「<a href='nova://workflow'>工作流</a>」。
+    html 为 做 字符串拼接 用 html、「</div>」。
+    返还 html。
+完。
+
+壳层_HTML_命令甲板 接受 零参：
+    可变 html 为 「」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-command-deck'>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-command-item'><strong>统一入口</strong><span>@对话、>命令、nova://路由合并到同一前台。</span></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-command-item'><strong>多模态前台</strong><span>语音、视觉、触控、形象共享同一会话上下文。</span></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-command-item'><strong>稳定演化</strong><span>热更新、自修复、回滚快照成为默认系统能力。</span></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-command-item'><strong>可观测</strong><span>全链路埋点与风险评分实时输出。</span></div>」。
+    html 为 做 字符串拼接 用 html、「</div>」。
+    返还 html。
+完。
+
+壳层_HTML_状态面板 接受 零参：
+    可变 html 为 「」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-panel'>」。
+    html 为 做 字符串拼接 用 html、「<h2>系统状态总览</h2>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-kv'><div class='nova-k'>渲染主循环</div><div class='nova-v nova-status-ok'>稳定</div></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-kv'><div class='nova-k'>协议路由健康</div><div class='nova-v nova-status-ok'>99.97%</div></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-kv'><div class='nova-k'>安全拦截率</div><div class='nova-v nova-status-warn'>0.04%</div></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-divider'></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-progress'><span style='width:88%'></span></div>」。
+    html 为 做 字符串拼接 用 html、「</div>」。
+    返还 html。
+完。
+
+壳层_HTML_帮助面板 接受 零参：
+    可变 html 为 「」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-panel'>」。
+    html 为 做 字符串拼接 用 html、「<h2>使用建议</h2>」。
+    html 为 做 字符串拼接 用 html、「<ul class='nova-list'>」。
+    html 为 做 字符串拼接 用 html、「<li>使用 <code>nova://ai</code> 进入 AI 工作台并加载上下文。</li>」。
+    html 为 做 字符串拼接 用 html、「<li>使用 <code>nova://diag</code> 查看系统诊断与异常溯源。</li>」。
+    html 为 做 字符串拼接 用 html、「<li>使用 <code>nova://workflow</code> 管理自动化任务链。</li>」。
+    html 为 做 字符串拼接 用 html、「</ul>」。
+    html 为 做 字符串拼接 用 html、「</div>」。
+    返还 html。
+完。
+
+壳层_HTML_主内容 接受 零参：
+    可变 html 为 「」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-grid'>」。
+    html 为 做 字符串拼接 用 html、做 壳层_HTML_状态面板。
+    html 为 做 字符串拼接 用 html、做 壳层_HTML_帮助面板。
+    html 为 做 字符串拼接 用 html、「</div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-panel' style='margin-top:14px'>」。
+    html 为 做 字符串拼接 用 html、「<h2>主壳命令甲板</h2>」。
+    html 为 做 字符串拼接 用 html、「<p>把系统主壳从介绍页升级为真正的操作前台，保留统一语义与可扩展协议入口。</p>」。
+    html 为 做 字符串拼接 用 html、做 壳层_HTML_命令甲板。
+    html 为 做 字符串拼接 用 html、「</div>」。
+    返还 html。
+完。
+
+协议_生成标题 接受 类型：
+    若 类型 等于 协议类型_系统：
+        返还 「系统总控」。
+    完。
+    若 类型 等于 协议类型_AI：
+        返还 「AI 工作台」。
+    完。
+    若 类型 等于 协议类型_多模态：
+        返还 「多模态中枢」。
+    完。
+    若 类型 等于 协议类型_语音：
+        返还 「语音中枢」。
+    完。
+    若 类型 等于 协议类型_形象：
+        返还 「全息形象中枢」。
+    完。
+    若 类型 等于 协议类型_诊断：
+        返还 「诊断中心」。
+    完。
+    若 类型 等于 协议类型_设置：
+        返还 「系统设置」。
+    完。
+    若 类型 等于 协议类型_工作流：
+        返还 「工作流编排」。
+    完。
+    返还 「NovaOS Browser-终端」。
+完。
+
+协议_生成描述 接受 类型：
+    若 类型 等于 协议类型_系统：
+        返还 「内核、图形、设备总线统一观测与控制。」。
+    完。
+    若 类型 等于 协议类型_AI：
+        返还 「智能体、推理、策略编排与模型管理。」。
+    完。
+    若 类型 等于 协议类型_多模态：
+        返还 「视觉、听觉、触觉信号融合处理。」。
+    完。
+    若 类型 等于 协议类型_语音：
+        返还 「语音识别、合成与对话管理。」。
+    完。
+    若 类型 等于 协议类型_形象：
+        返还 「全息形象调度、动作与情感状态驱动。」。
+    完。
+    若 类型 等于 协议类型_诊断：
+        返还 「故障溯源、修复建议与健康评分。」。
+    完。
+    若 类型 等于 协议类型_设置：
+        返还 「主题、权限、网络与系统策略配置。」。
+    完。
+    若 类型 等于 协议类型_工作流：
+        返还 「任务流设计、编排、回放与审计。」。
+    完。
+    返还 「统一入口，统一语义，统一体验。」。
+完。
+
+协议_生成页面HTML 接受 req、ctx、决策：
+    可变 html 为 「」。
+    html 为 做 字符串拼接 用 html、「<!doctype html><html><head><meta charset='utf-8'>」。
+    html 为 做 字符串拼接 用 html、「<meta name='viewport' content='width=device-width,initial-scale=1'>」。
+    html 为 做 字符串拼接 用 html、「<title>」。
+    html 为 做 字符串拼接 用 html、做 协议_生成标题 用 req 的 类型。
+    html 为 做 字符串拼接 用 html、「</title><style>」。
+    html 为 做 字符串拼接 用 html、做 壳层_CSS_生成 用 ctx。
+    html 为 做 字符串拼接 用 html、「</style></head><body>」。
+    html 为 做 字符串拼接 用 html、「<main class='nova-shell'><section class='nova-stack'>」。
+    html 为 做 字符串拼接 用 html、「<header class='nova-hero'>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-eyebrow'>NOVAOS / INTERNAL PROTOCOL</div>」。
+    html 为 做 字符串拼接 用 html、「<h1 class='nova-title'>」。
+    html 为 做 字符串拼接 用 html、做 协议_生成标题 用 req 的 类型。
+    html 为 做 字符串拼接 用 html、「</h1>」。
+    html 为 做 字符串拼接 用 html、「<p class='nova-lead'>」。
+    html 为 做 字符串拼接 用 html、做 协议_生成描述 用 req 的 类型。
+    html 为 做 字符串拼接 用 html、「</p>」。
+    html 为 做 字符串拼接 用 html、做 壳层_HTML_头部标签。
+    html 为 做 字符串拼接 用 html、做 壳层_HTML_导航。
+    html 为 做 字符串拼接 用 html、「</header>」。
+    html 为 做 字符串拼接 用 html、做 壳层_HTML_主内容。
+    html 为 做 字符串拼接 用 html、「<footer class='nova-footer'>」。
+    html 为 做 字符串拼接 用 html、「route=」。
+    html 为 做 字符串拼接 用 html、决策 的 命中模块。
+    html 为 做 字符串拼接 用 html、「 · risk=」。
+    html 为 做 字符串拼接 用 html、做 整数转字符串 用 决策 的 风险评分。
+    html 为 做 字符串拼接 用 html、「 · confidence=」。
+    html 为 做 字符串拼接 用 html、做 整数转字符串 用 决策 的 置信度。
+    html 为 做 字符串拼接 用 html、「 · reduce-motion=」。
+    html 为 做 字符串拼接 用 html、做 布尔转文本 用 ctx 的 减少动态。
+    html 为 做 字符串拼接 用 html、「</footer>」。
+    html 为 做 字符串拼接 用 html、「</section></main></body></html>」。
+    返还 html。
+完。
+
+浏览器网络_生成页面增强CSS_新版 接受 零参：
+    ctx 为 做 壳层视觉上下文_默认。
+    返还 做 壳层_CSS_生成 用 ctx。
+完。
+
+浏览器网络_生成页面头部标签HTML_新版 接受 零参：
+    返还 做 壳层_HTML_头部标签。
+完。
+
+浏览器网络_生成主壳增强内容HTML_新版 接受 零参：
+    返还 做 壳层_HTML_主内容。
+完。
+
+浏览器网络_处理内部协议_标记5 接受 url：
+    做 壳层埋点_记录 用 「protocol.recv」、做 字符串长度 用 url、0、「entry」。
+    req 为 做 协议_拆分URL 用 url。
+    ctx 为 做 壳层视觉上下文_默认。
+    决策 为 做 协议_路由决策 用 req、全局_默认策略。
+    若 非 决策 的 是否命中：
+        做 壳层埋点_记录 用 「protocol.reject」、决策 的 风险评分、决策 的 置信度、决策 的 命中模块。
+        failHtml 为 做 协议_生成安全阻断页 用 req、决策。
+        返还 failHtml。
+    完。
+    做 壳层埋点_记录 用 「protocol.route」、req 的 类型、决策 的 风险评分、决策 的 命中模块。
+    html 为 做 协议_生成页面HTML 用 req、ctx、决策。
+    做 壳层埋点_记录 用 「protocol.ok」、做 字符串长度 用 html、req 的 参数数、「rendered」。
+    返还 html。
+完。
+
+协议_生成安全阻断页 接受 req、决策：
+    ctx 为 做 壳层视觉上下文_默认。
+    ctx 的 主题 为 壳层主题_高对比。
+    ctx 的 减少动态 为 真。
+    可变 html 为 「」。
+    html 为 做 字符串拼接 用 html、「<!doctype html><html><head><meta charset='utf-8'><style>」。
+    html 为 做 字符串拼接 用 html、做 壳层_CSS_生成 用 ctx。
+    html 为 做 字符串拼接 用 html、「</style></head><body><main class='nova-shell'><section class='nova-stack'>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-panel'><h2>访问已阻断</h2>」。
+    html 为 做 字符串拼接 用 html、「<p>该内部协议请求被安全策略拦截。请检查参数与路径规范。</p>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-kv'><div class='nova-k'>风险评分</div><div class='nova-v nova-status-err'>」。
+    html 为 做 字符串拼接 用 html、做 整数转字符串 用 决策 的 风险评分。
+    html 为 做 字符串拼接 用 html、「</div></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-kv'><div class='nova-k'>回退模块</div><div class='nova-v'>」。
+    html 为 做 字符串拼接 用 html、决策 的 回退模块。
+    html 为 做 字符串拼接 用 html、「</div></div>」。
+    html 为 做 字符串拼接 用 html、「<div class='nova-divider'></div>」。
+    html 为 做 字符串拼接 用 html、「<a class='nova-link' href='nova://system'>返回系统总控</a>」。
+    html 为 做 字符串拼接 用 html、「</div></section></main></body></html>」。
+    返还 html。
+完。
+
+浏览器网络_处理内部协议_标记5_AI 接受 url、用户画像文本、会话长度、任务复杂度、设备负载、用户偏好：
+    做 壳层埋点_记录 用 「protocol.ai.recv」、会话长度、任务复杂度、「ai-entry」。
+    req 为 做 协议_拆分URL 用 url。
+    ctx 为 做 壳层_AI_生成上下文 用 用户画像文本、会话长度、任务复杂度、设备负载、用户偏好。
+    决策 为 做 协议_路由决策 用 req、全局_默认策略。
+    若 非 决策 的 是否命中：
+        做 壳层埋点_记录 用 「protocol.ai.reject」、决策 的 风险评分、决策 的 置信度、「reject」。
+        返还 做 协议_生成安全阻断页 用 req、决策。
+    完。
+    html 为 做 协议_生成页面HTML 用 req、ctx、决策。
+    做 壳层埋点_记录 用 「protocol.ai.ok」、ctx 的 主题、ctx 的 密度、「ok」。
+    返还 html。
+完。
+
+浏览器网络_设置路由策略 接受 策略：
+    若 策略 不等于 路由策略_严格 并且 策略 不等于 路由策略_兼容 并且 策略 不等于 路由策略_实验：
+        返还 失败。
+    完。
+    全局_默认策略 为 策略。
+    做 壳层埋点_记录 用 「policy.route」、策略、0、「set」。
+    返还 成功。
+完。
+
+浏览器网络_获取路由策略 接受 零参：
+    返还 全局_默认策略。
+完。
+
+浏览器网络_导出埋点JSON 接受 零参：
+    返还 做 壳层埋点_导出JSON。
+完。
+
+浏览器网络_生成页面增强CSS 接受 零参：
+    返还 做 浏览器网络_生成页面增强CSS_新版。
+完。
+
+浏览器网络_生成页面头部标签HTML 接受 零参：
+    返还 做 浏览器网络_生成页面头部标签HTML_新版。
+完。
+
+浏览器网络_生成主壳增强内容HTML 接受 零参：
+    返还 做 浏览器网络_生成主壳增强内容HTML_新版。
+完。
+
+浏览器网络_处理内部协议 接受 url：
+    返还 做 浏览器网络_处理内部协议_标记5 用 url。
+完。
+
+浏览器网络_标记5_自检 接受 零参：
+    ctx 为 做 壳层视觉上下文_默认。
+    css 为 做 壳层_CSS_生成 用 ctx。
+    若 做 字符串长度 用 css 小于 400：
+        返还 假。
+    完。
+    req 为 做 协议_拆分URL 用 「nova://ai?tab=agent」。
+    若 req 的 类型 不等于 协议类型_AI：
+        返还 假。
+    完。
+    决策 为 做 协议_路由决策 用 req、路由策略_兼容。
+    若 非 决策 的 是否命中：
+        返还 假。
+    完。
+    html 为 做 协议_生成页面HTML 用 req、ctx、决策。
+    若 做 字符串查找 用 html、「AI 工作台」 小于 0：
+        返还 假。
+    完。
+    若 做 字符串查找 用 html、「nova-shell」 小于 0：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+浏览器网络_标记5_初始化 接受 零参：
+    做 壳层埋点_初始化。
+    做 壳层埋点_记录 用 「module.init」、1、0、「mark5」。
+    返还 成功。
+完。
+
+浏览器网络_标记5_卸载 接受 零参：
+    若 全局_埋点缓冲 不等于 空：
+        做 堆_释放 用 全局_埋点缓冲 的 列表。
+        做 堆_释放 用 全局_埋点缓冲。
+        全局_埋点缓冲 为 空。
+    完。
+    返还 成功。
+完。
+
+本章 收束。

@@ -1,0 +1,151 @@
+《RTCPeerConnection》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·SDP会话描述》。
+
+引用《.·WebRTC_ICE收集》。
+
+R传控eerConnection 是 一种 事物，含 signalingState、iceConnectionState、iceGatheringState、connectionState、localDescription、remoteDescription、pendingLocalDescription、pendingRemoteDescription、iceServers、iceServers数、本地候选、本地候选数、远端候选、远端候选数、收发器、收发器数、数据通道、数据通道数、本地流、本地流数、远端流、远端流数、onicecandidate、ontrack、ondatachannel、oniceconnectionstatechange、onnegotiationneeded、onsignalingstatechange、onconnectionstatechange。
+
+R传控eerConnection_创建 接受 iceServers、iceServers数：
+    pc 为 做 堆_分配 用 R传控eerConnection。
+    pc 的 signalingState 为 RTC_SIGNALING_STABLE。
+    pc 的 iceConnectionState 为 ICE_NEW。
+    pc 的 iceGatheringState 为 ICE_GATHER_NEW。
+    pc 的 connectionState 为 CONN_NEW。
+    pc 的 localDescription 为 0。
+    pc 的 remoteDescription 为 0。
+    pc 的 pendingLocalDescription 为 0。
+    pc 的 pendingRemoteDescription 为 0。
+    可变 i 为 0。
+    只要 i 小于 iceServers数 并且 i 小于 8：
+        pc 的 iceServers 的 第 i 项 为 做 内存_读64 用 iceServers 加 i 乘 8。
+        i 为 i 加 1。
+    完。
+    pc 的 iceServers数 为 若 iceServers数 大于 8 则 8 否则 iceServers数。
+    pc 的 本地候选数 为 0。
+    pc 的 远端候选数 为 0。
+    pc 的 收发器数 为 0。
+    pc 的 数据通道数 为 0。
+    pc 的 本地流数 为 0。
+    pc 的 远端流数 为 0。
+    返还 pc。
+完。
+
+RTC_createOffer 接受 pc：
+    若 pc 等于 0：
+        返还 0。
+    完。
+    返还 做 SDP_生成Offer 用 pc。
+完。
+
+RTC_createAnswer 接受 pc：
+    若 pc 等于 0 或者 pc 的 remoteDescription 等于 0：
+        返还 0。
+    完。
+    返还 做 SDP_生成Answer 用 pc。
+完。
+
+RTC_setLocalDescription 接受 pc、desc：
+    若 pc 等于 0 或者 desc 等于 0：
+        返还。
+    完。
+    pc 的 localDescription 为 desc。
+    若 desc 的 类型 等于 SDP_OFFER：
+        pc 的 signalingState 为 RTC_SIGNALING_HAVE_LOCAL_OFFER。
+    否则若 desc 的 类型 等于 SDP_ANSWER：
+        pc 的 signalingState 为 RTC_SIGNALING_STABLE。
+    完。
+    pc 的 iceGatheringState 为 ICE_GATHER_GATHERING。
+    做 RTC_开始ICE收集 用 pc。
+完。
+
+RTC_setRemoteDescription 接受 pc、desc：
+    若 pc 等于 0 或者 desc 等于 0：
+        返还。
+    完。
+    pc 的 remoteDescription 为 desc。
+    若 desc 的 类型 等于 SDP_OFFER：
+        pc 的 signalingState 为 RTC_SIGNALING_HAVE_REMOTE_OFFER。
+    否则若 desc 的 类型 等于 SDP_ANSWER：
+        pc 的 signalingState 为 RTC_SIGNALING_STABLE。
+    完。
+完。
+
+RTC_addIceCandidate 接受 pc、candidate：
+    若 pc 等于 0 或者 candidate 等于 0：
+        返还。
+    完。
+    若 pc 的 远端候选数 大于或等于 32：
+        返还。
+    完。
+    pc 的 远端候选 的 第 pc 的 远端候选数 项 为 candidate。
+    pc 的 远端候选数 为 pc 的 远端候选数 加 1。
+    做 RTC_ICE检查 用 pc。
+完。
+
+RTC_addTrack 接受 pc、track、stream：
+    若 pc 等于 0 或者 track 等于 0：
+        返还 0。
+    完。
+    tc 为 做 堆_分配 用 RTCRtpTransceiver。
+    tc 的 sender_track 为 track。
+    若 pc 的 收发器数 小于 8：
+        pc 的 收发器 的 第 pc 的 收发器数 项 为 tc。
+        pc 的 收发器数 为 pc 的 收发器数 加 1。
+    完。
+    若 pc 的 onnegotiationneeded 不等于 0：
+    完。
+    返还 tc。
+完。
+
+RTC_removeTrack 接受 pc、sender：
+    若 pc 等于 0 或者 sender 等于 0：
+        返还。
+    完。
+完。
+
+RTC_close 接受 pc：
+    若 pc 等于 0：
+        返还。
+    完。
+    pc 的 signalingState 为 RTC_SIGNALING_CLOSED。
+    pc 的 iceConnectionState 为 ICE_CLOSED。
+    pc 的 connectionState 为 CONN_CLOSED。
+    可变 i 为 0。
+    只要 i 小于 pc 的 数据通道数：
+        dc 为 pc 的 数据通道 的 第 i 项。
+        若 dc 不等于 0：
+            做 DataChannel_close 用 dc。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+RTC_getStats 接受 pc：
+    若 pc 等于 0：
+        返还 0。
+    完。
+    返还 0。
+完。
+
+可变 AI_传控连接_调用数 为 0。
+
+可变 AI_传控连接_异常数 为 0。
+
+AI_传控连接_监控 接受 零参：
+    AI_传控连接_调用数 为 AI_传控连接_调用数 加 1。
+    返还 AI_传控连接_异常数 等于 0。
+完。
+
+AI_传控连接_健康检查 接受 零参：
+    若 AI_传控连接_调用数 大于 0 并且 AI_传控连接_异常数 乘 100 除以 AI_传控连接_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

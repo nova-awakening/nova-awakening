@@ -1,0 +1,80 @@
+《门控循环》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·定点Q算术》。
+
+引用《.·激活函数非线》。
+
+引用《.·缩放点积注意力》。
+
+引用《..·感知·内核直连层》。
+
+引用《.·矩阵运算》。
+
+引用《..·执行·底层内存操》。
+
+Nova门控循环Cell 是 一种 事物，含 隐藏维度、输入维度、Wz、Wr、Wh、bz、br、bh、隐藏状态。
+
+Nova门控循环Cell_创建 接受 输入维度、隐藏维度：
+    Nova门控循环 为 做 堆_分配 用 Nova门控循环Cell。
+    Nova门控循环 的 输入维度 为 输入维度。
+    Nova门控循环 的 隐藏维度 为 隐藏维度。
+    拼接维 为 输入维度 加 隐藏维度。
+    Nova门控循环 的 Wz 为 做 Tensor_创建 用 拼接维、隐藏维度。
+    Nova门控循环 的 Wr 为 做 Tensor_创建 用 拼接维、隐藏维度。
+    Nova门控循环 的 Wh 为 做 Tensor_创建 用 拼接维、隐藏维度。
+    Nova门控循环 的 bz 为 做 Tensor_创建 用 1、隐藏维度。
+    Nova门控循环 的 br 为 做 Tensor_创建 用 1、隐藏维度。
+    Nova门控循环 的 bh 为 做 Tensor_创建 用 1、隐藏维度。
+    Nova门控循环 的 隐藏状态 为 做 Tensor_创建 用 1、隐藏维度。
+    做 权重_增益初始化 用 Nova门控循环 的 Wz、拼接维、隐藏维度。
+    做 权重_增益初始化 用 Nova门控循环 的 Wr、拼接维、隐藏维度。
+    做 权重_增益初始化 用 Nova门控循环 的 Wh、拼接维、隐藏维度。
+    返还 Nova门控循环。
+完。
+
+Nova门控循环Cell_线性步 接受 cell、输入、输入维度、隐藏维度：
+    若 cell 等于 0 或者 输入 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 隐藏维度：
+        xt 为 做 Tensor_读 用 输入、i 取余于 输入维度。
+        ht 为 做 Tensor_读 用 cell 的 隐藏状态、i。
+        gate_input 为 做 Q乘 用 做 Tensor_读 用 cell 的 Wz_diag、i、xt 加 做 Q乘 用 做 Tensor_读 用 cell 的 Uz_diag、i、ht。
+        zt 为 做 激活_HexSigmoid_单值 用 gate_input。
+        reset_input 为 做 Q乘 用 做 Tensor_读 用 cell 的 Wr_diag、i、xt 加 做 Q乘 用 做 Tensor_读 用 cell 的 Ur_diag、i、ht。
+        rt 为 做 激活_HexSigmoid_单值 用 reset_input。
+        h_reset 为 做 Q乘 用 rt、ht。
+        cand_input 为 做 Q乘 用 做 Tensor_读 用 cell 的 Wh_diag、i、xt 加 做 Q乘 用 做 Tensor_读 用 cell 的 Uh_diag、i、h_reset。
+        ht_tilde 为 做 激活_Tanh_单值 用 cand_input。
+        h_new 为 做 Q乘 用 Q_ONE 减 zt、ht 加 做 Q乘 用 zt、ht_tilde。
+        做 Tensor_写 用 cell 的 隐藏状态、i、h_new。
+        i 为 i 加 1。
+    完。
+完。
+
+激活_Tanh_单值 接受 x：
+    若 x 大于 3 乘 Q_ONE：
+        返还 Q_ONE。
+    完。
+    若 x 小于 负 3 乘 Q_ONE：
+        返还 负 Q_ONE。
+    完。
+    x2 为 做 Q乘 用 x、x。
+    分子 为 做 Q乘 用 x、27 乘 Q_ONE 加 x2。
+    分母 为 27 乘 Q_ONE 加 9 乘 x2 除以 Q_ONE。
+    若 分母 等于 0：
+        返还 0。
+    完。
+    返还 分子 除以 分母。
+完。
+
+Nova门控循环Cell_重置 接受 Nova门控循环：
+    做 内存_清零 用 Nova门控循环 的 隐藏状态 的 数据、Nova门控循环 的 隐藏维度 乘 4。
+完。
+
+本章 收束。

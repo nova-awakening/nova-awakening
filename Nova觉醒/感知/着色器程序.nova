@@ -1,0 +1,164 @@
+《着色器程序》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·程序入口》。
+
+SHADER_STAGE_VERTEX 为 0。
+
+SHADER_STAGE_FRAGMENT 为 1。
+
+GrShaderProgram 是 一种 事物，含 gpu_id、顶点着色器源、片段着色器源、uniform数量、uniform名称、uniform位置、属性数量。
+
+GrShader缓存 是 一种 事物，含 程序表、程序数、程序容量。
+
+GrShader缓存_创建 接受 零参：
+    c 为 做 堆_分配 用 GrShader缓存。
+    c 的 程序容量 为 64。
+    c 的 程序表 为 做 堆_分配_数组 用 64 乘 8。
+    c 的 程序数 为 0。
+    返还 c。
+完。
+
+内置顶点着色器_纯色 为 「attribute vec2 aPos;\n」。
+
+「uniform mat3 uTransform;\n」。
+
+「void main() {\n」。
+
+「  vec3 p = uTransform * vec3(aPos, 1.0);\n」。
+
+「  gl_Position = vec4(p.xy, 0.0, 1.0);\n」。
+
+「}\n」。
+
+内置片段着色器_纯色 为 「precision mediump float;\n」。
+
+「uniform vec4 uColor;\n」。
+
+「void main() {\n」。
+
+「  gl_FragColor = uColor;\n」。
+
+「}\n」。
+
+内置顶点着色器_纹理 为 「attribute vec2 aPos;\n」。
+
+「attribute vec2 aTexCoord;\n」。
+
+「uniform mat3 uTransform;\n」。
+
+「varying vec2 vTexCoord;\n」。
+
+「void main() {\n」。
+
+「  vec3 p = uTransform * vec3(aPos, 1.0);\n」。
+
+「  gl_Position = vec4(p.xy, 0.0, 1.0);\n」。
+
+「  vTexCoord = aTexCoord;\n」。
+
+「}\n」。
+
+内置片段着色器_纹理 为 「precision mediump float;\n」。
+
+「uniform sampler2D uTexture;\n」。
+
+「uniform float uAlpha;\n」。
+
+「varying vec2 vTexCoord;\n」。
+
+「void main() {\n」。
+
+「  gl_FragColor = texture2D(uTexture, vTexCoord) * uAlpha;\n」。
+
+「}\n」。
+
+GrShader_编译 接受 ctx、顶点源、片段源：
+    若 ctx 等于 0：
+        返还 0。
+    完。
+    prog 为 做 堆_分配 用 GrShaderProgram。
+    prog 的 顶点着色器源 为 顶点源。
+    prog 的 片段着色器源 为 片段源。
+    prog 的 gpu_id 为 做 图处命令_编译着色器 用 ctx 的 命令缓冲、顶点源、片段源。
+    prog 的 uniform数量 为 0。
+    prog 的 属性数量 为 0。
+    cache 为 ctx 的 着色器缓存。
+    若 cache 的 程序数 小于 cache 的 程序容量：
+        做 内存_写64 用 cache 的 程序表 加 cache 的 程序数 乘 8、prog。
+        cache 的 程序数 为 cache 的 程序数 加 1。
+    完。
+    返还 prog。
+完。
+
+PRIM_TRIANGLES 为 0。
+
+PRIM_TRIANGLE_STRIP 为 1。
+
+PRIM_TRIANGLE_FAN 为 2。
+
+PRIM_LINES 为 3。
+
+GrVertexBuffer 是 一种 事物，含 gpu_id、数据、字节大小、顶点数、步长、是动态。
+
+GrDrawOp 是 一种 事物，含 着色器、顶点缓冲、索引缓冲、图元类型、顶点偏移、顶点数、纹理0、纹理1、变换矩阵、颜色、透明度。
+
+GrVertexBuffer_创建 接受 ctx、数据、字节大小、步长、动态：
+    若 ctx 等于 0：
+        返还 0。
+    完。
+    vb 为 做 堆_分配 用 GrVertexBuffer。
+    vb 的 数据 为 数据。
+    vb 的 字节大小 为 字节大小。
+    vb 的 步长 为 步长。
+    vb 的 顶点数 为 字节大小 除以 步长。
+    vb 的 是动态 为 动态。
+    vb 的 gpu_id 为 做 图处命令_创建顶点缓冲 用 ctx 的 命令缓冲、数据、字节大小、动态。
+    返还 vb。
+完。
+
+GrDrawOp_执行 接受 ctx、op：
+    若 ctx 等于 0 或者 op 等于 0：
+        返还。
+    完。
+    cmd 为 ctx 的 命令缓冲。
+    若 op 的 着色器 不等于 0：
+        做 图处命令_使用着色器 用 cmd、op 的 着色器 的 gpu_id。
+    完。
+    做 图处命令_设uniform_矩阵3 用 cmd、「uTransform」、op 的 变换矩阵。
+    做 图处命令_设uniform_vec4 用 cmd、「uColor」、op 的 颜色 的 第 0 项、op 的 颜色 的 第 1 项、op 的 颜色 的 第 2 项、op 的 颜色 的 第 3 项。
+    做 图处命令_设uniform_float 用 cmd、「uAlpha」、op 的 透明度。
+    若 op 的 纹理0 不等于 0：
+        做 图处命令_绑定纹理 用 cmd、0、op 的 纹理0 的 gpu_id。
+    完。
+    若 op 的 纹理1 不等于 0：
+        做 图处命令_绑定纹理 用 cmd、1、op 的 纹理1 的 gpu_id。
+    完。
+    若 op 的 顶点缓冲 不等于 0：
+        做 图处命令_绑定顶点缓冲 用 cmd、op 的 顶点缓冲 的 gpu_id。
+    完。
+    做 图处命令_绘制 用 cmd、op 的 图元类型、op 的 顶点偏移、op 的 顶点数。
+    ctx 的 绘制调用计数 为 ctx 的 绘制调用计数 加 1。
+完。
+
+可变 AI_着色器程序_热点函数 为 一组：（空）。
+
+AI_着色器程序_JIT候选 接受 函数名、调用次数：
+    若 调用次数 大于 100：
+        做 追加 用 AI_着色器程序_热点函数、函数名。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_着色器程序_内联建议 接受 函数体大小、调用次数：
+    若 函数体大小 小于 30 并且 调用次数 大于 50：
+        返还 「内联」。
+    完。
+    返还 「不内联」。
+完。
+
+本章 收束。

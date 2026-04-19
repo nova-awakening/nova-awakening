@@ -1,0 +1,115 @@
+《创建过渡动》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·时钟中枢》。
+
+VT_创建动画 接受 vt：
+    若 vt 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 vt 的 快照数量：
+        旧 为 做 内存_读64 用 vt 的 旧快照列表 加 i 乘 8。
+        新 为 做 内存_读64 用 vt 的 新快照列表 加 i 乘 8。
+        若 旧 不等于 0 并且 新 不等于 0：
+            做 VT_创建元素动画 用 vt、旧、新。
+        否则若 旧 不等于 0：
+            做 VT_创建淡出动画 用 vt、旧。
+        否则若 新 不等于 0：
+            做 VT_创建淡入动画 用 vt、新。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+VT_创建元素动画 接受 vt、旧snap、新snap：
+    若 vt 等于 0 或者 旧snap 等于 0 或者 新snap 等于 0：
+        返还。
+    完。
+    now 为 做 读取纳秒。
+    旧snap 的 动画类型 为 VT_ANIM_GROUP。
+    旧snap 的 动画开始 为 now。
+    旧snap 的 动画持续 为 vt 的 持续时间。
+    旧snap 的 起始x 为 旧snap 的 x。
+    旧snap 的 结束x 为 新snap 的 x。
+    旧snap 的 起始y 为 旧snap 的 y。
+    旧snap 的 结束y 为 新snap 的 y。
+    旧snap 的 起始宽 为 旧snap 的 宽。
+    旧snap 的 结束宽 为 新snap 的 宽。
+    旧snap 的 起始高 为 旧snap 的 高。
+    旧snap 的 结束高 为 新snap 的 高。
+    旧snap 的 起始透明度 为 10000。
+    旧snap 的 结束透明度 为 0。
+    新snap 的 动画类型 为 VT_ANIM_FADE_IN。
+    新snap 的 动画开始 为 now。
+    新snap 的 动画持续 为 vt 的 持续时间。
+    新snap 的 起始透明度 为 0。
+    新snap 的 结束透明度 为 10000。
+完。
+
+VT_创建淡出动画 接受 vt、snap：
+    若 vt 等于 0 或者 snap 等于 0：
+        返还。
+    完。
+    snap 的 动画类型 为 VT_ANIM_FADE_OUT。
+    snap 的 起始透明度 为 10000。
+    snap 的 结束透明度 为 0。
+    snap 的 动画开始 为 做 读取纳秒。
+    snap 的 动画持续 为 vt 的 持续时间。
+完。
+
+VT_创建淡入动画 接受 vt、snap：
+    若 vt 等于 0 或者 snap 等于 0：
+        返还。
+    完。
+    snap 的 动画类型 为 VT_ANIM_FADE_IN。
+    snap 的 起始透明度 为 0。
+    snap 的 结束透明度 为 10000。
+    snap 的 动画开始 为 做 读取纳秒。
+    snap 的 动画持续 为 vt 的 持续时间。
+完。
+
+VT_帧更新 接受 vt、当前时间：
+    若 vt 等于 0 或者 vt 的 状态 不等于 VT_STATE_ANIMATING：
+        返还。
+    完。
+    可变 全部完成 为 真。
+    可变 i 为 0。
+    只要 i 小于 vt 的 动画数量：
+        anim 为 做 内存_读64 用 vt 的 动画列表 加 i 乘 8。
+        若 anim 不等于 0：
+        完。
+        i 为 i 加 1。
+    完。
+    若 全部完成：
+        vt 的 状态 为 VT_STATE_DONE。
+    完。
+完。
+
+VT_绘制 接受 vt、canvas：
+    若 vt 等于 0 或者 vt 的 状态 不等于 VT_STATE_ANIMATING：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 vt 的 快照数量：
+        旧 为 做 内存_读64 用 vt 的 旧快照列表 加 i 乘 8。
+        新 为 做 内存_读64 用 vt 的 新快照列表 加 i 乘 8。
+        若 旧 不等于 0 并且 旧 的 像素 不等于 0：
+        完。
+        若 新 不等于 0 并且 新 的 像素 不等于 0：
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+ViewTransition_skipTransition 接受 vt：
+    若 vt 等于 0：
+        返还。
+    完。
+    vt 的 状态 为 VT_STATE_SKIPPED。
+完。
+
+本章 收束。

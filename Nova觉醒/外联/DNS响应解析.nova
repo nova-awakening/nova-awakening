@@ -1,0 +1,114 @@
+《DNS响应解析》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·域名缓存》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·域名初始化》。
+
+域名_解析响应 接受 r、buf、len、域名、类型：
+    若 buf 等于 0 或者 len 小于 12：
+        返还 0。
+    完。
+    flags 为 做 字节取 用 buf、2 左移 8 位或 做 字节取 用 buf、3。
+    rcode 为 flags 位与 0x0F。
+    若 rcode 等于 RCODE_NXDOMAIN：
+        做 域名_缓存插入 用 r、域名、类型、0、域名_CACHE_NEG_TTL、真。
+        返还 0。
+    完。
+    若 rcode 不等于 RCODE_OK：
+        返还 0。
+    完。
+    ancount 为 做 字节取 用 buf、6 左移 8 位或 做 字节取 用 buf、7。
+    可变 pos 为 12。
+    qdcount 为 做 字节取 用 buf、4 左移 8 位或 做 字节取 用 buf、5。
+    可变 q 为 0。
+    只要 q 小于 qdcount 并且 pos 小于 len：
+        pos 为 做 域名_跳过域名 用 buf、pos、len。
+        pos 为 pos 加 4。
+        q 为 q 加 1。
+    完。
+    可变 结果 为 0。
+    可变 结果TTL 为 0。
+    可变 a 为 0。
+    只要 a 小于 ancount 并且 pos 加 10 小于 len：
+        pos 为 做 域名_跳过域名 用 buf、pos、len。
+        rec_type 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+        pos 为 pos 加 2。
+        rec_class 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+        pos 为 pos 加 2。
+        ttl 为 做 字节取 用 buf、pos 左移 24 位或 做 字节取 用 buf、pos 加 1 左移 16 位或 做 字节取 用 buf、pos 加 2 左移 8 位或 做 字节取 用 buf、pos 加 3。
+        pos 为 pos 加 4。
+        rdlen 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+        pos 为 pos 加 2。
+        若 rec_type 等于 域名_A 并且 rdlen 等于 4 并且 pos 加 4 小于或等于 len：
+            结果 为 做 字节取 用 buf、pos 左移 24 位或 做 字节取 用 buf、pos 加 1 左移 16 位或 做 字节取 用 buf、pos 加 2 左移 8 位或 做 字节取 用 buf、pos 加 3。
+            结果TTL 为 ttl。
+        否则若 rec_type 等于 域名_AAAA 并且 rdlen 等于 16：
+        否则若 rec_type 等于 域名_CNAME：
+        完。
+        pos 为 pos 加 rdlen。
+        a 为 a 加 1。
+    完。
+    若 结果 不等于 0：
+        rec 为 做 堆_分配 用 域名Record。
+        rec 的 ipv4 为 结果。
+        rec 的 类型 为 域名_A。
+        rec 的 TTL 为 结果TTL。
+        rec 的 下一个 为 0。
+        做 域名_缓存插入 用 r、域名、类型、rec、结果TTL、假。
+    完。
+    返还 结果。
+完。
+
+域名_跳过域名 接受 buf、pos、len：
+    若 pos 大于或等于 len：
+        返还 pos。
+    完。
+    可变 p 为 pos。
+    只要 p 小于 len：
+        label_len 为 做 字节取 用 buf、p。
+        若 label_len 等于 0：
+            返还 p 加 1。
+        完。
+        若 label_len 位与 0xC0 等于 0xC0：
+            返还 p 加 2。
+        完。
+        p 为 p 加 1 加 label_len。
+    完。
+    返还 p。
+完。
+
+域名_数报查询 接受 r、域名、类型：
+    若 r 等于 0 或者 r 的 服务器数 等于 0：
+        返还 0。
+    完。
+    buf 为 做 堆_分配 用 512。
+    query_len 为 做 域名_构造查询 用 r、域名、类型、buf、512。
+    若 query_len 小于或等于 0：
+        返还 0。
+    完。
+    server_ip 为 r 的 服务器 的 第 0 项。
+    做 平台_udp_发送 用 r 的 udp_fd、server_ip、域名_PORT、buf、query_len。
+    resp 为 做 堆_分配 用 512。
+    resp_len 为 做 平台_udp_接收 用 r 的 udp_fd、resp、512、域名_TIMEOUT_MS。
+    若 resp_len 小于或等于 0：
+        返还 0。
+    完。
+    返还 做 域名_解析响应 用 r、resp、resp_len、域名、类型。
+完。
+
+域名_DoH查询 接受 r、域名、类型：
+    若 r 等于 0 或者 r 的 doh_url 等于 0：
+        返还 0。
+    完。
+    wire 为 做 堆_分配 用 512。
+    wire_len 为 做 域名_构造查询 用 r、域名、类型、wire、512。
+    返还 0。
+完。
+
+本章 收束。

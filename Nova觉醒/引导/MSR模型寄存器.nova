@@ -1,0 +1,283 @@
+《MSR模型寄存器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·字符串替换》。
+
+MSR_EFER 为 0xC0000080。
+
+MSR_STAR 为 0xC0000081。
+
+MSR_LSTAR 为 0xC0000082。
+
+MSR_CSTAR 为 0xC0000083。
+
+MSR_SFMASK 为 0xC0000084。
+
+MSR_FS_BASE 为 0xC0000100。
+
+MSR_GS_BASE 为 0xC0000101。
+
+MSR_KERNEL_GS_BASE 为 0xC0000102。
+
+MSR_接口C_BASE 为 0x0000001B。
+
+MSR_TSC 为 0x00000010。
+
+MSR_TSC_AUX 为 0xC0000103。
+
+MSR_TSC_ADJUST 为 0x0000003B。
+
+MSR_PERF_STATUS 为 0x00000198。
+
+MSR_PERF_CTL 为 0x00000199。
+
+MSR_FIXED_CTR0 为 0x00000309。
+
+MSR_FIXED_CTR1 为 0x0000030A。
+
+MSR_FIXED_CTR2 为 0x0000030B。
+
+MSR_MPERF 为 0x000000E7。
+
+MSR_APERF 为 0x000000E8。
+
+MSR_PAT 为 0x00000277。
+
+MSR_MTRRCAP 为 0x000000FE。
+
+MSR_MTRR_DEF_TYPE 为 0x000002FF。
+
+MSR_VM_CR 为 0xC0010114。
+
+MSR_VM_HSAVE_PA 为 0xC0010117。
+
+EFER_SCE 为 1 左移 0。
+
+EFER_LME 为 1 左移 8。
+
+EFER_LMA 为 1 左移 10。
+
+EFER_NXE 为 1 左移 11。
+
+读MSR 接受 寄存器号：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov ecx, [rbp+16]」。
+        「rdmsr」。
+        「shl rdx, 32」。
+        「or rax, rdx」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+写MSR 接受 寄存器号、值：
+    汇编。
+    块：
+        「mov ecx, [rbp+24]」。
+        「mov rax, [rbp+16]」。
+        「mov rdx, rax」。
+        「shr rdx, 32」。
+        「wrmsr」。
+    完。
+完。
+
+读MSR_安全 接受 寄存器号：
+    返还 做 读MSR 用 寄存器号。
+完。
+
+读EFER 接受 零参：
+    返还 做 读MSR 用 MSR_EFER。
+完。
+
+写EFER 接受 值：
+    做 写MSR 用 MSR_EFER、值。
+完。
+
+启用NX位 接受 零参：
+    efer 为 做 读EFER。
+    做 写EFER 用 efer 位或 EFER_NXE。
+完。
+
+启用Nova系统调用 接受 零参：
+    efer 为 做 读EFER。
+    做 写EFER 用 efer 位或 EFER_SCE。
+完。
+
+设置FS基址 接受 地址：
+    做 写MSR 用 MSR_FS_BASE、地址。
+完。
+
+读取FS基址 接受 零参：
+    返还 做 读MSR 用 MSR_FS_BASE。
+完。
+
+设置GS基址 接受 地址：
+    做 写MSR 用 MSR_GS_BASE、地址。
+完。
+
+读取GS基址 接受 零参：
+    返还 做 读MSR 用 MSR_GS_BASE。
+完。
+
+设置内核GS基址 接受 地址：
+    做 写MSR 用 MSR_KERNEL_GS_BASE、地址。
+完。
+
+读取内核GS基址 接受 零参：
+    返还 做 读MSR 用 MSR_KERNEL_GS_BASE。
+完。
+
+设置Nova系统调用入口 接受 地址：
+    做 写MSR 用 MSR_LSTAR、地址。
+完。
+
+设置Nova系统调用选择子 接受 内核CS、用户CS：
+    值 为 内核CS 左移 32 位或 用户CS 左移 48。
+    做 写MSR 用 MSR_STAR、值。
+完。
+
+设置Nova系统调用标志掩码 接受 掩码：
+    做 写MSR 用 MSR_SFMASK、掩码。
+完。
+
+Nova系统调用_完整配置 接受 入口地址、内核CS、用户CS：
+    做 启用Nova系统调用。
+    做 设置Nova系统调用入口 用 入口地址。
+    做 设置Nova系统调用选择子 用 内核CS、用户CS。
+    做 设置Nova系统调用标志掩码 用 0x200。
+完。
+
+读接口C基址 接受 零参：
+    返还 做 读MSR 用 MSR_接口C_BASE 位与 0xFFFFF000。
+完。
+
+接口C_是BSP_MSR 接受 零参：
+    返还 做 读MSR 用 MSR_接口C_BASE 位与 1 左移 8 不等于 0。
+完。
+
+读取指令计数 接受 零参：
+    返还 做 读MSR 用 MSR_FIXED_CTR0。
+完。
+
+读取周期计数 接受 零参：
+    返还 做 读MSR 用 MSR_FIXED_CTR1。
+完。
+
+读取CPU实际频率 接受 零参：
+    返还 做 读MSR 用 MSR_MPERF。
+完。
+
+读取CPU最大频率 接受 零参：
+    返还 做 读MSR 用 MSR_APERF。
+完。
+
+PAT_WB 为 0x06。
+
+PAT_WT 为 0x04。
+
+PAT_UC 为 0x00。
+
+PAT_WC 为 0x01。
+
+PAT_UCM 为 0x07。
+
+PAT_初始化 接受 零参：
+    pat_值 为 PAT_WB 位或 PAT_WT 左移 8 位或 PAT_UCM 左移 16 位或 PAT_UC 左移 24 位或 PAT_WB 左移 32 位或 PAT_WT 左移 40 位或 PAT_UCM 左移 48 位或 PAT_UC 左移 56。
+    做 写MSR 用 MSR_PAT、pat_值。
+完。
+
+读取TSC 接受 零参：
+    返还 做 读MSR 用 MSR_TSC。
+完。
+
+设置TSC_AUX 接受 值：
+    做 写MSR 用 MSR_TSC_AUX、值。
+完。
+
+读取TSC_AUX 接受 零参：
+    返还 做 读MSR 用 MSR_TSC_AUX。
+完。
+
+TSC_调整 接受 偏移：
+    做 写MSR 用 MSR_TSC_ADJUST、偏移。
+完。
+
+CPU_频率比 接受 零参：
+    mperf 为 做 读MSR 用 MSR_MPERF。
+    aperf 为 做 读MSR 用 MSR_APERF。
+    若 mperf 等于 0：
+        返还 100。
+    完。
+    返还 aperf 乘 100 除以 mperf。
+完。
+
+读取MSR 接受 寄存器号：
+    返还 做 读MSR 用 寄存器号。
+完。
+
+写入MSR 接受 寄存器号、值：
+    做 写MSR 用 寄存器号、值。
+完。
+
+MSR_名称 接受 寄存器号：
+    若 寄存器号 等于 MSR_EFER：
+        返还 「EFER」。
+    完。
+    若 寄存器号 等于 MSR_LSTAR：
+        返还 「LSTAR」。
+    完。
+    若 寄存器号 等于 MSR_STAR：
+        返还 「STAR」。
+    完。
+    若 寄存器号 等于 MSR_FS_BASE：
+        返还 「FS_BASE」。
+    完。
+    若 寄存器号 等于 MSR_GS_BASE：
+        返还 「GS_BASE」。
+    完。
+    若 寄存器号 等于 MSR_接口C_BASE：
+        返还 「接口C_BASE」。
+    完。
+    若 寄存器号 等于 MSR_PAT：
+        返还 「PAT」。
+    完。
+    若 寄存器号 等于 MSR_TSC：
+        返还 「TSC」。
+    完。
+    返还 「MSR_0x」 加 做 整数转十六进制 用 寄存器号。
+完。
+
+PAT_类型名 接受 类型：
+    若 类型 等于 PAT_WB：
+        返还 「WB」。
+    完。
+    若 类型 等于 PAT_WT：
+        返还 「WT」。
+    完。
+    若 类型 等于 PAT_UC：
+        返还 「UC」。
+    完。
+    若 类型 等于 PAT_WC：
+        返还 「WC」。
+    完。
+    若 类型 等于 PAT_UCM：
+        返还 「UC-」。
+    完。
+    返还 「unknown」。
+完。
+
+EFER_摘要 接受 零参：
+    efer 为 做 读EFER。
+    返还 一组：efer 位与 EFER_SCE 不等于 0、efer 位与 EFER_LME 不等于 0、efer 位与 EFER_LMA 不等于 0、efer 位与 EFER_NXE 不等于 0。
+完。
+
+MSR_完整统计 接受 零参：
+    返还 一组：MSR_读次数、MSR_写次数。
+完。
+
+本章 收束。

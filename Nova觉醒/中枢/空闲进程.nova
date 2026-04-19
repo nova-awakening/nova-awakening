@@ -1,0 +1,185 @@
+《空闲进程》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·时钟中枢》。
+
+引用《.·整数转字符串》。
+
+引用《..·引导·特权指令》。
+
+引用《.·每处理器》。
+
+引用《.·运行队列初始化》。
+
+引用《..·引导·CPUID识别》。
+
+可变 idle_进入次数 为 0。
+
+可变 idle_总时间_ns 为 0。
+
+可变 idle_上次进入 为 0。
+
+CSTATE_C0 为 0。
+
+CSTATE_C1 为 1。
+
+CSTATE_C2 为 2。
+
+CSTATE_C3 为 3。
+
+可变 当前C状态 为 CSTATE_C0。
+
+idle循环 接受 零参：
+    只要 真：
+        只要 非 做 需要调度：
+            idle_上次进入 为 做 sched_clock。
+            idle_进入次数 为 idle_进入次数 加 1。
+            做 tick_nohz_idle_enter。
+            做 idle_进入低功耗。
+            做 tick_nohz_idle_exit。
+            退出时间 为 做 sched_clock。
+            idle_总时间_ns 为 idle_总时间_ns 加 (退出时间 减 idle_上次进入)。
+            当前C状态 为 CSTATE_C0。
+        完。
+        做 调度。
+    完。
+完。
+
+idle_进入低功耗 接受 零参：
+    rq 为 做 当前CPU运行队列。
+    预计空闲 为 0。
+    若 rq 不等于 空：
+        预计空闲 为 rq 的 avg_idle。
+    完。
+    若 预计空闲 小于 1000：
+        当前C状态 为 CSTATE_C1。
+        做 idle_c1_pause。
+    否则若 预计空闲 小于 100000：
+        当前C状态 为 CSTATE_C2。
+        做 idle_c2_hlt。
+    否则：
+        当前C状态 为 CSTATE_C3。
+        做 idle_c2_hlt。
+    完。
+完。
+
+idle_c1_pause 接受 零参：
+    做 暂停。
+完。
+
+idle_c2_hlt 接受 零参：
+    做 开中断。
+    做 停机。
+完。
+
+idle进程_创建 接受 CPU号：
+    名称 为 「swapper/」 加 做 整数转字符串 用 CPU号。
+    rq 为 做 获取运行队列 用 CPU号。
+    若 rq 不等于 空：
+    完。
+    返还 成功。
+完。
+
+tick_nohz_idle_enter 接受 零参：
+    下次到期 为 做 定时器_最近到期。
+    若 下次到期 大于 做 读取毫秒 加 10：
+        做 接口C_定时器_停止。
+        做 接口C_定时器_设置单次 用 下次到期 减 做 读取毫秒。
+    完。
+完。
+
+tick_nohz_idle_exit 接受 零参：
+    做 接口C_定时器_恢复周期。
+完。
+
+需要调度 接受 零参：
+    当前 为 做 获取当前进程。
+    若 当前 等于 空：
+        返还 假。
+    完。
+    返还 做 进程_需要调度标志 用 当前。
+完。
+
+idle_统计 接受 零参：
+    返还 一组：idle_进入次数、idle_总时间_ns、当前C状态。
+完。
+
+可变 cstate_使用次数 为 一组：0、0、0、0。
+
+可变 cstate_总时间 为 一组：0、0、0、0。
+
+idle_记录cstate 接受 状态、持续时间_ns：
+    若 状态 大于或等于 0 并且 状态 小于或等于 3：
+        cstate_使用次数 的 第 状态 项 为 cstate_使用次数 的 第 状态 项 加 1。
+        cstate_总时间 的 第 状态 项 为 cstate_总时间 的 第 状态 项 加 持续时间_ns。
+    完。
+完。
+
+idle_cstate统计 接受 零参：
+    返还 一组：cstate_使用次数、cstate_总时间。
+完。
+
+可变 MWAIT_可用 为 假。
+
+idle_检测MWAIT 接受 零参：
+    ecx 为 做 CPUID查询 用 1、0 的 第 2 项。
+    若 ecx 位与 1 左移 3 不等于 0：
+        MWAIT_可用 为 真。
+        做 内核信息 用 「idle: MWAIT指令可用, 启用低延迟idle」。
+    否则：
+        做 内核信息 用 「idle: MWAIT不可用, 使用HLT」。
+    完。
+完。
+
+idle_c1_mwait 接受 零参：
+    若 非 MWAIT_可用：
+        做 idle_c1_pause。
+        返还。
+    完。
+    汇编。
+    块：
+        「lea rax, [rsp]」。
+        「xor ecx, ecx」。
+        「xor edx, edx」。
+        「monitor」。
+        「xor eax, eax」。
+        「mwait」。
+    完。
+完。
+
+idle_占比 接受 零参：
+    总时间 为 做 sched_clock。
+    若 总时间 等于 0：
+        返还 0。
+    完。
+    返还 idle_总时间_ns 乘 100 除以 总时间。
+完。
+
+idle_完整统计 接受 零参：
+    返还 一组：idle_进入次数、idle_总时间_ns、当前C状态、MWAIT_可用、做 idle_占比、cstate_使用次数 的 第 0 项、cstate_使用次数 的 第 1 项、cstate_使用次数 的 第 2 项、cstate_使用次数 的 第 3 项。
+完。
+
+cstate_名称 接受 状态：
+    若 状态 等于 CSTATE_C0：
+        返还 「C0-Active」。
+    完。
+    若 状态 等于 CSTATE_C1：
+        返还 「C1-Pause」。
+    完。
+    若 状态 等于 CSTATE_C2：
+        返还 「C2-HLT」。
+    完。
+    若 状态 等于 CSTATE_C3：
+        返还 「C3-Deep」。
+    完。
+    返还 「Unknown」。
+完。
+
+idle_总时间_ms 接受 零参：
+    返还 idle_总时间_ns 除以 1000000。
+完。
+
+本章 收束。

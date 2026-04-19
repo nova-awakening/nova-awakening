@@ -1,0 +1,161 @@
+《播放循环》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·解码器》。
+
+引用《.·文档事件》。
+
+引用《.·媒体播控》。
+
+引用《.·字幕》。
+
+媒体元素_开始播放循环 接受 me：
+    若 me 等于 0 或者 me 的 paused：
+        返还。
+    完。
+    做 媒体元素_播放帧 用 me。
+完。
+
+媒体元素_播放帧 接受 me：
+    若 me 等于 0 或者 me 的 paused 或者 me 的 ended：
+        返还。
+    完。
+    帧时间 为 1000 乘 1024 除以 60 除以 me 的 playbackRate。
+    me 的 currentTime 为 me 的 currentTime 加 帧时间 除以 1024。
+    若 me 的 duration 大于 0 并且 me 的 currentTime 大于或等于 me 的 duration：
+        若 me 的 loop：
+            me 的 currentTime 为 0。
+        否则：
+            me 的 ended 为 真。
+            me 的 paused 为 真。
+            做 媒体元素_触发事件 用 me、「ended」。
+            返还。
+        完。
+    完。
+    若 me 的 demuxer 不等于 0 并且 me 的 audioDecoder 不等于 0：
+        packet 为 做 Demuxer_读取音频包 用 me 的 demuxer。
+        若 packet 不等于 0：
+            frame 为 做 音频Decoder_解码 用 me 的 audioDecoder、packet。
+            若 frame 不等于 0 并且 me 的 audio渲染er 不等于 0：
+                有效音量 为 若 me 的 muted 则 0 否则 me 的 volume。
+                做 音频渲染er_渲染 用 me 的 audio渲染er、frame、有效音量。
+            完。
+        完。
+    完。
+    若 me 的 demuxer 不等于 0 并且 me 的 videoDecoder 不等于 0：
+        packet 为 做 Demuxer_读取视频包 用 me 的 demuxer。
+        若 packet 不等于 0：
+            frame 为 做 视频Decoder_解码 用 me 的 videoDecoder、packet。
+            若 frame 不等于 0 并且 me 的 video渲染er 不等于 0：
+                做 视频渲染er_渲染 用 me 的 video渲染er、frame。
+            完。
+        完。
+    完。
+    做 媒体元素_更新字幕 用 me。
+    做 TimeRanges_添加 用 me 的 played、0、me 的 currentTime。
+    做 媒体元素_触发事件 用 me、「timeupdate」。
+    做 媒体元素_触发事件 用 me、「progress」。
+完。
+
+媒体元素_停止播放 接受 me：
+    若 me 等于 0：
+        返还。
+    完。
+    me 的 paused 为 真。
+完。
+
+媒体Packet 是 一种 事物，含 数据、大小、时间戳、解码时间、是关键帧、轨道类型、下一个。
+
+Demuxer 是 一种 事物，含 源URL、格式、数据缓冲、缓冲大小、已读位置、有音频、有视频、时长、音频队列头、视频队列头。
+
+Demuxer_创建 接受 url：
+    d 为 做 堆_分配 用 Demuxer。
+    d 的 源URL 为 url。
+    d 的 格式 为 0。
+    d 的 数据缓冲 为 0。
+    d 的 缓冲大小 为 0。
+    d 的 已读位置 为 0。
+    d 的 有音频 为 假。
+    d 的 有视频 为 假。
+    d 的 时长 为 负 1。
+    d 的 音频队列头 为 0。
+    d 的 视频队列头 为 0。
+    返还 d。
+完。
+
+Demuxer_探测格式 接受 d：
+    若 d 等于 0：
+        返还 0。
+    完。
+    返还 CONTAINER_MP4。
+完。
+
+Demuxer_解析轨道 接受 d、me：
+    若 d 等于 0 或者 me 等于 0：
+        返还。
+    完。
+    d 的 格式 为 CONTAINER_MP4。
+    d 的 有视频 为 真。
+    d 的 有音频 为 真。
+    d 的 时长 为 0。
+    me 的 duration 为 d 的 时长。
+    若 d 的 有音频：
+        me 的 音频轨道 的 第 0 项 的 编解码器 为 CODEC_AAC。
+        me 的 音频轨道 的 第 0 项 的 采样率 为 44100。
+        me 的 音频轨道 的 第 0 项 的 声道数 为 2。
+        me 的 音频轨道 的 第 0 项 的 位深度 为 16。
+        me 的 音频轨道 的 第 0 项 的 enabled 为 真。
+        me 的 音频轨道数 为 1。
+    完。
+    若 d 的 有视频：
+        me 的 视频轨道 的 第 0 项 的 编解码器 为 CODEC_H264。
+        me 的 视频轨道 的 第 0 项 的 宽度 为 1920。
+        me 的 视频轨道 的 第 0 项 的 高度 为 1080。
+        me 的 视频轨道 的 第 0 项 的 帧率 为 30 乘 1024。
+        me 的 视频轨道 的 第 0 项 的 selected 为 真。
+        me 的 视频轨道数 为 1。
+    完。
+完。
+
+Demuxer_seek 接受 d、时间：
+    若 d 等于 0：
+        返还。
+    完。
+完。
+
+Demuxer_读取音频包 接受 d：
+    若 d 等于 0 或者 d 的 音频流 等于 0：
+        返还 0。
+    完。
+    若 d 的 音频位置 大于或等于 d 的 音频流 的 大小：
+        返还 0。
+    完。
+    pkt 为 做 堆_分配 用 媒体Packet。
+    pkt 的 流类型 为 STREAM_AUDIO。
+    pkt 的 时间戳 为 做 Demuxer_读取时间戳 用 d、d 的 音频位置。
+    pkt 的 数据 为 d 的 音频流 的 数据 加 d 的 音频位置。
+    pkt 的 大小 为 做 Demuxer_计算帧大小 用 d、d 的 音频位置。
+    d 的 音频位置 为 d 的 音频位置 加 pkt 的 大小。
+    返还 pkt。
+完。
+
+Demuxer_读取视频包 接受 d：
+    若 d 等于 0 或者 d 的 视频流 等于 0：
+        返还 0。
+    完。
+    若 d 的 视频位置 大于或等于 d 的 视频流 的 大小：
+        返还 0。
+    完。
+    pkt 为 做 堆_分配 用 媒体Packet。
+    pkt 的 流类型 为 STREAM_VIDEO。
+    pkt 的 时间戳 为 做 Demuxer_读取时间戳 用 d、d 的 视频位置。
+    pkt 的 数据 为 d 的 视频流 的 数据 加 d 的 视频位置。
+    pkt 的 大小 为 做 Demuxer_计算帧大小 用 d、d 的 视频位置。
+    d 的 视频位置 为 d 的 视频位置 加 pkt 的 大小。
+    返还 pkt。
+完。
+
+本章 收束。

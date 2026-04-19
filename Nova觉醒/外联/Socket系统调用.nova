@@ -1,0 +1,235 @@
+《Socket系统调用》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·套接字API》。
+
+引用《..·中枢·双向链表操作》。
+
+引用《..·中枢·链表后继》。
+
+引用《..·记忆·文件描述符》。
+
+引用《.·传控核心》。
+
+引用《..·中枢·释放文件表》。
+
+引用《..·中枢·每处理器》。
+
+引用《..·中枢·同步原语》。
+
+AF_UNSPEC 为 0。
+
+AF_UNIX 为 1。
+
+AF_INET 为 2。
+
+AF_INET6 为 10。
+
+AF_NETLINK 为 16。
+
+SOCK_STREAM 为 1。
+
+SOCK_DGRAM 为 2。
+
+SOCK_RAW 为 3。
+
+SS_未连接 为 0。
+
+SS_正在连接 为 1。
+
+SS_已连接 为 2。
+
+SS_正在断开 为 3。
+
+SS_监听 为 4。
+
+SOL_SOCKET 为 1。
+
+SOL_传控 为 6。
+
+SOL_数报 为 17。
+
+SO_REUSEADDR 为 2。
+
+SO_KEEPALIVE 为 9。
+
+SO_RCVBUF 为 8。
+
+SO_SNDBUF 为 7。
+
+SO_RCVTIMEO 为 20。
+
+SO_SNDTIMEO 为 21。
+
+SO_LINGER 为 13。
+
+SO_ERROR 为 4。
+
+MSG_PEEK 为 0x02。
+
+MSG_WAITALL 为 0x100。
+
+MSG_DONTWAIT 为 0x40。
+
+MSG_NOSIGNAL 为 0x4000。
+
+SOCK_类型 为 0。
+
+SOCK_域 为 1。
+
+SOCK_协议 为 2。
+
+SOCK_状态 为 3。
+
+SOCK_本地IP 为 4。
+
+SOCK_本地端口 为 5。
+
+SOCK_远端IP 为 6。
+
+SOCK_远端端口 为 7。
+
+SOCK_发送缓冲 为 8。
+
+SOCK_接收缓冲 为 9。
+
+SOCK_错误 为 10。
+
+SOCK_标志 为 11。
+
+SOCK_等待队列 为 12。
+
+SOCK_积压队列 为 13。
+
+SOCK_积压最大 为 14。
+
+SOCK_操作 为 15。
+
+SOCK_TCB 为 16。
+
+SOCK_引用计数 为 17。
+
+SOCK_发送缓冲大小 为 18。
+
+SOCK_接收缓冲大小 为 19。
+
+SOCK_字段数 为 20。
+
+默认发送缓冲 为 212992。
+
+默认接收缓冲 为 212992。
+
+可变 Socket_创建数 为 0。
+
+可变 Socket_关闭数 为 0。
+
+可变 Socket_发送字节 为 0。
+
+可变 Socket_接收字节 为 0。
+
+系统_socket 接受 域、类型、协议：
+    若 域 不等于 AF_INET 并且 域 不等于 AF_UNIX：
+        返还 错误_不支持。
+    完。
+    若 类型 不等于 SOCK_STREAM 并且 类型 不等于 SOCK_DGRAM 并且 类型 不等于 SOCK_RAW：
+        返还 错误_不支持。
+    完。
+    可变 sock 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 SOCK_字段数：
+        做 追加 用 sock、0。
+        i 为 i 加 1。
+    完。
+    做 设置 用 sock、SOCK_类型、类型。
+    做 设置 用 sock、SOCK_域、域。
+    做 设置 用 sock、SOCK_协议、协议。
+    做 设置 用 sock、SOCK_状态、SS_未连接。
+    做 设置 用 sock、SOCK_发送缓冲、做 链表_创建。
+    做 设置 用 sock、SOCK_接收缓冲、做 链表_创建。
+    做 设置 用 sock、SOCK_等待队列、做 等待队列_创建。
+    做 设置 用 sock、SOCK_积压队列、做 链表_创建。
+    做 设置 用 sock、SOCK_引用计数、1。
+    做 设置 用 sock、SOCK_发送缓冲大小、默认发送缓冲。
+    做 设置 用 sock、SOCK_接收缓冲大小、默认接收缓冲。
+    若 域 等于 AF_INET：
+        若 类型 等于 SOCK_STREAM：
+            做 设置 用 sock、SOCK_操作、传控_协议操作。
+            做 设置 用 sock、SOCK_TCB、做 传控_创建TCB 用 0、0、0。
+        否则若 类型 等于 SOCK_DGRAM：
+            做 设置 用 sock、SOCK_操作、数报_协议操作。
+        完。
+    完。
+    当前 为 做 获取当前进程。
+    fd 为 做 文件表_分配 用 当前 的 第 T_文件表 项。
+    若 fd 小于 0：
+        返还 fd。
+    完。
+    文件 为 做 Socket_创建文件 用 sock。
+    做 文件表_设置 用 当前 的 第 T_文件表 项、fd、文件。
+    Socket_创建数 为 Socket_创建数 加 1。
+    返还 fd。
+完。
+
+系统_bind 接受 fd、IP地址、端口：
+    sock 为 做 fd_到Socket 用 fd。
+    若 sock 等于 空：
+        返还 错误_坏文件描述符。
+    完。
+    若 做 端口_已被绑定 用 端口：
+        返还 错误_地址已用。
+    完。
+    做 设置 用 sock、SOCK_本地IP、IP地址。
+    做 设置 用 sock、SOCK_本地端口、端口。
+    若 sock 的 第 SOCK_TCB 项 不等于 空：
+        做 设置 用 sock 的 第 SOCK_TCB 项、TCB_源端口、端口。
+    完。
+    返还 成功。
+完。
+
+系统_listen 接受 fd、积压：
+    sock 为 做 fd_到Socket 用 fd。
+    若 sock 等于 空：
+        返还 错误_坏文件描述符。
+    完。
+    若 sock 的 第 SOCK_类型 项 不等于 SOCK_STREAM：
+        返还 错误_不支持。
+    完。
+    若 积压 大于 128：
+        积压 为 128。
+    完。
+    做 设置 用 sock、SOCK_积压最大、积压。
+    做 设置 用 sock、SOCK_状态、SS_监听。
+    若 sock 的 第 SOCK_TCB 项 不等于 空：
+        做 设置 用 sock 的 第 SOCK_TCB 项、TCB_状态、传控_状态_监听。
+    完。
+    返还 成功。
+完。
+
+系统_accept 接受 fd：
+    sock 为 做 fd_到Socket 用 fd。
+    若 sock 等于 空：
+        返还 错误_坏文件描述符。
+    完。
+    若 sock 的 第 SOCK_状态 项 不等于 SS_监听：
+        返还 错误_无效参数。
+    完。
+    只要 做 链表_为空 用 sock 的 第 SOCK_积压队列 项：
+        做 深睡当前进程 用 「accept」。
+    完。
+    首节点 为 做 链表_首节点 用 sock 的 第 SOCK_积压队列 项。
+    新sock 为 做 链表_数据 用 首节点。
+    做 链表_删除 用 首节点。
+    当前 为 做 获取当前进程。
+    新fd 为 做 文件表_分配 用 当前 的 第 T_文件表 项。
+    若 新fd 小于 0：
+        返还 新fd。
+    完。
+    文件 为 做 Socket_创建文件 用 新sock。
+    做 文件表_设置 用 当前 的 第 T_文件表 项、新fd、文件。
+    返还 新fd。
+完。
+
+本章 收束。

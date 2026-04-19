@@ -1,0 +1,158 @@
+《样式属性》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+SYNTAX_UNIVERSAL 为 0。
+
+SYNTAX_LENGTH 为 1。
+
+SYNTAX_COLOR 为 2。
+
+SYNTAX_NUMBER 为 3。
+
+SYNTAX_PERCENTAGE 为 4。
+
+SYNTAX_URL 为 5。
+
+SYNTAX_INTEGER 为 6。
+
+SYNTAX_ANGLE 为 7。
+
+SYNTAX_TIME 为 8。
+
+SYNTAX_RESOLUTION 为 9。
+
+SYNTAX_TRANSFORM_FN 为 10。
+
+SYNTAX_CUSTOM_IDENT 为 11。
+
+SYNTAX_IMAGE 为 12。
+
+SYNTAX_LENGTH_PERCENTAGE 为 13。
+
+RegisteredProperty 是 一种 事物，含 名称、语法、继承、初始值、可动画、下一个。
+
+可变 注册属性头 为 0。
+
+可变 注册属性数 为 0。
+
+RegisterProperty 接受 名称、语法字符串、继承、初始值：
+    若 名称 等于 0：
+        返还。
+    完。
+    若 做 字节长度 用 名称 小于 3：
+        返还。
+    完。
+    若 做 字节取 用 名称、0 不等于 0x2D 或者 做 字节取 用 名称、1 不等于 0x2D：
+        返还。
+    完。
+    reg 为 做 堆_分配 用 RegisteredProperty。
+    reg 的 名称 为 名称。
+    reg 的 继承 为 继承。
+    reg 的 初始值 为 初始值。
+    reg 的 语法 为 做 RegisterProperty_解析语法 用 语法字符串。
+    reg 的 可动画 为 reg 的 语法 不等于 SYNTAX_UNIVERSAL。
+    若 初始值 不等于 0 并且 reg 的 语法 不等于 SYNTAX_UNIVERSAL：
+        valid 为 做 RegisterProperty_验证值 用 reg 的 语法、初始值。
+        若 非 valid：
+            返还。
+        完。
+    完。
+    可变 existing 为 注册属性头。
+    只要 existing 不等于 0：
+        若 做 字符串_相等 用 existing 的 名称、名称：
+            返还。
+        完。
+        existing 为 existing 的 下一个。
+    完。
+    reg 的 下一个 为 注册属性头。
+    注册属性头 为 reg。
+    注册属性数 为 注册属性数 加 1。
+完。
+
+RegisterProperty_解析语法 接受 语法：
+    若 语法 等于 0：
+        返还 SYNTAX_UNIVERSAL。
+    完。
+    若 做 字符串_相等 用 语法、「*」：
+        返还 SYNTAX_UNIVERSAL。
+    完。
+    若 做 字符串_相等 用 语法、「<length>」：
+        返还 SYNTAX_LENGTH。
+    完。
+    若 做 字符串_相等 用 语法、「<color>」：
+        返还 SYNTAX_COLOR。
+    完。
+    若 做 字符串_相等 用 语法、「<number>」：
+        返还 SYNTAX_NUMBER。
+    完。
+    若 做 字符串_相等 用 语法、「<percentage>」：
+        返还 SYNTAX_PERCENTAGE。
+    完。
+    若 做 字符串_相等 用 语法、「<integer>」：
+        返还 SYNTAX_INTEGER。
+    完。
+    若 做 字符串_相等 用 语法、「<angle>」：
+        返还 SYNTAX_ANGLE。
+    完。
+    若 做 字符串_相等 用 语法、「<time>」：
+        返还 SYNTAX_TIME。
+    完。
+    若 做 字符串_相等 用 语法、「<url>」：
+        返还 SYNTAX_URL。
+    完。
+    若 做 字符串_相等 用 语法、「<image>」：
+        返还 SYNTAX_IMAGE。
+    完。
+    若 做 字符串_相等 用 语法、「<transform-function>」：
+        返还 SYNTAX_TRANSFORM_FN。
+    完。
+    若 做 字符串_相等 用 语法、「<custom-ident>」：
+        返还 SYNTAX_CUSTOM_IDENT。
+    完。
+    若 做 字符串_相等 用 语法、「<length-percentage>」：
+        返还 SYNTAX_LENGTH_PERCENTAGE。
+    完。
+    返还 SYNTAX_UNIVERSAL。
+完。
+
+RegisterProperty_验证值 接受 语法、值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    若 语法 等于 SYNTAX_UNIVERSAL：
+        返还 真。
+    完。
+    若 语法 等于 SYNTAX_COLOR：
+        返还 真。
+    完。
+    若 语法 等于 SYNTAX_LENGTH：
+        返还 真。
+    完。
+    若 语法 等于 SYNTAX_NUMBER 或者 语法 等于 SYNTAX_INTEGER：
+        返还 真。
+    完。
+    返还 真。
+完。
+
+RegisteredProperty_查找 接受 名称：
+    若 名称 等于 0：
+        返还 0。
+    完。
+    可变 reg 为 注册属性头。
+    只要 reg 不等于 0：
+        若 做 字符串_相等 用 reg 的 名称、名称：
+            返还 reg。
+        完。
+        reg 为 reg 的 下一个。
+    完。
+    返还 0。
+完。
+
+本章 收束。

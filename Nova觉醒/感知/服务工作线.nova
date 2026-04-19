@@ -1,0 +1,130 @@
+《服务工作线》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+SW_STATE_PARSED 为 0。
+
+SW_STATE_INSTALLING 为 1。
+
+SW_STATE_INSTALLED 为 2。
+
+SW_STATE_ACTIVATING 为 3。
+
+SW_STATE_ACTIVATED 为 4。
+
+SW_STATE_REDUNDANT 为 5。
+
+REG_STATE_INSTALLING 为 0。
+
+REG_STATE_WAITING 为 1。
+
+REG_STATE_ACTIVE 为 2。
+
+CACHE_MATCH_IGNORE_SEARCH 为 1。
+
+CACHE_MATCH_IGNORE_METHOD 为 2。
+
+CACHE_MATCH_IGNORE_VARY 为 4。
+
+FETCH_PASSTHROUGH 为 0。
+
+FETCH_RESPOND_WITH 为 1。
+
+FETCH_CACHE_FIRST 为 2。
+
+FETCH_NETWORK_FIRST 为 3。
+
+FETCH_STALE_REVALIDATE 为 4。
+
+Service工线 是 一种 事物，含 脚本URL、作用域、状态、ID、脚本、脚本长度、install处理器、activate处理器、fetch处理器、push处理器、sync处理器、message处理器、客户端、客户端数、版本哈希、跳过等待。
+
+Service工线Registration 是 一种 事物，含 ID、作用域、installing、waiting、active、更新中、最后更新检查。
+
+Service工线Container 是 一种 事物，含 注册表、注册数、注册容量、controller、ready。
+
+服务工作线_状态名称 接受 状态：
+    若 状态 等于 SW_STATE_PARSED：
+        返还 「parsed」。
+    完。
+    若 状态 等于 SW_STATE_INSTALLING：
+        返还 「installing」。
+    完。
+    若 状态 等于 SW_STATE_INSTALLED：
+        返还 「installed」。
+    完。
+    若 状态 等于 SW_STATE_ACTIVATING：
+        返还 「activating」。
+    完。
+    若 状态 等于 SW_STATE_ACTIVATED：
+        返还 「activated」。
+    完。
+    若 状态 等于 SW_STATE_REDUNDANT：
+        返还 「redundant」。
+    完。
+    返还 「unknown」。
+完。
+
+服务工作线_容器摘要 接受 容器：
+    摘要 为 一本字典：注册数 对应 0、installing数 对应 0、waiting数 对应 0、active数 对应 0、controller状态 对应 「none」、ready 对应 假。
+    若 容器 等于 0：
+        返还 摘要。
+    完。
+    摘要 的 注册数 为 容器 的 注册数。
+    摘要 的 ready 为 容器 的 ready。
+    若 容器 的 controller 不等于 0：
+        摘要 的 controller状态 为 做 服务工作线_状态名称 用 容器 的 controller 的 状态。
+    完。
+    可变 i 为 0。
+    只要 i 小于 容器 的 注册数：
+        reg 为 做 内存_读64 用 容器 的 注册表 加 i 乘 8。
+        若 reg 不等于 0：
+            若 reg 的 installing 不等于 0：
+                摘要 的 installing数 为 摘要 的 installing数 加 1。
+            完。
+            若 reg 的 waiting 不等于 0：
+                摘要 的 waiting数 为 摘要 的 waiting数 加 1。
+            完。
+            若 reg 的 active 不等于 0：
+                摘要 的 active数 为 摘要 的 active数 加 1。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 摘要。
+完。
+
+服务工作线_容器健康评估 接受 容器：
+    若 容器 等于 0：
+        返还 真。
+    完。
+    若 容器 的 controller 不等于 0 并且 非 容器 的 ready：
+        返还 假。
+    完。
+    若 容器 的 注册数 大于 容器 的 注册容量：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+服务工作线_统计 接受 零参：
+    返还 一本字典：模块 对应 「服务工作线」、状态映射 对应 一组：做 服务工作线_状态名称 用 SW_STATE_PARSED、做 服务工作线_状态名称 用 SW_STATE_INSTALLING、做 服务工作线_状态名称 用 SW_STATE_INSTALLED、做 服务工作线_状态名称 用 SW_STATE_ACTIVATED。
+完。
+
+服务工作线_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+服务工作线_综合报告 接受 零参：
+    做 打印 用 「[服务工作线] ═══ 综合报告 ═══」。
+    做 打印 用 「  健康: 」 加 若 做 服务工作线_健康评估 则 「正常」 否则 「异常」。
+完。
+
+服务工作线_全局重置 接受 零参：
+    做 打印 用 「[服务工作线] 全局统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

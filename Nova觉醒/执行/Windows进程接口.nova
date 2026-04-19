@@ -1,0 +1,328 @@
+《Windows进程接口》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·记忆·VFS文件读写》。
+
+引用《.·Windows打印接口》。
+
+引用《..·中枢·哈希函数》。
+
+引用《..·中枢·块内存分配器》。
+
+引用《..·中枢·退出调用》。
+
+引用《..·中枢·进程组》。
+
+引用《..·中枢·读取调用》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·时钟中枢》。
+
+引用《..·中枢·每处理器》。
+
+引用《..·中枢·获取进程》。
+
+可变 Win32_Last错误 为 0。
+
+win32_GetCurrentProcess 接受 零参：
+    返还 0xFFFFFFFFFFFFFFFF。
+完。
+
+win32_GetCurrentThread 接受 零参：
+    返还 0xFFFFFFFFFFFFFFFE。
+完。
+
+win32_GetCurrentProcessId 接受 零参：
+    返还 做 获取当前PID。
+完。
+
+win32_GetCurrentThreadId 接受 零参：
+    返还 做 获取当前PID。
+完。
+
+win32_ExitProcess 接受 退出码：
+    做 sys_exit 用 退出码、0、0、0、0、0。
+完。
+
+win32_ExitThread 接受 退出码：
+    做 sys_exit 用 退出码、0、0、0、0、0。
+完。
+
+win32_CreateThread 接受 attr、stack_size、start、param、flags、tid：
+    若 stack_size 小于 65536：
+        stack_size 为 65536。
+    完。
+    栈 为 做 Nova内存映射_分配 用 stack_size。
+    若 栈 等于 0：
+        Win32_Last错误 为 14。
+        返还 0。
+    完。
+    clone_flags 为 0x00010100 位或 0x00000200 位或 0x00000400 位或 0x00000800 位或 0x00010000。
+    栈顶 为 栈 加 stack_size。
+    栈顶 为 栈顶 减 8。
+    做 内存写64 用 栈顶、param。
+    栈顶 为 栈顶 减 8。
+    做 内存写64 用 栈顶、0。
+    线程ID 为 做 sys_clone 用 clone_flags、栈顶、0、0、0、start。
+    若 线程ID 小于 0：
+        Win32_Last错误 为 8。
+        返还 0。
+    完。
+    若 tid 不等于 0：
+        做 内存写32 用 tid、线程ID。
+    完。
+    返还 线程ID。
+完。
+
+win32_Sleep 接受 毫秒：
+    做 sys_nanosleep_ms 用 毫秒。
+完。
+
+win32_SleepEx 接受 毫秒、alertable：
+    做 win32_Sleep 用 毫秒。
+完。
+
+win32_VirtualAlloc 接受 地址、大小、类型、保护：
+    返还 做 Nova内存映射_分配 用 大小。
+完。
+
+win32_VirtualFree 接受 地址、大小、类型：
+    做 munmap_释放 用 地址、大小。
+    返还 1。
+完。
+
+win32_GetProcessHeap 接受 零参：
+    返还 1。
+完。
+
+win32_HeapAlloc 接受 heap、flags、大小：
+    返还 做 kmalloc 用 大小。
+完。
+
+win32_HeapFree 接受 heap、flags、地址：
+    做 kfree 用 地址。
+    返还 1。
+完。
+
+win32_CreateFileW 接受 名称、访问、共享、安全、创建、标志、模板：
+    unix_path 为 做 转换Windows路径 用 名称。
+    fd 为 做 vfs_open 用 unix_path、0。
+    若 fd 小于 0：
+        Win32_Last错误 为 2。
+        返还 0xFFFFFFFF。
+    完。
+    返还 fd。
+完。
+
+win32_ReadFile 接受 handle、buf、数量、已读、overlapped：
+    结果 为 做 vfs_read_fd 用 handle、buf、数量。
+    若 已读 不等于 0：
+        做 内存写32 用 已读、结果。
+    完。
+    返还 1。
+完。
+
+win32_WriteFile 接受 handle、buf、数量、已写、overlapped：
+    结果 为 做 vfs_write_fd 用 handle、buf、数量。
+    若 已写 不等于 0：
+        做 内存写32 用 已写、结果。
+    完。
+    返还 1。
+完。
+
+win32_CloseHandle 接受 handle：
+    做 vfs_close 用 handle。
+    返还 1。
+完。
+
+win32_GetFileSize 接受 handle、high：
+    statbuf 为 做 分配内存 用 144。
+    若 statbuf 等于 0：
+        返还 0xFFFFFFFF。
+    完。
+    结果 为 做 sys_fstat 用 handle、statbuf、0、0、0、0。
+    若 结果 小于 0：
+        做 释放内存 用 statbuf。
+        返还 0xFFFFFFFF。
+    完。
+    大小 为 做 内存读64 用 statbuf 加 48。
+    若 high 不等于 0：
+        做 内存写32 用 high、大小 右移 32 位与 0xFFFFFFFF。
+    完。
+    做 释放内存 用 statbuf。
+    返还 大小 位与 0xFFFFFFFF。
+完。
+
+win32_GetStdHandle 接受 nStdHandle：
+    若 nStdHandle 等于 0xFFFFFFF6：
+        返还 0。
+    完。
+    若 nStdHandle 等于 0xFFFFFFF5：
+        返还 1。
+    完。
+    若 nStdHandle 等于 0xFFFFFFF4：
+        返还 2。
+    完。
+    返还 0xFFFFFFFF。
+完。
+
+win32_WriteConsoleW 接受 handle、buf、数量、已写、reserved：
+    返还 做 win32_WriteFile 用 handle、buf、数量 乘 2、已写、0。
+完。
+
+win32_ReadConsoleW 接受 handle、buf、数量、已读、ctrl：
+    返还 做 win32_ReadFile 用 handle、buf、数量 乘 2、已读、0。
+完。
+
+win32_SetConsoleMode 接受 handle、mode：
+    返还 1。
+完。
+
+win32_Get模块HandleW 接受 名称：
+    若 名称 等于 0：
+        返还 PE_已加载模块 的 第 0 项 的 基地址。
+    完。
+    返还 0。
+完。
+
+win32_LoadLibraryW 接受 名称：
+    若 名称 等于 0：
+        返还 0。
+    完。
+    dll_name 为 做 读取宽字符串 用 名称。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 PE_已加载模块：
+        若 做 字符串比较_不区分大小写 用 PE_已加载模块 的 第 i 项 的 名称、dll_name 等于 0：
+            返还 PE_已加载模块 的 第 i 项 的 基地址。
+        完。
+        i 为 i 加 1。
+    完。
+    unix_path 为 「/lib/win32/」 加 dll_name。
+    fd 为 做 vfs_open 用 unix_path、0。
+    若 fd 小于 0：
+        Win32_Last错误 为 126。
+        返还 0。
+    完。
+    做 vfs_close 用 fd。
+    做 内核信息 用 「Win32: LoadLibrary 」 加 dll_name 加 「 从 」 加 unix_path。
+    返还 0。
+完。
+
+win32_GetProcAddress 接受 module、name：
+    返还 做 Win32_查找接口 用 name。
+完。
+
+win32_FreeLibrary 接受 handle：
+    返还 1。
+完。
+
+win32_GetLast错误 接受 零参：
+    返还 Win32_Last错误。
+完。
+
+win32_SetLast错误 接受 code：
+    Win32_Last错误 为 code。
+完。
+
+可变 Win32_命令行缓存 为 0。
+
+win32_GetCommandLineW 接受 零参：
+    若 Win32_命令行缓存 不等于 0：
+        返还 Win32_命令行缓存。
+    完。
+    proc 为 做 获取当前进程。
+    cmdline 为 「」。
+    若 proc 不等于 空 并且 proc 的 参数列表 不等于 空：
+        可变 j 为 0。
+        只要 j 小于 做 计数 用 proc 的 参数列表：
+            若 j 大于 0：
+                cmdline 为 cmdline 加 「 」。
+            完。
+            cmdline 为 cmdline 加 proc 的 参数列表 的 第 j 项。
+            j 为 j 加 1。
+        完。
+    否则：
+        cmdline 为 「program.exe」。
+    完。
+    Win32_命令行缓存 为 做 UTF8转UTF16 用 cmdline。
+    返还 Win32_命令行缓存。
+完。
+
+win32_GetEnvironmentVariableW 接受 名称、缓冲、大小：
+    若 名称 等于 0：
+        返还 0。
+    完。
+    key 为 做 读取宽字符串 用 名称。
+    可变 值 为 「」。
+    若 key 等于 「USERPROFILE」 或者 key 等于 「HOMEPATH」：
+        值 为 「/home/user」。
+    否则若 key 等于 「TEMP」 或者 key 等于 「TMP」：
+        值 为 「/tmp」。
+    否则若 key 等于 「SYSTEMROOT」 或者 key 等于 「windir」：
+        值 为 「C:\\Windows」。
+    否则若 key 等于 「PATH」：
+        值 为 「/usr/bin:/bin」。
+    否则若 key 等于 「COMPUTERNAME」：
+        值 为 「NOVAOS」。
+    否则：
+        值 为 做 获取环境变量 用 key。
+        若 值 等于 「」：
+            Win32_Last错误 为 203。
+            返还 0。
+        完。
+    完。
+    utf16 为 做 UTF8转UTF16 用 值。
+    字符数 为 做 字符串长度 用 值。
+    若 缓冲 不等于 0 并且 大小 大于 字符数：
+        做 内存拷贝 用 缓冲、utf16、(字符数 加 1) 乘 2。
+    完。
+    返还 字符数。
+完。
+
+win32_GetTickCount64 接受 零参：
+    返还 做 读取毫秒。
+完。
+
+win32_QueryPerformanceCounter 接受 counter：
+    若 counter 不等于 0：
+        做 内存写64 用 counter、做 读取毫秒 乘 1000。
+    完。
+    返还 1。
+完。
+
+win32_QueryPerformanceFrequency 接受 freq：
+    若 freq 不等于 0：
+        做 内存写64 用 freq、1000000。
+    完。
+    返还 1。
+完。
+
+可变 AI_视窗进程_负载窗口 为 一组：（空）。
+
+AI_视窗进程_负载预测 接受 当前负载：
+    做 追加 用 AI_视窗进程_负载窗口、当前负载。
+    若 做 计数 用 AI_视窗进程_负载窗口 大于 20：
+        做 列表_移除 用 AI_视窗进程_负载窗口、0。
+    完。
+    若 做 计数 用 AI_视窗进程_负载窗口 小于 3：
+        返还 当前负载。
+    完。
+    n 为 做 计数 用 AI_视窗进程_负载窗口。
+    趋势 为 AI_视窗进程_负载窗口 的 第 n 减 1 项 减 AI_视窗进程_负载窗口 的 第 n 减 3 项。
+    返还 当前负载 加 趋势。
+完。
+
+AI_视窗进程_迁移建议 接受 源CPU负载、目标CPU负载：
+    若 源CPU负载 大于 目标CPU负载 乘 2：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

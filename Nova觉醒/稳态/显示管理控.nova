@@ -1,0 +1,563 @@
+《显示管理控》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·中枢·整数转字符串》。
+
+DRM_Nova设备控制 接受 fd、cmd、参数：
+    ioctl_总调用数 为 ioctl_总调用数 加 1。
+    做 DRM_Nova设备_确保默认设备。
+    dev_idx 为 0。
+    若 做 计数 用 DRM设备列表 等于 0：
+        ioctl_失败数 为 ioctl_失败数 加 1。
+        ioctl_最后命令 为 cmd。
+        ioctl_最后结果 为 错误_设备。
+        返还 错误_设备。
+    完。
+    dev 为 DRM设备列表 的 第 dev_idx 项。
+    可变 结果 为 错误_ENOSYS。
+    若 cmd 等于 DRM_Nova设备控制_VERSION：
+        结果 为 做 DRM_Nova设备控制_version 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_GET_CAP。
+    块：
+        结果 为 做 DRM_Nova设备控制_get_cap 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_GETRESOURCES。
+    块：
+        结果 为 做 DRM_Nova设备控制_getresources 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_GETCONNECTOR。
+    块：
+        结果 为 做 DRM_Nova设备控制_getconnector 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_CREATE_DUMB。
+    块：
+        结果 为 做 DRM_Nova设备控制_create_dumb 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_MAP_DUMB。
+    块：
+        结果 为 做 DRM_Nova设备控制_map_dumb 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_ADDFB 或者 cmd 等于 DRM_Nova设备控制_MODE_ADDFB2。
+    块：
+        结果 为 做 DRM_Nova设备控制_addfb 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_SETCRTC。
+    块：
+        结果 为 做 DRM_Nova设备控制_setcrtc 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_PAGE_FLIP。
+    块：
+        结果 为 做 DRM_Nova设备控制_pageflip 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_RMFB。
+    块：
+        结果 为 做 DRM_Nova设备控制_rmfb 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_DESTROY_DUMB。
+    块：
+        结果 为 做 DRM_Nova设备控制_destroy_dumb 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_MODE_ATOMIC。
+    块：
+        结果 为 做 DRM_Nova设备控制_atomic 用 dev、参数。
+    完。
+    做 否则如果 用 cmd 等于 DRM_Nova设备控制_PRIME_HANDLE_TO_FD。
+    块：
+        结果 为 做 DRM_Nova设备控制_prime_handle_to_fd 用 dev、参数。
+    完。
+    ioctl_最后命令 为 cmd。
+    ioctl_最后结果 为 结果。
+    若 结果 大于或等于 0：
+        ioctl_成功数 为 ioctl_成功数 加 1。
+    否则：
+        ioctl_失败数 为 ioctl_失败数 加 1。
+    完。
+    返还 结果。
+完。
+
+DRM_Nova设备控制_version 接受 dev、参数：
+    做 内存写32 用 参数、1。
+    做 内存写32 用 参数 加 4、0。
+    做 内存写32 用 参数 加 8、0。
+    返还 0。
+完。
+
+DRM_Nova设备控制_get_cap 接受 dev、参数：
+    cap 为 做 内存读64 用 参数。
+    可变 值 为 0。
+    若 cap 等于 DRM_CAP_DUMB_BUFFER：
+        值 为 1。
+    完。
+    若 cap 等于 DRM_CAP_PRIME：
+        值 为 3。
+    完。
+    若 cap 等于 DRM_CAP_ATOMIC：
+        值 为 1。
+    完。
+    若 cap 等于 DRM_CAP_TIMESTAMP_MONOTONIC：
+        值 为 1。
+    完。
+    做 内存写64 用 参数 加 8、值。
+    返还 0。
+完。
+
+DRM_Nova设备控制_getresources 接受 dev、参数：
+    做 内存写32 用 参数 加 0、做 计数 用 dev 的 帧缓冲列表。
+    做 内存写32 用 参数 加 4、做 计数 用 dev 的 CRTC列表。
+    做 内存写32 用 参数 加 8、做 计数 用 dev 的 连接器列表。
+    做 内存写32 用 参数 加 12、做 计数 用 dev 的 编码器列表。
+    返还 0。
+完。
+
+DRM_Nova设备控制_getconnector 接受 dev、参数：
+    若 做 计数 用 dev 的 连接器列表 等于 0：
+        返还 错误_设备。
+    完。
+    conn 为 dev 的 连接器列表 的 第 0 项。
+    做 内存写32 用 参数 加 0、conn 的 ID。
+    做 内存写32 用 参数 加 4、conn 的 类型。
+    做 内存写32 用 参数 加 8、conn 的 状态。
+    做 内存写32 用 参数 加 12、做 计数 用 conn 的 模式列表。
+    做 内存写32 用 参数 加 16、conn 的 编码器ID。
+    返还 0。
+完。
+
+DRM_Nova设备控制_create_dumb 接受 dev、参数：
+    宽 为 做 内存读32 用 参数 加 0。
+    高 为 做 内存读32 用 参数 加 4。
+    bpp 为 做 内存读32 用 参数 加 8。
+    跨距 为 宽 乘 bpp 除以 8 加 63 位与 按位取反 63。
+    大小 为 跨距 乘 高。
+    gem 为 新建 GEM对象。
+    gem 的 句柄 为 做 DRM_分配ID 用 dev。
+    gem 的 大小 为 大小。
+    gem 的 物理地址 为 做 直传_分配 用 大小。
+    若 gem 的 物理地址 等于 0：
+        返还 错误_设备。
+    完。
+    gem 的 引用计数 为 1。
+    做 内存填零 用 gem 的 物理地址、大小。
+    做 追加 用 dev 的 GEM对象列表、gem。
+    ioctl_dumb创建数 为 ioctl_dumb创建数 加 1。
+    做 内存写32 用 参数 加 12、gem 的 句柄。
+    做 内存写32 用 参数 加 16、跨距。
+    做 内存写64 用 参数 加 20、大小。
+    返还 0。
+完。
+
+DRM_Nova设备控制_map_dumb 接受 dev、参数：
+    handle 为 做 内存读32 用 参数。
+    gem 为 做 DRM_查找GEM 用 dev、handle。
+    若 gem 等于 空：
+        返还 错误_无效参数。
+    完。
+    做 内存写64 用 参数 加 8、gem 的 物理地址。
+    返还 0。
+完。
+
+DRM_Nova设备控制_addfb 接受 dev、参数：
+    fb 为 新建 DRM帧缓冲。
+    fb 的 ID 为 做 DRM_分配ID 用 dev。
+    fb 的 宽 为 做 内存读32 用 参数 加 0。
+    fb 的 高 为 做 内存读32 用 参数 加 4。
+    fb 的 跨距 为 做 内存读32 用 参数 加 8。
+    fb 的 像素格式 为 DRM_FORMAT_XRGB8888。
+    fb 的 GEM句柄 为 做 内存读32 用 参数 加 16。
+    做 追加 用 dev 的 帧缓冲列表、fb。
+    做 内存写32 用 参数 加 20、fb 的 ID。
+    返还 0。
+完。
+
+DRM_Nova设备控制_setcrtc 接受 dev、参数：
+    若 做 计数 用 dev 的 CRTC列表 等于 0：
+        返还 错误_设备。
+    完。
+    crtc 为 dev 的 CRTC列表 的 第 0 项。
+    crtc 的 当前FB 为 做 内存读32 用 参数 加 4。
+    crtc 的 已启用 为 真。
+    做 内核信息 用 「DRM: 设置CRTC fb=」 加 做 整数转字符串 用 crtc 的 当前FB。
+    返还 0。
+完。
+
+DRM_Nova设备控制_pageflip 接受 dev、参数：
+    若 做 计数 用 dev 的 CRTC列表 等于 0：
+        返还 错误_设备。
+    完。
+    crtc 为 dev 的 CRTC列表 的 第 0 项。
+    fb_id 为 做 内存读32 用 参数 加 4。
+    crtc 的 当前FB 为 fb_id。
+    ioctl_翻转总数 为 ioctl_翻转总数 加 1。
+    返还 0。
+完。
+
+DRM_查找GEM 接受 dev、handle：
+    若 dev 等于 0：
+        返还 空。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 dev 的 GEM对象列表：
+        若 dev 的 GEM对象列表 的 第 i 项 的 句柄 等于 handle：
+            返还 dev 的 GEM对象列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+DRM_分配ID 接受 dev：
+    若 dev 等于 0：
+        返还 0。
+    完。
+    dev 的 下一个对象ID 为 dev 的 下一个对象ID 加 1。
+    返还 dev 的 下一个对象ID 减 1。
+完。
+
+直传_分配 接受 大小：
+    返还 做 堆_分配 用 大小。
+完。
+
+内存填零 接受 地址、大小：
+    可变 i 为 0。
+    只要 i 小于 大小：
+        做 内存_写8 用 地址 加 i、0。
+        i 为 i 加 1。
+    完。
+完。
+
+DRM_Nova设备控制_VERSION 为 0x00。
+
+DRM_Nova设备控制_GET_CAP 为 0x0C。
+
+DRM_Nova设备控制_MODE_GETRESOURCES 为 0xA0。
+
+DRM_Nova设备控制_MODE_GETCONNECTOR 为 0xA7。
+
+DRM_Nova设备控制_MODE_CREATE_DUMB 为 0xB2。
+
+DRM_Nova设备控制_MODE_MAP_DUMB 为 0xB3。
+
+DRM_Nova设备控制_MODE_ADDFB 为 0xAE。
+
+DRM_Nova设备控制_MODE_ADDFB2 为 0xB8。
+
+DRM_Nova设备控制_MODE_SETCRTC 为 0xA2。
+
+DRM_Nova设备控制_MODE_PAGE_FLIP 为 0xB0。
+
+DRM_Nova设备控制_MODE_RMFB 为 0xAF。
+
+DRM_Nova设备控制_MODE_DESTROY_DUMB 为 0xB4。
+
+DRM_Nova设备控制_MODE_ATOMIC 为 0xBC。
+
+DRM_Nova设备控制_PRIME_HANDLE_TO_FD 为 0x2D。
+
+DRM_CAP_DUMB_BUFFER 为 0x01。
+
+DRM_CAP_PRIME 为 0x05。
+
+DRM_CAP_ATOMIC 为 0x10。
+
+DRM_CAP_TIMESTAMP_MONOTONIC 为 0x06。
+
+DRM_FORMAT_XRGB8888 为 0x34325258。
+
+错误_设备 为 负 19。
+
+错误_ENOSYS 为 负 38。
+
+错误_无效参数 为 负 22。
+
+DRM_Nova设备控制_rmfb 接受 dev、参数：
+    若 dev 等于 0：
+        返还 错误_设备。
+    完。
+    fb_id 为 做 内存读32 用 参数。
+    可变 新列表 为 一组：（空）。
+    可变 i 为 0。
+    可变 已移除 为 假。
+    只要 i 小于 做 计数 用 dev 的 帧缓冲列表：
+        若 dev 的 帧缓冲列表 的 第 i 项 的 ID 不等于 fb_id：
+            做 追加 用 新列表、dev 的 帧缓冲列表 的 第 i 项。
+        否则：
+            已移除 为 真。
+        完。
+        i 为 i 加 1。
+    完。
+    dev 的 帧缓冲列表 为 新列表。
+    若 非 已移除：
+        返还 错误_无效参数。
+    完。
+    返还 0。
+完。
+
+DRM_Nova设备控制_destroy_dumb 接受 dev、参数：
+    若 dev 等于 0：
+        返还 错误_设备。
+    完。
+    handle 为 做 内存读32 用 参数。
+    可变 新列表 为 一组：（空）。
+    可变 i 为 0。
+    可变 已移除 为 假。
+    只要 i 小于 做 计数 用 dev 的 GEM对象列表：
+        若 dev 的 GEM对象列表 的 第 i 项 的 句柄 不等于 handle：
+            做 追加 用 新列表、dev 的 GEM对象列表 的 第 i 项。
+        否则：
+            已移除 为 真。
+        完。
+        i 为 i 加 1。
+    完。
+    dev 的 GEM对象列表 为 新列表。
+    若 非 已移除：
+        返还 错误_无效参数。
+    完。
+    返还 0。
+完。
+
+DRM_Nova设备控制_atomic 接受 dev、参数：
+    若 dev 等于 0：
+        返还 错误_设备。
+    完。
+    ioctl_原子提交数 为 ioctl_原子提交数 加 1。
+    返还 0。
+完。
+
+DRM_Nova设备控制_prime_handle_to_fd 接受 dev、参数：
+    若 dev 等于 0：
+        返还 错误_设备。
+    完。
+    handle 为 做 内存读32 用 参数。
+    gem 为 做 DRM_查找GEM 用 dev、handle。
+    若 gem 等于 空：
+        返还 错误_无效参数。
+    完。
+    若 gem 的 导出FD 等于 0：
+        gem 的 导出FD 为 4096 加 做 DRM_分配ID 用 dev。
+    完。
+    做 内存写32 用 参数 加 8、gem 的 导出FD。
+    返还 0。
+完。
+
+可变 DRM设备列表 为 一组：（空）。
+
+DRM_Nova设备_确保默认设备 接受 零参：
+    若 做 计数 用 DRM设备列表 大于 0：
+        返还 DRM设备列表 的 第 0 项。
+    完。
+    dev 为 一本字典：（空）。
+    dev 的 名称 为 「card0」。
+    dev 的 驱动名 为 「nova-drm」。
+    dev 的 CRTC列表 为 一组：（空）。
+    dev 的 连接器列表 为 一组：（空）。
+    dev 的 编码器列表 为 一组：（空）。
+    dev 的 帧缓冲列表 为 一组：（空）。
+    dev 的 GEM对象列表 为 一组：（空）。
+    dev 的 下一个对象ID 为 4。
+    crtc 为 一本字典：（空）。
+    crtc 的 ID 为 1。
+    crtc 的 当前FB 为 0。
+    crtc 的 已启用 为 假。
+    做 追加 用 dev 的 CRTC列表、crtc。
+    encoder 为 一本字典：（空）。
+    encoder 的 ID 为 2。
+    encoder 的 类型 为 1。
+    encoder 的 CRTC_ID 为 crtc 的 ID。
+    encoder 的 可用CRTC位图 为 1。
+    做 追加 用 dev 的 编码器列表、encoder。
+    mode 为 一本字典：（空）。
+    mode 的 名称 为 「1024x768」。
+    mode 的 水平显示 为 1024。
+    mode 的 垂直显示 为 768。
+    mode 的 刷新率 为 60。
+    conn 为 一本字典：（空）。
+    conn 的 ID 为 3。
+    conn 的 类型 为 15。
+    conn 的 状态 为 1。
+    conn 的 编码器ID 为 encoder 的 ID。
+    conn 的 模式列表 为 一组：mode。
+    做 追加 用 dev 的 连接器列表、conn。
+    做 追加 用 DRM设备列表、dev。
+    返还 dev。
+完。
+
+DRM帧缓冲 是 一种 事物，含 ID、宽、高、跨距、像素格式、GEM句柄。
+
+GEM对象 是 一种 事物，含 句柄、大小、物理地址、引用计数。
+
+内存读32 接受 地址：
+    返还 做 内存_读32 用 地址。
+完。
+
+内存写32 接受 地址、值：
+    做 内存_写32 用 地址、值。
+完。
+
+内存读64 接受 地址：
+    返还 做 内存_读64 用 地址。
+完。
+
+内存写64 接受 地址、值：
+    做 内存_写64 用 地址、值。
+完。
+
+可变 ioctl_总调用数 为 0。
+
+可变 ioctl_成功数 为 0。
+
+可变 ioctl_失败数 为 0。
+
+可变 ioctl_翻转总数 为 0。
+
+可变 ioctl_原子提交数 为 0。
+
+可变 ioctl_dumb创建数 为 0。
+
+可变 ioctl_最后命令 为 0。
+
+可变 ioctl_最后结果 为 0。
+
+ioctl_统计 接受 零参：
+    返还 一本字典：总调用 对应 ioctl_总调用数、成功 对应 ioctl_成功数、失败 对应 ioctl_失败数、翻转 对应 ioctl_翻转总数、原子提交 对应 ioctl_原子提交数、dumb创建 对应 ioctl_dumb创建数。
+完。
+
+ioctl_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 做 计数 用 DRM设备列表 等于 0：
+        做 追加 用 问题、「无DRM设备」。
+    完。
+    若 ioctl_失败数 大于 ioctl_总调用数 除以 3 并且 ioctl_总调用数 大于 100：
+        做 追加 用 问题、「DRM ioctl失败率过高」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「DRM ioctl健康」。
+    完。
+    返还 问题。
+完。
+
+ioctl_重置统计 接受 零参：
+    ioctl_总调用数 为 0。
+    ioctl_成功数 为 0。
+    ioctl_失败数 为 0。
+    ioctl_翻转总数 为 0。
+    ioctl_原子提交数 为 0。
+    ioctl_dumb创建数 为 0。
+完。
+
+ioctl_完整统计 接受 零参：
+    返还 一组：ioctl_总调用数、ioctl_成功数、ioctl_失败数、ioctl_翻转总数、ioctl_原子提交数。
+完。
+
+ioctl_命令名 接受 cmd：
+    若 cmd 等于 DRM_Nova设备控制_VERSION：
+        返还 「VERSION」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_GET_CAP：
+        返还 「GET_CAP」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_GETRESOURCES：
+        返还 「GETRESOURCES」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_GETCONNECTOR：
+        返还 「GETCONNECTOR」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_CREATE_DUMB：
+        返还 「CREATE_DUMB」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_MAP_DUMB：
+        返还 「MAP_DUMB」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_ADDFB：
+        返还 「ADDFB」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_ADDFB2：
+        返还 「ADDFB2」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_SETCRTC：
+        返还 「SETCRTC」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_PAGE_FLIP：
+        返还 「PAGE_FLIP」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_RMFB：
+        返还 「RMFB」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_DESTROY_DUMB：
+        返还 「DESTROY_DUMB」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_MODE_ATOMIC：
+        返还 「ATOMIC」。
+    完。
+    若 cmd 等于 DRM_Nova设备控制_PRIME_HANDLE_TO_FD：
+        返还 「PRIME_HANDLE_TO_FD」。
+    完。
+    返还 「UNKNOWN(0x」 加 做 整数转十六进制 用 cmd 加 「)」。
+完。
+
+可变 AI_显示管理控_运行指标 为 0。
+
+可变 AI_显示管理控_异常指标 为 0。
+
+AI_显示管理控_自诊断 接受 零参：
+    AI_显示管理控_运行指标 为 ioctl_翻转总数。
+    返还 AI_显示管理控_运行指标。
+完。
+
+AI_显示管理控_优化建议 接受 零参：
+    指标 为 做 AI_显示管理控_自诊断。
+    若 AI_显示管理控_运行指标 大于 10000：
+        返还 「显示管理控负载较高」。
+    完。
+    返还 「显示管理控状态正常」。
+完。
+
+显示管理控_统计 接受 零参：
+    返还 一本字典：ioctl总调用数 对应 ioctl_总调用数、ioctl成功数 对应 ioctl_成功数、ioctl失败数 对应 ioctl_失败数、ioctl翻转总数 对应 ioctl_翻转总数、ioctl原子提交数 对应 ioctl_原子提交数、ioctl_dumb创建数 对应 ioctl_dumb创建数、DRM设备数 对应 做 计数 用 DRM设备列表、最后命令 对应 做 ioctl_命令名 用 ioctl_最后命令、最后结果 对应 ioctl_最后结果。
+完。
+
+显示管理控_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 做 计数 用 DRM设备列表 等于 0：
+        做 追加 用 问题、「DRM设备列表为空」。
+    完。
+    若 ioctl_失败数 大于 ioctl_总调用数 除以 3 并且 ioctl_总调用数 大于 50：
+        做 追加 用 问题、「ioctl_失败数过高」。
+    完。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+显示管理控_综合报告 接受 零参：
+    做 打印 用 「[显示管理控] ═══ 综合报告 ═══」。
+    做 打印 用 「  DRM设备数: 」 加 做 整数转字符串 用 做 计数 用 DRM设备列表。
+    做 打印 用 「  ioctl_总调用数: 」 加 做 整数转字符串 用 ioctl_总调用数。
+    做 打印 用 「  ioctl_成功数: 」 加 做 整数转字符串 用 ioctl_成功数。
+    做 打印 用 「  ioctl_失败数: 」 加 做 整数转字符串 用 ioctl_失败数。
+    做 打印 用 「  ioctl_翻转总数: 」 加 做 整数转字符串 用 ioctl_翻转总数。
+    做 打印 用 「  ioctl_原子提交数: 」 加 做 整数转字符串 用 ioctl_原子提交数。
+    做 打印 用 「  ioctl_dumb创建数: 」 加 做 整数转字符串 用 ioctl_dumb创建数。
+    做 打印 用 「  最后命令: 」 加 做 ioctl_命令名 用 ioctl_最后命令。
+    做 打印 用 「  最后结果: 」 加 做 整数转字符串 用 ioctl_最后结果。
+    做 打印 用 「  健康: 」 加 若 做 显示管理控_健康评估 则 「正常」 否则 「异常」。
+完。
+
+显示管理控_全局重置 接受 零参：
+    ioctl_总调用数 为 0。
+    ioctl_成功数 为 0。
+    ioctl_失败数 为 0。
+    ioctl_翻转总数 为 0。
+    ioctl_原子提交数 为 0。
+    ioctl_dumb创建数 为 0。
+    ioctl_最后命令 为 0。
+    ioctl_最后结果 为 0。
+    做 打印 用 「[显示管理控] 统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

@@ -48,8 +48,8 @@ The following are in scope for security reports:
   Nova 编译器中可能导致编译期间任意代码执行的漏洞
 - Vulnerabilities in the generated binary output
   生成的二进制输出中的漏洞
-- Vulnerabilities in the Pure System (纯净版系统) components
-  纯净版系统组件中的漏洞
+- Vulnerabilities in the Pure System (Nova觉醒) components
+  Nova觉醒组件中的漏洞
 
 ## Disclosure Policy / 披露政策
 

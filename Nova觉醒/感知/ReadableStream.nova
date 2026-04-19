@@ -1,0 +1,513 @@
+《ReadableStream》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内核打印》。
+
+STREAM_READABLE 为 0。
+
+STREAM_CLOSED 为 1。
+
+STREAM_ERRORED 为 2。
+
+STREAM_DEFAULT_HWM 为 16。
+
+STREAM_BYTE_HWM 为 65536。
+
+ReadableStream 是 一种 事物，含 状态、源、pull回调、cancel回调、start回调、队列、队列大小、队列字节数、highWaterMark、reader、已锁定、类型、错误原因、管道目标、总读取字节、总读取块数。
+
+StreamChunk 是 一种 事物，含 数据、长度、下一个。
+
+ReadableStreamReader 是 一种 事物，含 stream、closed、读取请求列表、读取请求数。
+
+WritableStream 是 一种 事物，含 状态、write回调、close回调、abort回调、队列、队列大小、highWaterMark、writer、已锁定、错误原因、总写入字节、总写入块数。
+
+WritableStreamWriter 是 一种 事物，含 stream、closed。
+
+TransformStream 是 一种 事物，含 readable、writable、transform回调、flush回调、控制器。
+
+流统计 是 一种 事物，含 创建数、关闭数、读取数、写入数、管道数、分叉数、取消数、错误数、背压触发数。
+
+可变 全局_流统计 为 空。
+
+流统计_初始化 接受 零参：
+    若 全局_流统计 等于 空：
+        全局_流统计 为 新建 流统计。
+        全局_流统计 的 创建数 为 0。
+        全局_流统计 的 关闭数 为 0。
+        全局_流统计 的 读取数 为 0。
+        全局_流统计 的 写入数 为 0。
+        全局_流统计 的 管道数 为 0。
+        全局_流统计 的 分叉数 为 0。
+        全局_流统计 的 取消数 为 0。
+        全局_流统计 的 错误数 为 0。
+        全局_流统计 的 背压触发数 为 0。
+    完。
+完。
+
+ReadableStream_创建 接受 pull、cancel、highWaterMark：
+    做 流统计_初始化。
+    全局_流统计 的 创建数 为 全局_流统计 的 创建数 加 1。
+    rs 为 做 堆_分配 用 ReadableStream。
+    rs 的 状态 为 STREAM_READABLE。
+    rs 的 源 为 0。
+    rs 的 pull回调 为 pull。
+    rs 的 cancel回调 为 cancel。
+    rs 的 start回调 为 0。
+    rs 的 队列 为 0。
+    rs 的 队列大小 为 0。
+    rs 的 队列字节数 为 0。
+    rs 的 highWaterMark 为 highWaterMark。
+    若 highWaterMark 小于或等于 0：
+        rs 的 highWaterMark 为 STREAM_DEFAULT_HWM。
+    完。
+    rs 的 reader 为 0。
+    rs 的 已锁定 为 假。
+    rs 的 类型 为 0。
+    rs 的 错误原因 为 0。
+    rs 的 管道目标 为 0。
+    rs 的 总读取字节 为 0。
+    rs 的 总读取块数 为 0。
+    返还 rs。
+完。
+
+ReadableStream_创建_字节 接受 pull、cancel、highWaterMark：
+    rs 为 做 ReadableStream_创建 用 pull、cancel、highWaterMark。
+    若 rs 不等于 0：
+        rs 的 类型 为 1。
+        若 rs 的 highWaterMark 小于或等于 STREAM_DEFAULT_HWM：
+            rs 的 highWaterMark 为 STREAM_BYTE_HWM。
+        完。
+    完。
+    返还 rs。
+完。
+
+ReadableStream_创建_从数组 接受 数据数组、数量：
+    rs 为 做 ReadableStream_创建 用 0、0、数量。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        做 ReadableStream_enqueue 用 rs、数据数组 的 第 i 项、0。
+        i 为 i 加 1。
+    完。
+    返还 rs。
+完。
+
+ReadableStream_getReader 接受 rs：
+    若 rs 等于 0 或者 rs 的 已锁定：
+        返还 0。
+    完。
+    reader 为 做 堆_分配 用 ReadableStreamReader。
+    reader 的 stream 为 rs。
+    reader 的 closed 为 假。
+    reader 的 读取请求列表 为 0。
+    reader 的 读取请求数 为 0。
+    rs 的 reader 为 reader。
+    rs 的 已锁定 为 真。
+    返还 reader。
+完。
+
+Reader_read 接受 reader：
+    做 流统计_初始化。
+    若 reader 等于 0 或者 reader 的 stream 等于 0：
+        返还 0。
+    完。
+    rs 为 reader 的 stream。
+    全局_流统计 的 读取数 为 全局_流统计 的 读取数 加 1。
+    若 rs 的 状态 等于 STREAM_CLOSED：
+        返还 0。
+    完。
+    若 rs 的 状态 等于 STREAM_ERRORED：
+        返还 0。
+    完。
+    若 rs 的 队列 不等于 0：
+        chunk 为 rs 的 队列。
+        rs 的 队列 为 chunk 的 下一个。
+        rs 的 队列大小 为 rs 的 队列大小 减 1。
+        rs 的 队列字节数 为 rs 的 队列字节数 减 chunk 的 长度。
+        rs 的 总读取字节 为 rs 的 总读取字节 加 chunk 的 长度。
+        rs 的 总读取块数 为 rs 的 总读取块数 加 1。
+        若 rs 的 队列大小 小于 rs 的 highWaterMark 并且 rs 的 pull回调 不等于 0：
+        完。
+        返还 chunk 的 数据。
+    完。
+    若 rs 的 pull回调 不等于 0：
+    完。
+    返还 0。
+完。
+
+Reader_readAll 接受 reader：
+    若 reader 等于 0 或者 reader 的 stream 等于 0：
+        返还 一组：（空）。
+    完。
+    可变 结果 为 一组：（空）。
+    可变 数据 为 做 Reader_read 用 reader。
+    只要 数据 不等于 0：
+        做 追加 用 结果、数据。
+        数据 为 做 Reader_read 用 reader。
+    完。
+    返还 结果。
+完。
+
+Reader_cancel 接受 reader、reason：
+    做 流统计_初始化。
+    若 reader 等于 0 或者 reader 的 stream 等于 0：
+        返还。
+    完。
+    rs 为 reader 的 stream。
+    rs 的 状态 为 STREAM_CLOSED。
+    全局_流统计 的 取消数 为 全局_流统计 的 取消数 加 1。
+    若 rs 的 cancel回调 不等于 0：
+    完。
+完。
+
+Reader_releaseLock 接受 reader：
+    若 reader 等于 0 或者 reader 的 stream 等于 0：
+        返还。
+    完。
+    reader 的 stream 的 已锁定 为 假。
+    reader 的 stream 的 reader 为 0。
+    reader 的 stream 为 0。
+完。
+
+ReadableStream_enqueue 接受 rs、数据、长度：
+    做 流统计_初始化。
+    若 rs 等于 0 或者 rs 的 状态 不等于 STREAM_READABLE：
+        返还。
+    完。
+    若 rs 的 队列大小 大于或等于 rs 的 highWaterMark：
+        全局_流统计 的 背压触发数 为 全局_流统计 的 背压触发数 加 1。
+    完。
+    chunk 为 做 堆_分配 用 StreamChunk。
+    chunk 的 数据 为 数据。
+    chunk 的 长度 为 长度。
+    chunk 的 下一个 为 0。
+    若 rs 的 队列 等于 0：
+        rs 的 队列 为 chunk。
+    否则：
+        可变 tail 为 rs 的 队列。
+        只要 tail 的 下一个 不等于 0：
+            tail 为 tail 的 下一个。
+        完。
+        tail 的 下一个 为 chunk。
+    完。
+    rs 的 队列大小 为 rs 的 队列大小 加 1。
+    rs 的 队列字节数 为 rs 的 队列字节数 加 长度。
+完。
+
+ReadableStream_close 接受 rs：
+    做 流统计_初始化。
+    若 rs 等于 0 或者 rs 的 状态 不等于 STREAM_READABLE：
+        返还。
+    完。
+    rs 的 状态 为 STREAM_CLOSED。
+    全局_流统计 的 关闭数 为 全局_流统计 的 关闭数 加 1。
+    若 rs 的 reader 不等于 0：
+        rs 的 reader 的 closed 为 真。
+    完。
+完。
+
+ReadableStream_error 接受 rs、原因：
+    做 流统计_初始化。
+    若 rs 等于 0 或者 rs 的 状态 不等于 STREAM_READABLE：
+        返还。
+    完。
+    rs 的 状态 为 STREAM_ERRORED。
+    rs 的 错误原因 为 原因。
+    全局_流统计 的 错误数 为 全局_流统计 的 错误数 加 1。
+    做 ReadableStream_清空队列 用 rs。
+完。
+
+ReadableStream_清空队列 接受 rs：
+    若 rs 等于 0：
+        返还。
+    完。
+    rs 的 队列 为 0。
+    rs 的 队列大小 为 0。
+    rs 的 队列字节数 为 0。
+完。
+
+ReadableStream_有背压 接受 rs：
+    若 rs 等于 0：
+        返还 假。
+    完。
+    返还 rs 的 队列大小 大于或等于 rs 的 highWaterMark。
+完。
+
+ReadableStream_pipeTo 接受 rs、ws：
+    做 流统计_初始化。
+    若 rs 等于 0 或者 ws 等于 0：
+        返还。
+    完。
+    若 rs 的 已锁定 或者 ws 的 已锁定：
+        返还。
+    完。
+    全局_流统计 的 管道数 为 全局_流统计 的 管道数 加 1。
+    rs 的 管道目标 为 ws。
+    reader 为 做 ReadableStream_getReader 用 rs。
+    writer 为 做 WritableStream_getWriter 用 ws。
+    若 reader 等于 0 或者 writer 等于 0：
+        返还。
+    完。
+    可变 数据 为 做 Reader_read 用 reader。
+    只要 数据 不等于 0：
+        做 WritableStream_write 用 ws、数据、0。
+        数据 为 做 Reader_read 用 reader。
+    完。
+    做 Reader_releaseLock 用 reader。
+    做 WritableStream_close 用 ws。
+完。
+
+ReadableStream_pipeThrough 接受 rs、transform：
+    若 rs 等于 0 或者 transform 等于 0：
+        返还 0。
+    完。
+    做 ReadableStream_pipeTo 用 rs、transform 的 writable。
+    返还 transform 的 readable。
+完。
+
+ReadableStream_tee 接受 rs：
+    做 流统计_初始化。
+    若 rs 等于 0 或者 rs 的 已锁定：
+        返还 一组：0、0。
+    完。
+    全局_流统计 的 分叉数 为 全局_流统计 的 分叉数 加 1。
+    分支1 为 做 ReadableStream_创建 用 0、0、rs 的 highWaterMark。
+    分支2 为 做 ReadableStream_创建 用 0、0、rs 的 highWaterMark。
+    reader 为 做 ReadableStream_getReader 用 rs。
+    若 reader 等于 0：
+        返还 一组：分支1、分支2。
+    完。
+    可变 数据 为 做 Reader_read 用 reader。
+    只要 数据 不等于 0：
+        做 ReadableStream_enqueue 用 分支1、数据、0。
+        做 ReadableStream_enqueue 用 分支2、数据、0。
+        数据 为 做 Reader_read 用 reader。
+    完。
+    做 Reader_releaseLock 用 reader。
+    返还 一组：分支1、分支2。
+完。
+
+WritableStream_创建 接受 write、close、abort、highWaterMark：
+    ws 为 做 堆_分配 用 WritableStream。
+    ws 的 状态 为 STREAM_READABLE。
+    ws 的 write回调 为 write。
+    ws 的 close回调 为 close。
+    ws 的 abort回调 为 abort。
+    ws 的 队列 为 0。
+    ws 的 队列大小 为 0。
+    ws 的 highWaterMark 为 highWaterMark。
+    若 highWaterMark 小于或等于 0：
+        ws 的 highWaterMark 为 STREAM_DEFAULT_HWM。
+    完。
+    ws 的 writer 为 0。
+    ws 的 已锁定 为 假。
+    ws 的 错误原因 为 0。
+    ws 的 总写入字节 为 0。
+    ws 的 总写入块数 为 0。
+    返还 ws。
+完。
+
+WritableStream_getWriter 接受 ws：
+    若 ws 等于 0 或者 ws 的 已锁定：
+        返还 0。
+    完。
+    writer 为 做 堆_分配 用 WritableStreamWriter。
+    writer 的 stream 为 ws。
+    writer 的 closed 为 假。
+    ws 的 writer 为 writer。
+    ws 的 已锁定 为 真。
+    返还 writer。
+完。
+
+WritableStream_write 接受 ws、数据、长度：
+    做 流统计_初始化。
+    若 ws 等于 0 或者 ws 的 状态 不等于 STREAM_READABLE：
+        返还。
+    完。
+    全局_流统计 的 写入数 为 全局_流统计 的 写入数 加 1。
+    ws 的 总写入块数 为 ws 的 总写入块数 加 1。
+    ws 的 总写入字节 为 ws 的 总写入字节 加 长度。
+    若 ws 的 write回调 不等于 0：
+    完。
+完。
+
+WritableStream_close 接受 ws：
+    若 ws 等于 0 或者 ws 的 状态 不等于 STREAM_READABLE：
+        返还。
+    完。
+    ws 的 状态 为 STREAM_CLOSED。
+    若 ws 的 close回调 不等于 0：
+    完。
+    若 ws 的 writer 不等于 0：
+        ws 的 writer 的 closed 为 真。
+    完。
+完。
+
+WritableStream_abort 接受 ws、原因：
+    若 ws 等于 0 或者 ws 的 状态 等于 STREAM_CLOSED：
+        返还。
+    完。
+    ws 的 状态 为 STREAM_ERRORED。
+    ws 的 错误原因 为 原因。
+    若 ws 的 abort回调 不等于 0：
+    完。
+完。
+
+Writer_releaseLock 接受 writer：
+    若 writer 等于 0 或者 writer 的 stream 等于 0：
+        返还。
+    完。
+    writer 的 stream 的 已锁定 为 假。
+    writer 的 stream 的 writer 为 0。
+    writer 的 stream 为 0。
+完。
+
+TransformStream_创建 接受 transform回调、flush回调：
+    ts 为 做 堆_分配 用 TransformStream。
+    ts 的 transform回调 为 transform回调。
+    ts 的 flush回调 为 flush回调。
+    ts 的 readable 为 做 ReadableStream_创建 用 0、0、STREAM_DEFAULT_HWM。
+    ts 的 writable 为 做 WritableStream_创建 用 0、0、0、STREAM_DEFAULT_HWM。
+    ts 的 控制器 为 0。
+    返还 ts。
+完。
+
+TransformStream_transform 接受 ts、数据：
+    若 ts 等于 0：
+        返还。
+    完。
+    若 ts 的 transform回调 不等于 0：
+    否则：
+        做 ReadableStream_enqueue 用 ts 的 readable、数据、0。
+    完。
+完。
+
+TransformStream_flush 接受 ts：
+    若 ts 等于 0：
+        返还。
+    完。
+    若 ts 的 flush回调 不等于 0：
+    完。
+    做 ReadableStream_close 用 ts 的 readable。
+完。
+
+ReadableStream_已锁定 接受 rs：
+    若 rs 等于 0：
+        返还 假。
+    完。
+    返还 rs 的 已锁定。
+完。
+
+ReadableStream_已关闭 接受 rs：
+    若 rs 等于 0：
+        返还 真。
+    完。
+    返还 rs 的 状态 等于 STREAM_CLOSED。
+完。
+
+ReadableStream_已出错 接受 rs：
+    若 rs 等于 0：
+        返还 真。
+    完。
+    返还 rs 的 状态 等于 STREAM_ERRORED。
+完。
+
+ReadableStream_队列长度 接受 rs：
+    若 rs 等于 0：
+        返还 0。
+    完。
+    返还 rs 的 队列大小。
+完。
+
+流_打印统计 接受 零参：
+    做 流统计_初始化。
+    做 打印行 用 「=== 流统计 ===」。
+    做 打印行 用 「创建数: 」 加 做 整数转字符串 用 全局_流统计 的 创建数。
+    做 打印行 用 「关闭数: 」 加 做 整数转字符串 用 全局_流统计 的 关闭数。
+    做 打印行 用 「读取数: 」 加 做 整数转字符串 用 全局_流统计 的 读取数。
+    做 打印行 用 「写入数: 」 加 做 整数转字符串 用 全局_流统计 的 写入数。
+    做 打印行 用 「管道数: 」 加 做 整数转字符串 用 全局_流统计 的 管道数。
+    做 打印行 用 「分叉数: 」 加 做 整数转字符串 用 全局_流统计 的 分叉数。
+    做 打印行 用 「取消数: 」 加 做 整数转字符串 用 全局_流统计 的 取消数。
+    做 打印行 用 「错误数: 」 加 做 整数转字符串 用 全局_流统计 的 错误数。
+    做 打印行 用 「背压触发: 」 加 做 整数转字符串 用 全局_流统计 的 背压触发数。
+完。
+
+流_重置统计 接受 零参：
+    全局_流统计 的 创建数 为 0。
+    全局_流统计 的 关闭数 为 0。
+    全局_流统计 的 读取数 为 0。
+    全局_流统计 的 写入数 为 0。
+    全局_流统计 的 管道数 为 0。
+    全局_流统计 的 分叉数 为 0。
+    全局_流统计 的 取消数 为 0。
+    全局_流统计 的 错误数 为 0。
+    全局_流统计 的 背压触发数 为 0。
+完。
+
+WritableStream_是否可写 接受 ws：
+    若 ws 等于 0：
+        返还 假。
+    完。
+    返还 ws 的 状态 等于 STREAM_READABLE。
+完。
+
+ReadableStream_获取状态 接受 rs：
+    若 rs 等于 0：
+        返还 STREAM_CLOSED。
+    完。
+    返还 rs 的 状态。
+完。
+
+WritableStream_获取状态 接受 ws：
+    若 ws 等于 0：
+        返还 STREAM_CLOSED。
+    完。
+    返还 ws 的 状态。
+完。
+
+ReadableStream_吞吐量 接受 rs：
+    若 rs 等于 0：
+        返还 0。
+    完。
+    返还 rs 的 总读取字节。
+完。
+
+WritableStream_吞吐量 接受 ws：
+    若 ws 等于 0：
+        返还 0。
+    完。
+    返还 ws 的 总写入字节。
+完。
+
+ReadableStream_背压状态 接受 rs：
+    若 rs 等于 0：
+        返还 0。
+    完。
+    若 rs 的 highWaterMark 小于或等于 0：
+        返还 0。
+    完。
+    返还 rs 的 队列大小 乘 1000 除以 rs 的 highWaterMark。
+完。
+
+可变 AI_流_操作热度 为 0。
+
+AI_流_最优算法 接受 数据量、已排序：
+    AI_流_操作热度 为 AI_流_操作热度 加 1。
+    若 数据量 小于 16：
+        返还 「插入排序」。
+    完。
+    若 已排序：
+        返还 「二分查找」。
+    完。
+    若 数据量 小于 10000：
+        返还 「快速排序」。
+    完。
+    返还 「归并排序」。
+完。
+
+本章 收束。

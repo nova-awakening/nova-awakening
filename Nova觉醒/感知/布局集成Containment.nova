@@ -1,0 +1,121 @@
+《布局集成Containment》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·包含解析》。
+
+引用《.·内在大小占》。
+
+布局_应用Containment 接受 布局对象：
+    若 布局对象 等于 0：
+        返还。
+    完。
+    样式 为 布局对象 的 计算样式。
+    若 样式 等于 0：
+        返还。
+    完。
+    contain 为 做 Containment_解析 用 样式 的 contain。
+    若 contain 不等于 CONTAIN_NONE：
+        做 Containment_应用到布局 用 布局对象、contain。
+    完。
+    cv 为 做 ContentVisibility_解析 用 样式 的 content_visibility。
+    若 cv 不等于 CV_VISIBLE：
+        若 contain 等于 CONTAIN_NONE：
+            做 Containment_应用布局 用 布局对象。
+            做 Containment_应用样式 用 布局对象。
+            做 Containment_应用绘制 用 布局对象。
+        完。
+        dl 为 布局对象 的 display_lock。
+        若 dl 等于 0：
+            dl 为 做 DisplayLock_创建 用 布局对象 的 dom节点、cv。
+            布局对象 的 display_lock 为 dl。
+        完。
+        若 做 DisplayLock_应该跳过布局 用 dl：
+            若 dl 的 intrinsic_size 不等于 0：
+                w 为 做 ContainIntrinsicSize_获取宽 用 dl 的 intrinsic_size。
+                h 为 做 ContainIntrinsicSize_获取高 用 dl 的 intrinsic_size。
+                若 w 大于 0：
+                    布局对象 的 宽 为 w。
+                完。
+                若 h 大于 0：
+                    布局对象 的 高 为 h。
+                完。
+            完。
+            布局对象 的 跳过子树布局 为 真。
+        完。
+    完。
+完。
+
+绘制_应用Containment 接受 布局对象、canvas：
+    若 布局对象 等于 0：
+        返还 假。
+    完。
+    dl 为 布局对象 的 display_lock。
+    若 dl 不等于 0 并且 做 DisplayLock_应该跳过绘制 用 dl：
+        返还 真。
+    完。
+    若 布局对象 的 paint_contained：
+        若 canvas 不等于 0：
+            做 Sk画布_save 用 canvas。
+            做 Sk画布_clipRect 用 canvas、布局对象 的 x、布局对象 的 y、布局对象 的 宽、布局对象 的 高。
+        完。
+    完。
+    返还 假。
+完。
+
+绘制_结束Containment 接受 布局对象、canvas：
+    若 布局对象 等于 0：
+        返还。
+    完。
+    若 布局对象 的 paint_contained 并且 canvas 不等于 0：
+        做 Sk画布_restore 用 canvas。
+    完。
+完。
+
+ContentVisibility_设置自动观察 接受 布局对象：
+    若 布局对象 等于 0：
+        返还。
+    完。
+    dl 为 布局对象 的 display_lock。
+    若 dl 等于 0 或者 dl 的 content_visibility 不等于 CV_AUTO：
+        返还。
+    完。
+完。
+
+ContentVisibility_帧更新 接受 视口x、视口y、视口宽、视口高：
+    可变 i 为 0。
+    只要 i 小于 CV_全局数量：
+        cv 为 做 内存_读64 用 CV_全局列表 加 i 乘 8。
+        若 cv 不等于 0 并且 cv 的 元素 不等于 0：
+            el 为 cv 的 元素。
+            在视口 为 el 的 布局x 加 el 的 布局宽 大于 视口x 并且 el 的 布局x 小于 视口x 加 视口宽 并且 el 的 布局y 加 el 的 布局高 大于 视口y 并且 el 的 布局y 小于 视口y 加 视口高。
+            若 在视口 并且 cv 的 锁状态 等于 CV_锁定：
+                cv 的 锁状态 为 CV_解锁。
+                el 的 需要重绘 为 真。
+            否则若 非 在视口 并且 cv 的 锁状态 等于 CV_解锁：
+                cv 的 锁状态 为 CV_锁定。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+Sk画布_save 接受 c：
+    做 追加 用 c 的 状态栈、一本字典：变换 对应 c 的 当前变换、裁剪 对应 c 的 当前裁剪。
+完。
+
+Sk画布_restore 接受 c：
+    若 做 计数 用 c 的 状态栈 大于 0：
+        s 为 做 弹出 用 c 的 状态栈。
+        c 的 当前变换 为 s 的 变换。
+        c 的 当前裁剪 为 s 的 裁剪。
+    完。
+完。
+
+Sk画布_clipRect 接受 c、x、y、w、h：
+    c 的 当前裁剪 为 一本字典：x 对应 x、y 对应 y、w 对应 w、h 对应 h。
+完。
+
+本章 收束。

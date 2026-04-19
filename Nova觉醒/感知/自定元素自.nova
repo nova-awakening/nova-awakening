@@ -1,0 +1,177 @@
+《自定元素自》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·样式》。
+
+引用《.·取数网络请》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·字符串替换》。
+
+Custom元素Definition 是 一种 事物，含 名称、构造函数、connectedCallback、disconnectedCallback、attributeChangedCallback、adoptedCallback、观察属性、观察属性数量、extends、已定义。
+
+Custom元素Registry 是 一种 事物，含 定义列表、定义数量、定义容量、等待列表、等待数量。
+
+可变 全局自定义元素注册表 为 0。
+
+Custom元素Registry_获取 接受 零参：
+    若 全局自定义元素注册表 等于 0：
+        全局自定义元素注册表 为 做 堆_分配 用 Custom元素Registry。
+        全局自定义元素注册表 的 定义容量 为 128。
+        全局自定义元素注册表 的 定义列表 为 做 堆_分配_数组 用 128 乘 8。
+        全局自定义元素注册表 的 定义数量 为 0。
+        全局自定义元素注册表 的 等待列表 为 做 堆_分配_数组 用 32 乘 16。
+        全局自定义元素注册表 的 等待数量 为 0。
+    完。
+    返还 全局自定义元素注册表。
+完。
+
+Custom元素s_define 接受 名称、构造函数、选项：
+    registry 为 做 Custom元素Registry_获取。
+    若 非 做 Custom元素s_验证名称 用 名称：
+        返还。
+    完。
+    若 做 Custom元素s_查找 用 名称 不等于 0：
+        返还。
+    完。
+    def 为 做 堆_分配 用 Custom元素Definition。
+    def 的 名称 为 做 字符串_复制 用 名称。
+    def 的 构造函数 为 构造函数。
+    def 的 connectedCallback 为 0。
+    def 的 disconnectedCallback 为 0。
+    def 的 attributeChangedCallback 为 0。
+    def 的 adoptedCallback 为 0。
+    def 的 观察属性 为 0。
+    def 的 观察属性数量 为 0。
+    def 的 extends 为 0。
+    def 的 已定义 为 真。
+    若 构造函数 不等于 0：
+        原型 为 做 Nova对象_获取属性 用 0、构造函数、「prototype」。
+        若 原型 不等于 0：
+            def 的 connectedCallback 为 做 Nova对象_获取属性 用 0、原型、「connectedCallback」。
+            def 的 disconnectedCallback 为 做 Nova对象_获取属性 用 0、原型、「disconnectedCallback」。
+            def 的 attributeChangedCallback 为 做 Nova对象_获取属性 用 0、原型、「attributeChangedCallback」。
+            def 的 adoptedCallback 为 做 Nova对象_获取属性 用 0、原型、「adoptedCallback」。
+        完。
+        oa 为 做 Nova对象_获取属性 用 0、构造函数、「observedAttributes」。
+        若 oa 不等于 0：
+            def 的 观察属性 为 oa。
+        完。
+    完。
+    若 选项 不等于 0：
+        ext 为 做 Nova对象_获取属性 用 0、选项、「extends」。
+        若 ext 不等于 0：
+            def 的 extends 为 ext。
+        完。
+    完。
+    若 registry 的 定义数量 小于 registry 的 定义容量：
+        做 内存_写64 用 registry 的 定义列表 加 registry 的 定义数量 乘 8、def。
+        registry 的 定义数量 为 registry 的 定义数量 加 1。
+    完。
+    做 Custom元素s_升级已有 用 def。
+    做 Custom元素s_解析等待 用 名称。
+完。
+
+Custom元素s_查找 接受 名称：
+    registry 为 做 Custom元素Registry_获取。
+    可变 i 为 0。
+    只要 i 小于 registry 的 定义数量：
+        def 为 做 内存_读64 用 registry 的 定义列表 加 i 乘 8。
+        若 def 不等于 0 并且 做 字符串_相等 用 def 的 名称、名称：
+            返还 def。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Custom元素s_get 接受 名称：
+    def 为 做 Custom元素s_查找 用 名称。
+    若 def 不等于 0：
+        返还 def 的 构造函数。
+    完。
+    返还 0。
+完。
+
+Custom元素s_验证名称 接受 名称：
+    若 名称 等于 0：
+        返还 假。
+    完。
+    长度 为 做 字符串_长度 用 名称。
+    若 长度 小于 2：
+        返还 假。
+    完。
+    首字符 为 做 内存_读8 用 名称。
+    若 首字符 小于 0x61 或者 首字符 大于 0x7A：
+        返还 假。
+    完。
+    可变 有连字符 为 假。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        若 做 内存_读8 用 名称 加 i 等于 0x2D：
+            有连字符 为 真。
+        完。
+        i 为 i 加 1。
+    完。
+    若 非 有连字符：
+        返还 假。
+    完。
+    若 做 字符串_相等 用 名称、「annotation-xml」 或者 做 字符串_相等 用 名称、「color-profile」 或者 做 字符串_相等 用 名称、「font-face」 或者 做 字符串_相等 用 名称、「font-face-src」 或者 做 字符串_相等 用 名称、「font-face-uri」 或者 做 字符串_相等 用 名称、「font-face-format」 或者 做 字符串_相等 用 名称、「font-face-name」 或者 做 字符串_相等 用 名称、「missing-glyph」：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+Custom元素s_升级已有 接受 def：
+    若 def 等于 0 或者 def 的 名称 等于 0：
+        返还。
+    完。
+    文档 为 做 Document_获取当前。
+    若 文档 等于 0：
+        返还。
+    完。
+    匹配列表 为 做 DOM_查找所有标签 用 文档、def 的 名称。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 匹配列表：
+        元素 为 匹配列表 的 第 i 项。
+        若 元素 不等于 0 并且 非 元素 的 已升级：
+            元素 的 已升级 为 真。
+            元素 的 自定义元素定义 为 def。
+            若 def 的 构造函数 不等于 0：
+                做 Nova函数_Call_简 用 def 的 Nova运行时实例、def 的 构造函数。
+            完。
+            若 def 的 connected回调 不等于 0 并且 元素 的 已连接：
+                做 Nova函数_Call_简 用 def 的 Nova运行时实例、def 的 connected回调。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+Custom元素s_解析等待 接受 名称：
+    registry 为 做 Custom元素Registry_获取。
+    可变 i 为 0。
+    只要 i 小于 registry 的 等待数量：
+        偏移 为 registry 的 等待列表 加 i 乘 16。
+        等待名 为 做 内存_读64 用 偏移。
+        若 做 字符串_相等 用 等待名、名称：
+            promise 为 做 内存_读64 用 偏移 加 8。
+            若 promise 不等于 0：
+                做 Nova承诺_resolve 用 0、promise、0。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

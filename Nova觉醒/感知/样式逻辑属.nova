@@ -1,0 +1,215 @@
+《样式逻辑属》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+WM_HORIZONTAL_TB 为 0。
+
+WM_VERTICAL_RL 为 1。
+
+WM_VERTICAL_LR 为 2。
+
+DIR_LTR 为 0。
+
+DIR_RTL 为 1。
+
+LP_MARGIN_INLINE_START 为 1。
+
+LP_MARGIN_INLINE_END 为 2。
+
+LP_MARGIN_BLOCK_START 为 3。
+
+LP_MARGIN_BLOCK_END 为 4。
+
+LP_PADDING_INLINE_START 为 5。
+
+LP_PADDING_INLINE_END 为 6。
+
+LP_PADDING_BLOCK_START 为 7。
+
+LP_PADDING_BLOCK_END 为 8。
+
+LP_BORDER_INLINE_START 为 9。
+
+LP_BORDER_INLINE_END 为 10。
+
+LP_BORDER_BLOCK_START 为 11。
+
+LP_BORDER_BLOCK_END 为 12。
+
+LP_INLINE_SIZE 为 13。
+
+LP_BLOCK_SIZE 为 14。
+
+LP_MIN_INLINE_SIZE 为 15。
+
+LP_MIN_BLOCK_SIZE 为 16。
+
+LP_MAX_INLINE_SIZE 为 17。
+
+LP_MAX_BLOCK_SIZE 为 18。
+
+LP_INSET_INLINE_START 为 19。
+
+LP_INSET_INLINE_END 为 20。
+
+LP_INSET_BLOCK_START 为 21。
+
+LP_INSET_BLOCK_END 为 22。
+
+PP_TOP 为 0。
+
+PP_RIGHT 为 1。
+
+PP_BOTTOM 为 2。
+
+PP_LEFT 为 3。
+
+PP_WIDTH 为 4。
+
+PP_HEIGHT 为 5。
+
+LogicalProp_映射到物理 接受 逻辑属性、writing_mode、direction：
+    是水平 为 writing_mode 等于 WM_HORIZONTAL_TB。
+    是LTR 为 direction 等于 DIR_LTR。
+    若 逻辑属性 等于 LP_INLINE_SIZE：
+        若 是水平：
+            返还 PP_WIDTH。
+        完。
+        返还 PP_HEIGHT。
+    完。
+    若 逻辑属性 等于 LP_BLOCK_SIZE：
+        若 是水平：
+            返还 PP_HEIGHT。
+        完。
+        返还 PP_WIDTH。
+    完。
+    若 逻辑属性 等于 LP_MARGIN_INLINE_START 或者 逻辑属性 等于 LP_PADDING_INLINE_START 或者 逻辑属性 等于 LP_BORDER_INLINE_START 或者 逻辑属性 等于 LP_INSET_INLINE_START：
+        若 是水平：
+            返还 若 是LTR 则 PP_LEFT 否则 PP_RIGHT。
+        完。
+        若 writing_mode 等于 WM_VERTICAL_RL：
+            返还 若 是LTR 则 PP_TOP 否则 PP_BOTTOM。
+        完。
+        返还 若 是LTR 则 PP_TOP 否则 PP_BOTTOM。
+    完。
+    若 逻辑属性 等于 LP_MARGIN_INLINE_END 或者 逻辑属性 等于 LP_PADDING_INLINE_END 或者 逻辑属性 等于 LP_BORDER_INLINE_END 或者 逻辑属性 等于 LP_INSET_INLINE_END：
+        若 是水平：
+            返还 若 是LTR 则 PP_RIGHT 否则 PP_LEFT。
+        完。
+        若 writing_mode 等于 WM_VERTICAL_RL：
+            返还 若 是LTR 则 PP_BOTTOM 否则 PP_TOP。
+        完。
+        返还 若 是LTR 则 PP_BOTTOM 否则 PP_TOP。
+    完。
+    若 逻辑属性 等于 LP_MARGIN_BLOCK_START 或者 逻辑属性 等于 LP_PADDING_BLOCK_START 或者 逻辑属性 等于 LP_BORDER_BLOCK_START 或者 逻辑属性 等于 LP_INSET_BLOCK_START：
+        若 是水平：
+            返还 PP_TOP。
+        完。
+        若 writing_mode 等于 WM_VERTICAL_RL：
+            返还 PP_RIGHT。
+        完。
+        返还 PP_LEFT。
+    完。
+    若 逻辑属性 等于 LP_MARGIN_BLOCK_END 或者 逻辑属性 等于 LP_PADDING_BLOCK_END 或者 逻辑属性 等于 LP_BORDER_BLOCK_END 或者 逻辑属性 等于 LP_INSET_BLOCK_END：
+        若 是水平：
+            返还 PP_BOTTOM。
+        完。
+        若 writing_mode 等于 WM_VERTICAL_RL：
+            返还 PP_LEFT。
+        完。
+        返还 PP_RIGHT。
+    完。
+    返还 PP_LEFT。
+完。
+
+LogicalProp_解析名称 接受 属性名：
+    若 做 字符串_相等 用 属性名、「margin-inline-start」：
+        返还 LP_MARGIN_INLINE_START。
+    完。
+    若 做 字符串_相等 用 属性名、「margin-inline-end」：
+        返还 LP_MARGIN_INLINE_END。
+    完。
+    若 做 字符串_相等 用 属性名、「margin-block-start」：
+        返还 LP_MARGIN_BLOCK_START。
+    完。
+    若 做 字符串_相等 用 属性名、「margin-block-end」：
+        返还 LP_MARGIN_BLOCK_END。
+    完。
+    若 做 字符串_相等 用 属性名、「padding-inline-start」：
+        返还 LP_PADDING_INLINE_START。
+    完。
+    若 做 字符串_相等 用 属性名、「padding-inline-end」：
+        返还 LP_PADDING_INLINE_END。
+    完。
+    若 做 字符串_相等 用 属性名、「padding-block-start」：
+        返还 LP_PADDING_BLOCK_START。
+    完。
+    若 做 字符串_相等 用 属性名、「padding-block-end」：
+        返还 LP_PADDING_BLOCK_END。
+    完。
+    若 做 字符串_相等 用 属性名、「border-inline-start-width」：
+        返还 LP_BORDER_INLINE_START。
+    完。
+    若 做 字符串_相等 用 属性名、「border-inline-end-width」：
+        返还 LP_BORDER_INLINE_END。
+    完。
+    若 做 字符串_相等 用 属性名、「border-block-start-width」：
+        返还 LP_BORDER_BLOCK_START。
+    完。
+    若 做 字符串_相等 用 属性名、「border-block-end-width」：
+        返还 LP_BORDER_BLOCK_END。
+    完。
+    若 做 字符串_相等 用 属性名、「inline-size」：
+        返还 LP_INLINE_SIZE。
+    完。
+    若 做 字符串_相等 用 属性名、「block-size」：
+        返还 LP_BLOCK_SIZE。
+    完。
+    若 做 字符串_相等 用 属性名、「min-inline-size」：
+        返还 LP_MIN_INLINE_SIZE。
+    完。
+    若 做 字符串_相等 用 属性名、「min-block-size」：
+        返还 LP_MIN_BLOCK_SIZE。
+    完。
+    若 做 字符串_相等 用 属性名、「max-inline-size」：
+        返还 LP_MAX_INLINE_SIZE。
+    完。
+    若 做 字符串_相等 用 属性名、「max-block-size」：
+        返还 LP_MAX_BLOCK_SIZE。
+    完。
+    若 做 字符串_相等 用 属性名、「inset-inline-start」：
+        返还 LP_INSET_INLINE_START。
+    完。
+    若 做 字符串_相等 用 属性名、「inset-inline-end」：
+        返还 LP_INSET_INLINE_END。
+    完。
+    若 做 字符串_相等 用 属性名、「inset-block-start」：
+        返还 LP_INSET_BLOCK_START。
+    完。
+    若 做 字符串_相等 用 属性名、「inset-block-end」：
+        返还 LP_INSET_BLOCK_END。
+    完。
+    返还 0。
+完。
+
+LogicalProp_展开_margin_inline 接受 值_start、值_end、wm、dir：
+    物理_start 为 做 LogicalProp_映射到物理 用 LP_MARGIN_INLINE_START、wm、dir。
+    物理_end 为 做 LogicalProp_映射到物理 用 LP_MARGIN_INLINE_END、wm、dir。
+    返还 一组：物理_start、值_start、物理_end、值_end。
+完。
+
+LogicalProp_展开_margin_block 接受 值_start、值_end、wm、dir：
+    物理_start 为 做 LogicalProp_映射到物理 用 LP_MARGIN_BLOCK_START、wm、dir。
+    物理_end 为 做 LogicalProp_映射到物理 用 LP_MARGIN_BLOCK_END、wm、dir。
+    返还 一组：物理_start、值_start、物理_end、值_end。
+完。
+
+LogicalProp_展开_inset 接受 inline_start、inline_end、block_start、block_end、wm、dir：
+    返还 一组：做 LogicalProp_映射到物理 用 LP_INSET_BLOCK_START、wm、dir、block_start、做 LogicalProp_映射到物理 用 LP_INSET_INLINE_END、wm、dir、inline_end、做 LogicalProp_映射到物理 用 LP_INSET_BLOCK_END、wm、dir、block_end、做 LogicalProp_映射到物理 用 LP_INSET_INLINE_START、wm、dir、inline_start。
+完。
+
+本章 收束。

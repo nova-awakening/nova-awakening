@@ -1,0 +1,481 @@
+《Web接口对象》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·标准·类型判断》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·小整数SMI判定》。
+
+引用《..·标准·加法运算符》。
+
+引用《..·执行·接口绑定》。
+
+引用《..·感知·原子驻留》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·感知·内核直连层》。
+
+NATIVE_序列_PARSE 为 800。
+
+NATIVE_序列_STRINGIFY 为 801。
+
+网接口_安装序列 接受 Nova运行时实例、global：
+    json 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、json、「parse」、做 JSNative_创建 用 Nova运行时实例、NATIVE_序列_PARSE、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、json、「stringify」、做 JSNative_创建 用 Nova运行时实例、NATIVE_序列_STRINGIFY、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「序列」、json。
+完。
+
+网接口_安装Location 接受 Nova运行时实例、global、tab：
+    loc 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    若 tab 不等于 0 并且 tab 的 URL 不等于 0：
+        做 Nova对象_设置属性 用 Nova运行时实例、loc、「href」、做 Nova值_创建_String 用 Nova运行时实例、tab 的 URL。
+        url 为 做 URL_解析 用 tab 的 URL。
+        若 url 不等于 0：
+            做 Nova对象_设置属性 用 Nova运行时实例、loc、「protocol」、做 Nova值_创建_String 用 Nova运行时实例、做 字符串_连接 用 url 的 协议、「:」。
+            做 Nova对象_设置属性 用 Nova运行时实例、loc、「hostname」、做 Nova值_创建_String 用 Nova运行时实例、url 的 主机。
+            做 Nova对象_设置属性 用 Nova运行时实例、loc、「pathname」、做 Nova值_创建_String 用 Nova运行时实例、url 的 路径。
+            做 Nova对象_设置属性 用 Nova运行时实例、loc、「host」、做 Nova值_创建_String 用 Nova运行时实例、url 的 主机。
+            若 url 的 查询 不等于 0：
+                做 Nova对象_设置属性 用 Nova运行时实例、loc、「search」、做 Nova值_创建_String 用 Nova运行时实例、做 字符串_连接 用 「?」、url 的 查询。
+            否则：
+                做 Nova对象_设置属性 用 Nova运行时实例、loc、「search」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+            完。
+            若 url 的 片段 不等于 0：
+                做 Nova对象_设置属性 用 Nova运行时实例、loc、「hash」、做 Nova值_创建_String 用 Nova运行时实例、做 字符串_连接 用 「#」、url 的 片段。
+            否则：
+                做 Nova对象_设置属性 用 Nova运行时实例、loc、「hash」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+            完。
+        完。
+    完。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「origin」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「location」、loc。
+完。
+
+网接口_安装Navigator 接受 Nova运行时实例、global：
+    nav 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「user智能体」、做 Nova值_创建_String 用 Nova运行时实例、「NovaBrowser/1.0 (NovaOS)」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「language」、做 Nova值_创建_String 用 Nova运行时实例、「zh-CN」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「platform」、做 Nova值_创建_String 用 Nova运行时实例、「NovaOS」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「vendor」、做 Nova值_创建_String 用 Nova运行时实例、「NovaBrowser」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「cookieEnabled」、Nova运行时实例 的 true值。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「onLine」、Nova运行时实例 的 true值。
+    langs 为 做 Nova数组_创建 用 Nova运行时实例、2。
+    做 Nova数组_Push 用 Nova运行时实例、langs、做 Nova值_创建_String 用 Nova运行时实例、「zh-CN」。
+    做 Nova数组_Push 用 Nova运行时实例、langs、做 Nova值_创建_String 用 Nova运行时实例、「en」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「languages」、langs。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「navigator」、nav。
+完。
+
+存储Backend 是 一种 事物，含 条目、数量、容量。
+
+可变 全局local存储 为 0。
+
+可变 全局session存储 为 0。
+
+存储_初始化 接受 零参：
+    若 全局local存储 不等于 0：
+        返还。
+    完。
+    全局local存储 为 做 堆_分配 用 存储Backend。
+    全局local存储 的 容量 为 256。
+    全局local存储 的 条目 为 做 堆_分配_数组 用 256 乘 24。
+    全局local存储 的 数量 为 0。
+    全局session存储 为 做 堆_分配 用 存储Backend。
+    全局session存储 的 容量 为 256。
+    全局session存储 的 条目 为 做 堆_分配_数组 用 256 乘 24。
+    全局session存储 的 数量 为 0。
+完。
+
+存储_getItem 接受 键：
+    若 全局local存储 等于 0：
+        做 存储_初始化。
+    完。
+    哈希 为 做 字符串_哈希 用 键。
+    可变 i 为 0。
+    只要 i 小于 全局local存储 的 数量：
+        偏移 为 全局local存储 的 条目 加 i 乘 24。
+        若 做 内存_读32 用 偏移 等于 哈希：
+            已有键 为 做 内存_读64 用 偏移 加 8。
+            若 做 字符串_相等 用 已有键、键：
+                返还 做 内存_读64 用 偏移 加 16。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+存储_setItem 接受 键、值：
+    若 全局local存储 等于 0：
+        做 存储_初始化。
+    完。
+    哈希 为 做 字符串_哈希 用 键。
+    可变 i 为 0。
+    只要 i 小于 全局local存储 的 数量：
+        偏移 为 全局local存储 的 条目 加 i 乘 24。
+        若 做 内存_读32 用 偏移 等于 哈希：
+            已有键 为 做 内存_读64 用 偏移 加 8。
+            若 做 字符串_相等 用 已有键、键：
+                做 内存_写64 用 偏移 加 16、做 字符串_复制 用 值。
+                返还。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    若 全局local存储 的 数量 大于或等于 全局local存储 的 容量：
+        返还。
+    完。
+    偏移 为 全局local存储 的 条目 加 全局local存储 的 数量 乘 24。
+    做 内存_写32 用 偏移、哈希。
+    做 内存_写64 用 偏移 加 8、做 字符串_复制 用 键。
+    做 内存_写64 用 偏移 加 16、做 字符串_复制 用 值。
+    全局local存储 的 数量 为 全局local存储 的 数量 加 1。
+完。
+
+网接口_安装存储 接受 Nova运行时实例、global：
+    做 存储_初始化。
+    ls 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、ls、「getItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_GET_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、ls、「setItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_SET_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、ls、「removeItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_REMOVE_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、ls、「clear」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_CLEAR、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「local存储」、ls。
+    ss 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、ss、「getItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_GET_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、ss、「setItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_SET_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、ss、「removeItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_REMOVE_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「session存储」、ss。
+完。
+
+NATIVE_STORAGE_GET_ITEM 为 810。
+
+NATIVE_STORAGE_SET_ITEM 为 811。
+
+NATIVE_STORAGE_REMOVE_ITEM 为 812。
+
+NATIVE_STORAGE_CLEAR 为 813。
+
+存储_removeItem 接受 键：
+    若 全局local存储 等于 0：
+        返还。
+    完。
+    哈希 为 做 字符串_哈希 用 键。
+    可变 i 为 0。
+    只要 i 小于 全局local存储 的 数量：
+        偏移 为 全局local存储 的 条目 加 i 乘 24。
+        若 做 内存_读32 用 偏移 等于 哈希：
+            已有键 为 做 内存_读64 用 偏移 加 8。
+            若 做 字符串_相等 用 已有键、键：
+                最后偏移 为 全局local存储 的 条目 加 (全局local存储 的 数量 减 1) 乘 24。
+                若 i 小于 全局local存储 的 数量 减 1：
+                    做 内存_复制 用 偏移、最后偏移、24。
+                完。
+                全局local存储 的 数量 为 全局local存储 的 数量 减 1。
+                返还。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+存储_clear 接受 零参：
+    若 全局local存储 等于 0：
+        返还。
+    完。
+    全局local存储 的 数量 为 0。
+完。
+
+存储_length 接受 零参：
+    若 全局local存储 等于 0：
+        返还 0。
+    完。
+    返还 全局local存储 的 数量。
+完。
+
+存储_key 接受 索引：
+    若 全局local存储 等于 0 或者 索引 大于或等于 全局local存储 的 数量：
+        返还 0。
+    完。
+    偏移 为 全局local存储 的 条目 加 索引 乘 24。
+    返还 做 内存_读64 用 偏移 加 8。
+完。
+
+JSON解析器 是 一种 事物，含 源码、长度、位置、错误。
+
+JSON_解析 接受 Nova运行时实例、文本：
+    若 文本 等于 0：
+        返还 Nova运行时实例 的 undefined值。
+    完。
+    parser 为 新建 JSON解析器。
+    parser 的 源码 为 文本。
+    parser 的 长度 为 做 字节长度 用 文本。
+    parser 的 位置 为 0。
+    parser 的 错误 为 0。
+    做 JSON_跳过空白 用 parser。
+    结果 为 做 JSON_解析值 用 Nova运行时实例、parser。
+    若 parser 的 错误 不等于 0：
+        返还 Nova运行时实例 的 undefined值。
+    完。
+    返还 结果。
+完。
+
+JSON_跳过空白 接受 parser：
+    只要 parser 的 位置 小于 parser 的 长度：
+        ch 为 做 字节取 用 parser 的 源码、parser 的 位置。
+        若 ch 等于 32 或者 ch 等于 9 或者 ch 等于 10 或者 ch 等于 13：
+            parser 的 位置 为 parser 的 位置 加 1。
+        否则：
+            返还。
+        完。
+    完。
+完。
+
+JSON_解析值 接受 Nova运行时实例、parser：
+    若 parser 的 位置 大于或等于 parser 的 长度：
+        parser 的 错误 为 1。
+        返还 0。
+    完。
+    ch 为 做 字节取 用 parser 的 源码、parser 的 位置。
+    若 ch 等于 34：
+        返还 做 JSON_解析字符串 用 Nova运行时实例、parser。
+    完。
+    若 ch 等于 123：
+        返还 做 JSON_解析对象 用 Nova运行时实例、parser。
+    完。
+    若 ch 等于 91：
+        返还 做 JSON_解析数组 用 Nova运行时实例、parser。
+    完。
+    若 ch 等于 116：
+        返还 做 JSON_解析true 用 Nova运行时实例、parser。
+    完。
+    若 ch 等于 102：
+        返还 做 JSON_解析false 用 Nova运行时实例、parser。
+    完。
+    若 ch 等于 110：
+        返还 做 JSON_解析null 用 Nova运行时实例、parser。
+    完。
+    若 ch 大于或等于 48 并且 ch 小于或等于 57 或者 ch 等于 45：
+        返还 做 JSON_解析数字 用 Nova运行时实例、parser。
+    完。
+    parser 的 错误 为 1。
+    返还 0。
+完。
+
+JSON_解析字符串 接受 Nova运行时实例、parser：
+    parser 的 位置 为 parser 的 位置 加 1。
+    起始 为 parser 的 位置。
+    只要 parser 的 位置 小于 parser 的 长度：
+        ch 为 做 字节取 用 parser 的 源码、parser 的 位置。
+        若 ch 等于 34：
+            长度 为 parser 的 位置 减 起始。
+            parser 的 位置 为 parser 的 位置 加 1。
+            返还 做 Nova值_创建_String 用 Nova运行时实例、做 字符串_子串 用 parser 的 源码、起始、长度。
+        完。
+        若 ch 等于 92：
+            parser 的 位置 为 parser 的 位置 加 1。
+        完。
+        parser 的 位置 为 parser 的 位置 加 1。
+    完。
+    parser 的 错误 为 1。
+    返还 0。
+完。
+
+JSON_解析数字 接受 Nova运行时实例、parser：
+    起始 为 parser 的 位置。
+    若 做 字节取 用 parser 的 源码、parser 的 位置 等于 45：
+        parser 的 位置 为 parser 的 位置 加 1。
+    完。
+    只要 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 大于或等于 48 并且 做 字节取 用 parser 的 源码、parser 的 位置 小于或等于 57：
+        parser 的 位置 为 parser 的 位置 加 1。
+    完。
+    若 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 等于 46：
+        parser 的 位置 为 parser 的 位置 加 1。
+        只要 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 大于或等于 48 并且 做 字节取 用 parser 的 源码、parser 的 位置 小于或等于 57：
+            parser 的 位置 为 parser 的 位置 加 1。
+        完。
+    完。
+    数字文本 为 做 字符串_子串 用 parser 的 源码、起始、parser 的 位置 减 起始。
+    返还 做 Nova值_创建_Number 用 Nova运行时实例、做 转整数 用 数字文本。
+完。
+
+JSON_解析对象 接受 Nova运行时实例、parser：
+    parser 的 位置 为 parser 的 位置 加 1。
+    obj 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 JSON_跳过空白 用 parser。
+    若 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 等于 125：
+        parser 的 位置 为 parser 的 位置 加 1。
+        返还 obj。
+    完。
+    只要 parser 的 位置 小于 parser 的 长度：
+        做 JSON_跳过空白 用 parser。
+        键值 为 做 JSON_解析字符串 用 Nova运行时实例、parser。
+        若 键值 等于 0：
+            parser 的 错误 为 1。
+            返还 obj。
+        完。
+        做 JSON_跳过空白 用 parser。
+        若 parser 的 位置 大于或等于 parser 的 长度 或者 做 字节取 用 parser 的 源码、parser 的 位置 不等于 58：
+            parser 的 错误 为 1。
+            返还 obj。
+        完。
+        parser 的 位置 为 parser 的 位置 加 1。
+        做 JSON_跳过空白 用 parser。
+        值 为 做 JSON_解析值 用 Nova运行时实例、parser。
+        做 Nova对象_设置属性 用 Nova运行时实例、obj、做 JSValue_获取字符串 用 键值、值。
+        做 JSON_跳过空白 用 parser。
+        若 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 等于 44：
+            parser 的 位置 为 parser 的 位置 加 1。
+        否则：
+            跳出。
+        完。
+    完。
+    若 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 等于 125：
+        parser 的 位置 为 parser 的 位置 加 1。
+    完。
+    返还 obj。
+完。
+
+JSON_解析数组 接受 Nova运行时实例、parser：
+    parser 的 位置 为 parser 的 位置 加 1。
+    arr 为 做 Nova数组_创建 用 Nova运行时实例、0。
+    做 JSON_跳过空白 用 parser。
+    若 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 等于 93：
+        parser 的 位置 为 parser 的 位置 加 1。
+        返还 arr。
+    完。
+    只要 parser 的 位置 小于 parser 的 长度：
+        做 JSON_跳过空白 用 parser。
+        值 为 做 JSON_解析值 用 Nova运行时实例、parser。
+        做 Nova数组_Push 用 Nova运行时实例、arr、值。
+        做 JSON_跳过空白 用 parser。
+        若 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 等于 44：
+            parser 的 位置 为 parser 的 位置 加 1。
+        否则：
+            跳出。
+        完。
+    完。
+    若 parser 的 位置 小于 parser 的 长度 并且 做 字节取 用 parser 的 源码、parser 的 位置 等于 93：
+        parser 的 位置 为 parser 的 位置 加 1。
+    完。
+    返还 arr。
+完。
+
+JSON_解析true 接受 Nova运行时实例、parser：
+    parser 的 位置 为 parser 的 位置 加 4。
+    返还 Nova运行时实例 的 true值。
+完。
+
+JSON_解析false 接受 Nova运行时实例、parser：
+    parser 的 位置 为 parser 的 位置 加 5。
+    返还 Nova运行时实例 的 false值。
+完。
+
+JSON_解析null 接受 Nova运行时实例、parser：
+    parser 的 位置 为 parser 的 位置 加 4。
+    返还 Nova运行时实例 的 null值。
+完。
+
+JSON_序列化 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        返还 「null」。
+    完。
+    类型 为 做 内存_读32 用 值。
+    若 类型 等于 0：
+        返还 「undefined」。
+    完。
+    若 类型 等于 1：
+        返还 「null」。
+    完。
+    若 类型 等于 2：
+        若 做 内存_读64 用 值 加 8 不等于 0：
+            返还 「true」。
+        完。
+        返还 「false」。
+    完。
+    若 类型 等于 3：
+        返还 做 整数转字符串 用 做 内存_读64 用 值 加 8。
+    完。
+    若 类型 等于 4：
+        返还 「\"」 加 做 JSValue_获取字符串 用 值 加 「\"」。
+    完。
+    若 类型 等于 11：
+        返还 做 JSON_序列化数组 用 Nova运行时实例、值。
+    完。
+    若 类型 大于或等于 10：
+        返还 做 JSON_序列化对象 用 Nova运行时实例、值。
+    完。
+    返还 「null」。
+完。
+
+JSON_序列化数组 接受 Nova运行时实例、arr：
+    可变 结果 为 「[」。
+    返还 结果 加 「]」。
+完。
+
+JSON_序列化对象 接受 Nova运行时实例、obj：
+    可变 结果 为 「{」。
+    返还 结果 加 「}」。
+完。
+
+URL结构 是 一种 事物，含 协议、主机、端口、路径、查询、片段、是安全的。
+
+URL_解析 接受 url字符串：
+    若 url字符串 等于 0：
+        返还 0。
+    完。
+    url 为 新建 URL结构。
+    url 的 协议 为 「」。
+    url 的 主机 为 「」。
+    url 的 端口 为 80。
+    url 的 路径 为 「/」。
+    url 的 查询 为 0。
+    url 的 片段 为 0。
+    url 的 是安全的 为 假。
+    若 做 字符串_以开头 用 url字符串、「https://」：
+        url 的 协议 为 「https」。
+        url 的 端口 为 443。
+        url 的 是安全的 为 真。
+    否则若 做 字符串_以开头 用 url字符串、「http://」：
+        url 的 协议 为 「http」。
+    完。
+    返还 url。
+完。
+
+可变 网接口_JSON解析数 为 0。
+
+可变 网接口_JSON序列化数 为 0。
+
+可变 网接口_存储读数 为 0。
+
+可变 网接口_存储写数 为 0。
+
+网接口_统计 接受 零参：
+    返还 一本字典：JSON解析 对应 网接口_JSON解析数、JSON序列化 对应 网接口_JSON序列化数、存储读 对应 网接口_存储读数、存储写 对应 网接口_存储写数、local存储条数 对应 做 存储_length。
+完。
+
+网接口_健康检查 接受 零参：
+    返还 「网接口绑定健康」。
+完。
+
+网接口_重置统计 接受 零参：
+    网接口_JSON解析数 为 0。
+    网接口_JSON序列化数 为 0。
+    网接口_存储读数 为 0。
+    网接口_存储写数 为 0。
+完。
+
+网接口_完整统计 接受 零参：
+    返还 一组：网接口_JSON解析数、网接口_JSON序列化数、网接口_存储读数、网接口_存储写数。
+完。
+
+本章 收束。

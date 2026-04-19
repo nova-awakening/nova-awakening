@@ -1,0 +1,271 @@
+《统一Provider框架》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+提供者_Nova智能兼容 为 0。
+
+提供者_Anthropic 为 1。
+
+提供者_GLM 为 2。
+
+提供者_MiniMax 为 3。
+
+提供者_Qwen 为 4。
+
+提供者_文心 为 5。
+
+提供者_星火 为 6。
+
+提供者_Kimi 为 7。
+
+提供者_Gemini 为 8。
+
+提供者_Mistral 为 9。
+
+提供者_本地Ollama 为 10。
+
+AI提供者配置 是 一种 事物，含 名称、类型、接口端点、接口密钥名、模型标识、最大令牌、最大输出令牌、温度、TopP、超时毫秒、重试次数、启用流式、已启用、认证头名、认证头前缀、系统提示字段、消息格式版本、总请求数、总成功数、总失败数、总令牌消耗、平均延迟EMA。
+
+最大Provider数 为 16。
+
+可变 Provider列表 为 一组：（空）。
+
+可变 当前Provider索引 为 0。
+
+可变 Provider_已初始化 为 假。
+
+Provider_初始化 接受 零参：
+    Provider列表 为 一组：（空）。
+    当前Provider索引 为 0。
+    Provider_已初始化 为 真。
+    做 内核信息 用 「AI Provider框架: 支持11种模型类型 统一接口+令牌优化+流式+重试」。
+完。
+
+Provider_创建_GLM4 接受 密钥名：
+    cfg 为 新建 AI提供者配置。
+    cfg 的 名称 为 「智谱GLM-4」。
+    cfg 的 类型 为 提供者_GLM。
+    cfg 的 接口端点 为 「https://open.bigmodel.cn/api/paas/v4/chat/completions」。
+    cfg 的 接口密钥名 为 密钥名。
+    cfg 的 模型标识 为 「glm-4」。
+    cfg 的 最大令牌 为 128000。
+    cfg 的 最大输出令牌 为 4096。
+    cfg 的 温度 为 700。
+    cfg 的 TopP 为 950。
+    cfg 的 超时毫秒 为 60000。
+    cfg 的 重试次数 为 3。
+    cfg 的 启用流式 为 1。
+    cfg 的 已启用 为 1。
+    cfg 的 认证头名 为 「Authorization」。
+    cfg 的 认证头前缀 为 「Bearer 」。
+    cfg 的 系统提示字段 为 「messages」。
+    cfg 的 消息格式版本 为 2。
+    做 追加 用 Provider列表、cfg。
+    返还 做 计数 用 Provider列表 减 1。
+完。
+
+Provider_创建_MiniMax 接受 密钥名：
+    cfg 为 新建 AI提供者配置。
+    cfg 的 名称 为 「MiniMax」。
+    cfg 的 类型 为 提供者_MiniMax。
+    cfg 的 接口端点 为 「https://api.minimax.chat/v1/text/chatcompletion_v2」。
+    cfg 的 接口密钥名 为 密钥名。
+    cfg 的 模型标识 为 「MiniMax-Text-01」。
+    cfg 的 最大令牌 为 1000000。
+    cfg 的 最大输出令牌 为 16384。
+    cfg 的 温度 为 700。
+    cfg 的 TopP 为 950。
+    cfg 的 超时毫秒 为 120000。
+    cfg 的 重试次数 为 3。
+    cfg 的 启用流式 为 1。
+    cfg 的 已启用 为 1。
+    cfg 的 认证头名 为 「Authorization」。
+    cfg 的 认证头前缀 为 「Bearer 」。
+    cfg 的 系统提示字段 为 「messages」。
+    cfg 的 消息格式版本 为 3。
+    做 追加 用 Provider列表、cfg。
+    返还 做 计数 用 Provider列表 减 1。
+完。
+
+Provider_创建_Qwen 接受 密钥名：
+    cfg 为 新建 AI提供者配置。
+    cfg 的 名称 为 「通义千问Qwen」。
+    cfg 的 类型 为 提供者_Qwen。
+    cfg 的 接口端点 为 「https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions」。
+    cfg 的 接口密钥名 为 密钥名。
+    cfg 的 模型标识 为 「qwen-max」。
+    cfg 的 最大令牌 为 32000。
+    cfg 的 最大输出令牌 为 8192。
+    cfg 的 温度 为 700。
+    cfg 的 TopP 为 800。
+    cfg 的 超时毫秒 为 60000。
+    cfg 的 重试次数 为 3。
+    cfg 的 启用流式 为 1。
+    cfg 的 已启用 为 1。
+    cfg 的 认证头名 为 「Authorization」。
+    cfg 的 认证头前缀 为 「Bearer 」。
+    cfg 的 系统提示字段 为 「messages」。
+    cfg 的 消息格式版本 为 4。
+    做 追加 用 Provider列表、cfg。
+    返还 做 计数 用 Provider列表 减 1。
+完。
+
+Provider_创建_Nova智能兼容 接受 名称、端点、模型、密钥名、最大令牌：
+    cfg 为 新建 AI提供者配置。
+    cfg 的 名称 为 名称。
+    cfg 的 类型 为 提供者_Nova智能兼容。
+    cfg 的 接口端点 为 端点。
+    cfg 的 接口密钥名 为 密钥名。
+    cfg 的 模型标识 为 模型。
+    cfg 的 最大令牌 为 最大令牌。
+    cfg 的 最大输出令牌 为 4096。
+    cfg 的 温度 为 700。
+    cfg 的 TopP 为 950。
+    cfg 的 超时毫秒 为 60000。
+    cfg 的 重试次数 为 3。
+    cfg 的 启用流式 为 1。
+    cfg 的 已启用 为 1。
+    cfg 的 认证头名 为 「Authorization」。
+    cfg 的 认证头前缀 为 「Bearer 」。
+    cfg 的 系统提示字段 为 「messages」。
+    cfg 的 消息格式版本 为 0。
+    做 追加 用 Provider列表、cfg。
+    返还 做 计数 用 Provider列表 减 1。
+完。
+
+Provider_创建_Anthropic 接受 密钥名：
+    cfg 为 新建 AI提供者配置。
+    cfg 的 名称 为 「Anthropic Claude」。
+    cfg 的 类型 为 提供者_Anthropic。
+    cfg 的 接口端点 为 「https://api.anthropic.com/v1/messages」。
+    cfg 的 接口密钥名 为 密钥名。
+    cfg 的 模型标识 为 「claude-sonnet-4-20250514」。
+    cfg 的 最大令牌 为 200000。
+    cfg 的 最大输出令牌 为 8192。
+    cfg 的 温度 为 700。
+    cfg 的 TopP 为 950。
+    cfg 的 超时毫秒 为 120000。
+    cfg 的 重试次数 为 3。
+    cfg 的 启用流式 为 1。
+    cfg 的 已启用 为 1。
+    cfg 的 认证头名 为 「x-api-key」。
+    cfg 的 认证头前缀 为 「」。
+    cfg 的 系统提示字段 为 「system」。
+    cfg 的 消息格式版本 为 1。
+    做 追加 用 Provider列表、cfg。
+    返还 做 计数 用 Provider列表 减 1。
+完。
+
+Provider_创建_文心 接受 密钥名：
+    cfg 为 新建 AI提供者配置。
+    cfg 的 名称 为 「百度文心ERNIE」。
+    cfg 的 类型 为 提供者_文心。
+    cfg 的 接口端点 为 「https://aip.baidubce.com/rpc/2.0/ai_custom/v1/wenxinworkshop/chat/ernie-4.0-8k」。
+    cfg 的 接口密钥名 为 密钥名。
+    cfg 的 模型标识 为 「ernie-4.0-8k」。
+    cfg 的 最大令牌 为 8192。
+    cfg 的 最大输出令牌 为 4096。
+    cfg 的 温度 为 700。
+    cfg 的 TopP 为 800。
+    cfg 的 超时毫秒 为 60000。
+    cfg 的 重试次数 为 3。
+    cfg 的 启用流式 为 1。
+    cfg 的 已启用 为 1。
+    cfg 的 认证头名 为 「Authorization」。
+    cfg 的 认证头前缀 为 「Bearer 」。
+    cfg 的 系统提示字段 为 「system」。
+    cfg 的 消息格式版本 为 0。
+    做 追加 用 Provider列表、cfg。
+    返还 做 计数 用 Provider列表 减 1。
+完。
+
+Provider_创建_Kimi 接受 密钥名：
+    cfg 为 新建 AI提供者配置。
+    cfg 的 名称 为 「月之暗面Kimi」。
+    cfg 的 类型 为 提供者_Kimi。
+    cfg 的 接口端点 为 「https://api.moonshot.cn/v1/chat/completions」。
+    cfg 的 接口密钥名 为 密钥名。
+    cfg 的 模型标识 为 「moonshot-v1-128k」。
+    cfg 的 最大令牌 为 128000。
+    cfg 的 最大输出令牌 为 8192。
+    cfg 的 温度 为 700。
+    cfg 的 TopP 为 950。
+    cfg 的 超时毫秒 为 120000。
+    cfg 的 重试次数 为 3。
+    cfg 的 启用流式 为 1。
+    cfg 的 已启用 为 1。
+    cfg 的 认证头名 为 「Authorization」。
+    cfg 的 认证头前缀 为 「Bearer 」。
+    cfg 的 系统提示字段 为 「messages」。
+    cfg 的 消息格式版本 为 0。
+    做 追加 用 Provider列表、cfg。
+    返还 做 计数 用 Provider列表 减 1。
+完。
+
+Provider_创建_本地Ollama 接受 模型名：
+    cfg 为 新建 AI提供者配置。
+    cfg 的 名称 为 「本地Ollama-」 加 模型名。
+    cfg 的 类型 为 提供者_本地Ollama。
+    cfg 的 接口端点 为 「http://localhost:11434/v1/chat/completions」。
+    cfg 的 接口密钥名 为 「」。
+    cfg 的 模型标识 为 模型名。
+    cfg 的 最大令牌 为 32000。
+    cfg 的 最大输出令牌 为 4096。
+    cfg 的 温度 为 700。
+    cfg 的 TopP 为 950。
+    cfg 的 超时毫秒 为 60000。
+    cfg 的 重试次数 为 3。
+    cfg 的 启用流式 为 1。
+    cfg 的 已启用 为 0。
+    cfg 的 认证头名 为 「Authorization」。
+    cfg 的 认证头前缀 为 「Bearer 」。
+    cfg 的 系统提示字段 为 「messages」。
+    cfg 的 消息格式版本 为 0。
+    做 追加 用 Provider列表、cfg。
+    返还 做 计数 用 Provider列表 减 1。
+完。
+
+Provider_选择 接受 索引：
+    若 索引 大于或等于 0 并且 索引 小于 做 计数 用 Provider列表：
+        当前Provider索引 为 索引。
+    完。
+完。
+
+Provider_当前 接受 零参：
+    若 当前Provider索引 小于 做 计数 用 Provider列表 并且 Provider列表 的 第 当前Provider索引 项 的 已启用 等于 1：
+        返还 Provider列表 的 第 当前Provider索引 项。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 Provider列表：
+        若 Provider列表 的 第 i 项 的 已启用 等于 1：
+            当前Provider索引 为 i。
+            返还 Provider列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+Provider_按名称选择 接受 名称：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 Provider列表：
+        若 Provider列表 的 第 i 项 的 名称 等于 名称：
+            当前Provider索引 为 i。
+            返还 i。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+Provider_列表 接受 零参：
+    返还 Provider列表。
+完。
+
+Provider_数量 接受 零参：
+    返还 做 计数 用 Provider列表。
+完。
+
+本章 收束。

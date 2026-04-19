@@ -1,0 +1,435 @@
+《导航流程》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·外联·URL解析辅助》。
+
+引用《.·文档事件》。
+
+历史_触发popstate 接受 h、状态：
+    evt 为 做 事件_创建2 用 「popstate」、假、假。
+    evt 的 是可信的 为 真。
+完。
+
+NNAV_BF缓存容量 为 8。
+
+NNAV_BF缓存项 是 一种 事物，含 url 为 「」、文档快照 为 0、滚动位置 为 0、时间戳 为 0、可缓存 为 真。
+
+可变 NNAV_BF缓存列表 为 一组：（空）。
+
+NNAV_BF缓存_存入 接受 url、文档：
+    若 非 做 NNAV_BF缓存_可缓存检查 用 文档：
+        返还 假。
+    完。
+    若 做 计数 用 NNAV_BF缓存列表 大于或等于 NNAV_BF缓存容量：
+        NNAV_BF缓存列表 为 NNAV_BF缓存列表 的 第 1 : 空 项。
+    完。
+    entry 为 新建 NNAV_BF缓存项：url 为 url、文档快照 为 文档、滚动位置 为 0、时间戳 为 做 系统调用_时间戳、可缓存 为 真。
+    做 追加 用 NNAV_BF缓存列表、entry。
+    NNAV_BF缓存存入次数 为 NNAV_BF缓存存入次数 加 1。
+    返还 真。
+完。
+
+NNAV_BF缓存_查找 接受 url：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 NNAV_BF缓存列表：
+        若 NNAV_BF缓存列表 的 第 i 项 的 url 等于 url 并且 NNAV_BF缓存列表 的 第 i 项 的 可缓存：
+            NNAV_BF缓存命中次数 为 NNAV_BF缓存命中次数 加 1。
+            返还 NNAV_BF缓存列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+NNAV_BF缓存_可缓存检查 接受 文档：
+    若 文档 等于 0：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+NNAV_BF缓存_恢复 接受 entry、浏览上下文：
+    若 entry 等于 0：
+        返还 假。
+    完。
+    evt 为 做 事件_创建2 用 「pageshow」、假、假。
+    evt 的 是可信的 为 真。
+    NNAV_BF缓存恢复次数 为 NNAV_BF缓存恢复次数 加 1。
+    返还 真。
+完。
+
+NNAV_历史最大条目 为 50。
+
+NNAV_历史条目 是 一种 事物，含 url 为 「」、标题 为 「」、状态 为 0、滚动X 为 0、滚动Y 为 0、时间戳 为 0。
+
+可变 NNAV_历史列表 为 一组：（空）。
+
+可变 NNAV_当前索引 为 负 1。
+
+NNAV_pushState 接受 状态、标题、url：
+    NNAV_pushState次数 为 NNAV_pushState次数 加 1。
+    若 NNAV_当前索引 小于 做 计数 用 NNAV_历史列表 减 1：
+        NNAV_历史列表 为 NNAV_历史列表 的 第 空 : NNAV_当前索引 加 1 项。
+    完。
+    若 做 计数 用 NNAV_历史列表 大于或等于 NNAV_历史最大条目：
+        NNAV_历史列表 为 NNAV_历史列表 的 第 1 : 空 项。
+    完。
+    entry 为 新建 NNAV_历史条目：url 为 url、标题 为 标题、状态 为 状态、滚动X 为 0、滚动Y 为 0、时间戳 为 做 系统调用_时间戳。
+    做 追加 用 NNAV_历史列表、entry。
+    NNAV_当前索引 为 做 计数 用 NNAV_历史列表 减 1。
+完。
+
+NNAV_replaceState 接受 状态、标题、url：
+    NNAV_replaceState次数 为 NNAV_replaceState次数 加 1。
+    若 NNAV_当前索引 大于或等于 0 并且 NNAV_当前索引 小于 做 计数 用 NNAV_历史列表：
+        NNAV_历史列表 的 第 NNAV_当前索引 项 的 url 为 url。
+        NNAV_历史列表 的 第 NNAV_当前索引 项 的 标题 为 标题。
+        NNAV_历史列表 的 第 NNAV_当前索引 项 的 状态 为 状态。
+    完。
+完。
+
+NNAV_go 接受 偏移：
+    目标 为 NNAV_当前索引 加 偏移。
+    若 目标 小于 0 或者 目标 大于或等于 做 计数 用 NNAV_历史列表：
+        返还。
+    完。
+    NNAV_当前索引 为 目标。
+    entry 为 NNAV_历史列表 的 第 目标 项。
+    做 历史_触发popstate 用 0、entry 的 状态。
+    NNAV_导航次数 为 NNAV_导航次数 加 1。
+完。
+
+NNAV_back 接受 零参：
+    做 NNAV_go 用 负 1。
+完。
+
+NNAV_forward 接受 零参：
+    做 NNAV_go 用 1。
+完。
+
+NNAV_获取当前条目 接受 零参：
+    若 NNAV_当前索引 小于 0：
+        返还 0。
+    完。
+    返还 NNAV_历史列表 的 第 NNAV_当前索引 项。
+完。
+
+NNAV_获取历史长度 接受 零参：
+    返还 做 计数 用 NNAV_历史列表。
+完。
+
+NNAV_预连接_dns 为 1。
+
+NNAV_预连接_tcp 为 2。
+
+NNAV_预连接_prerender 为 3。
+
+NNAV_预连接_prefetch 为 4。
+
+NNAV_预取任务 是 一种 事物，含 url 为 「」、类型 为 0、优先级 为 0、状态 为 0、开始时间 为 0。
+
+可变 NNAV_预取队列 为 一组：（空）。
+
+NNAV_预取 接受 url、类型：
+    NNAV_预取次数 为 NNAV_预取次数 加 1。
+    task 为 新建 NNAV_预取任务：url 为 url、类型 为 类型、优先级 为 50、状态 为 0、开始时间 为 做 系统调用_时间戳。
+    做 追加 用 NNAV_预取队列、task。
+完。
+
+NNAV_预取_dns 接受 url：
+    做 NNAV_预取 用 url、NNAV_预连接_dns。
+完。
+
+NNAV_预取_预连接 接受 url：
+    做 NNAV_预取 用 url、NNAV_预连接_tcp。
+完。
+
+NNAV_预取_预渲染 接受 url：
+    做 NNAV_预取 用 url、NNAV_预连接_prerender。
+完。
+
+NNAV_预取_prefetch 接受 url：
+    做 NNAV_预取 用 url、NNAV_预连接_prefetch。
+完。
+
+可变 NNAV_导航次数 为 0。
+
+可变 NNAV_pushState次数 为 0。
+
+可变 NNAV_replaceState次数 为 0。
+
+可变 NNAV_hashchange次数 为 0。
+
+可变 NNAV_BF缓存存入次数 为 0。
+
+可变 NNAV_BF缓存命中次数 为 0。
+
+可变 NNAV_BF缓存恢复次数 为 0。
+
+可变 NNAV_预取次数 为 0。
+
+可变 NNAV_AI预测次数 为 0。
+
+可变 NNAV_AI总线 为 0。
+
+NNAV_增强导航 接受 浏览上下文、url、添加历史：
+    NNAV_导航次数 为 NNAV_导航次数 加 1。
+    若 url 等于 0：
+        返还。
+    完。
+    可以离开 为 做 Navigation_beforeunload检查。
+    若 非 可以离开：
+        返还。
+    完。
+    当前 为 做 NNAV_获取当前条目。
+    若 当前 不等于 0 并且 做 NNAV_仅hash变化 用 当前 的 url、url：
+        NNAV_hashchange次数 为 NNAV_hashchange次数 加 1。
+        做 Navigation_hashchange 用 当前 的 url、url。
+        若 添加历史：
+            做 NNAV_pushState 用 0、「」、url。
+        否则：
+            做 NNAV_replaceState 用 0、「」、url。
+        完。
+        返还。
+    完。
+    若 当前 不等于 0：
+        做 NNAV_BF缓存_存入 用 当前 的 url、0。
+    完。
+    cached 为 做 NNAV_BF缓存_查找 用 url。
+    若 cached 不等于 0：
+        做 NNAV_BF缓存_恢复 用 cached、浏览上下文。
+        若 添加历史：
+            做 NNAV_pushState 用 0、「」、url。
+        完。
+        返还。
+    完。
+    做 Navigation_unload。
+    做 Navigation_导航 用 浏览上下文、url、添加历史。
+完。
+
+NNAV_仅hash变化 接受 旧url、新url：
+    hashPos1 为 做 字符串查找 用 旧url、「#」。
+    hashPos2 为 做 字符串查找 用 新url、「#」。
+    base1 为 旧url。
+    base2 为 新url。
+    若 hashPos1 大于或等于 0：
+        base1 为 做 字符串子串 用 旧url、0、hashPos1。
+    完。
+    若 hashPos2 大于或等于 0：
+        base2 为 做 字符串子串 用 新url、0、hashPos2。
+    完。
+    返还 base1 等于 base2。
+完。
+
+NNAV_AI特征提取 接受 url：
+    tensor 为 做 Tensor_创建 用 8。
+    做 Tensor_写 用 tensor、0、做 字符串长度 用 url 除以 2048.0。
+    做 Tensor_写 用 tensor、1、NNAV_当前索引 除以 50.0。
+    若 NNAV_导航次数 大于 0：
+        做 Tensor_写 用 tensor、2、NNAV_BF缓存命中次数 除以 NNAV_导航次数。
+    完。
+    当前 为 做 NNAV_获取当前条目。
+    若 当前 不等于 0 并且 做 NNAV_同域检查 用 当前 的 url、url：
+        做 Tensor_写 用 tensor、3、1.0。
+    完。
+    做 Tensor_写 用 tensor、4、做 计数 用 NNAV_预取队列 除以 16.0。
+    返还 tensor。
+完。
+
+NNAV_同域检查 接受 url1、url2：
+    slash1 为 做 字符串查找 用 url1、「//」。
+    slash2 为 做 字符串查找 用 url2、「//」。
+    若 slash1 小于 0 或者 slash2 小于 0：
+        返还 假。
+    完。
+    end1 为 做 字符串查找 用 做 字符串子串 用 url1、slash1 加 2、做 字符串长度 用 url1 减 slash1 减 2、「/」。
+    end2 为 做 字符串查找 用 做 字符串子串 用 url2、slash2 加 2、做 字符串长度 用 url2 减 slash2 减 2、「/」。
+    host1 为 做 字符串子串 用 url1、0、slash1 加 2 加 end1。
+    host2 为 做 字符串子串 用 url2、0、slash2 加 2 加 end2。
+    返还 host1 等于 host2。
+完。
+
+NNAV_AI预测导航延迟 接受 url：
+    NNAV_AI预测次数 为 NNAV_AI预测次数 加 1。
+    若 NNAV_AI总线 等于 0：
+        返还 0。
+    完。
+    tensor 为 做 NNAV_AI特征提取 用 url。
+    结果 为 做 AI总线_推理 用 NNAV_AI总线、「nav_latency」、tensor。
+    延迟 为 做 Tensor_读 用 结果、0。
+    做 Tensor_释放 用 tensor。
+    做 Tensor_释放 用 结果。
+    返还 延迟。
+完。
+
+NNAV_初始化 接受 零参：
+    NNAV_BF缓存列表 为 一组：（空）。
+    NNAV_历史列表 为 一组：（空）。
+    NNAV_当前索引 为 负 1。
+    NNAV_预取队列 为 一组：（空）。
+    NNAV_导航次数 为 0。
+    NNAV_pushState次数 为 0。
+    NNAV_replaceState次数 为 0。
+    NNAV_hashchange次数 为 0。
+    NNAV_BF缓存存入次数 为 0。
+    NNAV_BF缓存命中次数 为 0。
+    NNAV_BF缓存恢复次数 为 0。
+    NNAV_预取次数 为 0。
+    NNAV_AI预测次数 为 0。
+    NNAV_AI总线 为 全局AI总线。
+    做 打印 用 「[NNAV] 导航流程引擎初始化完成」。
+完。
+
+NNAV_诊断报告 接受 零参：
+    做 打印 用 「[NNAV] === 导航诊断 ===」。
+    做 打印 用 「  导航=」 加 做 整数转字符串 用 NNAV_导航次数 加 「 push=」 加 做 整数转字符串 用 NNAV_pushState次数 加 「 replace=」 加 做 整数转字符串 用 NNAV_replaceState次数。
+    做 打印 用 「  hash=」 加 做 整数转字符串 用 NNAV_hashchange次数 加 「 历史条目=」 加 做 整数转字符串 用 做 计数 用 NNAV_历史列表。
+    做 打印 用 「  BF存=」 加 做 整数转字符串 用 NNAV_BF缓存存入次数 加 「 BF命中=」 加 做 整数转字符串 用 NNAV_BF缓存命中次数 加 「 BF恢复=」 加 做 整数转字符串 用 NNAV_BF缓存恢复次数。
+    做 打印 用 「  预取=」 加 做 整数转字符串 用 NNAV_预取次数 加 「 AI预测=」 加 做 整数转字符串 用 NNAV_AI预测次数。
+完。
+
+NNAV_NavigationEntry 是 一种 事物，含 id 为 0、url 为 「」、key 为 「」、index 为 0、sameDocument 为 假。
+
+可变 NNAV_下一个EntryID 为 1。
+
+NNAV_创建NavigationEntry 接受 url：
+    entry 为 新建 NNAV_NavigationEntry：id 为 NNAV_下一个EntryID、url 为 url、key 为 「」、index 为 NNAV_当前索引、sameDocument 为 假。
+    NNAV_下一个EntryID 为 NNAV_下一个EntryID 加 1。
+    返还 entry。
+完。
+
+NNAV_navigate 接受 url、状态、历史处理：
+    若 历史处理 等于 「push」：
+        做 NNAV_pushState 用 状态、「」、url。
+    否则若 历史处理 等于 「replace」：
+        做 NNAV_replaceState 用 状态、「」、url。
+    完。
+    返还 做 NNAV_创建NavigationEntry 用 url。
+完。
+
+NNAV_traverseTo 接受 key：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 NNAV_历史列表：
+        若 NNAV_历史列表 的 第 i 项 的 url 等于 key：
+            做 NNAV_go 用 i 减 NNAV_当前索引。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+NNAV_导航计时 是 一种 事物，含 导航开始 为 0、unload完成 为 0、网络请求开始 为 0、响应到达 为 0、DOM解析完成 为 0、页面加载完成 为 0。
+
+可变 NNAV_当前计时 为 0。
+
+NNAV_开始计时 接受 零参：
+    NNAV_当前计时 为 新建 NNAV_导航计时：导航开始 为 做 系统调用_时间戳、unload完成 为 0、网络请求开始 为 0、响应到达 为 0、DOM解析完成 为 0、页面加载完成 为 0。
+完。
+
+NNAV_记录时间点 接受 阶段：
+    若 NNAV_当前计时 等于 0：
+        返还。
+    完。
+    now 为 做 系统调用_时间戳。
+    若 阶段 等于 「unload」：
+        NNAV_当前计时 的 unload完成 为 now。
+    否则若 阶段 等于 「request」：
+        NNAV_当前计时 的 网络请求开始 为 now。
+    否则若 阶段 等于 「response」：
+        NNAV_当前计时 的 响应到达 为 now。
+    否则若 阶段 等于 「dom」：
+        NNAV_当前计时 的 DOM解析完成 为 now。
+    否则若 阶段 等于 「load」：
+        NNAV_当前计时 的 页面加载完成 为 now。
+    完。
+完。
+
+NNAV_获取总延迟 接受 零参：
+    若 NNAV_当前计时 等于 0：
+        返还 0。
+    完。
+    若 NNAV_当前计时 的 页面加载完成 等于 0：
+        返还 0。
+    完。
+    返还 NNAV_当前计时 的 页面加载完成 减 NNAV_当前计时 的 导航开始。
+完。
+
+NNAV_获取TTFB 接受 零参：
+    若 NNAV_当前计时 等于 0：
+        返还 0。
+    完。
+    若 NNAV_当前计时 的 响应到达 等于 0：
+        返还 0。
+    完。
+    返还 NNAV_当前计时 的 响应到达 减 NNAV_当前计时 的 导航开始。
+完。
+
+NAV_TYPE_NAVIGATE 为 0。
+
+NAV_TYPE_RELOAD 为 1。
+
+NAV_TYPE_BACK_FORWARD 为 2。
+
+NAV_TYPE_PRERENDER 为 3。
+
+NavigationRequest 是 一种 事物，含 url、类型、添加历史、method、headers、body、referrer、已提交、已完成、已取消。
+
+Navigation_导航 接受 浏览上下文、url、添加历史：
+    若 url 等于 0：
+        返还。
+    完。
+    req 为 做 堆_分配 用 NavigationRequest。
+    req 的 url 为 url。
+    req 的 类型 为 NAV_TYPE_NAVIGATE。
+    req 的 添加历史 为 添加历史。
+    req 的 method 为 「GET」。
+    req 的 已提交 为 假。
+    req 的 已完成 为 假。
+    req 的 已取消 为 假。
+    可以离开 为 做 Navigation_beforeunload检查。
+    若 非 可以离开：
+        req 的 已取消 为 真。
+        返还。
+    完。
+    若 浏览上下文 不等于 0：
+    完。
+    做 Navigation_unload。
+    req 的 已提交 为 真。
+    req 的 已完成 为 真。
+完。
+
+Navigation_beforeunload检查 接受 零参：
+    evt 为 做 事件_创建2 用 「beforeunload」、真、真。
+    evt 的 是可信的 为 真。
+    evt 的 returnValue 为 「」。
+    做 事件Target_dispatch事件 用 全局_window、evt。
+    若 evt 的 returnValue 不等于 「」 或者 evt 的 默认已阻止：
+        返还 做 平台_显示确认对话框 用 「此页面询问您是否要离开 — 您输入的信息可能不会被保存。」。
+    完。
+    返还 真。
+完。
+
+Navigation_unload 接受 零参：
+    evt 为 做 事件_创建2 用 「unload」、假、假。
+    evt 的 是可信的 为 真。
+    做 事件Target_dispatch事件 用 全局_window、evt。
+    做 Timer_清除所有。
+    做 取数_中止所有待处理。
+完。
+
+Navigation_hashchange 接受 旧URL、新URL：
+    evt 为 做 事件_创建2 用 「hashchange」、假、假。
+    evt 的 是可信的 为 真。
+完。
+
+本章 收束。

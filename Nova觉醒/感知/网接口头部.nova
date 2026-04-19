@@ -1,0 +1,157 @@
+《网接口头部》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·历史与位置接口》。
+
+请求模式_cors 为 0。
+
+请求模式_no_cors 为 1。
+
+请求模式_same_origin 为 2。
+
+请求模式_navigate 为 3。
+
+凭证_omit 为 0。
+
+凭证_same_origin 为 1。
+
+凭证_include 为 2。
+
+缓存_default 为 0。
+
+缓存_no_store 为 1。
+
+缓存_reload 为 2。
+
+缓存_no_cache 为 3。
+
+缓存_force_cache 为 4。
+
+重定向_follow 为 0。
+
+重定向_error 为 1。
+
+重定向_manual 为 2。
+
+取数Request 是 一种 事物，含 url、方法、头部、体、体长度、模式、凭证、缓存、重定向、信号、referrer。
+
+取数Response 是 一种 事物，含 状态码、状态文本、头部、体、体长度、类型、url、已重定向、ok。
+
+Headers 是 一种 事物，含 键、值、数量。
+
+Headers_创建 接受 零参：
+    h 为 做 堆_分配 用 Headers。
+    h 的 数量 为 0。
+    返还 h。
+完。
+
+Headers_set 接受 h、键、值：
+    若 h 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 h 的 数量：
+        若 做 字符串_相等_忽略大小写 用 h 的 键 的 第 i 项、键：
+            h 的 值 的 第 i 项 为 值。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 h 的 数量 小于 64：
+        h 的 键 的 第 h 的 数量 项 为 键。
+        h 的 值 的 第 h 的 数量 项 为 值。
+        h 的 数量 为 h 的 数量 加 1。
+    完。
+完。
+
+Headers_get 接受 h、键：
+    若 h 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 h 的 数量：
+        若 做 字符串_相等_忽略大小写 用 h 的 键 的 第 i 项、键：
+            返还 h 的 值 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Headers_has 接受 h、键：
+    返还 做 Headers_get 用 h、键 不等于 0。
+完。
+
+Headers_delete 接受 h、键：
+    若 h 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 h 的 数量：
+        若 做 字符串_相等_忽略大小写 用 h 的 键 的 第 i 项、键：
+            h 的 数量 为 h 的 数量 减 1。
+            h 的 键 的 第 i 项 为 h 的 键 的 第 h 的 数量 项。
+            h 的 值 的 第 i 项 为 h 的 值 的 第 h 的 数量 项。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+网接口_fetch 接受 Nova运行时实例、url、options：
+    req 为 做 堆_分配 用 取数Request。
+    req 的 url 为 url。
+    req 的 方法 为 若 options 不等于 0 则 做 选项_读字符串 用 options、「method」 否则 「GET」。
+    req 的 头部 为 若 options 不等于 0 则 做 选项_读对象 用 options、「headers」 否则 做 Headers_创建。
+    req 的 体 为 若 options 不等于 0 则 做 选项_读字符串 用 options、「body」 否则 0。
+    req 的 模式 为 请求模式_cors。
+    req 的 凭证 为 凭证_same_origin。
+    req 的 缓存 为 缓存_default。
+    req 的 重定向 为 重定向_follow。
+    promise 为 做 Nova_创建承诺 用 Nova运行时实例。
+    ipc数据 为 做 取数_序列化请求 用 req。
+    做 取数_注册回调 用 req、promise、Nova运行时实例。
+    返还 promise。
+完。
+
+Response_json 接受 resp：
+    若 resp 等于 0 或者 resp 的 体 等于 0：
+        返还 0。
+    完。
+    返还 做 序列_解析 用 resp 的 体、resp 的 体长度。
+完。
+
+Response_text 接受 resp：
+    若 resp 等于 0 或者 resp 的 体 等于 0：
+        返还 「」。
+    完。
+    返还 做 字符串_从内存 用 resp 的 体、resp 的 体长度。
+完。
+
+Response_arrayBuffer 接受 resp：
+    若 resp 等于 0：
+        返还 0。
+    完。
+    返还 resp 的 体。
+完。
+
+可变 AI_网接口头部_调用数 为 0。
+
+可变 AI_网接口头部_异常数 为 0。
+
+AI_网接口头部_监控 接受 零参：
+    AI_网接口头部_调用数 为 AI_网接口头部_调用数 加 1。
+    返还 AI_网接口头部_异常数 等于 0。
+完。
+
+AI_网接口头部_健康检查 接受 零参：
+    若 AI_网接口头部_调用数 大于 0 并且 AI_网接口头部_异常数 乘 100 除以 AI_网接口头部_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

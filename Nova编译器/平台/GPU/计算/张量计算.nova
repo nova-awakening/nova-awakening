@@ -1,0 +1,242 @@
+《张量计算》
+
+引用《..·内存·显存管理》。
+
+引用《..·内核编译·内核编译器》。
+
+引用《..·核心·设备管理》。
+
+引用《..·..·..·标准库·基础》。
+
+引用《..·..·..·运行时·解释器·VM_GPU内建》。
+
+精度_FP32 为 0。
+
+精度_FP16 为 1。
+
+精度_BF16 为 2。
+
+精度_FP64 为 3。
+
+精度_INT8 为 4。
+
+精度_TF32 为 5。
+
+布局_行优先 为 0。
+
+布局_列优先 为 1。
+
+布局_NHWC 为 2。
+
+布局_NCHW 为 3。
+
+张量计算_GPU张量_创建 接受 显存mgr、形状、精度：
+    可变 元素数 为 1。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 形状：
+        元素数 为 元素数 乘 形状 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    字节大小表 为 一组：4、2、2、8、1、4。
+    每元素字节 为 字节大小表 的 第 精度 项。
+    总字节 为 元素数 乘 每元素字节。
+    块 为 做 GPU显存_分配 用 显存mgr、总字节、GPU内存_设备。
+    若 块 等于 空：
+        返还 空。
+    完。
+    可变 步长 为 一组：（空）。
+    可变 stride 为 1。
+    i 为 做 计数 用 形状 减 1。
+    只要 i 大于或等于 0：
+        做 追加 用 步长、stride。
+        stride 为 stride 乘 形状 的 第 i 项。
+        i 为 i 减 1。
+    完。
+    可变 步长正序 为 一组：（空）。
+    i 为 做 计数 用 步长 减 1。
+    只要 i 大于或等于 0：
+        做 追加 用 步长正序、步长 的 第 i 项。
+        i 为 i 减 1。
+    完。
+    返还 一组：块、形状、步长正序、精度、布局_行优先、0、元素数、总字节。
+完。
+
+张量计算_GPU张量_形状 接受 t：
+    返还 t 的 第 1 项。
+完。
+
+GPU张量_精度 接受 t：
+    返还 t 的 第 3 项。
+完。
+
+张量计算_GPU张量_元素数 接受 t：
+    返还 t 的 第 6 项。
+完。
+
+GPU张量_指针 接受 t：
+    返还 做 GPU内存块_指针 用 t 的 第 0 项。
+完。
+
+GPU张量_字节 接受 t：
+    返还 t 的 第 7 项。
+完。
+
+GPU张量_上传 接受 显存mgr、张量、CPU数据：
+    返还 做 GPU显存_传输 用 显存mgr、做 GPU张量_指针 用 张量、CPU数据、做 GPU张量_字节 用 张量、GPU传输_主机到设备。
+完。
+
+GPU张量_下载 接受 显存mgr、张量、CPU缓冲：
+    返还 做 GPU显存_传输 用 显存mgr、CPU缓冲、做 GPU张量_指针 用 张量、做 GPU张量_字节 用 张量、GPU传输_设备到主机。
+完。
+
+GPU张量_释放 接受 显存mgr、张量：
+    做 GPU显存_释放 用 显存mgr、张量 的 第 0 项。
+完。
+
+GPU_加载BLAS 接受 厂商：
+    若 厂商 等于 GPU_厂商_NVIDIA：
+        lib 为 做 GPU_加载CUDA候选 用 一组：「cublas64_12.dll」、「libcublas.so.12」、「libcublas.so」。
+        返还 lib。
+    完。
+    若 厂商 等于 GPU_厂商_AMD：
+        lib 为 做 GPU_加载ROCm候选 用 一组：「rocblas.dll」、「librocblas.so」。
+        返还 lib。
+    完。
+    返还 0。
+完。
+
+GPU_通用矩阵乘 接受 gpu管理器、A、B、C、alpha、beta、转置A、转置B：
+    dev 为 做 GPU管理器_当前设备 用 gpu管理器。
+    blas_lib 为 做 GPU_加载BLAS 用 厂商。
+    若 blas_lib 等于 0：
+        返还 假。
+    完。
+    形状A 为 做 GPU张量_形状 用 A。
+    形状B 为 做 GPU张量_形状 用 B。
+    M 为 形状A 的 第 0 项。
+    K 为 形状A 的 第 1 项。
+    N 为 形状B 的 第 1 项。
+    若 厂商 等于 GPU_厂商_NVIDIA：
+        handle 为 做 外部调用 用 blas_lib、「cublasCreate_v2」、0、0、0、0、0。
+        可变 opA 为 0。
+        若 转置A：
+            opA 为 1。
+        完。
+        可变 opB 为 0。
+        若 转置B：
+            opB 为 1。
+        完。
+        若 做 GPU张量_精度 用 A 等于 精度_FP32：
+            做 外部调用 用 blas_lib、「cublasSgemm_v2」、handle、opA、opB、M、N、K、alpha、做 GPU张量_指针 用 A、K、做 GPU张量_指针 用 B、N、beta、做 GPU张量_指针 用 C、N。
+        否则若 做 GPU张量_精度 用 A 等于 精度_FP16：
+            做 外部调用 用 blas_lib、「cublasHgemm」、handle、opA、opB、M、N、K、alpha、做 GPU张量_指针 用 A、K、做 GPU张量_指针 用 B、N、beta、做 GPU张量_指针 用 C、N。
+        完。
+        做 外部调用 用 blas_lib、「cublasDestroy_v2」、handle、0、0、0、0。
+        返还 真。
+    完。
+    若 厂商 等于 GPU_厂商_AMD：
+        handle 为 做 外部调用 用 blas_lib、「rocblas_create_handle」、0、0、0、0、0。
+        可变 opA 为 111。
+        若 转置A：
+            opA 为 112。
+        完。
+        可变 opB 为 111。
+        若 转置B：
+            opB 为 112。
+        完。
+        做 外部调用 用 blas_lib、「rocblas_sgemm」、handle、opA、opB、M、N、K、alpha、做 GPU张量_指针 用 A、K、做 GPU张量_指针 用 B、N、beta、做 GPU张量_指针 用 C、N。
+        做 外部调用 用 blas_lib、「rocblas_destroy_handle」、handle、0、0、0、0。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+GPU_批量GEMM 接受 gpu管理器、A列、B列、C列、alpha、beta、批量数：
+    dev 为 做 GPU管理器_当前设备 用 gpu管理器。
+    blas_lib 为 做 GPU_加载BLAS 用 厂商。
+    若 blas_lib 等于 0：
+        返还 假。
+    完。
+    若 厂商 等于 GPU_厂商_NVIDIA：
+        handle 为 做 外部调用 用 blas_lib、「cublasCreate_v2」、0、0、0、0、0。
+        形状A 为 做 GPU张量_形状 用 A列 的 第 0 项。
+        M 为 形状A 的 第 0 项。
+        K 为 形状A 的 第 1 项。
+        N 为 做 GPU张量_形状 用 B列 的 第 0 项 的 第 1 项。
+        做 外部调用 用 blas_lib、「cublasSgemmStridedBatched」、handle、0、M、N、K、alpha、做 GPU张量_指针 用 A列 的 第 0 项、K、M 乘 K、做 GPU张量_指针 用 B列 的 第 0 项、N、K 乘 N、beta、做 GPU张量_指针 用 C列 的 第 0 项、N、M 乘 N、批量数。
+        做 外部调用 用 blas_lib、「cublasDestroy_v2」、handle、0、0、0、0。
+        返还 真。
+    完。
+    若 厂商 等于 GPU_厂商_AMD：
+        handle 为 做 外部调用 用 blas_lib、「rocblas_create_handle」、0、0、0、0、0。
+        形状A 为 做 GPU张量_形状 用 A列 的 第 0 项。
+        做 外部调用 用 blas_lib、「rocblas_sgemm_strided_batched」、handle、111、111、形状A 的 第 0 项、做 GPU张量_形状 用 B列 的 第 0 项 的 第 1 项、形状A 的 第 1 项、alpha、做 GPU张量_指针 用 A列 的 第 0 项、形状A 的 第 1 项、形状A 的 第 0 项 乘 形状A 的 第 1 项、做 GPU张量_指针 用 B列 的 第 0 项、做 GPU张量_形状 用 B列 的 第 0 项 的 第 1 项、形状A 的 第 1 项 乘 做 GPU张量_形状 用 B列 的 第 0 项 的 第 1 项、beta、做 GPU张量_指针 用 C列 的 第 0 项、做 GPU张量_形状 用 B列 的 第 0 项 的 第 1 项、形状A 的 第 0 项 乘 做 GPU张量_形状 用 B列 的 第 0 项 的 第 1 项、批量数。
+        做 外部调用 用 blas_lib、「rocblas_destroy_handle」、handle、0、0、0、0。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+GPU_激活_修正线性源码 为 「__global__ void relu(float* data, int n) { int i = blockIdx.x * blockDim.x + threadIdx.x; if(i < n) data[i] = data[i] > 0 ? data[i] : 0; }」。
+
+GPU_激活_GELU源码 为 「__global__ void gelu(float* data, int n) { int i = blockIdx.x * blockDim.x + threadIdx.x; if(i < n) { float x = data[i]; data[i] = 0.5f * x * (1.0f + tanhf(0.7978845608f * (x + 0.044715f * x * x * x))); } }」。
+
+GPU_softmax源码 为 「__global__ void softmax(float* data, int rows, int cols) { int row = blockIdx.x; extern __shared__ float shared[]; float maxval = -1e38f; for(int i = threadIdx.x; i < cols; i += blockDim.x) { float v = data[row*cols+i]; if(v > maxval) maxval = v; } shared[threadIdx.x] = maxval; __syncthreads(); maxval = shared[0]; for(int i=1; i<blockDim.x; i++) if(shared[i]>maxval) maxval=shared[i]; float sum = 0; for(int i = threadIdx.x; i < cols; i += blockDim.x) { data[row*cols+i] = expf(data[row*cols+i] - maxval); sum += data[row*cols+i]; } __syncthreads(); shared[threadIdx.x] = sum; __syncthreads(); sum = 0; for(int i=0; i<blockDim.x; i++) sum += shared[i]; for(int i = threadIdx.x; i < cols; i += blockDim.x) data[row*cols+i] /= sum; }」。
+
+GPU_归约_求和源码 为 「__global__ void reduce_sum(float* data, float* result, int n) { extern __shared__ float shared[]; int tid = threadIdx.x; int i = blockIdx.x * blockDim.x + threadIdx.x; shared[tid] = (i < n) ? data[i] : 0; __syncthreads(); for(int s = blockDim.x/2; s > 0; s >>= 1) { if(tid < s) shared[tid] += shared[tid+s]; __syncthreads(); } if(tid == 0) atomicAdd(result, shared[0]); }」。
+
+可变 GPU_内核缓存 为 做 字典。
+
+GPU_获取或编译内核 接受 gpu管理器、名称、源码：
+    缓存 为 做 字典获取 用 GPU_内核缓存、名称。
+    若 缓存 不等于 空 并且 做 GPU内核_就绪 用 缓存：
+        返还 缓存。
+    完。
+    内核 为 做 GPU内核_创建 用 名称、源码。
+    结果 为 做 GPU内核_编译 用 内核、gpu管理器、一组：（空）。
+    若 结果：
+        做 字典设置 用 GPU_内核缓存、名称、内核。
+    完。
+    返还 内核。
+完。
+
+GPU_线性整流 接受 gpu管理器、张量：
+    内核 为 做 GPU_获取或编译内核 用 gpu管理器、「relu」、GPU_激活_修正线性源码。
+    若 非 做 GPU内核_就绪 用 内核：
+        返还 假。
+    完。
+    n 为 做 GPU张量_元素数 用 张量。
+    block 为 一组：256、1、1。
+    grid 为 一组：(n 加 255) 除以 256、1、1。
+    返还 做 GPU内核_启动 用 内核、grid、block、一组：做 GPU张量_指针 用 张量、n、0、0。
+完。
+
+GPU_高斯误差线性 接受 gpu管理器、张量：
+    内核 为 做 GPU_获取或编译内核 用 gpu管理器、「gelu」、GPU_激活_GELU源码。
+    若 非 做 GPU内核_就绪 用 内核：
+        返还 假。
+    完。
+    n 为 做 GPU张量_元素数 用 张量。
+    返还 做 GPU内核_启动 用 内核、一组：(n 加 255) 除以 256、1、1、一组：256、1、1、一组：做 GPU张量_指针 用 张量、n、0、0。
+完。
+
+GPU_归一化指数 接受 gpu管理器、张量、行数、列数：
+    内核 为 做 GPU_获取或编译内核 用 gpu管理器、「softmax」、GPU_softmax源码。
+    若 非 做 GPU内核_就绪 用 内核：
+        返还 假。
+    完。
+    共享内存 为 256 乘 4。
+    返还 做 GPU内核_启动 用 内核、一组：行数、1、1、一组：256、1、1、一组：做 GPU张量_指针 用 张量、行数、列数、共享内存、0。
+完。
+
+GPU_归约求和 接受 gpu管理器、输入张量、结果张量：
+    内核 为 做 GPU_获取或编译内核 用 gpu管理器、「reduce_sum」、GPU_归约_求和源码。
+    若 非 做 GPU内核_就绪 用 内核：
+        返还 假。
+    完。
+    n 为 做 GPU张量_元素数 用 输入张量。
+    共享内存 为 256 乘 4。
+    返还 做 GPU内核_启动 用 内核、一组：(n 加 255) 除以 256、1、1、一组：256、1、1、一组：做 GPU张量_指针 用 输入张量、做 GPU张量_指针 用 结果张量、n、共享内存、0。
+完。
+
+本章 收束。

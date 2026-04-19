@@ -1,0 +1,130 @@
+《IDB对象存储》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·索引库键范围》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·索引库比较》。
+
+IDBObjectStore_插入记录 接受 store、键、值：
+    若 store 的 记录数量 大于或等于 store 的 记录容量：
+        返还。
+    完。
+    可变 插入位 为 store 的 记录数量。
+    可变 i 为 0。
+    只要 i 小于 store 的 记录数量：
+        偏移 为 store 的 记录列表 加 i 乘 16。
+        若 做 IDB_比较键 用 做 内存_读64 用 偏移、键 大于 0：
+            插入位 为 i。
+            跳出。
+        完。
+        i 为 i 加 1。
+    完。
+    i 为 store 的 记录数量。
+    只要 i 大于 插入位：
+        src 为 store 的 记录列表 加 (i 减 1) 乘 16。
+        dst 为 store 的 记录列表 加 i 乘 16。
+        做 内存_写64 用 dst、做 内存_读64 用 src。
+        做 内存_写64 用 dst 加 8、做 内存_读64 用 src 加 8。
+        i 为 i 减 1。
+    完。
+    偏移 为 store 的 记录列表 加 插入位 乘 16。
+    做 内存_写64 用 偏移、键。
+    做 内存_写64 用 偏移 加 8、值。
+    store 的 记录数量 为 store 的 记录数量 加 1。
+完。
+
+IDBObjectStore_更新索引 接受 store、键、值：
+    可变 i 为 0。
+    只要 i 小于 store 的 索引数量：
+        idx 为 做 内存_读64 用 store 的 索引列表 加 i 乘 8。
+        若 idx 不等于 0：
+            索引键 为 做 IDB_提取键 用 值、idx 的 键路径。
+            若 索引键 不等于 0 并且 idx 的 条目数量 小于 idx 的 条目容量：
+                偏移 为 idx 的 条目列表 加 idx 的 条目数量 乘 16。
+                做 内存_写64 用 偏移、索引键。
+                做 内存_写64 用 偏移 加 8、键。
+                idx 的 条目数量 为 idx 的 条目数量 加 1。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+IDB_TX_READONLY 为 0。
+
+IDB_TX_READWRITE 为 1。
+
+IDB_TX_VERSIONCHANGE 为 2。
+
+IDB_TX_ACTIVE 为 0。
+
+IDB_TX_INACTIVE 为 1。
+
+IDB_TX_COMMITTING 为 2。
+
+IDB_TX_FINISHED 为 3。
+
+IDBTransaction 是 一种 事物，含 模式、状态、数据库、存储名列表、存储名数量、请求队列、请求数量、oncomplete、onerror、onabort、错误。
+
+IDBDatabase_transaction 接受 db、存储名、模式：
+    若 db 等于 0 或者 db 的 已关闭：
+        返还 0。
+    完。
+    tx 为 做 堆_分配 用 IDBTransaction。
+    若 模式 等于 0：
+        tx 的 模式 为 IDB_TX_READONLY。
+    否则若 做 字符串_相等 用 模式、「readwrite」：
+        tx 的 模式 为 IDB_TX_READWRITE。
+    否则：
+        tx 的 模式 为 IDB_TX_READONLY。
+    完。
+    tx 的 状态 为 IDB_TX_ACTIVE。
+    tx 的 数据库 为 db。
+    tx 的 oncomplete 为 0。
+    tx 的 onerror 为 0。
+    tx 的 onabort 为 0。
+    tx 的 错误 为 0。
+    返还 tx。
+完。
+
+IDBTransaction_objectStore 接受 tx、名称：
+    若 tx 等于 0 或者 tx 的 数据库 等于 0：
+        返还 0。
+    完。
+    db 为 tx 的 数据库。
+    可变 i 为 0。
+    只要 i 小于 db 的 存储数量：
+        store 为 做 内存_读64 用 db 的 存储列表 加 i 乘 8。
+        若 store 不等于 0 并且 做 字符串_相等 用 store 的 名称、名称：
+            返还 store。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+IDBTransaction_commit 接受 tx：
+    若 tx 等于 0：
+        返还。
+    完。
+    tx 的 状态 为 IDB_TX_COMMITTING。
+    tx 的 状态 为 IDB_TX_FINISHED。
+    若 tx 的 oncomplete 不等于 0：
+    完。
+完。
+
+IDBTransaction_abort 接受 tx：
+    若 tx 等于 0：
+        返还。
+    完。
+    tx 的 状态 为 IDB_TX_FINISHED。
+    若 tx 的 onabort 不等于 0：
+    完。
+完。
+
+本章 收束。

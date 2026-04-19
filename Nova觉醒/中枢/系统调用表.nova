@@ -1,0 +1,608 @@
+《系统调用表》
+
+引用《.·错误码》。
+
+引用《.·日志中枢》。
+
+引用《.·整数转字符串》。
+
+引用《.·AI系统调用》。
+
+引用《.·内核打印》。
+
+引用《.·时钟中枢》。
+
+SYS_read 为 0。
+
+SYS_write 为 1。
+
+SYS_open 为 2。
+
+SYS_close 为 3。
+
+SYS_stat 为 4。
+
+SYS_fstat 为 5。
+
+SYS_lstat 为 6。
+
+SYS_poll 为 7。
+
+SYS_lseek 为 8。
+
+SYS_Nova内存映射 为 9。
+
+SYS_mprotect 为 10。
+
+SYS_munmap 为 11。
+
+SYS_brk 为 12。
+
+SYS_Nova设备控制 为 16。
+
+SYS_pread64 为 17。
+
+SYS_pwrite64 为 18。
+
+SYS_readv 为 19。
+
+SYS_writev 为 20。
+
+SYS_access 为 21。
+
+SYS_pipe 为 22。
+
+SYS_dup 为 32。
+
+SYS_dup2 为 33。
+
+SYS_rename 为 82。
+
+SYS_mkdir 为 83。
+
+SYS_rmdir 为 84。
+
+SYS_creat 为 85。
+
+SYS_link 为 86。
+
+SYS_unlink 为 87。
+
+SYS_symlink 为 88。
+
+SYS_readlink 为 89。
+
+SYS_chmod 为 90。
+
+SYS_chown 为 92。
+
+SYS_chdir 为 80。
+
+SYS_fchdir 为 81。
+
+SYS_getcwd 为 79。
+
+SYS_getdents64 为 217。
+
+SYS_fcntl 为 72。
+
+SYS_flock 为 73。
+
+SYS_fsync 为 74。
+
+SYS_truncate 为 76。
+
+SYS_ftruncate 为 77。
+
+SYS_getpid 为 39。
+
+SYS_clone 为 56。
+
+SYS_fork 为 57。
+
+SYS_vfork 为 58。
+
+SYS_execve 为 59。
+
+SYS_exit 为 60。
+
+SYS_wait4 为 61。
+
+SYS_kill 为 62。
+
+SYS_getppid 为 110。
+
+SYS_getuid 为 102。
+
+SYS_getgid 为 104。
+
+SYS_geteuid 为 107。
+
+SYS_getegid 为 108。
+
+SYS_setuid 为 105。
+
+SYS_setgid 为 106。
+
+SYS_setsid 为 112。
+
+SYS_getpgid 为 121。
+
+SYS_setpgid 为 109。
+
+SYS_exit_group 为 231。
+
+SYS_rt_sigaction 为 13。
+
+SYS_rt_sigprocmask 为 14。
+
+SYS_rt_sigreturn 为 15。
+
+SYS_sigaltstack 为 131。
+
+SYS_madvise 为 28。
+
+SYS_shmget 为 29。
+
+SYS_shmat 为 30。
+
+SYS_socket 为 41。
+
+SYS_connect 为 42。
+
+SYS_accept 为 43。
+
+SYS_sendto 为 44。
+
+SYS_recvfrom 为 45。
+
+SYS_sendmsg 为 46。
+
+SYS_recvmsg 为 47。
+
+SYS_shutdown 为 48。
+
+SYS_bind 为 49。
+
+SYS_listen 为 50。
+
+SYS_getsockname 为 51。
+
+SYS_getpeername 为 52。
+
+SYS_setsockopt 为 54。
+
+SYS_getsockopt 为 55。
+
+SYS_gettimeofday 为 96。
+
+SYS_nanosleep 为 35。
+
+SYS_clock_gettime 为 228。
+
+SYS_uname 为 63。
+
+SYS_sysinfo 为 99。
+
+SYS_openat 为 257。
+
+SYS_pipe2 为 293。
+
+SYS_dup3 为 292。
+
+SYS_Nova事件轮询_创建1 为 291。
+
+SYS_Nova事件轮询_ctl 为 233。
+
+SYS_Nova事件轮询_wait 为 232。
+
+最大系统调用 为 512。
+
+可变 系统调用表 为 一组：（空）。
+
+可变 系统调用计数 为 一组：（空）。
+
+可变 系统调用_总次数 为 0。
+
+可变 系统调用_总计数 为 0。
+
+可变 系统调用_未注册次数 为 0。
+
+系统调用_ENOSYS 为 0 减 38。
+
+系统调用表_初始化 接受 零参：
+    系统调用表 为 一组：（空）。
+    系统调用计数 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 最大系统调用：
+        做 追加 用 系统调用表、空。
+        做 追加 用 系统调用计数、0。
+        i 为 i 加 1。
+    完。
+    做 内核信息 用 「系统调用表初始化 (512项, 兼容Linux x86-64)」。
+完。
+
+系统调用_注册 接受 号、处理函数：
+    若 号 大于或等于 0 并且 号 小于 最大系统调用：
+        做 设置 用 系统调用表、号、处理函数。
+    完。
+完。
+
+系统调用_分发_表 接受 号、参数1、参数2、参数3、参数4、参数5、参数6：
+    若 号 小于 0 或者 号 大于或等于 最大系统调用：
+        返还 系统调用_ENOSYS。
+    完。
+    处理函数 为 系统调用表 的 第 号 项。
+    若 处理函数 等于 空：
+        系统调用_未注册次数 为 系统调用_未注册次数 加 1。
+        返还 系统调用_ENOSYS。
+    完。
+    系统调用_总次数 为 系统调用_总次数 加 1。
+    系统调用_总计数 为 系统调用_总次数。
+    做 设置 用 系统调用计数、号、系统调用计数 的 第 号 项 加 1。
+    返还 做 处理函数 用 参数1、参数2、参数3、参数4、参数5、参数6。
+完。
+
+系统调用_注册全部_表 接受 零参：
+    做 系统调用_注册 用 SYS_read、sys_read。
+    做 系统调用_注册 用 SYS_write、sys_write。
+    做 系统调用_注册 用 SYS_open、sys_open。
+    做 系统调用_注册 用 SYS_close、sys_close。
+    做 系统调用_注册 用 SYS_stat、sys_stat。
+    做 系统调用_注册 用 SYS_fstat、sys_fstat。
+    做 系统调用_注册 用 SYS_lstat、sys_lstat。
+    做 系统调用_注册 用 SYS_lseek、sys_lseek。
+    做 系统调用_注册 用 SYS_Nova设备控制、sys_Nova设备控制。
+    做 系统调用_注册 用 SYS_dup、sys_dup。
+    做 系统调用_注册 用 SYS_dup2、sys_dup2。
+    做 系统调用_注册 用 SYS_dup3、sys_dup3。
+    做 系统调用_注册 用 SYS_pipe、sys_pipe。
+    做 系统调用_注册 用 SYS_pipe2、sys_pipe2。
+    做 系统调用_注册 用 SYS_fcntl、sys_fcntl。
+    做 系统调用_注册 用 SYS_flock、sys_flock。
+    做 系统调用_注册 用 SYS_fsync、sys_fsync。
+    做 系统调用_注册 用 SYS_truncate、sys_truncate。
+    做 系统调用_注册 用 SYS_ftruncate、sys_ftruncate。
+    做 系统调用_注册 用 SYS_getdents64、sys_getdents64。
+    做 系统调用_注册 用 SYS_openat、sys_openat。
+    做 系统调用_注册 用 SYS_access、sys_access。
+    做 系统调用_注册 用 SYS_mkdir、sys_mkdir。
+    做 系统调用_注册 用 SYS_rmdir、sys_rmdir。
+    做 系统调用_注册 用 SYS_creat、sys_creat。
+    做 系统调用_注册 用 SYS_unlink、sys_unlink。
+    做 系统调用_注册 用 SYS_link、sys_link。
+    做 系统调用_注册 用 SYS_symlink、sys_symlink。
+    做 系统调用_注册 用 SYS_readlink、sys_readlink。
+    做 系统调用_注册 用 SYS_rename、sys_rename。
+    做 系统调用_注册 用 SYS_chmod、sys_chmod。
+    做 系统调用_注册 用 SYS_chown、sys_chown。
+    做 系统调用_注册 用 SYS_chdir、sys_chdir。
+    做 系统调用_注册 用 SYS_getcwd、sys_getcwd。
+    做 系统调用_注册 用 SYS_getpid、sys_getpid。
+    做 系统调用_注册 用 SYS_getppid、sys_getppid。
+    做 系统调用_注册 用 SYS_getuid、sys_getuid。
+    做 系统调用_注册 用 SYS_getgid、sys_getgid。
+    做 系统调用_注册 用 SYS_geteuid、sys_geteuid。
+    做 系统调用_注册 用 SYS_getegid、sys_getegid。
+    做 系统调用_注册 用 SYS_fork、sys_fork。
+    做 系统调用_注册 用 SYS_vfork、sys_vfork。
+    做 系统调用_注册 用 SYS_clone、sys_clone。
+    做 系统调用_注册 用 SYS_execve、sys_execve。
+    做 系统调用_注册 用 SYS_exit、sys_exit。
+    做 系统调用_注册 用 SYS_exit_group、sys_exit_group。
+    做 系统调用_注册 用 SYS_wait4、sys_wait4。
+    做 系统调用_注册 用 SYS_setpgid、sys_setpgid。
+    做 系统调用_注册 用 SYS_getpgid、sys_getpgid。
+    做 系统调用_注册 用 SYS_setsid、sys_setsid。
+    做 系统调用_注册 用 SYS_kill、sys_kill。
+    做 系统调用_注册 用 SYS_rt_sigaction、sys_rt_sigaction。
+    做 系统调用_注册 用 SYS_rt_sigprocmask、sys_rt_sigprocmask。
+    做 系统调用_注册 用 SYS_brk、sys_brk。
+    做 系统调用_注册 用 SYS_Nova内存映射、sys_Nova内存映射。
+    做 系统调用_注册 用 SYS_munmap、sys_munmap。
+    做 系统调用_注册 用 SYS_mprotect、sys_mprotect。
+    做 系统调用_注册 用 SYS_socket、sys_socket。
+    做 系统调用_注册 用 SYS_bind、sys_bind。
+    做 系统调用_注册 用 SYS_listen、sys_listen。
+    做 系统调用_注册 用 SYS_accept、sys_accept。
+    做 系统调用_注册 用 SYS_connect、sys_connect。
+    做 系统调用_注册 用 SYS_sendto、sys_sendto。
+    做 系统调用_注册 用 SYS_recvfrom、sys_recvfrom。
+    做 系统调用_注册 用 SYS_shutdown、sys_shutdown。
+    做 系统调用_注册 用 SYS_Nova事件轮询_创建1、sys_epoll_create1。
+    做 系统调用_注册 用 SYS_Nova事件轮询_ctl、sys_epoll_ctl。
+    做 系统调用_注册 用 SYS_Nova事件轮询_wait、sys_epoll_wait。
+    做 系统调用_注册 用 SYS_gettimeofday、sys_gettimeofday。
+    做 系统调用_注册 用 SYS_nanosleep、sys_nanosleep。
+    做 系统调用_注册 用 SYS_clock_gettime、sys_clock_gettime。
+    做 系统调用_注册 用 SYS_uname、sys_uname。
+    做 系统调用_注册 用 SYS_sysinfo、sys_sysinfo。
+    做 注册AI系统调用。
+    做 内核信息数值 用 「系统调用注册完成, 已注册」、做 系统调用_已注册数。
+完。
+
+系统调用_已注册数 接受 零参：
+    可变 数 为 0。
+    可变 i 为 0。
+    只要 i 小于 最大系统调用：
+        若 系统调用表 的 第 i 项 不等于 空：
+            数 为 数 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 数。
+完。
+
+系统调用_统计_表 接受 零参：
+    返还 一组：系统调用_总次数、系统调用_未注册次数、做 系统调用_已注册数。
+完。
+
+可变 系统调用_耗时 为 一组：（空）。
+
+可变 系统调用_最大耗时 为 一组：（空）。
+
+系统调用_耗时初始化 接受 零参：
+    系统调用_耗时 为 一组：（空）。
+    系统调用_最大耗时 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 最大系统调用：
+        做 追加 用 系统调用_耗时、0。
+        做 追加 用 系统调用_最大耗时、0。
+        i 为 i 加 1。
+    完。
+完。
+
+系统调用_记录耗时 接受 号、耗时_ns：
+    若 号 大于或等于 0 并且 号 小于 最大系统调用：
+        做 设置 用 系统调用_耗时、号、系统调用_耗时 的 第 号 项 加 耗时_ns。
+        若 耗时_ns 大于 系统调用_最大耗时 的 第 号 项：
+            做 设置 用 系统调用_最大耗时、号、耗时_ns。
+        完。
+    完。
+完。
+
+系统调用_平均耗时 接受 号：
+    若 号 小于 0 或者 号 大于或等于 最大系统调用：
+        返还 0。
+    完。
+    若 系统调用计数 的 第 号 项 等于 0：
+        返还 0。
+    完。
+    返还 系统调用_耗时 的 第 号 项 除以 系统调用计数 的 第 号 项。
+完。
+
+审计缓冲大小 为 128。
+
+可变 审计_缓冲 为 一组：（空）。
+
+可变 审计_头 为 0。
+
+可变 审计_启用 为 假。
+
+可变 审计_总数 为 0。
+
+系统调用_审计初始化 接受 零参：
+    审计_缓冲 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 审计缓冲大小 乘 4：
+        做 追加 用 审计_缓冲、0。
+        i 为 i 加 1。
+    完。
+    审计_头 为 0。
+    审计_启用 为 真。
+完。
+
+系统调用_审计记录 接受 号、pid、结果：
+    若 非 审计_启用：
+        返还。
+    完。
+    若 号 不等于 SYS_execve 并且 号 不等于 SYS_kill 并且 号 不等于 SYS_setuid 并且 号 不等于 SYS_setgid 并且 号 不等于 SYS_clone 并且 号 不等于 SYS_unlink：
+        返还。
+    完。
+    base 为 审计_头 取余于 审计缓冲大小 乘 4。
+    做 设置 用 审计_缓冲、base、号。
+    做 设置 用 审计_缓冲、base 加 1、pid。
+    做 设置 用 审计_缓冲、base 加 2、系统调用_总次数。
+    做 设置 用 审计_缓冲、base 加 3、结果。
+    审计_头 为 审计_头 加 1。
+    审计_总数 为 审计_总数 加 1。
+完。
+
+SECCOMP_允许 为 0。
+
+SECCOMP_拒绝 为 1。
+
+SECCOMP_日志 为 2。
+
+可变 seccomp_启用 为 假。
+
+可变 seccomp_规则 为 一组：（空）。
+
+可变 seccomp_拒绝数 为 0。
+
+seccomp_初始化 接受 零参：
+    seccomp_规则 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 最大系统调用：
+        做 追加 用 seccomp_规则、SECCOMP_允许。
+        i 为 i 加 1。
+    完。
+    seccomp_启用 为 真。
+完。
+
+seccomp_设置规则 接受 号、策略：
+    若 号 大于或等于 0 并且 号 小于 最大系统调用：
+        做 设置 用 seccomp_规则、号、策略。
+    完。
+完。
+
+seccomp_检查 接受 号：
+    若 非 seccomp_启用：
+        返还 SECCOMP_允许。
+    完。
+    若 号 小于 0 或者 号 大于或等于 最大系统调用：
+        返还 SECCOMP_拒绝。
+    完。
+    策略 为 seccomp_规则 的 第 号 项。
+    若 策略 等于 SECCOMP_拒绝：
+        seccomp_拒绝数 为 seccomp_拒绝数 加 1。
+    完。
+    返还 策略。
+完。
+
+可变 速率_窗口开始 为 0。
+
+可变 速率_窗口计数 为 0。
+
+可变 速率_限制 为 100000。
+
+可变 速率_窗口_ms 为 1000。
+
+可变 速率_被限次数 为 0。
+
+系统调用_速率检查 接受 零参：
+    现在 为 做 读取毫秒。
+    若 现在 减 速率_窗口开始 大于或等于 速率_窗口_ms：
+        速率_窗口开始 为 现在。
+        速率_窗口计数 为 0。
+    完。
+    速率_窗口计数 为 速率_窗口计数 加 1。
+    若 速率_窗口计数 大于 速率_限制：
+        速率_被限次数 为 速率_被限次数 加 1。
+        返还 假。
+    完。
+    返还 真。
+完。
+
+系统调用_热点Top5 接受 零参：
+    可变 top 为 一组：0、0、0、0、0。
+    可变 top值 为 一组：0、0、0、0、0。
+    可变 i 为 0。
+    只要 i 小于 最大系统调用：
+        若 系统调用计数 的 第 i 项 大于 top值 的 第 4 项：
+            可变 j 为 4。
+            只要 j 大于 0 并且 系统调用计数 的 第 i 项 大于 top值 的 第 j 减 1 项：
+                j 为 j 减 1。
+            完。
+            可变 k 为 4。
+            只要 k 大于 j：
+                top 的 第 k 项 为 top 的 第 k 减 1 项。
+                top值 的 第 k 项 为 top值 的 第 k 减 1 项。
+                k 为 k 减 1。
+            完。
+            top 的 第 j 项 为 i。
+            top值 的 第 j 项 为 系统调用计数 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 一组：top、top值。
+完。
+
+系统调用表_完整统计 接受 零参：
+    返还 一本字典：总调用数 对应 系统调用_总次数、未注册 对应 系统调用_未注册次数、已注册 对应 做 系统调用_已注册数、审计总数 对应 审计_总数、seccomp拒绝 对应 seccomp_拒绝数、被限速次数 对应 速率_被限次数。
+完。
+
+系统调用_重置统计 接受 零参：
+    系统调用_总次数 为 0。
+    系统调用_未注册次数 为 0。
+    审计_总数 为 0。
+    seccomp_拒绝数 为 0。
+    速率_被限次数 为 0。
+    速率_窗口计数 为 0。
+    可变 i 为 0。
+    只要 i 小于 最大系统调用：
+        系统调用计数 的 第 i 项 为 0。
+        i 为 i 加 1。
+    完。
+完。
+
+系统调用_获取总数 接受 零参：
+    返还 系统调用_总次数。
+完。
+
+系统调用_获取未注册数 接受 零参：
+    返还 系统调用_未注册次数。
+完。
+
+系统调用_获取审计数 接受 零参：
+    返还 审计_总数。
+完。
+
+系统调用_获取拒绝数 接受 零参：
+    返还 seccomp_拒绝数。
+完。
+
+系统调用_获取限速数 接受 零参：
+    返还 速率_被限次数。
+完。
+
+系统调用_健康检查 接受 零参：
+    可变 问题 为 0。
+    若 系统调用_总次数 大于 100：
+        未注册率 为 系统调用_未注册次数 乘 100 除以 系统调用_总次数。
+        若 未注册率 大于 20：
+            问题 为 问题 加 1。
+        完。
+    完。
+    若 seccomp_拒绝数 大于 系统调用_总次数 除以 10：
+        问题 为 问题 加 1。
+    完。
+    若 速率_被限次数 大于 100：
+        问题 为 问题 加 1。
+    完。
+    返还 问题 等于 0。
+完。
+
+系统调用_打印统计 接受 零参：
+    做 打印行 用 「=== 系统调用表统计 ===」。
+    做 打印行 用 「总调用: 」 加 做 整数转字符串 用 系统调用_总次数。
+    做 打印行 用 「未注册: 」 加 做 整数转字符串 用 系统调用_未注册次数。
+    做 打印行 用 「已注册: 」 加 做 整数转字符串 用 做 系统调用_已注册数。
+    做 打印行 用 「审计: 」 加 做 整数转字符串 用 审计_总数。
+    做 打印行 用 「seccomp拒绝: 」 加 做 整数转字符串 用 seccomp_拒绝数。
+    做 打印行 用 「限速: 」 加 做 整数转字符串 用 速率_被限次数。
+完。
+
+系统调用表_统计 接受 零参：
+    返还 一本字典：系统调用计数 对应 做 计数 用 系统调用计数、系统调用总次数 对应 系统调用_总次数、系统调用总计数 对应 系统调用_总计数、系统调用未注册次数 对应 系统调用_未注册次数、审计总数 对应 审计_总数、速率窗口计数 对应 速率_窗口计数、速率被限次数 对应 速率_被限次数。
+完。
+
+系统调用表_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 系统调用_总次数 大于 100 并且 系统调用_未注册次数 乘 100 除以 系统调用_总次数 大于 5：
+        做 追加 用 问题、「未注册系统调用比例过高」。
+    完。
+    若 速率_窗口计数 大于 100 并且 速率_被限次数 乘 100 除以 速率_窗口计数 大于 20：
+        做 追加 用 问题、「系统调用速率限制触发频繁」。
+    完。
+    若 做 计数 用 审计_缓冲 大于 10000：
+        做 追加 用 问题、「审计缓冲膨胀」。
+    完。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+系统调用表_综合报告 接受 零参：
+    做 打印 用 「[系统调用表] ═══ 综合报告 ═══」。
+    做 打印 用 「  系统调用计数: 」 加 做 整数转字符串 用 做 计数 用 系统调用计数。
+    做 打印 用 「  系统调用_总次数: 」 加 做 整数转字符串 用 系统调用_总次数。
+    做 打印 用 「  系统调用_总计数: 」 加 做 整数转字符串 用 系统调用_总计数。
+    做 打印 用 「  系统调用_未注册次数: 」 加 做 整数转字符串 用 系统调用_未注册次数。
+    做 打印 用 「  审计_总数: 」 加 做 整数转字符串 用 审计_总数。
+    做 打印 用 「  速率_窗口计数: 」 加 做 整数转字符串 用 速率_窗口计数。
+    做 打印 用 「  速率_被限次数: 」 加 做 整数转字符串 用 速率_被限次数。
+    做 打印 用 「  健康: 」 加 若 做 系统调用表_健康评估 则 「正常」 否则 「异常」。
+完。
+
+系统调用表_全局重置 接受 零参：
+    系统调用计数 为 一组：（空）。
+    系统调用_总次数 为 0。
+    系统调用_总计数 为 0。
+    系统调用_未注册次数 为 0。
+    审计_总数 为 0。
+    速率_窗口计数 为 0。
+    速率_被限次数 为 0。
+    做 打印 用 「[系统调用表] 统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

@@ -1,0 +1,112 @@
+《基址重定位》
+
+引用《..·中枢·内核打印》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·整数转字符串》。
+
+PE_重定位 接受 模块：
+    差值 为 模块 的 基地址 减 模块 的 首选基址。
+    若 差值 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 模块 的 节列表：
+        若 模块 的 节列表 的 第 i 项 的 名称 等于 「.reloc」：
+            reloc_addr 为 模块 的 基地址 加 模块 的 节列表 的 第 i 项 的 虚拟地址。
+            reloc_size 为 模块 的 节列表 的 第 i 项 的 虚拟大小。
+            做 PE_应用重定位 用 模块、reloc_addr、reloc_size、差值。
+            模块 的 已重定位 为 真。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+PE_应用重定位 接受 模块、reloc_addr、reloc_size、差值：
+    可变 偏移 为 0。
+    只要 偏移 小于 reloc_size：
+        块_rva 为 做 内存读32 用 reloc_addr 加 偏移。
+        块_大小 为 做 内存读32 用 reloc_addr 加 偏移 加 4。
+        若 块_大小 等于 0：
+            跳出。
+        完。
+        条目数 为 (块_大小 减 8) 除以 2。
+        可变 j 为 0。
+        只要 j 小于 条目数：
+            entry 为 做 内存读16 用 reloc_addr 加 偏移 加 8 加 j 乘 2。
+            类型 为 entry 右移 12 位与 0xF。
+            offset 为 entry 位与 0xFFF。
+            修补地址 为 模块 的 基地址 加 块_rva 加 offset。
+            若 类型 等于 IMAGE_REL_BASED_DIR64：
+                原值 为 做 内存读64 用 修补地址。
+                做 内存写64 用 修补地址、原值 加 差值。
+            否则若 类型 等于 IMAGE_REL_BASED_HIGHLOW：
+                原值 为 做 内存读32 用 修补地址。
+                做 内存写32 用 修补地址、原值 加 差值。
+            完。
+            j 为 j 加 1。
+        完。
+        偏移 为 偏移 加 块_大小。
+    完。
+完。
+
+PE_处理导入 接受 模块：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 模块 的 节列表：
+        若 模块 的 节列表 的 第 i 项 的 名称 等于 「.idata」 或者 模块 的 节列表 的 第 i 项 的 名称 等于 「.rdata」：
+        完。
+        i 为 i 加 1。
+    完。
+    做 内核调试 用 「Win32: 处理导入表 」 加 模块 的 名称。
+完。
+
+可变 kernel32_接口表 为 一组：（空）。
+
+注册_内置DLL_kernel32 接受 零参：
+    dll 为 新建 PE模块。
+    dll 的 名称 为 「kernel32.dll」。
+    dll 的 是DLL 为 真。
+    dll 的 基地址 为 Win32_DLL_基址。
+    Win32_DLL_基址 为 Win32_DLL_基址 加 0x100000。
+    dll 的 导出表 为 一组：（空）。
+    做 追加 用 dll 的 导出表、一组：「GetCurrentProcess」、win32_GetCurrentProcess。
+    做 追加 用 dll 的 导出表、一组：「GetCurrentThread」、win32_GetCurrentThread。
+    做 追加 用 dll 的 导出表、一组：「GetCurrentProcessId」、win32_GetCurrentProcessId。
+    做 追加 用 dll 的 导出表、一组：「GetCurrentThreadId」、win32_GetCurrentThreadId。
+    做 追加 用 dll 的 导出表、一组：「ExitProcess」、win32_ExitProcess。
+    做 追加 用 dll 的 导出表、一组：「ExitThread」、win32_ExitThread。
+    做 追加 用 dll 的 导出表、一组：「CreateThread」、win32_CreateThread。
+    做 追加 用 dll 的 导出表、一组：「Sleep」、win32_Sleep。
+    做 追加 用 dll 的 导出表、一组：「SleepEx」、win32_SleepEx。
+    做 追加 用 dll 的 导出表、一组：「VirtualAlloc」、win32_VirtualAlloc。
+    做 追加 用 dll 的 导出表、一组：「VirtualFree」、win32_VirtualFree。
+    做 追加 用 dll 的 导出表、一组：「GetProcessHeap」、win32_GetProcessHeap。
+    做 追加 用 dll 的 导出表、一组：「HeapAlloc」、win32_HeapAlloc。
+    做 追加 用 dll 的 导出表、一组：「HeapFree」、win32_HeapFree。
+    做 追加 用 dll 的 导出表、一组：「CreateFileW」、win32_CreateFileW。
+    做 追加 用 dll 的 导出表、一组：「ReadFile」、win32_ReadFile。
+    做 追加 用 dll 的 导出表、一组：「WriteFile」、win32_WriteFile。
+    做 追加 用 dll 的 导出表、一组：「CloseHandle」、win32_CloseHandle。
+    做 追加 用 dll 的 导出表、一组：「GetFileSize」、win32_GetFileSize。
+    做 追加 用 dll 的 导出表、一组：「GetStdHandle」、win32_GetStdHandle。
+    做 追加 用 dll 的 导出表、一组：「WriteConsoleW」、win32_WriteConsoleW。
+    做 追加 用 dll 的 导出表、一组：「ReadConsoleW」、win32_ReadConsoleW。
+    做 追加 用 dll 的 导出表、一组：「SetConsoleMode」、win32_SetConsoleMode。
+    做 追加 用 dll 的 导出表、一组：「Get模块HandleW」、win32_Get模块HandleW。
+    做 追加 用 dll 的 导出表、一组：「LoadLibraryW」、win32_LoadLibraryW。
+    做 追加 用 dll 的 导出表、一组：「GetProcAddress」、win32_GetProcAddress。
+    做 追加 用 dll 的 导出表、一组：「FreeLibrary」、win32_FreeLibrary。
+    做 追加 用 dll 的 导出表、一组：「GetLast错误」、win32_GetLast错误。
+    做 追加 用 dll 的 导出表、一组：「SetLast错误」、win32_SetLast错误。
+    做 追加 用 dll 的 导出表、一组：「GetCommandLineW」、win32_GetCommandLineW。
+    做 追加 用 dll 的 导出表、一组：「GetEnvironmentVariableW」、win32_GetEnvironmentVariableW。
+    做 追加 用 dll 的 导出表、一组：「GetTickCount64」、win32_GetTickCount64。
+    做 追加 用 dll 的 导出表、一组：「QueryPerformanceCounter」、win32_QueryPerformanceCounter。
+    做 追加 用 dll 的 导出表、一组：「QueryPerformanceFrequency」、win32_QueryPerformanceFrequency。
+    做 追加 用 PE_已加载模块、dll。
+    做 内核调试 用 「Win32: 注册 kernel32.dll 」 加 做 整数转字符串 用 做 计数 用 dll 的 导出表 加 「 个接口」。
+完。
+
+本章 收束。

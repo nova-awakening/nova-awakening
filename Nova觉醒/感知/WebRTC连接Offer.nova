@@ -1,0 +1,162 @@
+《WebRTC连接Offer》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·创建》。
+
+引用《.·文档节点》。
+
+引用《..·中枢·字符串替换》。
+
+R传控eerConnection_createOffer 接受 pc、选项：
+    若 pc 等于 0：
+        返还 0。
+    完。
+    sdp 为 做 SDP_生成_offer 用 0。
+    desc 为 做 堆_分配 用 RTCSessionDescription。
+    desc 的 类型 为 SDP_TYPE_OFFER。
+    desc 的 sdp 为 sdp。
+    返还 desc。
+完。
+
+R传控eerConnection_createAnswer 接受 pc、选项：
+    若 pc 等于 0 或者 pc 的 远端描述 等于 0：
+        返还 0。
+    完。
+    sdp 为 做 SDP_生成_answer 用 pc 的 远端描述、0。
+    desc 为 做 堆_分配 用 RTCSessionDescription。
+    desc 的 类型 为 SDP_TYPE_ANSWER。
+    desc 的 sdp 为 sdp。
+    返还 desc。
+完。
+
+R传控eerConnection_setLocalDescription 接受 pc、desc：
+    若 pc 等于 0 或者 desc 等于 0：
+        返还。
+    完。
+    若 desc 的 类型 等于 SDP_TYPE_OFFER：
+        pc 的 信令状态 为 SIGNAL_STATE_HAVE_LOCAL_OFFER。
+    否则若 desc 的 类型 等于 SDP_TYPE_ANSWER：
+        pc 的 信令状态 为 SIGNAL_STATE_STABLE。
+    完。
+    pc 的 本地描述 为 desc。
+    若 pc 的 ice收集状态 等于 ICE_GATHER_NEW：
+        做 ICE_开始收集 用 pc。
+    完。
+完。
+
+R传控eerConnection_setRemoteDescription 接受 pc、desc：
+    若 pc 等于 0 或者 desc 等于 0：
+        返还。
+    完。
+    若 desc 的 类型 等于 SDP_TYPE_OFFER：
+        pc 的 信令状态 为 SIGNAL_STATE_HAVE_REMOTE_OFFER。
+    否则若 desc 的 类型 等于 SDP_TYPE_ANSWER：
+        pc 的 信令状态 为 SIGNAL_STATE_STABLE。
+    完。
+    pc 的 远端描述 为 desc。
+    若 pc 的 本地描述 不等于 0：
+        做 ICE_开始连接检查 用 pc。
+    完。
+完。
+
+R传控eerConnection_addIceCandidate 接受 pc、candidate：
+    若 pc 等于 0 或者 candidate 等于 0：
+        返还。
+    完。
+    若 pc 的 远端候选数量 小于 pc 的 候选容量：
+        做 内存_写64 用 pc 的 远端候选列表 加 pc 的 远端候选数量 乘 8、candidate。
+        pc 的 远端候选数量 为 pc 的 远端候选数量 加 1。
+    完。
+完。
+
+ICE_开始收集 接受 pc：
+    若 pc 等于 0：
+        返还。
+    完。
+    pc 的 ice收集状态 为 ICE_GATHER_GATHERING。
+    做 ICE_收集Host候选 用 pc。
+    做 ICE_收集STUN候选 用 pc。
+    做 ICE_收集TURN候选 用 pc。
+    pc 的 ice收集状态 为 ICE_GATHER_COMPLETE。
+完。
+
+ICE_收集Host候选 接受 pc：
+    c 为 做 ICECandidate_创建 用 ICE_CANDIDATE_HOST、0、「0.0.0.0」、9、0。
+    c 的 优先级 为 做 ICECandidate_计算优先级 用 ICE_CANDIDATE_HOST、65535、1。
+    若 pc 的 本地候选数量 小于 pc 的 候选容量：
+        做 内存_写64 用 pc 的 本地候选列表 加 pc 的 本地候选数量 乘 8、c。
+        pc 的 本地候选数量 为 pc 的 本地候选数量 加 1。
+    完。
+完。
+
+ICE_收集STUN候选 接受 pc：
+    若 pc 等于 0 或者 pc 的 ICE服务器数量 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 pc 的 ICE服务器数量：
+        url 为 pc 的 ICE服务器 的 第 i 项。
+        若 做 字符串_开头是 用 url、「stun:」：
+            响应 为 做 STUN_发送Binding请求 用 url。
+            若 响应 不等于 0：
+                c 为 做 ICECandidate_创建 用 ICE_CANDIDATE_SRFLX、0、响应 的 IP、响应 的 端口、0。
+                c 的 优先级 为 做 ICECandidate_计算优先级 用 ICE_CANDIDATE_SRFLX、65535、1。
+                若 pc 的 本地候选数量 小于 pc 的 候选容量：
+                    做 内存_分64 用 pc 的 本地候选列表 加 pc 的 本地候选数量 乘 8、c。
+                    pc 的 本地候选数量 为 pc 的 本地候选数量 加 1。
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+ICE_收集TURN候选 接受 pc：
+    若 pc 等于 0 或者 pc 的 ICE服务器数量 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 pc 的 ICE服务器数量：
+        url 为 pc 的 ICE服务器 的 第 i 项。
+        若 做 字符串_开头是 用 url、「turn:」：
+            响应 为 做 TURN_发送Allocate请求 用 url。
+            若 响应 不等于 0：
+                c 为 做 ICECandidate_创建 用 ICE_CANDIDATE_RELAY、0、响应 的 IP、响应 的 端口、0。
+                c 的 优先级 为 做 ICECandidate_计算优先级 用 ICE_CANDIDATE_RELAY、0、1。
+                若 pc 的 本地候选数量 小于 pc 的 候选容量：
+                    做 内存_分64 用 pc 的 本地候选列表 加 pc 的 本地候选数量 乘 8、c。
+                    pc 的 本地候选数量 为 pc 的 本地候选数量 加 1。
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+ICE_开始连接检查 接受 pc：
+    若 pc 等于 0：
+        返还。
+    完。
+    pc 的 ice状态 为 ICE_STATE_CHECKING。
+完。
+
+可变 AI_感知己_调用数 为 0。
+
+可变 AI_感知己_异常数 为 0。
+
+AI_感知己_监控 接受 零参：
+    AI_感知己_调用数 为 AI_感知己_调用数 加 1。
+    返还 AI_感知己_异常数 等于 0。
+完。
+
+AI_感知己_健康检查 接受 零参：
+    若 AI_感知己_调用数 大于 0 并且 AI_感知己_异常数 乘 100 除以 AI_感知己_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

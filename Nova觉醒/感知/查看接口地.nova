@@ -1,0 +1,85 @@
+《查看接口地》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·权限接口权限》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·内容可见性》。
+
+GeolocationPosition 是 一种 事物，含 纬度、经度、精度、海拔、海拔精度、方向、速度、时间戳。
+
+GeolocationWatcher 是 一种 事物，含 id、成功回调、错误回调、高精度、超时、最大年龄。
+
+可变 下一个Watcher_ID 为 1。
+
+Geolocation_getCurrentPosition 接受 成功、错误、选项：
+    pos 为 做 堆_分配 用 GeolocationPosition。
+    pos 的 纬度 为 39904200。
+    pos 的 经度 为 116407396。
+    pos 的 精度 为 10000。
+    pos 的 时间戳 为 做 平台_获取高精度时间 除以 1000。
+    返还 pos。
+完。
+
+Geolocation_watchPosition 接受 成功、错误、选项：
+    id 为 下一个Watcher_ID。
+    下一个Watcher_ID 为 下一个Watcher_ID 加 1。
+    返还 id。
+完。
+
+Geolocation_clearWatch 接受 id：
+    若 id 小于或等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 GEO_监听数量：
+        若 GEO_监听ID 的 第 i 项 等于 id：
+            GEO_监听回调 的 第 i 项 为 0。
+            GEO_监听ID 的 第 i 项 为 0。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NOTIF_PERM_DEFAULT 为 0。
+
+NOTIF_PERM_GRANTED 为 1。
+
+NOTIF_PERM_DENIED 为 2。
+
+可变 通知权限 为 NOTIF_PERM_DEFAULT。
+
+Notification_ 是 一种 事物，含 标题、正文、图标、标签、数据、onclick、onclose、onerror、onshow。
+
+Notification_requestPermission 接受 Nova运行时实例：
+    通知权限 为 NOTIF_PERM_GRANTED。
+    返还 「granted」。
+完。
+
+Notification_创建 接受 标题、选项：
+    若 通知权限 不等于 NOTIF_PERM_GRANTED：
+        返还 0。
+    完。
+    n 为 做 堆_分配 用 Notification_。
+    n 的 标题 为 若 标题 不等于 0 则 做 字符串_复制 用 标题 否则 「」。
+    n 的 正文 为 0。
+    n 的 图标 为 0。
+    n 的 标签 为 0。
+    n 的 数据 为 0。
+    做 平台_显示通知 用 n 的 标题、n 的 正文、n 的 图标。
+    返还 n。
+完。
+
+Notification_close 接受 n：
+    若 n 等于 0：
+        返还。
+    完。
+    做 平台_关闭通知 用 n。
+完。
+
+本章 收束。

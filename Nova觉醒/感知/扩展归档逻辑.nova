@@ -1,0 +1,585 @@
+《扩展归档逻辑》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·硬链接》。
+
+引用《.·兼容桥》。
+
+引用《..·外联·TLS数据收发》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·真字体字体》。
+
+引用《..·中枢·辅助有符号读》。
+
+引用《..·执行·底层系统调用原语》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·外联·HTTP请求构造》。
+
+引用《..·外联·TLS创建》。
+
+引用《..·外联·域名初始化》。
+
+DIR_LTR 为 0。
+
+DIR_RTL 为 1。
+
+ALIGN_LEFT 为 0。
+
+ALIGN_RIGHT 为 1。
+
+ALIGN_CENTER 为 2。
+
+ALIGN_JUSTIFY 为 3。
+
+ALIGN_START 为 4。
+
+ALIGN_END 为 5。
+
+FONT_STATE_UNLOADED 为 0。
+
+FONT_STATE_LOADING 为 1。
+
+FONT_STATE_LOADED 为 2。
+
+FONT_STATE_ERROR 为 3。
+
+FONT_DISPLAY_AUTO 为 0。
+
+FONT_DISPLAY_BLOCK 为 1。
+
+FONT_DISPLAY_SWAP 为 2。
+
+FONT_DISPLAY_FALLBACK 为 3。
+
+FONT_DISPLAY_OPTIONAL 为 4。
+
+字体面条目 是 一种 事物，含 家族名、src列表、权重下界、权重上界、风格、拉伸、display模式、unicode范围、加载状态、加载开始时间、字体对象、命中次数。
+
+字体简写解析结果 是 一种 事物，含 风格、权重、大小、行高、家族。
+
+MAX_FONT_FACE 为 64。
+
+可变 字体面表 为 一组：（空）。
+
+可变 字体请求数 为 0。
+
+可变 字体命中数 为 0。
+
+EWMA_ALPHA 为 205。
+
+Q10 为 1024。
+
+可变 EWMA_加载延迟 为 0。
+
+TextAlign_解析 接受 值：
+    若 做 字符串_相等 用 值、「left」：
+        返还 ALIGN_LEFT。
+    完。
+    若 做 字符串_相等 用 值、「right」：
+        返还 ALIGN_RIGHT。
+    完。
+    若 做 字符串_相等 用 值、「center」：
+        返还 ALIGN_CENTER。
+    完。
+    若 做 字符串_相等 用 值、「justify」：
+        返还 ALIGN_JUSTIFY。
+    完。
+    若 做 字符串_相等 用 值、「start」：
+        返还 ALIGN_START。
+    完。
+    若 做 字符串_相等 用 值、「end」：
+        返还 ALIGN_END。
+    完。
+    返还 ALIGN_START。
+完。
+
+TextAlign_逻辑到物理 接受 对齐值、direction：
+    若 对齐值 等于 ALIGN_START：
+        返还 若 direction 等于 DIR_LTR 则 ALIGN_LEFT 否则 ALIGN_RIGHT。
+    完。
+    若 对齐值 等于 ALIGN_END：
+        返还 若 direction 等于 DIR_LTR 则 ALIGN_RIGHT 否则 ALIGN_LEFT。
+    完。
+    返还 对齐值。
+完。
+
+Justify_分配间距 接受 行宽、内容宽、字数、词数：
+    剩余 为 行宽 减 内容宽。
+    若 剩余 小于或等于 0：
+        返还 0。
+    完。
+    若 字数 大于 1 并且 词数 小于或等于 1：
+        返还 剩余 乘 Q10 除以 (字数 减 1)。
+    完。
+    若 词数 大于 1：
+        返还 剩余 乘 Q10 除以 (词数 减 1)。
+    完。
+    返还 0。
+完。
+
+TextAlign_应用到行 接受 对齐、行宽、内容宽、direction：
+    phys 为 做 TextAlign_逻辑到物理 用 对齐、direction。
+    若 phys 等于 ALIGN_LEFT：
+        返还 0。
+    完。
+    若 phys 等于 ALIGN_RIGHT：
+        返还 行宽 减 内容宽。
+    完。
+    若 phys 等于 ALIGN_CENTER：
+        返还 (行宽 减 内容宽) 除以 2。
+    完。
+    返还 0。
+完。
+
+FontFace_解析字体权重 接受 值：
+    若 做 字符串_相等 用 值、「normal」：
+        返还 400。
+    完。
+    若 做 字符串_相等 用 值、「bold」：
+        返还 700。
+    完。
+    n 为 做 字符串_转整数 用 值。
+    若 n 大于或等于 100 并且 n 小于或等于 900：
+        返还 n。
+    完。
+    返还 400。
+完。
+
+FontFace_解析字体风格 接受 值：
+    若 做 字符串_相等 用 值、「italic」：
+        返还 1。
+    完。
+    若 做 字符串_相等 用 值、「oblique」：
+        返还 2。
+    完。
+    返还 0。
+完。
+
+FontFace_解析display 接受 值：
+    若 做 字符串_相等 用 值、「block」：
+        返还 FONT_DISPLAY_BLOCK。
+    完。
+    若 做 字符串_相等 用 值、「swap」：
+        返还 FONT_DISPLAY_SWAP。
+    完。
+    若 做 字符串_相等 用 值、「fallback」：
+        返还 FONT_DISPLAY_FALLBACK。
+    完。
+    若 做 字符串_相等 用 值、「optional」：
+        返还 FONT_DISPLAY_OPTIONAL。
+    完。
+    返还 FONT_DISPLAY_AUTO。
+完。
+
+FontFace_注册 接受 家族名、src值、权重值、风格值、display值：
+    若 做 计数 用 字体面表 大于或等于 MAX_FONT_FACE：
+        做 内核警告 用 「FontFace: 超出最大字体面数」。
+        返还 假。
+    完。
+    entry 为 新建 字体面条目。
+    entry 的 家族名 为 家族名。
+    entry 的 src列表 为 做 FontFace_解析src 用 src值。
+    entry 的 权重下界 为 做 FontFace_解析字体权重 用 权重值。
+    entry 的 权重上界 为 entry 的 权重下界。
+    entry 的 风格 为 做 FontFace_解析字体风格 用 风格值。
+    entry 的 display模式 为 做 FontFace_解析display 用 display值。
+    entry 的 加载状态 为 FONT_STATE_UNLOADED。
+    entry 的 命中次数 为 0。
+    做 追加 用 字体面表、entry。
+    返还 真。
+完。
+
+FontFace_解析src 接受 src值：
+    结果 为 一组：（空）。
+    可变 pos 为 0。
+    len 为 做 字符串长度 用 src值。
+    只要 pos 小于 len：
+        ch 为 做 字符串_字符 用 src值、pos。
+        若 ch 等于 32 或者 ch 等于 44：
+            pos 为 pos 加 1。
+            继续。
+        完。
+        若 做 字符串_子串匹配 用 src值、pos、「url(」：
+            pos 为 pos 加 4。
+            若 pos 小于 len 并且 做 字符串_字符 用 src值、pos 等于 34：
+                pos 为 pos 加 1。
+            完。
+            url开始 为 pos。
+            只要 pos 小于 len 并且 做 字符串_字符 用 src值、pos 不等于 34 并且 做 字符串_字符 用 src值、pos 不等于 41：
+                pos 为 pos 加 1。
+            完。
+            url 为 做 字符串_子串 用 src值、url开始、pos。
+            做 追加 用 结果、url。
+            只要 pos 小于 len 并且 做 字符串_字符 用 src值、pos 不等于 41：
+                pos 为 pos 加 1。
+            完。
+            若 pos 小于 len：
+                pos 为 pos 加 1。
+            完。
+        否则：
+            pos 为 pos 加 1。
+        完。
+    完。
+    返还 结果。
+完。
+
+FontFace_开始加载 接受 entry：
+    若 entry 的 加载状态 不等于 FONT_STATE_UNLOADED：
+        返还。
+    完。
+    entry 的 加载状态 为 FONT_STATE_LOADING。
+    entry 的 加载开始时间 为 做 系统_获取时间戳。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 entry 的 src列表：
+        url 为 entry 的 src列表 的 第 i 项。
+        数据 为 做 网络_获取字体 用 url。
+        若 数据 不等于 0：
+            解码后 为 做 FontFace_检测解码 用 数据、做 字符串长度 用 数据。
+            entry 的 字体对象 为 做 FreeType_创建字体 用 解码后、做 字符串长度 用 解码后。
+            若 entry 的 字体对象 不等于 0：
+                entry 的 加载状态 为 FONT_STATE_LOADED。
+                elapsed 为 做 系统_获取时间戳 减 entry 的 加载开始时间。
+                EWMA_加载延迟 为 (EWMA_ALPHA 乘 elapsed 加 (Q10 减 EWMA_ALPHA) 乘 EWMA_加载延迟) 除以 Q10。
+                返还。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    entry 的 加载状态 为 FONT_STATE_ERROR。
+    做 内核警告 用 「FontFace: 加载失败 」 加 entry 的 家族名。
+完。
+
+FontFace_检测解码 接受 数据、大小：
+    若 大小 大于或等于 4：
+        magic 为 做 内存_读32 用 数据。
+        若 magic 等于 0x774F4632：
+            返还 做 WOFF2_解码 用 数据、大小。
+        完。
+    完。
+    返还 数据。
+完。
+
+FontFace_应显示回退 接受 字体面：
+    若 字体面 的 加载状态 等于 FONT_STATE_LOADED：
+        返还 假。
+    完。
+    若 字体面 的 加载状态 等于 FONT_STATE_ERROR：
+        返还 真。
+    完。
+    elapsed 为 做 系统_获取时间戳 减 字体面 的 加载开始时间。
+    若 字体面 的 display模式 等于 FONT_DISPLAY_SWAP：
+        返还 真。
+    完。
+    若 字体面 的 display模式 等于 FONT_DISPLAY_BLOCK 并且 elapsed 小于 3000：
+        返还 假。
+    完。
+    若 字体面 的 display模式 等于 FONT_DISPLAY_FALLBACK 并且 elapsed 小于 100：
+        返还 假。
+    完。
+    若 字体面 的 display模式 等于 FONT_DISPLAY_OPTIONAL：
+        返还 真。
+    完。
+    返还 真。
+完。
+
+FontFace_匹配 接受 家族名、权重、风格：
+    字体请求数 为 字体请求数 加 1。
+    可变 最佳 为 0。
+    可变 最佳分 为 0x7FFFFFFF。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 字体面表：
+        entry 为 字体面表 的 第 i 项。
+        若 非 做 字符串_相等 用 entry 的 家族名、家族名：
+            i 为 i 加 1。
+            继续。
+        完。
+        可变 score 为 0。
+        若 entry 的 风格 不等于 风格：
+            score 为 score 加 10000。
+        完。
+        若 权重 大于或等于 entry 的 权重下界 并且 权重 小于或等于 entry 的 权重上界：
+        否则：
+            可变 d 为 0。
+            若 权重 小于 entry 的 权重下界：
+                d 为 entry 的 权重下界 减 权重。
+            否则：
+                d 为 权重 减 entry 的 权重上界。
+            完。
+            score 为 score 加 d。
+        完。
+        若 score 小于 最佳分：
+            最佳分 为 score。
+            最佳 为 entry。
+        完。
+        i 为 i 加 1。
+    完。
+    若 最佳 不等于 0：
+        最佳 的 命中次数 为 最佳 的 命中次数 加 1。
+        字体命中数 为 字体命中数 加 1。
+        若 最佳 的 加载状态 等于 FONT_STATE_UNLOADED：
+            做 FontFace_开始加载 用 最佳。
+        完。
+    完。
+    返还 最佳。
+完。
+
+Font_解析简写 接受 值：
+    r 为 新建 字体简写解析结果。
+    r 的 风格 为 0。
+    r 的 权重 为 400。
+    r 的 大小 为 16。
+    r 的 行高 为 0。
+    r 的 家族 为 一组：（空）。
+    tokens 为 做 字符串_分割 用 值、32。
+    可变 ti 为 0。
+    可变 已解析大小 为 假。
+    只要 ti 小于 做 计数 用 tokens：
+        tok 为 tokens 的 第 ti 项。
+        若 非 已解析大小 并且 做 字符串_相等 用 tok、「italic」：
+            r 的 风格 为 1。
+            ti 为 ti 加 1。
+            继续。
+        完。
+        若 非 已解析大小 并且 做 字符串_相等 用 tok、「oblique」：
+            r 的 风格 为 2。
+            ti 为 ti 加 1。
+            继续。
+        完。
+        若 非 已解析大小 并且 做 字符串_相等 用 tok、「bold」：
+            r 的 权重 为 700。
+            ti 为 ti 加 1。
+            继续。
+        完。
+        若 非 已解析大小 并且 做 Font_是数字 用 tok：
+            n 为 做 字符串_转整数 用 tok。
+            若 n 大于或等于 100 并且 n 小于或等于 900：
+                r 的 权重 为 n。
+                ti 为 ti 加 1。
+                继续。
+            完。
+        完。
+        若 非 已解析大小：
+            slash 为 做 字符串_查找 用 tok、47。
+            若 slash 大于或等于 0：
+                r 的 大小 为 做 CSS_解析长度 用 做 字符串_子串 用 tok、0、slash。
+                r 的 行高 为 做 CSS_解析长度 用 做 字符串_子串 用 tok、slash 加 1、做 字符串长度 用 tok。
+            否则：
+                r 的 大小 为 做 CSS_解析长度 用 tok。
+            完。
+            已解析大小 为 真。
+            ti 为 ti 加 1。
+            继续。
+        完。
+        做 追加 用 r 的 家族、tok。
+        ti 为 ti 加 1。
+    完。
+    返还 r。
+完。
+
+Font_是数字 接受 s：
+    若 做 字符串长度 用 s 等于 0：
+        返还 假。
+    完。
+    ch 为 做 字符串_字符 用 s、0。
+    返还 ch 大于或等于 48 并且 ch 小于或等于 57。
+完。
+
+CSS_解析长度 接受 值：
+    可变 num 为 0。
+    可变 i 为 0。
+    len 为 做 字符串长度 用 值。
+    只要 i 小于 len：
+        ch 为 做 字符串_字符 用 值、i。
+        若 ch 大于或等于 48 并且 ch 小于或等于 57：
+            num 为 num 乘 10 加 (ch 减 48)。
+        完。
+        做 否则如果 用 ch 等于 46。
+        块：
+            i 为 i 加 1。
+            跳出。
+        完。
+        否则。
+        块：
+            跳出。
+        完。
+        i 为 i 加 1。
+    完。
+    unit 为 做 字符串_子串 用 值、i、len。
+    若 做 字符串_相等 用 unit、「pt」：
+        返还 num 乘 4 除以 3。
+    完。
+    若 做 字符串_相等 用 unit、「em」：
+        返还 num 乘 16。
+    完。
+    若 做 字符串_相等 用 unit、「rem」：
+        返还 num 乘 16。
+    完。
+    返还 num。
+完。
+
+INTENT_NONE 为 0。
+
+INTENT_ANIMATION 为 1。
+
+INTENT_TRANSITION 为 2。
+
+INTENT_LAYOUT 为 3。
+
+INTENT_VISUAL 为 4。
+
+IMPACT_NONE 为 0。
+
+IMPACT_REPAINT 为 1。
+
+IMPACT_REFLOW 为 2。
+
+IMPACT_RECOMPOSE 为 3。
+
+IMPACT_REBUILD 为 4。
+
+智能_CSS_AI样式意图 接受 属性列表、值列表：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 INTENT_NONE。
+    完。
+    vec 为 做 Tensor_创建 用 4。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 属性列表：
+        prop 为 属性列表 的 第 i 项。
+        若 做 字符串_相等 用 prop、「transform」：
+            做 Tensor_写 用 vec、0、1024。
+        完。
+        若 做 字符串_相等 用 prop、「opacity」：
+            做 Tensor_写 用 vec、1、1024。
+        完。
+        若 做 字符串_相等 用 prop、「position」：
+            做 Tensor_写 用 vec、2、1024。
+        完。
+        若 做 字符串_相等 用 prop、「display」：
+            做 Tensor_写 用 vec、3、1024。
+        完。
+        i 为 i 加 1。
+    完。
+    t 为 做 Tensor_读 用 vec、0。
+    o 为 做 Tensor_读 用 vec、1。
+    若 t 大于 0 并且 o 大于 0：
+        做 Tensor_释放 用 vec。
+        返还 INTENT_ANIMATION。
+    完。
+    若 t 大于 0：
+        做 Tensor_释放 用 vec。
+        返还 INTENT_TRANSITION。
+    完。
+    p 为 做 Tensor_读 用 vec、2。
+    d 为 做 Tensor_读 用 vec、3。
+    若 p 大于 0 或者 d 大于 0：
+        做 Tensor_释放 用 vec。
+        返还 INTENT_LAYOUT。
+    完。
+    做 Tensor_释放 用 vec。
+    返还 INTENT_VISUAL。
+完。
+
+智能_CSS_AI影响分析 接受 属性ID：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 IMPACT_REFLOW。
+    完。
+    cached 为 做 AI样式_查询缓存 用 属性ID。
+    若 cached 大于或等于 0：
+        返还 cached。
+    完。
+    若 属性ID 等于 PROP_TRANSFORM 或者 属性ID 等于 PROP_OPACITY：
+        返还 IMPACT_RECOMPOSE。
+    完。
+    若 属性ID 等于 PROP_COLOR 或者 属性ID 等于 PROP_BACKGROUND：
+        返还 IMPACT_REPAINT。
+    完。
+    若 属性ID 等于 PROP_WIDTH 或者 属性ID 等于 PROP_HEIGHT 或者 属性ID 等于 PROP_MARGIN 或者 属性ID 等于 PROP_PADDING：
+        返还 IMPACT_REFLOW。
+    完。
+    若 属性ID 等于 PROP_DISPLAY 或者 属性ID 等于 PROP_POSITION：
+        返还 IMPACT_REBUILD。
+    完。
+    返还 IMPACT_REFLOW。
+完。
+
+网络_获取字体 接受 url：
+    若 url 等于 0：
+        返还 0。
+    完。
+    host 为 做 URL_提取主机名 用 url。
+    ip 为 做 域名_解析 用 host。
+    若 ip 等于 0：
+        返还 0。
+    完。
+    fd 为 做 平台_tcp_连接 用 ip、443。
+    若 fd 小于 0：
+        返还 0。
+    完。
+    tls 为 做 安全_创建会话 用 fd、host。
+    做 安全_握手 用 tls。
+    req 为 做 HTTP_创建请求 用 「GET」、url。
+    resp 为 做 HTTP_发送并接收 用 tls、req。
+    做 安全_关闭 用 tls。
+    做 系统调用_close 用 fd。
+    若 resp 等于 0 或者 resp 的 状态码 不等于 200：
+        返还 0。
+    完。
+    返还 resp 的 body。
+完。
+
+WOFF2_解码 接受 数据、大小：
+    返还 数据。
+完。
+
+FreeType_创建字体 接受 数据、大小：
+    若 数据 等于 0 或者 大小 小于 12：
+        返还 0。
+    完。
+    font 为 做 堆_分配 用 TrueType字体。
+    font 的 数据 为 数据。
+    font 的 大小 为 大小。
+    magic 为 做 内存_读32 用 数据。
+    若 magic 不等于 0x00010000 并且 magic 不等于 0x4F54544F：
+        做 堆_释放 用 font。
+        返还 0。
+    完。
+    font 的 表数 为 做 内存_读16_大端 用 数据 加 4。
+    做 TrueType_解析表目录 用 font。
+    返还 font。
+完。
+
+字体引擎_统计 接受 零参：
+    做 内核信息 用 「FontFace: 总请求=」 加 做 整数转字符串 用 字体请求数 加 「 命中=」 加 做 整数转字符串 用 字体命中数 加 「 EWMA延迟=」 加 做 整数转字符串 用 EWMA_加载延迟 除以 Q10 加 「ms」。
+完。
+
+AI字体_预加载建议 接受 页面语言：
+    若 页面语言 等于 「zh」：
+        返还 「预加载CJK子集」。
+    完。
+    若 页面语言 等于 「ar」：
+        返还 「预加载阿拉伯子集」。
+    完。
+    返还 「按需加载」。
+完。
+
+AI字体_缓存淘汰 接受 缓存大小、最大缓存：
+    若 缓存大小 大于 最大缓存 乘 90 除以 100：
+        返还 「淘汰最久未用字体」。
+    完。
+    返还 「保持」。
+完。
+
+本章 收束。

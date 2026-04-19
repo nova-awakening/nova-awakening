@@ -1,0 +1,98 @@
+《HTMLForm创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+输入类型_text 为 0。
+
+输入类型_password 为 1。
+
+输入类型_email 为 2。
+
+输入类型_url 为 3。
+
+输入类型_number 为 4。
+
+输入类型_range 为 5。
+
+输入类型_date 为 6。
+
+输入类型_time 为 7。
+
+输入类型_datetime_local 为 8。
+
+输入类型_month 为 9。
+
+输入类型_week 为 10。
+
+输入类型_color 为 11。
+
+输入类型_checkbox 为 12。
+
+输入类型_radio 为 13。
+
+输入类型_file 为 14。
+
+输入类型_hidden 为 15。
+
+输入类型_submit 为 16。
+
+输入类型_reset 为 17。
+
+输入类型_button 为 18。
+
+输入类型_search 为 19。
+
+输入类型_tel 为 20。
+
+输入类型_image 为 21。
+
+编码_urlencoded 为 0。
+
+编码_multipart 为 1。
+
+编码_text_plain 为 2。
+
+验证_有效 为 0。
+
+验证_缺失 为 1。
+
+验证_类型不匹配 为 2。
+
+验证_过短 为 3。
+
+验证_过长 为 4。
+
+验证_过小 为 5。
+
+验证_过大 为 6。
+
+验证_步长不匹配 为 7。
+
+验证_模式不匹配 为 8。
+
+FormControl 是 一种 事物，含 名称、值、类型、DOM节点、是必填、最小长度、最大长度、模式、最小值、最大值、步长、placeholder、是禁用、是只读、是选中、验证状态、验证消息、文件列表、文件数、是多选。
+
+HTMLForm 是 一种 事物，含 action、method、编码类型、target、novalidate、控件、控件数、DOM节点。
+
+HTMLForm_创建 接受 零参：
+    form 为 做 堆_分配 用 HTMLForm。
+    form 的 action 为 「」。
+    form 的 method 为 「get」。
+    form 的 编码类型 为 编码_urlencoded。
+    form 的 target 为 「_self」。
+    form 的 novalidate 为 假。
+    form 的 控件数 为 0。
+    返还 form。
+完。
+
+HTMLForm_添加控件 接受 form、控件：
+    若 form 等于 0 或者 form 的 控件数 大于或等于 128：
+        返还。
+    完。
+    form 的 控件 的 第 form 的 控件数 项 为 控件。
+    form 的 控件数 为 form 的 控件数 加 1。
+完。
+
+本章 收束。

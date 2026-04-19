@@ -1,0 +1,110 @@
+《请求对象》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·资源取数》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·标准·加法运算符》。
+
+取数Request 是 一种 事物，含 URL、方法、头、体、体长度、模式、凭证、缓存、重定向、引荐者、引荐者策略、完整性、信号、保活。
+
+取数Request_创建 接受 url、选项：
+    req 为 做 堆_分配 用 取数Request。
+    req 的 URL 为 做 字符串_复制 用 url。
+    req 的 方法 为 做 字符串_复制 用 「GET」。
+    req 的 头 为 做 取数Headers_创建。
+    req 的 体 为 0。
+    req 的 体长度 为 0。
+    req 的 模式 为 0。
+    req 的 凭证 为 1。
+    req 的 缓存 为 0。
+    req 的 重定向 为 0。
+    req 的 引荐者 为 0。
+    req 的 完整性 为 0。
+    req 的 信号 为 0。
+    req 的 保活 为 假。
+    若 选项 不等于 0：
+        method_val 为 做 Nova对象_获取属性 用 0、选项、「method」。
+        若 method_val 不等于 0 并且 非 做 JSValue_IsUndefined 用 method_val：
+            req 的 方法 为 做 JSValue_获取字符串 用 做 JSValue_ToString 用 0、method_val。
+        完。
+        headers_val 为 做 Nova对象_获取属性 用 0、选项、「headers」。
+        若 headers_val 不等于 0 并且 非 做 JSValue_IsUndefined 用 headers_val：
+        完。
+        body_val 为 做 Nova对象_获取属性 用 0、选项、「body」。
+        若 body_val 不等于 0 并且 非 做 JSValue_IsUndefined 用 body_val：
+            body_str 为 做 JSValue_获取字符串 用 做 JSValue_ToString 用 0、body_val。
+            若 body_str 不等于 0：
+                req 的 体 为 body_str。
+                req 的 体长度 为 做 字符串_长度 用 body_str。
+            完。
+        完。
+        mode_val 为 做 Nova对象_获取属性 用 0、选项、「mode」。
+        若 mode_val 不等于 0 并且 非 做 JSValue_IsUndefined 用 mode_val：
+            mode_str 为 做 JSValue_获取字符串 用 做 JSValue_ToString 用 0、mode_val。
+            若 做 字符串_相等 用 mode_str、「no-cors」：
+                req 的 模式 为 1。
+            否则若 做 字符串_相等 用 mode_str、「same-origin」：
+                req 的 模式 为 2。
+            完。
+        完。
+        cred_val 为 做 Nova对象_获取属性 用 0、选项、「credentials」。
+        若 cred_val 不等于 0 并且 非 做 JSValue_IsUndefined 用 cred_val：
+            cred_str 为 做 JSValue_获取字符串 用 做 JSValue_ToString 用 0、cred_val。
+            若 做 字符串_相等 用 cred_str、「omit」：
+                req 的 凭证 为 0。
+            否则若 做 字符串_相等 用 cred_str、「include」：
+                req 的 凭证 为 2。
+            完。
+        完。
+        signal_val 为 做 Nova对象_获取属性 用 0、选项、「signal」。
+        若 signal_val 不等于 0 并且 非 做 JSValue_IsUndefined 用 signal_val：
+            req 的 信号 为 signal_val。
+        完。
+    完。
+    返还 req。
+完。
+
+取数Response 是 一种 事物，含 状态码、状态文本、头、体数据、体长度、类型、URL、是否重定向、OK。
+
+取数Response_创建 接受 状态码、体数据、体长度、响应头：
+    resp 为 做 堆_分配 用 取数Response。
+    resp 的 状态码 为 状态码。
+    resp 的 状态文本 为 做 字符串_复制 用 「OK」。
+    若 状态码 等于 404：
+        resp 的 状态文本 为 做 字符串_复制 用 「Not Found」。
+    否则若 状态码 等于 500：
+        resp 的 状态文本 为 做 字符串_复制 用 「Internal Server 错误」。
+    否则若 状态码 等于 301 或者 状态码 等于 302：
+        resp 的 状态文本 为 做 字符串_复制 用 「Moved」。
+    完。
+    resp 的 头 为 做 取数Headers_创建。
+    resp 的 头 的 保护级别 为 3。
+    若 响应头 不等于 0：
+        可变 i 为 0。
+        只要 i 小于 响应头 的 数量：
+            偏移 为 响应头 的 条目 加 i 乘 32。
+            做 取数Headers_append 用 resp 的 头、做 内存_读64 用 偏移、做 内存_读64 用 偏移 加 16。
+            i 为 i 加 1。
+        完。
+    完。
+    resp 的 体数据 为 体数据。
+    resp 的 体长度 为 体长度。
+    resp 的 类型 为 0。
+    resp 的 URL 为 0。
+    resp 的 是否重定向 为 假。
+    resp 的 OK 为 状态码 大于或等于 200 并且 状态码 小于或等于 299。
+    返还 resp。
+完。
+
+本章 收束。

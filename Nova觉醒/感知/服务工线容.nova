@@ -1,0 +1,148 @@
+《服务工线容》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·事件系统核心》。
+
+引用《.·软件拦截缓》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·辅助存根》。
+
+SW_STATE_PARSED 为 0。
+
+SW_STATE_INSTALLING 为 1。
+
+SW_STATE_INSTALLED 为 2。
+
+SW_STATE_ACTIVATING 为 3。
+
+SW_STATE_ACTIVATED 为 4。
+
+SW_STATE_REDUNDANT 为 5。
+
+Service工线Registration 是 一种 事物，含 作用域、脚本URL、installing、waiting、active、更新检查中、注册ID。
+
+Service工线 是 一种 事物，含 脚本URL、状态、注册、Nova运行时实例、全局作用域、install回调、activate回调、fetch回调、push回调、sync回调、message回调、缓存存储、客户端列表、客户端数量、需要跳过等待。
+
+Service工线Container 是 一种 事物，含 注册列表、注册数量、注册容量、控制器。
+
+可变 全局SW容器 为 0。
+
+Service工线Container_获取 接受 零参：
+    若 全局SW容器 等于 0：
+        全局SW容器 为 做 堆_分配 用 Service工线Container。
+        全局SW容器 的 注册容量 为 64。
+        全局SW容器 的 注册列表 为 做 堆_分配_数组 用 64 乘 8。
+        全局SW容器 的 注册数量 为 0。
+        全局SW容器 的 控制器 为 0。
+    完。
+    返还 全局SW容器。
+完。
+
+Service工线_register 接受 脚本URL、选项：
+    容器 为 做 Service工线Container_获取。
+    可变 作用域 为 0。
+    若 选项 不等于 0：
+        作用域 为 做 Nova对象_获取属性 用 0、选项、「scope」。
+        若 作用域 不等于 0：
+            作用域 为 做 JSValue_获取字符串 用 作用域。
+        完。
+    完。
+    若 作用域 等于 0：
+        作用域 为 做 URL_提取目录 用 脚本URL。
+    完。
+    可变 已有注册 为 0。
+    可变 i 为 0。
+    只要 i 小于 容器 的 注册数量：
+        reg 为 做 内存_读64 用 容器 的 注册列表 加 i 乘 8。
+        若 reg 不等于 0 并且 做 字符串_相等 用 reg 的 作用域、作用域：
+            已有注册 为 reg。
+            跳出。
+        完。
+        i 为 i 加 1。
+    完。
+    若 已有注册 等于 0：
+        已有注册 为 做 堆_分配 用 Service工线Registration。
+        已有注册 的 作用域 为 做 字符串_复制 用 作用域。
+        已有注册 的 脚本URL 为 做 字符串_复制 用 脚本URL。
+        已有注册 的 installing 为 0。
+        已有注册 的 waiting 为 0。
+        已有注册 的 active 为 0。
+        已有注册 的 更新检查中 为 假。
+        已有注册 的 注册ID 为 容器 的 注册数量。
+        若 容器 的 注册数量 小于 容器 的 注册容量：
+            做 内存_写64 用 容器 的 注册列表 加 容器 的 注册数量 乘 8、已有注册。
+            容器 的 注册数量 为 容器 的 注册数量 加 1。
+        完。
+    完。
+    做 Service工线_开始安装 用 已有注册、脚本URL。
+    返还 已有注册。
+完。
+
+Service工线_开始安装 接受 注册、脚本URL：
+    脚本内容 为 做 网络_同步获取 用 脚本URL。
+    若 脚本内容 等于 0：
+        返还。
+    完。
+    sw 为 做 堆_分配 用 Service工线。
+    sw 的 脚本URL 为 做 字符串_复制 用 脚本URL。
+    sw 的 状态 为 SW_STATE_INSTALLING。
+    sw 的 注册 为 注册。
+    sw 的 需要跳过等待 为 假。
+    sw 的 Nova运行时实例 为 做 Nova运行时_创建。
+    sw 的 缓存存储 为 做 缓存存储_创建。
+    做 Service工线_注入全局接口 用 sw。
+    sw 的 install回调 为 0。
+    sw 的 activate回调 为 0。
+    sw 的 fetch回调 为 0。
+    注册 的 installing 为 sw。
+    做 Service工线_触发install 用 sw。
+完。
+
+Service工线_触发install 接受 sw：
+    若 sw 等于 0：
+        返还。
+    完。
+    sw 的 状态 为 SW_STATE_INSTALLING。
+    若 sw 的 install回调 不等于 0：
+        事件 为 做 事件_创建 用 「install」、假、假。
+    完。
+    sw 的 状态 为 SW_STATE_INSTALLED。
+    注册 为 sw 的 注册。
+    若 注册 不等于 0：
+        注册 的 installing 为 0。
+        注册 的 waiting 为 sw。
+    完。
+    若 sw 的 需要跳过等待 或者 注册 不等于 0 并且 注册 的 active 等于 0：
+        做 Service工线_触发activate 用 sw。
+    完。
+完。
+
+Service工线_触发activate 接受 sw：
+    若 sw 等于 0：
+        返还。
+    完。
+    sw 的 状态 为 SW_STATE_ACTIVATING。
+    注册 为 sw 的 注册。
+    若 注册 不等于 0：
+        若 注册 的 active 不等于 0：
+            注册 的 active 的 状态 为 SW_STATE_REDUNDANT。
+        完。
+        注册 的 waiting 为 0。
+        注册 的 active 为 sw。
+    完。
+    若 sw 的 activate回调 不等于 0：
+        事件 为 做 事件_创建 用 「activate」、假、假。
+    完。
+    sw 的 状态 为 SW_STATE_ACTIVATED。
+完。
+
+本章 收束。

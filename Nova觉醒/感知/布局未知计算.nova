@@ -1,0 +1,433 @@
+《布局未知计算》
+
+引用《.·样式解析》。
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信总线》。
+
+引用《..·中枢·内核打印》。
+
+引用《.·样式值解析》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·弹性布局深度》。
+
+CSS_AUTO 为 负 1。
+
+CSS_NONE 为 负 2。
+
+显示_块 为 1。
+
+显示_行内 为 2。
+
+显示_行内块 为 3。
+
+显示_flex 为 4。
+
+显示_grid 为 5。
+
+显示_无 为 0。
+
+定位_静态 为 0。
+
+定位_相对 为 1。
+
+定位_绝对 为 2。
+
+定位_固定 为 3。
+
+定位_粘性 为 4。
+
+BFCM统计 是 一种 事物，含 盒模型计算数、宽度计算数、高度计算数、margin居中数、margin折叠数、浮动清除数、AI布局预测数。
+
+可变 全局BFCM统计 为 新建 BFCM统计。
+
+盒模型_解析Padding 接受 layout、style、包含块宽：
+    layout 的 padding_top 为 做 CSS值_解析为像素 用 style 的 padding_top、包含块宽。
+    layout 的 padding_right 为 做 CSS值_解析为像素 用 style 的 padding_right、包含块宽。
+    layout 的 padding_bottom 为 做 CSS值_解析为像素 用 style 的 padding_bottom、包含块宽。
+    layout 的 padding_left 为 做 CSS值_解析为像素 用 style 的 padding_left、包含块宽。
+    若 layout 的 padding_top 小于 0：
+        layout 的 padding_top 为 0。
+    完。
+    若 layout 的 padding_right 小于 0：
+        layout 的 padding_right 为 0。
+    完。
+    若 layout 的 padding_bottom 小于 0：
+        layout 的 padding_bottom 为 0。
+    完。
+    若 layout 的 padding_left 小于 0：
+        layout 的 padding_left 为 0。
+    完。
+完。
+
+盒模型_解析Border 接受 layout、style：
+    layout 的 border_top 为 做 CSS值_解析边框宽 用 style 的 border_top_width。
+    layout 的 border_right 为 做 CSS值_解析边框宽 用 style 的 border_right_width。
+    layout 的 border_bottom 为 做 CSS值_解析边框宽 用 style 的 border_bottom_width。
+    layout 的 border_left 为 做 CSS值_解析边框宽 用 style 的 border_left_width。
+    若 style 的 border_top_style 等于 0：
+        layout 的 border_top 为 0。
+    完。
+    若 style 的 border_right_style 等于 0：
+        layout 的 border_right 为 0。
+    完。
+    若 style 的 border_bottom_style 等于 0：
+        layout 的 border_bottom 为 0。
+    完。
+    若 style 的 border_left_style 等于 0：
+        layout 的 border_left 为 0。
+    完。
+完。
+
+盒模型_解析Margin 接受 layout、style、包含块宽：
+    layout 的 margin_top 为 做 CSS值_解析margin 用 style 的 margin_top、包含块宽。
+    layout 的 margin_right 为 做 CSS值_解析margin 用 style 的 margin_right、包含块宽。
+    layout 的 margin_bottom 为 做 CSS值_解析margin 用 style 的 margin_bottom、包含块宽。
+    layout 的 margin_left 为 做 CSS值_解析margin 用 style 的 margin_left、包含块宽。
+完。
+
+盒模型_计算宽度 接受 layout、style、包含块宽：
+    全局BFCM统计 的 宽度计算数 为 全局BFCM统计 的 宽度计算数 加 1。
+    可变 内容宽 为 0。
+    宽度指定 为 style 的 width。
+    若 宽度指定 等于 CSS_AUTO：
+        若 style 的 display 等于 显示_块 或者 style 的 display 等于 显示_flex：
+            内容宽 为 包含块宽 减 layout 的 margin_left 减 layout 的 margin_right 减 layout 的 border_left 减 layout 的 border_right 减 layout 的 padding_left 减 layout 的 padding_right。
+            若 内容宽 小于 0：
+                内容宽 为 0。
+            完。
+        否则若 style 的 display 等于 显示_行内块 或者 style 的 display 等于 显示_行内：
+            内容宽 为 做 盒模型_计算收缩宽度 用 layout、style、包含块宽。
+        完。
+    否则若 宽度指定 大于或等于 0：
+        内容宽 为 做 CSS值_解析为像素 用 宽度指定、包含块宽。
+    完。
+    若 style 的 box_sizing 等于 1 并且 宽度指定 大于或等于 0 并且 宽度指定 不等于 CSS_AUTO：
+        内容宽 为 内容宽 减 layout 的 padding_left 减 layout 的 padding_right 减 layout 的 border_left 减 layout 的 border_right。
+        若 内容宽 小于 0：
+            内容宽 为 0。
+        完。
+    完。
+    内容宽 为 做 盒模型_应用MinMax宽 用 内容宽、style、包含块宽。
+    layout 的 宽度 为 内容宽。
+完。
+
+盒模型_计算收缩宽度 接受 layout、style、包含块宽：
+    可用 为 包含块宽 减 layout 的 margin_left 减 layout 的 margin_right 减 layout 的 border_left 减 layout 的 border_right 减 layout 的 padding_left 减 layout 的 padding_right。
+    若 可用 小于 0：
+        可用 为 0。
+    完。
+    preferred 为 可用。
+    preferred_min 为 0。
+    若 layout 的 子元素数 大于 0：
+        preferred_min 为 layout 的 最小内容宽。
+        preferred 为 layout 的 首选内容宽。
+    完。
+    可变 结果 为 preferred。
+    若 结果 大于 可用：
+        结果 为 可用。
+    完。
+    若 结果 小于 preferred_min：
+        结果 为 preferred_min。
+    完。
+    返还 结果。
+完。
+
+盒模型_应用MinMax宽 接受 宽、style、包含块宽：
+    可变 结果 为 宽。
+    若 style 的 min_width 大于 0：
+        最小 为 做 CSS值_解析为像素 用 style 的 min_width、包含块宽。
+        若 结果 小于 最小：
+            结果 为 最小。
+        完。
+    完。
+    若 style 的 max_width 大于 0 并且 style 的 max_width 不等于 CSS_NONE：
+        最大 为 做 CSS值_解析为像素 用 style 的 max_width、包含块宽。
+        若 结果 大于 最大：
+            结果 为 最大。
+        完。
+    完。
+    返还 结果。
+完。
+
+盒模型_计算高度 接受 layout、style、包含块高：
+    全局BFCM统计 的 高度计算数 为 全局BFCM统计 的 高度计算数 加 1。
+    高度指定 为 style 的 height。
+    若 高度指定 等于 CSS_AUTO 或者 高度指定 等于 CSS_NONE：
+        layout 的 高度 为 CSS_AUTO。
+        返还。
+    完。
+    可变 内容高 为 做 CSS值_解析为像素 用 高度指定、包含块高。
+    若 style 的 box_sizing 等于 1：
+        内容高 为 内容高 减 layout 的 padding_top 减 layout 的 padding_bottom 减 layout 的 border_top 减 layout 的 border_bottom。
+        若 内容高 小于 0：
+            内容高 为 0。
+        完。
+    完。
+    内容高 为 做 盒模型_应用MinMax高 用 内容高、style、包含块高。
+    layout 的 高度 为 内容高。
+完。
+
+盒模型_应用MinMax高 接受 高、style、包含块高：
+    可变 结果 为 高。
+    若 style 的 min_height 大于 0：
+        最小 为 做 CSS值_解析为像素 用 style 的 min_height、包含块高。
+        若 结果 小于 最小：
+            结果 为 最小。
+        完。
+    完。
+    若 style 的 max_height 大于 0 并且 style 的 max_height 不等于 CSS_NONE：
+        最大 为 做 CSS值_解析为像素 用 style 的 max_height、包含块高。
+        若 结果 大于 最大：
+            结果 为 最大。
+        完。
+    完。
+    返还 结果。
+完。
+
+盒模型_确定内容高度 接受 layout：
+    若 layout 的 高度 不等于 CSS_AUTO：
+        返还。
+    完。
+    可变 内容高 为 0。
+    可变 child 为 layout 的 第一子。
+    只要 child 不等于 0：
+        若 child 的 样式 不等于 0 并且 child 的 样式 的 position 不等于 定位_绝对 并且 child 的 样式 的 position 不等于 定位_固定：
+            child_bottom 为 child 的 y 加 child 的 高度 加 child 的 margin_bottom 加 child 的 border_bottom 加 child 的 padding_bottom。
+            若 child_bottom 大于 内容高：
+                内容高 为 child_bottom。
+            完。
+        完。
+        child 为 child 的 下一兄弟。
+    完。
+    layout 的 高度 为 内容高。
+完。
+
+盒模型_解决AutoMargin 接受 layout、style、包含块宽：
+    left_auto 为 style 的 margin_left 等于 CSS_AUTO。
+    right_auto 为 style 的 margin_right 等于 CSS_AUTO。
+    若 非 left_auto 并且 非 right_auto：
+        返还。
+    完。
+    全局BFCM统计 的 margin居中数 为 全局BFCM统计 的 margin居中数 加 1。
+    已用 为 layout 的 宽度 加 layout 的 padding_left 加 layout 的 padding_right 加 layout 的 border_left 加 layout 的 border_right。
+    若 非 left_auto：
+        已用 为 已用 加 layout 的 margin_left。
+    完。
+    若 非 right_auto：
+        已用 为 已用 加 layout 的 margin_right。
+    完。
+    剩余 为 包含块宽 减 已用。
+    若 剩余 小于 0：
+        剩余 为 0。
+    完。
+    若 left_auto 并且 right_auto：
+        layout 的 margin_left 为 剩余 除以 2。
+        layout 的 margin_right 为 剩余 减 layout 的 margin_left。
+    否则若 left_auto：
+        layout 的 margin_left 为 剩余。
+    否则：
+        layout 的 margin_right 为 剩余。
+    完。
+完。
+
+盒模型_计算折叠Margin 接受 上一个margin_bottom、当前margin_top：
+    全局BFCM统计 的 margin折叠数 为 全局BFCM统计 的 margin折叠数 加 1。
+    若 上一个margin_bottom 大于或等于 0 并且 当前margin_top 大于或等于 0：
+        若 上一个margin_bottom 大于 当前margin_top：
+            返还 上一个margin_bottom。
+        完。
+        返还 当前margin_top。
+    完。
+    若 上一个margin_bottom 小于 0 并且 当前margin_top 小于 0：
+        若 上一个margin_bottom 小于 当前margin_top：
+            返还 上一个margin_bottom。
+        完。
+        返还 当前margin_top。
+    完。
+    返还 上一个margin_bottom 加 当前margin_top。
+完。
+
+盒模型_是否屏蔽折叠 接受 layout、style：
+    若 style 的 overflow_x 不等于 0 或者 style 的 overflow_y 不等于 0：
+        返还 真。
+    完。
+    若 style 的 position 等于 定位_绝对 或者 style 的 position 等于 定位_固定：
+        返还 真。
+    完。
+    若 style 的 float_type 不等于 0：
+        返还 真。
+    完。
+    若 style 的 display 等于 显示_flex 或者 style 的 display 等于 显示_grid：
+        返还 真。
+    完。
+    若 layout 的 border_top 大于 0 或者 layout 的 padding_top 大于 0：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+盒模型_处理浮动 接受 layout、style、包含块宽：
+    若 style 的 float_type 等于 0：
+        返还。
+    完。
+    全局BFCM统计 的 浮动清除数 为 全局BFCM统计 的 浮动清除数 加 1。
+    若 style 的 width 等于 CSS_AUTO：
+        layout 的 宽度 为 做 盒模型_计算收缩宽度 用 layout、style、包含块宽。
+    完。
+    若 style 的 margin_left 等于 CSS_AUTO：
+        layout 的 margin_left 为 0。
+    完。
+    若 style 的 margin_right 等于 CSS_AUTO：
+        layout 的 margin_right 为 0。
+    完。
+完。
+
+盒模型_处理Clear 接受 layout、style、浮动上下文：
+    若 style 的 clear 等于 0 或者 浮动上下文 等于 0：
+        返还 0。
+    完。
+    可变 清除高 为 0。
+    若 style 的 clear 等于 1 或者 style 的 clear 等于 3：
+        若 浮动上下文 的 左浮动底部 大于 清除高：
+            清除高 为 浮动上下文 的 左浮动底部。
+        完。
+    完。
+    若 style 的 clear 等于 2 或者 style 的 clear 等于 3：
+        若 浮动上下文 的 右浮动底部 大于 清除高：
+            清除高 为 浮动上下文 的 右浮动底部。
+        完。
+    完。
+    返还 清除高。
+完。
+
+布局Box_计算盒模型 接受 layout、包含块宽、包含块高：
+    style 为 layout 的 样式。
+    若 style 等于 0：
+        返还。
+    完。
+    全局BFCM统计 的 盒模型计算数 为 全局BFCM统计 的 盒模型计算数 加 1。
+    做 盒模型_解析Padding 用 layout、style、包含块宽。
+    做 盒模型_解析Border 用 layout、style。
+    做 盒模型_解析Margin 用 layout、style、包含块宽。
+    做 盒模型_计算宽度 用 layout、style、包含块宽。
+    做 盒模型_解决AutoMargin 用 layout、style、包含块宽。
+    做 盒模型_计算高度 用 layout、style、包含块高。
+    做 盒模型_处理浮动 用 layout、style、包含块宽。
+完。
+
+AI_BFCM布局预测 接受 layout、style、包含块宽：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还。
+    完。
+    全局BFCM统计 的 AI布局预测数 为 全局BFCM统计 的 AI布局预测数 加 1。
+    feature 为 做 Tensor_创建 用 8。
+    做 Tensor_写 用 feature、0、style 的 display 除以 10.0。
+    做 Tensor_写 用 feature、1、style 的 position 除以 5.0。
+    做 Tensor_写 用 feature、2、包含块宽 除以 1920.0。
+    做 Tensor_写 用 feature、3、layout 的 宽度 除以 1920.0。
+    做 Tensor_写 用 feature、4、layout 的 padding_left 除以 100.0。
+    做 Tensor_写 用 feature、5、layout 的 margin_left 除以 100.0。
+    做 Tensor_写 用 feature、6、style 的 box_sizing 除以 2.0。
+    做 Tensor_写 用 feature、7、style 的 float_type 除以 3.0。
+    结果 为 做 AI总线_推理 用 bus、「BFCM_布局预测」、feature。
+    做 Tensor_释放 用 feature。
+完。
+
+盒模型_获取总宽度 接受 layout：
+    返还 layout 的 宽度 加 layout 的 padding_left 加 layout 的 padding_right 加 layout 的 border_left 加 layout 的 border_right 加 layout 的 margin_left 加 layout 的 margin_right。
+完。
+
+盒模型_获取总高度 接受 layout：
+    h 为 layout 的 高度。
+    若 h 等于 CSS_AUTO：
+        h 为 0。
+    完。
+    返还 h 加 layout 的 padding_top 加 layout 的 padding_bottom 加 layout 的 border_top 加 layout 的 border_bottom 加 layout 的 margin_top 加 layout 的 margin_bottom。
+完。
+
+BFCM_获取统计 接受 零参：
+    返还 全局BFCM统计。
+完。
+
+BFCM_打印统计 接受 零参：
+    s 为 全局BFCM统计。
+    做 内核打印 用 「═══ BFCM盒模型统计 ═══」。
+    做 内核打印 用 「盒模型={} 宽度={} 高度={}」、s 的 盒模型计算数、s 的 宽度计算数、s 的 高度计算数。
+    做 内核打印 用 「margin[居中/折叠]={}/{} 浮动={} AI={}」、s 的 margin居中数、s 的 margin折叠数、s 的 浮动清除数、s 的 AI布局预测数。
+完。
+
+BFCM_重置统计 接受 零参：
+    全局BFCM统计 为 新建 BFCM统计。
+完。
+
+盒模型_计算绝对定位 接受 layout、style、包含块宽、包含块高：
+    若 style 的 position 不等于 定位_绝对 并且 style 的 position 不等于 定位_固定：
+        返还。
+    完。
+    has_left 为 style 的 left 不等于 CSS_AUTO。
+    has_right 为 style 的 right 不等于 CSS_AUTO。
+    has_width 为 style 的 width 不等于 CSS_AUTO。
+    若 has_left 并且 has_right 并且 has_width：
+        left_px 为 做 CSS值_解析为像素 用 style 的 left、包含块宽。
+        right_px 为 做 CSS值_解析为像素 用 style 的 right、包含块宽。
+        layout 的 x 为 left_px 加 layout 的 margin_left 加 layout 的 border_left 加 layout 的 padding_left。
+    否则若 has_left 并且 has_width：
+        left_px 为 做 CSS值_解析为像素 用 style 的 left、包含块宽。
+        layout 的 x 为 left_px 加 layout 的 margin_left 加 layout 的 border_left 加 layout 的 padding_left。
+    否则若 has_right 并且 has_width：
+        right_px 为 做 CSS值_解析为像素 用 style 的 right、包含块宽。
+        layout 的 x 为 包含块宽 减 right_px 减 layout 的 margin_right 减 layout 的 border_right 减 layout 的 padding_right 减 layout 的 宽度。
+    否则若 has_left 并且 has_right：
+        left_px 为 做 CSS值_解析为像素 用 style 的 left、包含块宽。
+        right_px 为 做 CSS值_解析为像素 用 style 的 right、包含块宽。
+        layout 的 x 为 left_px 加 layout 的 margin_left 加 layout 的 border_left 加 layout 的 padding_left。
+        layout 的 宽度 为 包含块宽 减 left_px 减 right_px 减 layout 的 margin_left 减 layout 的 margin_right 减 layout 的 border_left 减 layout 的 border_right 减 layout 的 padding_left 减 layout 的 padding_right。
+        若 layout 的 宽度 小于 0：
+            layout 的 宽度 为 0。
+        完。
+    完。
+    has_top 为 style 的 top 不等于 CSS_AUTO。
+    has_bottom 为 style 的 bottom 不等于 CSS_AUTO。
+    has_height 为 style 的 height 不等于 CSS_AUTO。
+    若 has_top 并且 has_height：
+        top_px 为 做 CSS值_解析为像素 用 style 的 top、包含块高。
+        layout 的 y 为 top_px 加 layout 的 margin_top 加 layout 的 border_top 加 layout 的 padding_top。
+    否则若 has_bottom 并且 has_height：
+        bottom_px 为 做 CSS值_解析为像素 用 style 的 bottom、包含块高。
+        h 为 layout 的 高度。
+        若 h 等于 CSS_AUTO：
+            h 为 0。
+        完。
+        layout 的 y 为 包含块高 减 bottom_px 减 layout 的 margin_bottom 减 layout 的 border_bottom 减 layout 的 padding_bottom 减 h。
+    否则若 has_top 并且 has_bottom：
+        top_px 为 做 CSS值_解析为像素 用 style 的 top、包含块高。
+        bottom_px 为 做 CSS值_解析为像素 用 style 的 bottom、包含块高。
+        layout 的 y 为 top_px 加 layout 的 margin_top 加 layout 的 border_top 加 layout 的 padding_top。
+        layout 的 高度 为 包含块高 减 top_px 减 bottom_px 减 layout 的 margin_top 减 layout 的 margin_bottom 减 layout 的 border_top 减 layout 的 border_bottom 减 layout 的 padding_top 减 layout 的 padding_bottom。
+        若 layout 的 高度 小于 0：
+            layout 的 高度 为 0。
+        完。
+    否则若 has_top：
+        layout 的 y 为 做 CSS值_解析为像素 用 style 的 top、包含块高 加 layout 的 margin_top。
+    完。
+完。
+
+盒模型_获取内容区域 接受 layout：
+    返还 一本字典：x 对应 layout 的 x 加 layout 的 border_left 加 layout 的 padding_left、y 对应 layout 的 y 加 layout 的 border_top 加 layout 的 padding_top、宽 对应 layout 的 宽度、高 对应 layout 的 高度。
+完。
+
+盒模型_获取边框区域 接受 layout：
+    返还 一本字典：x 对应 layout 的 x、y 对应 layout 的 y、宽 对应 layout 的 宽度 加 layout 的 padding_left 加 layout 的 padding_right 加 layout 的 border_left 加 layout 的 border_right、高 对应 若 layout 的 高度 等于 CSS_AUTO 则 0 否则 layout 的 高度 加 layout 的 padding_top 加 layout 的 padding_bottom 加 layout 的 border_top 加 layout 的 border_bottom。
+完。
+
+盒模型_获取外边距区域 接受 layout：
+    bb 为 做 盒模型_获取边框区域 用 layout。
+    返还 一本字典：x 对应 bb 的 x 减 layout 的 margin_left、y 对应 bb 的 y 减 layout 的 margin_top、宽 对应 bb 的 宽 加 layout 的 margin_left 加 layout 的 margin_right、高 对应 bb 的 高 加 layout 的 margin_top 加 layout 的 margin_bottom。
+完。
+
+本章 收束。

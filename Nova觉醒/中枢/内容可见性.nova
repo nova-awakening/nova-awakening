@@ -1,0 +1,406 @@
+《内容可见性》
+
+引用《..·推理·通信渠道》。
+引用《.·整数转字符串》。
+引用《..·执行·平台时间》。
+引用《.·时钟中枢》。
+
+CV_VISIBLE 为 0。
+CV_HIDDEN 为 1。
+CV_AUTO 为 2。
+
+ContentVisibilityState 是 一种 事物：
+    模式,
+    ※ auto模式状态。
+    在视口中,。
+    ※ contain-intrinsic-size。
+    固有宽度,
+    固有高度,。
+    有固有大小,。
+    ※ 关联的IntersectionObserver。
+    observer,
+    ※ 上次可见状态改变时间。
+    上次变化时间,。
+    ※ 是否需要渲染。
+    需要渲染,。
+完。
+
+CV_创建 接受 模式：
+    cv 为 做 堆_分配 用 ContentVisibilityState。
+    cv.模式 为 模式; cv.在视口中 = (模式 等于 CV_VISIBLE)。
+    cv.固有宽度 为 0; cv.固有高度 = 0; cv.有固有大小 = 假。
+    cv.observer 为 0; cv.上次变化时间 = 0; cv.需要渲染 = (模式 等于 CV_VISIBLE)。
+    返还 cv。
+完。
+
+CV_设置固有大小 接受 cv、宽度、高度：
+    若 cv 等于 0：
+    cv.固有宽度 为 宽度; cv.固有高度 = 高度; cv.有固有大小 = 真。
+完。
+
+※ auto模式: IntersectionObserver回调。
+CV_可见性变化 接受 cv、在视口中：
+    若 cv 等于 0 或者 cv.模式 不等于 CV_AUTO：
+    旧状态 为 cv.在视口中。
+    cv.在视口中 为 在视口中。
+    cv.需要渲染 为 在视口中。
+    cv.上次变化时间 为 做 平台_获取高精度时间。
+
+    若 旧状态 不等于 在视口中：
+        ※ 触发contentvisibilityautostatechange事件。
+        若 在视口中：
+            ※ 进入视口: 需要重新布局+绘制。
+            ※ 标记元素为dirty。
+        否则：
+            ※ 离开视口: 可以跳过布局+绘制。
+            ※ 元素大小变为contain-intrinsic-size。
+        完。
+    完。
+完。
+
+※ 布局时检查。
+CV_应该布局 接受 cv：
+    若 cv 等于 0：
+    若 cv.模式 等于 CV_VISIBLE：
+    若 cv.模式 等于 CV_HIDDEN：
+    ※ auto: 看是否在视口中。
+    返还 cv.在视口中。
+完。
+
+※ 绘制时检查。
+CV_应该绘制 接受 cv：
+    若 cv 等于 0：
+    若 cv.模式 等于 CV_VISIBLE：
+    若 cv.模式 等于 CV_HIDDEN：
+    返还 cv.在视口中。
+完。
+
+※ 获取元素大小(当content-visibility: auto且不在视口时)。
+CV_获取大小 接受 cv、实际宽度、实际高度：
+    若 cv 等于 0 或者 cv.模式 等于 CV_VISIBLE 或者 cv.在视口中：
+        返还 0
+    完。
+    若 cv.有固有大小：
+        ※ 返回contain-intrinsic-size。
+        返还 1
+    完。
+    ※ 没有固有大小: 使用上次已知大小或0。
+    返还 0。
+完。
+
+※ §3 原生懒加载 (loading=「lazy」)。
+
+LazyLoadState 是 一种 事物：
+    元素,
+    src,
+    已加载,。
+    在视口中,。
+    ※ 距离阈值(根据网络条件调整)。
+    阈值,
+完。
+
+可变 懒加载列表 为 0。
+可变 懒加载数量 为 0。
+可变 懒加载容量 为 0。
+
+LazyLoad_注册 接受 元素、src：
+    若 元素 等于 0 或者 src 等于 0：
+    若 懒加载列表 等于 0：
+        懒加载容量 为 256。
+        懒加载列表 为 做 堆_分配_数组 用 256 乘 8。
+        懒加载数量 为 0。
+    完。
+    若 懒加载数量 不小于 懒加载容量：
+
+    state 为 做 堆_分配 用 LazyLoadState。
+    state.元素 为 元素; state.src = src。
+    state.已加载 为 假; state.在视口中 = 假。
+    ※ 根据网络条件设置阈值。
+    state.阈值 为 做 LazyLoad_计算阈值。
+
+    做 内存_写64 用 懒加载列表 加 懒加载数量 乘 8、state。
+    懒加载数量 为 懒加载数量 加 1。
+完。
+
+LazyLoad_计算阈值 接受 零参：
+    ※ 网络快→小阈值(接近视口才加载)。
+    ※ 网络慢→大阈值(提前更多开始加载)。
+    ※ 4G: 1250px, 3G: 2500px, 2G: 4000px。
+    返还 1250
+完。
+
+※ 滚动时检查(由IntersectionObserver或scroll事件驱动)。
+LazyLoad_检查 接受 视口Y、视口高度：
+    可变 i 为 0。
+    只要 i 小于 懒加载数量：
+        state 为 做 内存_读64 用 懒加载列表 加 i 乘 8。
+        若 state 不等于 0 并且 !state.已加载：
+            ※ 检查元素是否在视口+阈值范围内。
+            ※ 如果是: 开始加载。
+            ※ state.已加载 = true。
+            ※ 设置元素的实际src → 触发网络请求。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+※ §4 IntersectionObserver。
+
+IntersectionObserver 是 一种 事物：
+    回调,。
+    根元素,。
+    根边距,。
+    阈值列表,。
+    阈值数,。
+    观察目标,。
+    观察数,。
+完。
+
+IntersectionEntry 是 一种 事物：
+    目标,。
+    边界矩形,。
+    交叉矩形,。
+    交叉比,。
+    是相交,。
+    时间,。
+完。
+
+IntersectionObserver_创建 接受 回调、根、阈值：
+    obs 为 IntersectionObserver {}。
+    obs.回调 为 回调。
+    obs.根元素 为 根。
+    obs.根边距 为 0。
+    obs.阈值列表 为 阈值。
+    obs.阈值数 为 若 (阈值 不等于 0, 做 计数 用 阈值, 1)。
+    obs.观察目标 为 []。
+    obs.观察数 为 0。
+    返还 obs。
+完。
+
+IntersectionObserver_observe 接受 obs、目标：
+    若 obs 等于 0 或者 目标 等于 0：
+    做 追加 用 obs.观察目标、目标。
+    obs.观察数 为 obs.观察数 加 1。
+完。
+
+IntersectionObserver_unobserve 接受 obs、目标：
+    若 obs 等于 0 或者 目标 等于 0：
+    可变 新列表 为 []。
+    可变 i 为 0。
+    只要 i 小于 obs.观察数：
+        若 obs.观察目标[i] 不等于 目标：
+            做 追加 用 新列表、obs.观察目标[i]。
+        完。
+        i 为 i 加 1。
+    完。
+    obs.观察目标 为 新列表。
+    obs.观察数 为 做 计数 用 新列表。
+完。
+
+IntersectionObserver_disconnect 接受 obs：
+    若 obs 等于 0：
+    obs.观察目标 为 []。
+    obs.观察数 为 0。
+完。
+
+IntersectionObserver_检查全部 接受 obs、视口矩形：
+    若 obs 等于 0 或者 obs.观察数 等于 0：
+    可变 变化列表 为 []。
+    可变 i 为 0。
+    只要 i 小于 obs.观察数：
+        entry 为 IntersectionEntry {}。
+        entry.目标 为 obs.观察目标[i]。
+        entry.交叉比 为 0。
+        entry.是相交 为 假。
+        entry.时间 为 做 平台_获取高精度时间。
+        做 追加 用 变化列表、entry。
+        i 为 i 加 1。
+    完。
+    若 做 计数 用 变化列表 大于 0 并且 obs.回调 不等于 0：
+        obs.做 回调 用 变化列表。
+    完。
+完。
+
+※ §5 ResizeObserver。
+
+ResizeObserver 是 一种 事物：
+    回调,。
+    观察目标,。
+    观察数,。
+完。
+
+ResizeEntry 是 一种 事物：
+    目标,。
+    内容矩形宽,。
+    内容矩形高,。
+    边框矩形宽,。
+    边框矩形高,。
+完。
+
+ResizeObserver_创建 接受 回调：
+    obs 为 ResizeObserver {}。
+    obs.回调 为 回调。
+    obs.观察目标 为 []。
+    obs.观察数 为 0。
+    返还 obs。
+完。
+
+ResizeObserver_observe 接受 obs、目标：
+    若 obs 等于 0 或者 目标 等于 0：
+    做 追加 用 obs.观察目标、目标。
+    obs.观察数 为 obs.观察数 加 1。
+完。
+
+ResizeObserver_unobserve 接受 obs、目标：
+    若 obs 等于 0：
+    可变 新列表 为 []。
+    可变 i 为 0。
+    只要 i 小于 obs.观察数：
+        若 obs.观察目标[i] 不等于 目标) { 追加(新列表, obs.观察目标[i]：
+        i 为 i 加 1。
+    完。
+    obs.观察目标 为 新列表。
+    obs.观察数 为 做 计数 用 新列表。
+完。
+
+ResizeObserver_disconnect 接受 obs：
+    若 obs 等于 0：
+    obs.观察目标 为 []。
+    obs.观察数 为 0。
+完。
+
+※ §6 MutationObserver。
+
+MutationObserver 是 一种 事物：
+    回调,。
+    观察列表,。
+    观察数,。
+    待处理记录,。
+完。
+
+MutationRecord 是 一种 事物：
+    类型,。
+    目标,。
+    添加的节点,。
+    移除的节点,。
+    属性名,。
+    旧值,。
+完。
+
+MUTATION_CHILDLIST 为 1。
+MUTATION_ATTRIBUTES 为 2。
+MUTATION_CHARACTERDATA 为 3。
+
+MutationObserver_创建 接受 回调：
+    obs 为 MutationObserver {}。
+    obs.回调 为 回调。
+    obs.观察列表 为 []。
+    obs.观察数 为 0。
+    obs.待处理记录 为 []。
+    返还 obs。
+完。
+
+MutationObserver_observe 接受 obs、目标、选项：
+    若 obs 等于 0 或者 目标 等于 0：
+    做 追加 用 obs.观察列表、{ 目标: 目标、选项: 选项 }。
+    obs.观察数 为 obs.观察数 加 1。
+完。
+
+MutationObserver_disconnect 接受 obs：
+    若 obs 等于 0：
+    obs.观察列表 为 []。
+    obs.观察数 为 0。
+    obs.待处理记录 为 []。
+完。
+
+MutationObserver_takeRecords 接受 obs：
+    若 obs 等于 0：
+    记录 为 obs.待处理记录。
+    obs.待处理记录 为 []。
+    返还 记录。
+完。
+
+Mutation类型_名称 接受 类型：
+    若 类型 等于 MUTATION_CHILDLIST：
+    若 类型 等于 MUTATION_ATTRIBUTES：
+    若 类型 等于 MUTATION_CHARACTERDATA：
+    返还 「unknown」。
+完。
+
+※ §7 可见性统计与健康检查。
+
+可变 CV_总创建数 为 0。
+可变 CV_auto数 为 0。
+可变 CV_hidden数 为 0。
+可变 LazyLoad_总注册数 为 0。
+可变 LazyLoad_已加载数 为 0。
+可变 IO_观察总数 为 0。
+可变 RO_观察总数 为 0。
+可变 MO_观察总数 为 0。
+
+可见性_统计 接受 零参：
+    返还 ：
+        CV创建。
+        CV_auto。
+        CV_hidden。
+        懒加载注册。
+        懒加载完成。
+        IO观察。
+        RO观察。
+        MO观察。
+    完。
+完。
+
+可见性_健康检查 接受 零参：
+    可变 问题 为 []。
+    若 懒加载数量 大于 1000：
+        做 追加 用 问题、「懒加载元素过多: 」 加 做 整数转字符串 用 懒加载数量。
+    完。
+    若 IO_观察总数 大于 10000：
+        做 追加 用 问题、「IntersectionObserver观察过多」。
+    完。
+    若 做 计数 用 问题 等于 0：
+    返还 问题。
+完。
+
+可见性_重置统计 接受 零参：
+    CV_总创建数 为 0。
+    CV_auto数 为 0。
+    CV_hidden数 为 0。
+    LazyLoad_总注册数 为 0。
+    LazyLoad_已加载数 为 0。
+    IO_观察总数 为 0。
+    RO_观察总数 为 0。
+    MO_观察总数 为 0。
+完。
+
+可见性_完整统计 接受 零参：
+    返还 [CV_总创建数, LazyLoad_总注册数, IO_观察总数, RO_观察总数, MO_观察总数]。
+完。
+
+CV_模式名 接受 模式：
+    若 模式 等于 CV_VISIBLE：
+    若 模式 等于 CV_HIDDEN：
+    若 模式 等于 CV_AUTO：
+    返还 「unknown」。
+完。
+
+※ §CSS智能增强。
+可变 AI_创建甲_样式缓存命中 为 0。
+
+AI_创建甲_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+    若 组合子数 大于 2：
+    返还 「低复杂度」。
+完。
+
+AI_创建甲_布局缓存 接受 元素哈希：
+    AI_创建甲_样式缓存命中 为 AI_创建甲_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。
+
+本章 收束。
+
+本章 收束。

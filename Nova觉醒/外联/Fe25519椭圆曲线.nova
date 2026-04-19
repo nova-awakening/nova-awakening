@@ -1,0 +1,423 @@
+《Fe25519椭圆曲线》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·同步原语》。
+
+引用《..·感知·内核直连层》。
+
+引用《.·消息认证码》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·TLS密钥派生》。
+
+引用《..·执行·域名解析》。
+
+LIMB_数 为 5。
+
+LIMB_BITS 为 51。
+
+LIMB_MASK 为 2251799813685247。
+
+P_最后 为 2251799813685228。
+
+Fe25519 是 一种 事物，含 limb0、limb1、limb2、limb3、limb4。
+
+Fe25519_初始化 接受 v：
+    f 为 新建 Fe25519。
+    f 的 limb0 为 v。
+    f 的 limb1 为 0。
+    f 的 limb2 为 0。
+    f 的 limb3 为 0。
+    f 的 limb4 为 0。
+    返还 f。
+完。
+
+Fe25519_复制 接受 dst、src：
+    dst 的 limb0 为 src 的 limb0。
+    dst 的 limb1 为 src 的 limb1。
+    dst 的 limb2 为 src 的 limb2。
+    dst 的 limb3 为 src 的 limb3。
+    dst 的 limb4 为 src 的 limb4。
+完。
+
+Fe25519_加 接受 r、a、b：
+    r 的 limb0 为 a 的 limb0 加 b 的 limb0。
+    r 的 limb1 为 a 的 limb1 加 b 的 limb1。
+    r 的 limb2 为 a 的 limb2 加 b 的 limb2。
+    r 的 limb3 为 a 的 limb3 加 b 的 limb3。
+    r 的 limb4 为 a 的 limb4 加 b 的 limb4。
+完。
+
+Fe25519_减 接受 r、a、b：
+    r 的 limb0 为 a 的 limb0 减 b 的 limb0 加 LIMB_MASK 加 1。
+    r 的 limb1 为 a 的 limb1 减 b 的 limb1 加 LIMB_MASK 加 1。
+    r 的 limb2 为 a 的 limb2 减 b 的 limb2 加 LIMB_MASK 加 1。
+    r 的 limb3 为 a 的 limb3 减 b 的 limb3 加 LIMB_MASK 加 1。
+    r 的 limb4 为 a 的 limb4 减 b 的 limb4 加 LIMB_MASK 加 1。
+    做 Fe25519_规约 用 r。
+完。
+
+Fe25519_规约 接受 r：
+    可变 c 为 0。
+    c 为 r 的 limb0 右移 LIMB_BITS。
+    r 的 limb0 为 r 的 limb0 位与 LIMB_MASK。
+    r 的 limb1 为 r 的 limb1 加 c。
+    c 为 r 的 limb1 右移 LIMB_BITS。
+    r 的 limb1 为 r 的 limb1 位与 LIMB_MASK。
+    r 的 limb2 为 r 的 limb2 加 c。
+    c 为 r 的 limb2 右移 LIMB_BITS。
+    r 的 limb2 为 r 的 limb2 位与 LIMB_MASK。
+    r 的 limb3 为 r 的 limb3 加 c。
+    c 为 r 的 limb3 右移 LIMB_BITS。
+    r 的 limb3 为 r 的 limb3 位与 LIMB_MASK。
+    r 的 limb4 为 r 的 limb4 加 c。
+    c 为 r 的 limb4 右移 LIMB_BITS。
+    r 的 limb4 为 r 的 limb4 位与 LIMB_MASK。
+    r 的 limb0 为 r 的 limb0 加 c 乘 19。
+完。
+
+Fe25519_乘 接受 r、a、b：
+    a0 为 a 的 limb0。
+    a1 为 a 的 limb1。
+    a2 为 a 的 limb2。
+    a3 为 a 的 limb3。
+    a4 为 a 的 limb4。
+    b0 为 b 的 limb0。
+    b1 为 b 的 limb1。
+    b2 为 b 的 limb2。
+    b3 为 b 的 limb3。
+    b4 为 b 的 limb4。
+    b1_19 为 b1 乘 19。
+    b2_19 为 b2 乘 19。
+    b3_19 为 b3 乘 19。
+    b4_19 为 b4 乘 19。
+    r 的 limb0 为 a0 乘 b0 加 a1 乘 b4_19 加 a2 乘 b3_19 加 a3 乘 b2_19 加 a4 乘 b1_19。
+    r 的 limb1 为 a0 乘 b1 加 a1 乘 b0 加 a2 乘 b4_19 加 a3 乘 b3_19 加 a4 乘 b2_19。
+    r 的 limb2 为 a0 乘 b2 加 a1 乘 b1 加 a2 乘 b0 加 a3 乘 b4_19 加 a4 乘 b3_19。
+    r 的 limb3 为 a0 乘 b3 加 a1 乘 b2 加 a2 乘 b1 加 a3 乘 b0 加 a4 乘 b4_19。
+    r 的 limb4 为 a0 乘 b4 加 a1 乘 b3 加 a2 乘 b2 加 a3 乘 b1 加 a4 乘 b0。
+    做 Fe25519_规约 用 r。
+完。
+
+Fe25519_平方 接受 r、a：
+    做 Fe25519_乘 用 r、a、a。
+完。
+
+Fe25519_标量乘 接受 r、a、s：
+    r 的 limb0 为 a 的 limb0 乘 s。
+    r 的 limb1 为 a 的 limb1 乘 s。
+    r 的 limb2 为 a 的 limb2 乘 s。
+    r 的 limb3 为 a 的 limb3 乘 s。
+    r 的 limb4 为 a 的 limb4 乘 s。
+    做 Fe25519_规约 用 r。
+完。
+
+Fe25519_条件交换 接受 a、b、条件：
+    mask 为 0 减 条件。
+    可变 i 为 0。
+    只要 i 小于 LIMB_数：
+        ta 为 做 Fe25519_获取limb 用 a、i。
+        tb 为 做 Fe25519_获取limb 用 b、i。
+        diff 为 (ta 位异或 tb) 位与 mask。
+        做 Fe25519_设置limb 用 a、i、ta 位异或 diff。
+        做 Fe25519_设置limb 用 b、i、tb 位异或 diff。
+        i 为 i 加 1。
+    完。
+完。
+
+Fe25519_获取limb 接受 f、i：
+    若 i 等于 0：
+        返还 f 的 limb0。
+    完。
+    若 i 等于 1：
+        返还 f 的 limb1。
+    完。
+    若 i 等于 2：
+        返还 f 的 limb2。
+    完。
+    若 i 等于 3：
+        返还 f 的 limb3。
+    完。
+    返还 f 的 limb4。
+完。
+
+Fe25519_设置limb 接受 f、i、v：
+    若 i 等于 0：
+        f 的 limb0 为 v。
+    完。
+    做 否则如果 用 i 等于 1。
+    块：
+        f 的 limb1 为 v。
+    完。
+    做 否则如果 用 i 等于 2。
+    块：
+        f 的 limb2 为 v。
+    完。
+    做 否则如果 用 i 等于 3。
+    块：
+        f 的 limb3 为 v。
+    完。
+    否则。
+    块：
+        f 的 limb4 为 v。
+    完。
+完。
+
+Fe25519_幂_n 接受 r、base、n：
+    做 Fe25519_复制 用 r、base。
+    可变 i 为 0。
+    只要 i 小于 n：
+        做 Fe25519_平方 用 r、r。
+        i 为 i 加 1。
+    完。
+完。
+
+Fe25519_逆 接受 r、a：
+    t0 为 做 Fe25519_初始化 用 0。
+    t1 为 做 Fe25519_初始化 用 0。
+    t2 为 做 Fe25519_初始化 用 0。
+    做 Fe25519_平方 用 t0、a。
+    做 Fe25519_平方 用 t1、t0。
+    做 Fe25519_平方 用 t1、t1。
+    做 Fe25519_乘 用 t1、t1、a。
+    做 Fe25519_乘 用 t0、t0、t1。
+    做 Fe25519_平方 用 t2、t0。
+    做 Fe25519_乘 用 t1、t2、t1。
+    做 Fe25519_幂_n 用 t2、t1、5。
+    做 Fe25519_乘 用 t2、t2、t1。
+    做 Fe25519_幂_n 用 t1、t2、10。
+    做 Fe25519_乘 用 t1、t1、t2。
+    做 Fe25519_幂_n 用 t1、t1、20。
+    做 Fe25519_乘 用 t1、t1、t1。
+    做 Fe25519_幂_n 用 t1、t1、10。
+    做 Fe25519_乘 用 t1、t1、t2。
+    做 Fe25519_幂_n 用 t2、t1、50。
+    做 Fe25519_乘 用 t2、t2、t1。
+    做 Fe25519_幂_n 用 t2、t2、100。
+    做 Fe25519_乘 用 t2、t2、t2。
+    做 Fe25519_幂_n 用 t2、t2、50。
+    做 Fe25519_乘 用 t2、t2、t1。
+    做 Fe25519_幂_n 用 t0、t2、5。
+    做 Fe25519_乘 用 r、t0、t0。
+完。
+
+Fe25519_从字节 接受 f、数据：
+    f 的 limb0 为 做 内存_读64_小端 用 数据 位与 LIMB_MASK。
+    f 的 limb1 为 做 内存_读64_小端 用 数据 加 6 右移 3 位与 LIMB_MASK。
+    f 的 limb2 为 做 内存_读64_小端 用 数据 加 12 右移 6 位与 LIMB_MASK。
+    f 的 limb3 为 做 内存_读64_小端 用 数据 加 19 右移 1 位与 LIMB_MASK。
+    f 的 limb4 为 做 内存_读64_小端 用 数据 加 25 右移 4 位与 LIMB_MASK。
+完。
+
+Fe25519_到字节 接受 f、输出：
+    做 Fe25519_规约 用 f。
+    v0 为 f 的 limb0。
+    v1 为 f 的 limb1。
+    v2 为 f 的 limb2。
+    v3 为 f 的 limb3。
+    v4 为 f 的 limb4。
+    可变 i 为 0。
+    只要 i 小于 32：
+        bit_pos 为 i 乘 8。
+        limb_idx 为 bit_pos 除以 LIMB_BITS。
+        bit_off 为 bit_pos 取余于 LIMB_BITS。
+        v 为 做 Fe25519_获取limb 用 f、limb_idx 右移 bit_off 位与 0xFF。
+        做 内存_写8 用 输出 加 i、v。
+        i 为 i 加 1。
+    完。
+完。
+
+可变 X25519_BASEPOINT 为 一组：9、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0、0。
+
+X25519 接受 输出、标量、点u：
+    k 为 做 堆_分配 用 32。
+    做 内存_复制 用 k、标量、32。
+    做 内存_写8 用 k、做 内存_读8 用 k 位与 248。
+    做 内存_写8 用 k 加 31、做 内存_读8 用 k 加 31 位与 127 位或 64。
+    u_fe 为 做 Fe25519_初始化 用 0。
+    做 Fe25519_从字节 用 u_fe、点u。
+    x2 为 做 Fe25519_初始化 用 1。
+    z2 为 做 Fe25519_初始化 用 0。
+    x3 为 做 Fe25519_初始化 用 0。
+    z3 为 做 Fe25519_初始化 用 1。
+    做 Fe25519_复制 用 x3、u_fe。
+    A 为 做 Fe25519_初始化 用 0。
+    B 为 做 Fe25519_初始化 用 0。
+    C 为 做 Fe25519_初始化 用 0。
+    D 为 做 Fe25519_初始化 用 0。
+    E 为 做 Fe25519_初始化 用 0。
+    可变 swap 为 0。
+    可变 bit 为 254。
+    只要 bit 大于或等于 0：
+        byte_idx 为 bit 除以 8。
+        bit_idx 为 bit 取余于 8。
+        kt 为 做 内存_读8 用 k 加 byte_idx 右移 bit_idx 位与 1。
+        swap 为 swap 位异或 kt。
+        做 Fe25519_条件交换 用 x2、x3、swap。
+        做 Fe25519_条件交换 用 z2、z3、swap。
+        swap 为 kt。
+        做 Fe25519_加 用 A、x2、z2。
+        做 Fe25519_减 用 B、x2、z2。
+        做 Fe25519_加 用 C、x3、z3。
+        做 Fe25519_减 用 D、x3、z3。
+        做 Fe25519_乘 用 E、D、A。
+        做 Fe25519_乘 用 D、C、B。
+        做 Fe25519_加 用 C、E、D。
+        做 Fe25519_平方 用 x3、C。
+        做 Fe25519_减 用 C、E、D。
+        做 Fe25519_平方 用 z3、C。
+        做 Fe25519_乘 用 z3、z3、u_fe。
+        做 Fe25519_平方 用 A、A。
+        做 Fe25519_平方 用 B、B。
+        做 Fe25519_乘 用 x2、A、B。
+        做 Fe25519_减 用 E、A、B。
+        做 Fe25519_标量乘 用 C、E、121666。
+        做 Fe25519_加 用 C、C、A。
+        做 Fe25519_乘 用 z2、E、C。
+        bit 为 bit 减 1。
+    完。
+    做 Fe25519_条件交换 用 x2、x3、swap。
+    做 Fe25519_条件交换 用 z2、z3、swap。
+    做 Fe25519_逆 用 z2、z2。
+    做 Fe25519_乘 用 x2、x2、z2。
+    做 Fe25519_到字节 用 x2、输出。
+    做 堆_释放 用 k。
+完。
+
+X25519_生成密钥对 接受 私钥、公钥：
+    做 平台_安全随机 用 私钥、32。
+    做 X25519 用 公钥、私钥、X25519_BASEPOINT。
+完。
+
+X25519_共享密钥 接受 输出、己方私钥、对方公钥：
+    做 X25519 用 输出、己方私钥、对方公钥。
+    可变 全零 为 真。
+    可变 i 为 0。
+    只要 i 小于 32：
+        若 做 内存_读8 用 输出 加 i 不等于 0：
+            全零 为 假。
+            跳出。
+        完。
+        i 为 i 加 1。
+    完。
+    若 全零：
+        返还 负 1。
+    完。
+    返还 0。
+完。
+
+内存_读64_小端 接受 ptr：
+    返还 做 内存_读8 用 ptr 位或 做 内存_读8 用 ptr 加 1 左移 8 位或 做 内存_读8 用 ptr 加 2 左移 16 位或 做 内存_读8 用 ptr 加 3 左移 24 位或 做 内存_读8 用 ptr 加 4 左移 32 位或 做 内存_读8 用 ptr 加 5 左移 40 位或 做 内存_读8 用 ptr 加 6 左移 48 位或 做 内存_读8 用 ptr 加 7 左移 56。
+完。
+
+内存_写64_小端 接受 ptr、v：
+    做 内存_写8 用 ptr、v 位与 0xFF。
+    做 内存_写8 用 ptr 加 1、v 右移 8 位与 0xFF。
+    做 内存_写8 用 ptr 加 2、v 右移 16 位与 0xFF。
+    做 内存_写8 用 ptr 加 3、v 右移 24 位与 0xFF。
+    做 内存_写8 用 ptr 加 4、v 右移 32 位与 0xFF。
+    做 内存_写8 用 ptr 加 5、v 右移 40 位与 0xFF。
+    做 内存_写8 用 ptr 加 6、v 右移 48 位与 0xFF。
+    做 内存_写8 用 ptr 加 7、v 右移 56 位与 0xFF。
+完。
+
+安全13_派生密钥 接受 共享密钥、握手哈希、客户端写密钥、服务端写密钥、客户端写IV、服务端写IV：
+    early_secret 为 做 堆_分配 用 32。
+    做 HKDF_Extract 用 0、0、共享密钥、0、early_secret。
+    hs_secret 为 做 堆_分配 用 32。
+    derived 为 做 堆_分配 用 32。
+    做 HKDF_Expand_Label 用 early_secret、「derived」、0、0、derived、32。
+    做 HKDF_Extract 用 derived、32、共享密钥、32、hs_secret。
+    c_hs_traffic 为 做 堆_分配 用 32。
+    s_hs_traffic 为 做 堆_分配 用 32。
+    做 HKDF_Expand_Label 用 hs_secret、「c hs traffic」、握手哈希、32、c_hs_traffic、32。
+    做 HKDF_Expand_Label 用 hs_secret、「s hs traffic」、握手哈希、32、s_hs_traffic、32。
+    做 HKDF_Expand_Label 用 c_hs_traffic、「key」、0、0、客户端写密钥、16。
+    做 HKDF_Expand_Label 用 c_hs_traffic、「iv」、0、0、客户端写IV、12。
+    做 HKDF_Expand_Label 用 s_hs_traffic、「key」、0、0、服务端写密钥、16。
+    做 HKDF_Expand_Label 用 s_hs_traffic、「iv」、0、0、服务端写IV、12。
+    做 内存_清零 用 early_secret、32。
+    做 堆_释放 用 early_secret。
+    做 堆_释放 用 hs_secret。
+    做 内存_清零 用 derived、32。
+    做 堆_释放 用 derived。
+    做 堆_释放 用 c_hs_traffic。
+    做 堆_释放 用 s_hs_traffic。
+完。
+
+安全13_派生应用密钥 接受 握手密钥、服务器完成哈希、客户端写密钥、服务端写密钥、客户端写IV、服务端写IV：
+    derived 为 做 堆_分配 用 32。
+    做 HKDF_Expand_Label 用 握手密钥、「derived」、0、0、derived、32。
+    master 为 做 堆_分配 用 32。
+    zero32 为 做 堆_分配 用 32。
+    做 内存_置零 用 zero32、32。
+    做 HKDF_Extract 用 derived、32、zero32、32、master。
+    c_app 为 做 堆_分配 用 32。
+    s_app 为 做 堆_分配 用 32。
+    做 HKDF_Expand_Label 用 master、「c ap traffic」、服务器完成哈希、32、c_app、32。
+    做 HKDF_Expand_Label 用 master、「s ap traffic」、服务器完成哈希、32、s_app、32。
+    做 HKDF_Expand_Label 用 c_app、「key」、0、0、客户端写密钥、16。
+    做 HKDF_Expand_Label 用 c_app、「iv」、0、0、客户端写IV、12。
+    做 HKDF_Expand_Label 用 s_app、「key」、0、0、服务端写密钥、16。
+    做 HKDF_Expand_Label 用 s_app、「iv」、0、0、服务端写IV、12。
+    做 内存_清零 用 derived、32。
+    做 堆_释放 用 derived。
+    做 堆_释放 用 master。
+    做 内存_清零 用 zero32、32。
+    做 堆_释放 用 zero32。
+    做 堆_释放 用 c_app。
+    做 堆_释放 用 s_app。
+完。
+
+安全_擦除 接受 指针、大小：
+    可变 p 为 指针。
+    结束 为 指针 加 大小。
+    只要 p 小于 结束：
+        做 内存_写8 用 p、0。
+        p 为 p 加 1。
+    完。
+完。
+
+安全_比较 接受 数据1、数据2、大小：
+    可变 diff 为 0。
+    可变 i 为 0。
+    只要 i 小于 大小：
+        diff 为 diff 位或 做 内存_读8 用 数据1 加 i 位异或 做 内存_读8 用 数据2 加 i。
+        i 为 i 加 1。
+    完。
+    返还 diff 等于 0。
+完。
+
+Fe25519_重置统计 接受 零参：
+    Fe_条件交换次数 为 0。
+    Fe_加法次数 为 0。
+    Fe_乘法次数 为 0。
+    Fe_幂运算次数 为 0。
+    Fe_擦除次数 为 0。
+完。
+
+Fe25519_打印统计 接受 零参：
+    做 打印行 用 「=== Fe25519统计 ===」。
+    做 打印行 用 「条件交换: 」 加 做 整数转字符串 用 Fe_条件交换次数。
+    做 打印行 用 「加法: 」 加 做 整数转字符串 用 Fe_加法次数。
+    做 打印行 用 「乘法: 」 加 做 整数转字符串 用 Fe_乘法次数。
+    做 打印行 用 「幂运算: 」 加 做 整数转字符串 用 Fe_幂运算次数。
+    做 打印行 用 「安全擦除: 」 加 做 整数转字符串 用 Fe_擦除次数。
+完。
+
+Fe25519_批量擦除 接受 缓冲区列表、数量：
+    可变 i 为 0。
+    只要 i 小于 数量：
+        做 安全_擦除 用 缓冲区列表 的 第 i 项 的 指针、缓冲区列表 的 第 i 项 的 大小。
+        Fe_擦除次数 为 Fe_擦除次数 加 1。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

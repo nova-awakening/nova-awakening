@@ -1,0 +1,138 @@
+《图绘变换反馈》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·稳态·AMD图形驱动》。
+
+引用《.·内核直连层》。
+
+TransformFeedback 是 一种 事物，含 ID、缓冲、缓冲数、活跃、暂停。
+
+可变 TF_池 为 0。
+
+可变 TF_池大小 为 0。
+
+可变 TF_下一个ID 为 1。
+
+图绘2_createTransformFeedback 接受 零参：
+    若 TF_池 等于 0：
+        TF_池 为 做 堆_分配_数组 用 16 乘 做 大小of 用 TransformFeedback。
+        TF_池大小 为 0。
+    完。
+    若 TF_池大小 大于或等于 16：
+        返还 0。
+    完。
+    tf 为 TF_池 加 TF_池大小 乘 做 大小of 用 TransformFeedback。
+    tf 的 ID 为 TF_下一个ID。
+    TF_下一个ID 为 TF_下一个ID 加 1。
+    tf 的 缓冲数 为 0。
+    tf 的 活跃 为 假。
+    tf 的 暂停 为 假。
+    TF_池大小 为 TF_池大小 加 1。
+    返还 tf 的 ID。
+完。
+
+图绘2_beginTransformFeedback 接受 primitiveMode：
+    cmd 为 做 图处命令_分配 用 图处_CMD_BEGIN_TF、4。
+    做 内存_写32 用 cmd 加 8、primitiveMode。
+    做 图处命令_提交 用 cmd。
+    做 GL_状态设置 用 GL_TRANSFORM_FEEDBACK_ACTIVE、1。
+完。
+
+图绘2_endTransformFeedback 接受 零参：
+    cmd 为 做 图处命令_分配 用 图处_CMD_END_TF、0。
+    做 图处命令_提交 用 cmd。
+    做 GL_状态设置 用 GL_TRANSFORM_FEEDBACK_ACTIVE、0。
+完。
+
+图绘2_pauseTransformFeedback 接受 零参：
+    做 GL_状态设置 用 GL_TRANSFORM_FEEDBACK_PAUSED、1。
+完。
+
+图绘2_resumeTransformFeedback 接受 零参：
+    做 GL_状态设置 用 GL_TRANSFORM_FEEDBACK_PAUSED、0。
+完。
+
+图绘2_transformFeedbackVaryings 接受 program、varyings、count、bufferMode：
+    若 program 等于 0 或者 varyings 等于 0 或者 count 小于或等于 0：
+        返还。
+    完。
+    cmd 为 做 图处命令_分配 用 图处_CMD_TF_VARYINGS、12 加 count 乘 8。
+    做 内存_写32 用 cmd 加 8、program。
+    做 内存_写32 用 cmd 加 12、count。
+    做 内存_写32 用 cmd 加 16、bufferMode。
+    可变 i 为 0。
+    只要 i 小于 count：
+        做 内存_写64 用 cmd 加 20 加 i 乘 8、做 内存_读64 用 varyings 加 i 乘 8。
+        i 为 i 加 1。
+    完。
+    做 图处命令_提交 用 cmd。
+完。
+
+GLSync 是 一种 事物，含 ID、已发出、状态。
+
+可变 Sync_下一个ID 为 1。
+
+图绘2_fenceSync 接受 condition、flags：
+    若 condition 不等于 GL_SYNC_图处_COMMANDS_COMPLETE：
+        返还 0。
+    完。
+    s 为 做 堆_分配 用 GLSync。
+    s 的 ID 为 Sync_下一个ID。
+    Sync_下一个ID 为 Sync_下一个ID 加 1。
+    s 的 已发出 为 真。
+    s 的 状态 为 1。
+    返还 s。
+完。
+
+图绘2_clientWaitSync 接受 sync、flags、timeout：
+    若 sync 等于 0：
+        返还 GL_WAIT_FAILED。
+    完。
+    若 sync 的 状态 等于 2：
+        返还 GL_ALREADY_SIGNALED。
+    完。
+    sync 的 状态 为 2。
+    返还 GL_CONDITION_SATISFIED。
+完。
+
+图绘2_deleteSync 接受 sync：
+    若 sync 等于 0：
+        返还。
+    完。
+完。
+
+GLQuery 是 一种 事物，含 ID、类型、结果、已完成。
+
+图绘2_createQuery 接受 零参：
+    q 为 做 堆_分配 用 GLQuery。
+    q 的 ID 为 1。
+    q 的 类型 为 0。
+    q 的 结果 为 0。
+    q 的 已完成 为 假。
+    返还 q。
+完。
+
+图绘2_beginQuery 接受 target、query：
+    若 query 等于 0：
+        返还。
+    完。
+    query 的 类型 为 target。
+    query 的 已完成 为 假。
+    query 的 结果 为 0。
+完。
+
+图绘2_endQuery 接受 target：
+    做 GL_状态设置 用 GL_QUERY_ACTIVE、0。
+完。
+
+图绘2_getQueryParameter 接受 query、pname：
+    若 query 等于 0：
+        返还 0。
+    完。
+    返还 query 的 结果。
+完。
+
+本章 收束。

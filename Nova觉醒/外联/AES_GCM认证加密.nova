@@ -1,0 +1,232 @@
+《AES_GCM认证加密》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·GCM递增计数》。
+
+引用《..·感知·内核直连层》。
+
+引用《.·AES加密》。
+
+引用《..·中枢·加密框架》。
+
+GCM_GHASH_block 接受 H、X、Y：
+    可变 i 为 0。
+    只要 i 小于 16：
+        做 内存_写8 用 Y 加 i、做 内存_读8 用 Y 加 i 位异或 做 内存_读8 用 X 加 i。
+        i 为 i 加 1。
+    完。
+    V 为 做 堆_分配 用 16。
+    做 内存_复制 用 V、H、16。
+    Z 为 做 堆_分配 用 16。
+    做 内存_置零 用 Z、16。
+    可变 byte_idx 为 0。
+    只要 byte_idx 小于 16：
+        y_byte 为 做 内存_读8 用 Y 加 byte_idx。
+        可变 bit 为 7。
+        只要 bit 大于或等于 0：
+            若 y_byte 位与 1 左移 bit：
+                可变 k 为 0。
+                只要 k 小于 16：
+                    做 内存_写8 用 Z 加 k、做 内存_读8 用 Z 加 k 位异或 做 内存_读8 用 V 加 k。
+                    k 为 k 加 1。
+                完。
+            完。
+            carry 为 做 内存_读8 用 V 加 15 位与 1。
+            可变 k 为 15。
+            只要 k 大于 0：
+                做 内存_写8 用 V 加 k、做 内存_读8 用 V 加 k 右移 1 位或 (做 内存_读8 用 V 加 k 减 1 位与 1) 左移 7。
+                k 为 k 减 1。
+            完。
+            做 内存_写8 用 V、做 内存_读8 用 V 右移 1。
+            若 carry：
+                做 内存_写8 用 V、做 内存_读8 用 V 位异或 0xE1。
+            完。
+            bit 为 bit 减 1。
+        完。
+        byte_idx 为 byte_idx 加 1。
+    完。
+    做 内存_复制 用 Y、Z、16。
+    做 堆_释放 用 V。
+    做 堆_释放 用 Z。
+完。
+
+AES_GCM_加密 接受 密钥、密钥长度、IV、IV长度、明文、明文长度、AAD、AAD长度、密文、标签：
+    扩展密钥 为 做 堆_分配 用 240。
+    Nr 为 做 AES_密钥扩展 用 密钥、密钥长度、扩展密钥。
+    H 为 做 堆_分配 用 16。
+    做 内存_置零 用 H、16。
+    做 AES_加密块 用 H、扩展密钥、Nr。
+    J0 为 做 堆_分配 用 16。
+    若 IV长度 等于 12：
+        做 内存_复制 用 J0、IV、12。
+        做 内存_写8 用 J0 加 12、0。
+        做 内存_写8 用 J0 加 13、0。
+        做 内存_写8 用 J0 加 14、0。
+        做 内存_写8 用 J0 加 15、1。
+    否则：
+        做 内存_置零 用 J0、16。
+        可变 off 为 0。
+        只要 off 加 16 小于或等于 IV长度：
+            做 GCM_GHASH_block 用 H、IV 加 off、J0。
+            off 为 off 加 16。
+        完。
+        若 off 小于 IV长度：
+            pad 为 做 堆_分配 用 16。
+            做 内存_置零 用 pad、16。
+            做 内存_复制 用 pad、IV 加 off、IV长度 减 off。
+            做 GCM_GHASH_block 用 H、pad、J0。
+            做 堆_释放 用 pad。
+        完。
+        len_block 为 做 堆_分配 用 16。
+        做 内存_置零 用 len_block、16。
+        iv_bits 为 IV长度 乘 8。
+        做 内存_写8 用 len_block 加 8、iv_bits 右移 56 位与 0xFF。
+        做 内存_写8 用 len_block 加 9、iv_bits 右移 48 位与 0xFF。
+        做 内存_写8 用 len_block 加 10、iv_bits 右移 40 位与 0xFF。
+        做 内存_写8 用 len_block 加 11、iv_bits 右移 32 位与 0xFF。
+        做 内存_写8 用 len_block 加 12、iv_bits 右移 24 位与 0xFF。
+        做 内存_写8 用 len_block 加 13、iv_bits 右移 16 位与 0xFF。
+        做 内存_写8 用 len_block 加 14、iv_bits 右移 8 位与 0xFF。
+        做 内存_写8 用 len_block 加 15、iv_bits 位与 0xFF。
+        做 GCM_GHASH_block 用 H、len_block、J0。
+        做 堆_释放 用 len_block。
+    完。
+    计数器 为 做 堆_分配 用 16。
+    做 内存_复制 用 计数器、J0、16。
+    做 GCM_递增计数器 用 计数器。
+    可变 off 为 0。
+    只要 off 加 16 小于或等于 明文长度：
+        keystream 为 做 堆_分配 用 16。
+        做 内存_复制 用 keystream、计数器、16。
+        做 AES_加密块 用 keystream、扩展密钥、Nr。
+        可变 j 为 0。
+        只要 j 小于 16：
+            做 内存_写8 用 密文 加 off 加 j、做 内存_读8 用 明文 加 off 加 j 位异或 做 内存_读8 用 keystream 加 j。
+            j 为 j 加 1。
+        完。
+        做 内存_清零 用 keystream、64。
+        做 堆_释放 用 keystream。
+        做 GCM_递增计数器 用 计数器。
+        off 为 off 加 16。
+    完。
+    若 off 小于 明文长度：
+        keystream 为 做 堆_分配 用 16。
+        做 内存_复制 用 keystream、计数器、16。
+        做 AES_加密块 用 keystream、扩展密钥、Nr。
+        可变 j 为 0。
+        只要 off 加 j 小于 明文长度：
+            做 内存_写8 用 密文 加 off 加 j、做 内存_读8 用 明文 加 off 加 j 位异或 做 内存_读8 用 keystream 加 j。
+            j 为 j 加 1。
+        完。
+        做 内存_清零 用 keystream、64。
+        做 堆_释放 用 keystream。
+    完。
+    S 为 做 堆_分配 用 16。
+    做 内存_置零 用 S、16。
+    off 为 0。
+    只要 off 加 16 小于或等于 AAD长度：
+        做 GCM_GHASH_block 用 H、AAD 加 off、S。
+        off 为 off 加 16。
+    完。
+    若 off 小于 AAD长度：
+        pad 为 做 堆_分配 用 16。
+        做 内存_置零 用 pad、16。
+        做 内存_复制 用 pad、AAD 加 off、AAD长度 减 off。
+        做 GCM_GHASH_block 用 H、pad、S。
+        做 堆_释放 用 pad。
+    完。
+    off 为 0。
+    只要 off 加 16 小于或等于 明文长度：
+        做 GCM_GHASH_block 用 H、密文 加 off、S。
+        off 为 off 加 16。
+    完。
+    若 off 小于 明文长度：
+        pad 为 做 堆_分配 用 16。
+        做 内存_置零 用 pad、16。
+        做 内存_复制 用 pad、密文 加 off、明文长度 减 off。
+        做 GCM_GHASH_block 用 H、pad、S。
+        做 堆_释放 用 pad。
+    完。
+    len_block 为 做 堆_分配 用 16。
+    aad_bits 为 AAD长度 乘 8。
+    c_bits 为 明文长度 乘 8。
+    做 内存_写8 用 len_block、aad_bits 右移 56 位与 0xFF。
+    做 内存_写8 用 len_block 加 1、aad_bits 右移 48 位与 0xFF。
+    做 内存_写8 用 len_block 加 2、aad_bits 右移 40 位与 0xFF。
+    做 内存_写8 用 len_block 加 3、aad_bits 右移 32 位与 0xFF。
+    做 内存_写8 用 len_block 加 4、aad_bits 右移 24 位与 0xFF。
+    做 内存_写8 用 len_block 加 5、aad_bits 右移 16 位与 0xFF。
+    做 内存_写8 用 len_block 加 6、aad_bits 右移 8 位与 0xFF。
+    做 内存_写8 用 len_block 加 7、aad_bits 位与 0xFF。
+    做 内存_写8 用 len_block 加 8、c_bits 右移 56 位与 0xFF。
+    做 内存_写8 用 len_block 加 9、c_bits 右移 48 位与 0xFF。
+    做 内存_写8 用 len_block 加 10、c_bits 右移 40 位与 0xFF。
+    做 内存_写8 用 len_block 加 11、c_bits 右移 32 位与 0xFF。
+    做 内存_写8 用 len_block 加 12、c_bits 右移 24 位与 0xFF。
+    做 内存_写8 用 len_block 加 13、c_bits 右移 16 位与 0xFF。
+    做 内存_写8 用 len_block 加 14、c_bits 右移 8 位与 0xFF。
+    做 内存_写8 用 len_block 加 15、c_bits 位与 0xFF。
+    做 GCM_GHASH_block 用 H、len_block、S。
+    E_J0 为 做 堆_分配 用 16。
+    做 内存_复制 用 E_J0、J0、16。
+    做 AES_加密块 用 E_J0、扩展密钥、Nr。
+    可变 j 为 0。
+    只要 j 小于 16：
+        做 内存_写8 用 标签 加 j、做 内存_读8 用 S 加 j 位异或 做 内存_读8 用 E_J0 加 j。
+        j 为 j 加 1。
+    完。
+    做 堆_释放 用 H。
+    做 堆_释放 用 J0。
+    做 堆_释放 用 计数器。
+    做 堆_释放 用 S。
+    做 堆_释放 用 E_J0。
+    做 堆_释放 用 len_block。
+    做 堆_释放 用 扩展密钥。
+完。
+
+AES_GCM_解密 接受 密钥、密钥长度、IV、IV长度、密文、密文长度、AAD、AAD长度、明文、标签：
+    期望标签 为 做 堆_分配 用 16。
+    临时密文 为 做 堆_分配 用 密文长度。
+    做 AES_GCM_加密 用 密钥、密钥长度、IV、IV长度、密文、密文长度、AAD、AAD长度、明文、期望标签。
+    可变 diff 为 0。
+    可变 i 为 0。
+    只要 i 小于 16：
+        diff 为 diff 位或 做 内存_读8 用 标签 加 i 位异或 做 内存_读8 用 期望标签 加 i。
+        i 为 i 加 1。
+    完。
+    做 堆_释放 用 期望标签。
+    做 堆_释放 用 临时密文。
+    若 diff 不等于 0：
+        做 内存_置零 用 明文、密文长度。
+        返还 负 1。
+    完。
+    返还 0。
+完。
+
+可变 AI_密钥认证_威胁计数 为 0。
+
+AI_密钥认证_风险评分 接受 操作类型、权限级别、来源可信度：
+    可变 风险 为 0。
+    若 权限级别 大于 500：
+        风险 为 风险 加 300。
+    完。
+    若 来源可信度 小于 200：
+        风险 为 风险 加 400。
+    完。
+    若 风险 大于 500：
+        AI_密钥认证_威胁计数 为 AI_密钥认证_威胁计数 加 1。
+    完。
+    返还 风险。
+完。
+
+AI_密钥认证_异常行为检测 接受 操作频率、基线频率：
+    若 基线频率 大于 0 并且 操作频率 大于 基线频率 乘 5：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

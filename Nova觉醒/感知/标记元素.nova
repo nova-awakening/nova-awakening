@@ -1,0 +1,490 @@
+《标记元素》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·播放循环》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·解析序列》。
+
+引用《.·解码器》。
+
+引用《.·文档事件》。
+
+引用《.·时间范围》。
+
+引用《.·媒体解码》。
+
+NETWORK_EMPTY 为 0。
+
+NETWORK_IDLE 为 1。
+
+NETWORK_LOADING 为 2。
+
+NETWORK_NO_SOURCE 为 3。
+
+HAVE_NOTHING 为 0。
+
+HAVE_METADATA 为 1。
+
+HAVE_CURRENT_DATA 为 2。
+
+HAVE_FUTURE_DATA 为 3。
+
+HAVE_ENOUGH_DATA 为 4。
+
+PRELOAD_NONE 为 0。
+
+PRELOAD_METADATA 为 1。
+
+PRELOAD_AUTO 为 2。
+
+MEDIA_ERR_ABORTED 为 1。
+
+MEDIA_ERR_NETWORK 为 2。
+
+MEDIA_ERR_DECODE 为 3。
+
+MEDIA_ERR_SRC_NOT_SUPPORTED 为 4。
+
+CONTAINER_MP4 为 1。
+
+CONTAINER_WEBM 为 2。
+
+CONTAINER_OGG 为 3。
+
+CONTAINER_MP3 为 7。
+
+CONTAINER_WAV 为 5。
+
+CODEC_AAC 为 1。
+
+CODEC_H264 为 10。
+
+CODEC_VP9 为 13。
+
+CODEC_OPUS 为 3。
+
+CODEC_VORBIS 为 4。
+
+媒体元素统计 是 一种 事物，含 创建次数、销毁次数、加载资源次数、play调用次数、pause调用次数、seek调用次数、音量调整次数、速率调整次数、src切换次数、错误发生次数、ended触发次数、状态切换次数、AI播放调用次数、AI播放命中次数、总播放时长_毫秒、总处理耗时_纳秒、autoplay成功次数、autoplay失败次数。
+
+AI播放状态 是 一种 事物，含 历史播放率、历史完播率、历史平均时长、历史静音率、连续play计数、连续pause计数、预测下次play、采样计数器、学习权重。
+
+可变 全局媒体元素统计 为 0。
+
+可变 全局播放AI 为 0。
+
+可变 全局媒体元素已初始化 为 假。
+
+媒体元素_初始化全局 接受 零参：
+    若 全局媒体元素已初始化 等于 真：
+        返还 错误_已存在。
+    完。
+    全局媒体元素统计 为 做 堆_分配_清零 用 144。
+    若 全局媒体元素统计 等于 空：
+        返还 错误_内存不足。
+    完。
+    全局播放AI 为 做 堆_分配_清零 用 48。
+    若 全局播放AI 不等于 空：
+        全局播放AI 的 预测下次play 为 真。
+        全局播放AI 的 学习权重 为 128。
+    完。
+    全局媒体元素已初始化 为 真。
+    做 打印 用 「[媒体元素] 初始化完成」。
+    返还 0。
+完。
+
+媒体元素_销毁全局 接受 零参：
+    若 全局媒体元素统计 不等于 空：
+        做 堆_释放 用 全局媒体元素统计。
+        全局媒体元素统计 为 0。
+    完。
+    若 全局播放AI 不等于 空：
+        做 堆_释放 用 全局播放AI。
+        全局播放AI 为 0。
+    完。
+    全局媒体元素已初始化 为 假。
+    返还 0。
+完。
+
+HTML媒体元素 是 一种 事物，含 节点、src、currentSrc、networkState、readyState、error、paused、ended、seeking、autoplaying、currentTime、duration、playbackRate、defaultPlaybackRate、volume、muted、autoplay、loop、controls、preload、crossOrigin、buffered、played、seekable、音频轨道、音频轨道数、视频轨道、视频轨道数、文本轨道、文本轨道数、videoWidth、videoHeight、poster、demuxer、audioDecoder、videoDecoder、audio渲染er、video渲染er、mediaSource、onplay、onpause、onended、ontimeupdate、onloadedmetadata、onloadeddata、onerror、onwaiting、oncanplay、oncanplaythrough、onseeking、onseeked、onvolumechange、onratechange、onprogress。
+
+媒体元素_创建 接受 是视频：
+    me 为 做 堆_分配 用 HTML媒体元素。
+    若 me 等于 空：
+        做 打印 用 「[媒体元素] 错误: 分配失败」。
+        返还 空。
+    完。
+    me 的 src 为 0。
+    me 的 currentSrc 为 0。
+    me 的 networkState 为 NETWORK_EMPTY。
+    me 的 readyState 为 HAVE_NOTHING。
+    me 的 error 为 0。
+    me 的 paused 为 真。
+    me 的 ended 为 假。
+    me 的 seeking 为 假。
+    me 的 autoplaying 为 假。
+    me 的 currentTime 为 0。
+    me 的 duration 为 负 1。
+    me 的 playbackRate 为 1024。
+    me 的 defaultPlaybackRate 为 1024。
+    me 的 volume 为 1024。
+    me 的 muted 为 假。
+    me 的 autoplay 为 假。
+    me 的 loop 为 假。
+    me 的 controls 为 假。
+    me 的 preload 为 PRELOAD_METADATA。
+    me 的 crossOrigin 为 0。
+    me 的 buffered 为 做 TimeRanges_创建。
+    me 的 played 为 做 TimeRanges_创建。
+    me 的 seekable 为 做 TimeRanges_创建。
+    me 的 音频轨道数 为 0。
+    me 的 视频轨道数 为 0。
+    me 的 文本轨道数 为 0。
+    me 的 videoWidth 为 0。
+    me 的 videoHeight 为 0。
+    me 的 poster 为 0。
+    me 的 demuxer 为 0。
+    me 的 audioDecoder 为 0。
+    me 的 videoDecoder 为 0。
+    me 的 audio渲染er 为 0。
+    me 的 video渲染er 为 0。
+    me 的 mediaSource 为 0。
+    me 的 onplay 为 0。
+    me 的 onpause 为 0。
+    me 的 onended 为 0。
+    me 的 ontimeupdate 为 0。
+    me 的 onloadedmetadata 为 0。
+    me 的 onloadeddata 为 0。
+    me 的 onerror 为 0。
+    me 的 onwaiting 为 0。
+    me 的 oncanplay 为 0。
+    me 的 oncanplaythrough 为 0。
+    me 的 onseeking 为 0。
+    me 的 onseeked 为 0。
+    me 的 onvolumechange 为 0。
+    me 的 onratechange 为 0。
+    me 的 onprogress 为 0。
+    若 全局媒体元素统计 不等于 空：
+        全局媒体元素统计 的 创建次数 为 全局媒体元素统计 的 创建次数 加 1。
+    完。
+    返还 me。
+完。
+
+媒体元素_销毁 接受 me：
+    若 me 等于 空：
+        返还。
+    完。
+    me 的 paused 为 真。
+    若 me 的 buffered 不等于 空：
+        做 TimeRanges_销毁 用 me 的 buffered。
+    完。
+    若 me 的 played 不等于 空：
+        做 TimeRanges_销毁 用 me 的 played。
+    完。
+    若 me 的 seekable 不等于 空：
+        做 TimeRanges_销毁 用 me 的 seekable。
+    完。
+    若 me 的 demuxer 不等于 空：
+        做 堆_释放 用 me 的 demuxer。
+    完。
+    若 me 的 audioDecoder 不等于 空：
+        做 堆_释放 用 me 的 audioDecoder。
+    完。
+    若 me 的 videoDecoder 不等于 空：
+        做 堆_释放 用 me 的 videoDecoder。
+    完。
+    若 me 的 audio渲染er 不等于 空：
+        做 堆_释放 用 me 的 audio渲染er。
+    完。
+    若 me 的 video渲染er 不等于 空：
+        做 堆_释放 用 me 的 video渲染er。
+    完。
+    做 堆_释放 用 me。
+    若 全局媒体元素统计 不等于 空：
+        全局媒体元素统计 的 销毁次数 为 全局媒体元素统计 的 销毁次数 加 1。
+    完。
+完。
+
+媒体元素_加载资源 接受 me：
+    若 me 等于 空：
+        返还。
+    完。
+    若 me 的 src 等于 空：
+        me 的 networkState 为 NETWORK_NO_SOURCE。
+        me 的 error 为 MEDIA_ERR_SRC_NOT_SUPPORTED。
+        若 全局媒体元素统计 不等于 空：
+            全局媒体元素统计 的 错误发生次数 为 全局媒体元素统计 的 错误发生次数 加 1。
+        完。
+        返还。
+    完。
+    me 的 networkState 为 NETWORK_LOADING。
+    me 的 currentSrc 为 me 的 src。
+    若 全局媒体元素统计 不等于 空：
+        全局媒体元素统计 的 加载资源次数 为 全局媒体元素统计 的 加载资源次数 加 1。
+    完。
+    若 me 的 demuxer 等于 空：
+        me 的 demuxer 为 做 Demuxer_创建 用 me 的 src。
+    完。
+    数据 为 做 渲染_文件全部读取 用 me 的 src。
+    若 数据 等于 空：
+        me 的 networkState 为 NETWORK_NO_SOURCE。
+        me 的 error 为 MEDIA_ERR_NETWORK。
+        做 媒体元素_触发事件 用 me、「error」。
+        若 全局媒体元素统计 不等于 空：
+            全局媒体元素统计 的 错误发生次数 为 全局媒体元素统计 的 错误发生次数 加 1。
+        完。
+        返还。
+    完。
+    me 的 demuxer 的 数据缓冲 为 数据。
+    me 的 demuxer 的 缓冲大小 为 做 字节长度 用 数据。
+    做 Demuxer_解析轨道_真实 用 me 的 demuxer、me。
+    me 的 readyState 为 HAVE_METADATA。
+    me 的 networkState 为 NETWORK_IDLE。
+    me 的 duration 为 me 的 demuxer 的 时长。
+    若 me 的 视频轨道数 大于 0：
+        me 的 videoWidth 为 me 的 视频轨道 的 第 0 项 的 宽度。
+        me 的 videoHeight 为 me 的 视频轨道 的 第 0 项 的 高度。
+    完。
+    若 me 的 demuxer 的 有音频 等于 真 并且 me 的 audioDecoder 等于 空：
+        me 的 audioDecoder 为 做 音频Decoder_创建 用 me 的 音频轨道 的 第 0 项 的 编解码器。
+        me 的 audio渲染er 为 做 音频渲染er_创建 用 me 的 音频轨道 的 第 0 项 的 采样率、me 的 音频轨道 的 第 0 项 的 声道数。
+    完。
+    若 me 的 demuxer 的 有视频 等于 真 并且 me 的 videoDecoder 等于 空：
+        me 的 videoDecoder 为 做 视频Decoder_创建 用 me 的 视频轨道 的 第 0 项 的 编解码器。
+        me 的 video渲染er 为 做 视频渲染er_创建 用 me 的 videoWidth、me 的 videoHeight。
+    完。
+    做 媒体元素_触发事件 用 me、「loadedmetadata」。
+    me 的 readyState 为 HAVE_ENOUGH_DATA。
+    做 媒体元素_触发事件 用 me、「loadeddata」。
+    做 媒体元素_触发事件 用 me、「canplay」。
+    做 媒体元素_触发事件 用 me、「canplaythrough」。
+    若 全局媒体元素统计 不等于 空：
+        全局媒体元素统计 的 状态切换次数 为 全局媒体元素统计 的 状态切换次数 加 4。
+    完。
+    做 AI播放_记录操作 用 me、0。
+完。
+
+媒体元素_设置src 接受 me、url：
+    若 me 等于 空：
+        返还。
+    完。
+    me 的 src 为 url。
+    me 的 networkState 为 NETWORK_EMPTY。
+    me 的 readyState 为 HAVE_NOTHING。
+    me 的 currentTime 为 0。
+    me 的 ended 为 假。
+    me 的 error 为 0。
+    若 全局媒体元素统计 不等于 空：
+        全局媒体元素统计 的 src切换次数 为 全局媒体元素统计 的 src切换次数 加 1。
+    完。
+    做 媒体元素_加载资源 用 me。
+完。
+
+媒体元素_设置volume 接受 me、音量：
+    若 me 等于 空：
+        返还。
+    完。
+    若 音量 小于 0：
+        音量 为 0。
+    完。
+    若 音量 大于 1024：
+        音量 为 1024。
+    完。
+    若 me 的 volume 不等于 音量：
+        me 的 volume 为 音量。
+        做 媒体元素_触发事件 用 me、「volumechange」。
+        若 全局媒体元素统计 不等于 空：
+            全局媒体元素统计 的 音量调整次数 为 全局媒体元素统计 的 音量调整次数 加 1。
+        完。
+    完。
+完。
+
+媒体元素_设置playbackRate 接受 me、速率：
+    若 me 等于 空：
+        返还。
+    完。
+    若 速率 小于 256：
+        速率 为 256。
+    完。
+    若 速率 大于 4096：
+        速率 为 4096。
+    完。
+    若 me 的 playbackRate 不等于 速率：
+        me 的 playbackRate 为 速率。
+        做 媒体元素_触发事件 用 me、「ratechange」。
+        若 全局媒体元素统计 不等于 空：
+            全局媒体元素统计 的 速率调整次数 为 全局媒体元素统计 的 速率调整次数 加 1。
+        完。
+    完。
+完。
+
+媒体元素_设置currentTime 接受 me、时间：
+    若 me 等于 空：
+        返还。
+    完。
+    若 时间 小于 0：
+        时间 为 0。
+    完。
+    若 me 的 duration 大于 0 并且 时间 大于 me 的 duration：
+        时间 为 me 的 duration。
+    完。
+    me 的 seeking 为 真。
+    做 媒体元素_触发事件 用 me、「seeking」。
+    me 的 currentTime 为 时间。
+    若 me 的 demuxer 不等于 空：
+        做 Demuxer_seek 用 me 的 demuxer、时间。
+    完。
+    me 的 seeking 为 假。
+    me 的 ended 为 假。
+    做 媒体元素_触发事件 用 me、「seeked」。
+    若 全局媒体元素统计 不等于 空：
+        全局媒体元素统计 的 seek调用次数 为 全局媒体元素统计 的 seek调用次数 加 1。
+    完。
+完。
+
+媒体元素_设置muted 接受 me、静音：
+    若 me 等于 空：
+        返还。
+    完。
+    若 me 的 muted 不等于 静音：
+        me 的 muted 为 静音。
+        做 媒体元素_触发事件 用 me、「volumechange」。
+    完。
+完。
+
+媒体元素_获取进度 接受 me：
+    若 me 等于 空 或者 me 的 duration 小于或等于 0：
+        返还 0。
+    完。
+    返还 me 的 currentTime 乘 1024 除以 me 的 duration。
+完。
+
+媒体元素_是否可播放 接受 me：
+    若 me 等于 空：
+        返还 假。
+    完。
+    若 me 的 readyState 大于或等于 HAVE_FUTURE_DATA 并且 me 的 error 等于 0：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI播放_记录操作 接受 me、操作类型：
+    若 全局播放AI 等于 空 或者 me 等于 空：
+        返还。
+    完。
+    AI 为 全局播放AI。
+    AI 的 采样计数器 为 AI 的 采样计数器 加 1。
+    若 操作类型 等于 1：
+        AI 的 连续play计数 为 AI 的 连续play计数 加 1。
+        AI 的 连续pause计数 为 0。
+        AI 的 历史播放率 为 (AI 的 历史播放率 乘 15 加 1024) 除以 16。
+    否则若 操作类型 等于 2：
+        AI 的 连续pause计数 为 AI 的 连续pause计数 加 1。
+        AI 的 连续play计数 为 0。
+        AI 的 历史播放率 为 AI 的 历史播放率 乘 15 除以 16。
+    否则若 操作类型 等于 4：
+        AI 的 历史完播率 为 (AI 的 历史完播率 乘 15 加 1024) 除以 16。
+    完。
+    若 me 的 muted 等于 真：
+        AI 的 历史静音率 为 (AI 的 历史静音率 乘 15 加 1024) 除以 16。
+    否则：
+        AI 的 历史静音率 为 AI 的 历史静音率 乘 15 除以 16。
+    完。
+    若 me 的 duration 大于 0：
+        AI 的 历史平均时长 为 (AI 的 历史平均时长 乘 7 加 me 的 duration) 除以 8。
+    完。
+    若 AI 的 采样计数器 小于 8：
+        返还。
+    完。
+    AI 的 采样计数器 为 0。
+    若 全局媒体元素统计 不等于 空：
+        全局媒体元素统计 的 AI播放调用次数 为 全局媒体元素统计 的 AI播放调用次数 加 1。
+    完。
+    若 AI 的 连续play计数 大于 3：
+        AI 的 预测下次play 为 真。
+    否则若 AI 的 连续pause计数 大于 3：
+        AI 的 预测下次play 为 假。
+    完。
+    若 AI 的 预测下次play 等于 真 并且 操作类型 等于 1：
+        若 全局媒体元素统计 不等于 空：
+            全局媒体元素统计 的 AI播放命中次数 为 全局媒体元素统计 的 AI播放命中次数 加 1。
+        完。
+    完。
+完。
+
+媒体元素_打印统计 接受 零参：
+    若 全局媒体元素统计 等于 空：
+        做 打印 用 「[媒体元素] 统计未初始化」。
+        返还。
+    完。
+    做 打印 用 「┌──────────────────────────────────────┐」。
+    做 打印 用 「│   HTML媒体元素 · 统计报告           │」。
+    做 打印 用 「├──────────────────────────────────────┤」。
+    做 打印 用 做 字符串拼接 用 「│ 创建/销毁:        」、做 字符串拼接 用 做 转字符串 用 全局媒体元素统计 的 创建次数、做 字符串拼接 用 「/」、做 转字符串 用 全局媒体元素统计 的 销毁次数。
+    做 打印 用 做 字符串拼接 用 「│ 加载资源:         」、做 转字符串 用 全局媒体元素统计 的 加载资源次数。
+    做 打印 用 做 字符串拼接 用 「│ play:             」、做 转字符串 用 全局媒体元素统计 的 play调用次数。
+    做 打印 用 做 字符串拼接 用 「│ pause:            」、做 转字符串 用 全局媒体元素统计 的 pause调用次数。
+    做 打印 用 做 字符串拼接 用 「│ seek:             」、做 转字符串 用 全局媒体元素统计 的 seek调用次数。
+    做 打印 用 做 字符串拼接 用 「│ 音量调整:         」、做 转字符串 用 全局媒体元素统计 的 音量调整次数。
+    做 打印 用 做 字符串拼接 用 「│ 速率调整:         」、做 转字符串 用 全局媒体元素统计 的 速率调整次数。
+    做 打印 用 做 字符串拼接 用 「│ src切换:          」、做 转字符串 用 全局媒体元素统计 的 src切换次数。
+    做 打印 用 做 字符串拼接 用 「│ 错误:             」、做 转字符串 用 全局媒体元素统计 的 错误发生次数。
+    做 打印 用 做 字符串拼接 用 「│ ended:            」、做 转字符串 用 全局媒体元素统计 的 ended触发次数。
+    做 打印 用 做 字符串拼接 用 「│ 状态切换:         」、做 转字符串 用 全局媒体元素统计 的 状态切换次数。
+    做 打印 用 做 字符串拼接 用 「│ autoplay成功:     」、做 转字符串 用 全局媒体元素统计 的 autoplay成功次数。
+    做 打印 用 做 字符串拼接 用 「│ AI播放调用:       」、做 转字符串 用 全局媒体元素统计 的 AI播放调用次数。
+    做 打印 用 做 字符串拼接 用 「│ AI播放命中:       」、做 转字符串 用 全局媒体元素统计 的 AI播放命中次数。
+    做 打印 用 做 字符串拼接 用 「│ 总播放时长(s):    」、做 转字符串 用 全局媒体元素统计 的 总播放时长_毫秒 除以 1000。
+    做 打印 用 「└──────────────────────────────────────┘」。
+完。
+
+媒体元素_导出诊断 接受 零参：
+    若 全局播放AI 等于 空：
+        做 打印 用 「[播放AI] 未初始化」。
+        返还。
+    完。
+    AI 为 全局播放AI。
+    做 打印 用 「[播放AI] === 诊断 ===」。
+    做 打印 用 做 字符串拼接 用 「  历史播放率(Q10): 」、做 转字符串 用 AI 的 历史播放率。
+    做 打印 用 做 字符串拼接 用 「  历史完播率(Q10): 」、做 转字符串 用 AI 的 历史完播率。
+    做 打印 用 做 字符串拼接 用 「  历史平均时长(ms): 」、做 转字符串 用 AI 的 历史平均时长。
+    做 打印 用 做 字符串拼接 用 「  历史静音率(Q10): 」、做 转字符串 用 AI 的 历史静音率。
+    做 打印 用 做 字符串拼接 用 「  连续play: 」、做 转字符串 用 AI 的 连续play计数。
+    做 打印 用 做 字符串拼接 用 「  连续pause: 」、做 转字符串 用 AI 的 连续pause计数。
+    做 打印 用 做 字符串拼接 用 「  预测play: 」、做 转字符串 用 AI 的 预测下次play。
+完。
+
+媒体元素_获取统计 接受 零参：
+    返还 全局媒体元素统计。
+完。
+
+媒体元素_获取AI状态 接受 零参：
+    返还 全局播放AI。
+完。
+
+媒体元素_是否已初始化 接受 零参：
+    返还 全局媒体元素已初始化。
+完。
+
+媒体元素_触发事件 接受 me、类型：
+    若 me 等于 空：
+        返还。
+    完。
+    evt 为 做 事件_创建2 用 类型、假、假。
+    若 evt 不等于 空：
+        evt 的 是可信的 为 真。
+    完。
+    若 全局媒体元素统计 不等于 空：
+        全局媒体元素统计 的 状态切换次数 为 全局媒体元素统计 的 状态切换次数 加 1。
+    完。
+完。
+
+本章 收束。

@@ -1,0 +1,217 @@
+《注意力块》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·张量创建》。
+
+引用《.·定点Q算术》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·多头注意力》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·中枢·随机失活前向》。
+
+Nova注意力架构块级 是 一种 事物，含 attn_weights、attn_config、ffn_w1、ffn_b1、ffn_w2、ffn_b2、d_ff、ln1_gamma、ln1_beta、ln2_gamma、ln2_beta。
+
+Nova注意力架构块级_前向 接受 block、input、output：
+    若 block 等于 0 或者 input 等于 0：
+        返还。
+    完。
+    config 为 block 的 attn_config。
+    seq 为 config 的 seq_len。
+    dm 为 config 的 d_model。
+    normed 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    做 内存_复制 用 normed 的 数据、input 的 数据、seq 乘 dm 乘 4。
+    可变 s 为 0。
+    只要 s 小于 seq：
+        做 层归一化 用 normed、block 的 ln1_gamma、block 的 ln1_beta、s 乘 dm、dm。
+        s 为 s 加 1。
+    完。
+    attn_out 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    做 多头Nova注意力 用 normed、attn_out、config、block 的 attn_weights。
+    若 全局训练模式：
+        做 NOGL_随机丢弃前向 用 attn_out、102、真。
+    完。
+    做 VecAdd 用 input、attn_out、output。
+    normed2 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    做 内存_复制 用 normed2 的 数据、output 的 数据、seq 乘 dm 乘 4。
+    s 为 0。
+    只要 s 小于 seq：
+        做 层归一化 用 normed2、block 的 ln2_gamma、block 的 ln2_beta、s 乘 dm、dm。
+        s 为 s 加 1。
+    完。
+    ffn_hidden 为 做 Tensor_创建 用 seq、block 的 d_ff、0、0、2、DTYPE_F32。
+    做 MatMul 用 normed2、block 的 ffn_w1、ffn_hidden、seq、dm、block 的 d_ff。
+    若 block 的 ffn_b1 不等于 0：
+        做 VecAdd 用 ffn_hidden、block 的 ffn_b1、ffn_hidden。
+    完。
+    做 GELU 用 ffn_hidden。
+    若 全局训练模式：
+        做 NOGL_随机丢弃前向 用 ffn_hidden、102、真。
+    完。
+    ffn_out 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    做 MatMul 用 ffn_hidden、block 的 ffn_w2、ffn_out、seq、block 的 d_ff、dm。
+    若 block 的 ffn_b2 不等于 0：
+        做 VecAdd 用 ffn_out、block 的 ffn_b2、ffn_out。
+    完。
+    做 VecAdd 用 output、ffn_out、output。
+完。
+
+NovaAIModel 是 一种 事物，含 d_model、n_heads、n_layers、vocab_size、max_seq、d_ff、embedding、pos_encoding、layers、final_ln_g、final_ln_b、output_proj、已加载。
+
+可变 全局训练模式 为 假。
+
+智能_设置训练模式 接受 开启：
+    全局训练模式 为 开启。
+完。
+
+智能_是训练模式 接受 零参：
+    返还 全局训练模式。
+完。
+
+进化_种子阶段 为 0。
+
+进化_萌芽阶段 为 1。
+
+进化_成长阶段 为 2。
+
+进化_自主阶段 为 3。
+
+可变 全局AI模型 为 0。
+
+可变 全局进化阶段 为 进化_种子阶段。
+
+可变 全局蒸馏总步数 为 0。
+
+进化_萌芽阈值 为 100。
+
+进化_成长阈值 为 1000。
+
+进化_自主阈值 为 10000。
+
+模型权重路径 为 「/var/nova/model.weights」。
+
+智能_进化阶段 接受 零参：
+    返还 全局进化阶段。
+完。
+
+智能_进化阶段名 接受 零参：
+    若 全局进化阶段 等于 进化_种子阶段：
+        返还 「种子」。
+    完。
+    若 全局进化阶段 等于 进化_萌芽阶段：
+        返还 「萌芽」。
+    完。
+    若 全局进化阶段 等于 进化_成长阶段：
+        返还 「成长」。
+    完。
+    返还 「自主」。
+完。
+
+智能_推进进化 接受 新增蒸馏步数：
+    全局蒸馏总步数 为 全局蒸馏总步数 加 新增蒸馏步数。
+    若 全局进化阶段 等于 进化_种子阶段 并且 全局蒸馏总步数 大于或等于 进化_萌芽阈值：
+        全局进化阶段 为 进化_萌芽阶段。
+    完。
+    若 全局进化阶段 等于 进化_萌芽阶段 并且 全局蒸馏总步数 大于或等于 进化_成长阈值：
+        全局进化阶段 为 进化_成长阶段。
+    完。
+    若 全局进化阶段 等于 进化_成长阶段 并且 全局蒸馏总步数 大于或等于 进化_自主阈值：
+        全局进化阶段 为 进化_自主阶段。
+    完。
+完。
+
+智能_模型_加载 接受 模型路径：
+    若 全局AI模型 不等于 0：
+        返还 全局AI模型。
+    完。
+    model 为 做 堆_分配 用 NovaAIModel。
+    若 model 等于 0：
+        返还 0。
+    完。
+    做 内存_置零 用 model、做 大小of 用 NovaAIModel。
+    model 的 d_model 为 256。
+    model 的 n_heads 为 4。
+    model 的 n_layers 为 4。
+    model 的 vocab_size 为 8192。
+    model 的 max_seq 为 128。
+    model 的 d_ff 为 1024。
+    model 的 embedding 为 做 Tensor_创建 用 model 的 vocab_size、model 的 d_model、0、0、2、DTYPE_F32。
+    model 的 pos_encoding 为 做 Tensor_创建 用 model 的 max_seq、model 的 d_model、0、0、2、DTYPE_F32。
+    model 的 final_ln_g 为 做 Tensor_创建 用 1、model 的 d_model、0、0、2、DTYPE_F32。
+    model 的 final_ln_b 为 做 Tensor_创建 用 1、model 的 d_model、0、0、2、DTYPE_F32。
+    model 的 output_proj 为 做 Tensor_创建 用 model 的 d_model、model 的 vocab_size、0、0、2、DTYPE_F32。
+    可变 d 为 0。
+    只要 d 小于 model 的 d_model：
+        做 Tensor_写 用 model 的 final_ln_g、d、65536。
+        做 Tensor_写 用 model 的 final_ln_b、d、0。
+        d 为 d 加 1。
+    完。
+    全局蒸馏总步数 为 0。
+    全局进化阶段 为 进化_种子阶段。
+    model 的 已加载 为 真。
+    全局AI模型 为 model。
+    返还 model。
+完。
+
+智能_模型_加载权重 接受 model、路径：
+    返还 假。
+完。
+
+智能_模型_保存权重 接受 model、路径：
+    返还。
+完。
+
+智能_推理 接受 model、输入令牌s、输入长度：
+    若 model 等于 0 或者 非 model 的 已加载 或者 输入令牌s 等于 0：
+        返还 0。
+    完。
+    若 输入长度 大于 model 的 max_seq：
+        输入长度 为 model 的 max_seq。
+    完。
+    dm 为 model 的 d_model。
+    seq 为 输入长度。
+    hidden 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    可变 s 为 0。
+    只要 s 小于 seq：
+        令牌_id 为 做 内存_读32 用 输入令牌s 加 s 乘 4。
+        若 令牌_id 大于或等于 model 的 vocab_size：
+            令牌_id 为 0。
+        完。
+        可变 d 为 0。
+        只要 d 小于 dm：
+            emb 为 做 Tensor_读 用 model 的 embedding、令牌_id 乘 dm 加 d。
+            pos 为 做 Tensor_读 用 model 的 pos_encoding、s 乘 dm 加 d。
+            做 Tensor_写 用 hidden、s 乘 dm 加 d、emb 加 pos。
+            d 为 d 加 1。
+        完。
+        s 为 s 加 1。
+    完。
+    可变 layer 为 0。
+    只要 layer 小于 model 的 n_layers：
+        若 model 的 layers 的 第 layer 项 不等于 0：
+            output 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+            做 Nova注意力架构块级_前向 用 model 的 layers 的 第 layer 项、hidden、output。
+            hidden 为 output。
+        完。
+        layer 为 layer 加 1。
+    完。
+    s 为 0。
+    只要 s 小于 seq：
+        做 层归一化 用 hidden、model 的 final_ln_g、model 的 final_ln_b、s 乘 dm、dm。
+        s 为 s 加 1。
+    完。
+    logits 为 做 Tensor_创建 用 1、model 的 vocab_size、0、0、2、DTYPE_F32。
+    last_hidden 为 做 Tensor_创建 用 1、dm、0、0、2、DTYPE_F32。
+    做 内存_复制 用 last_hidden 的 数据、hidden 的 数据 加 (seq 减 1) 乘 dm 乘 4、dm 乘 4。
+    做 MatMul 用 last_hidden、model 的 output_proj、logits、1、dm、model 的 vocab_size。
+    做 Nova归一化指数 用 logits、0、model 的 vocab_size。
+    返还 logits。
+完。
+
+本章 收束。

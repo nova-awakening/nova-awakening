@@ -1,0 +1,91 @@
+《滚动处理合》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·合成器合成》。
+
+引用《..·推理·总线预测》。
+
+Compositor_处理滚动 接受 comp、deltaX、deltaY：
+    comp 的 视口x 为 comp 的 视口x 加 deltaX。
+    comp 的 视口y 为 comp 的 视口y 加 deltaY。
+    若 comp 的 视口x 小于 0：
+        comp 的 视口x 为 0。
+    完。
+    若 comp 的 视口y 小于 0：
+        comp 的 视口y 为 0。
+    完。
+    comp 的 滚动速度x 为 deltaX。
+    comp 的 滚动速度y 为 deltaY。
+    bus 为 全局AI总线。
+    若 bus 不等于 0：
+        做 AI总线_感知_滚动 用 bus、deltaY。
+    完。
+    comp 的 状态 为 合成状态_等待VSync。
+    做 Compositor_更新Tile优先级 用 comp。
+完。
+
+Compositor_惯性滚动步 接受 comp：
+    若 非 comp 的 惯性滚动中：
+        返还。
+    完。
+    comp 的 滚动速度y 为 comp 的 滚动速度y 乘 972 除以 1024。
+    若 comp 的 滚动速度y 大于 负 2 并且 comp 的 滚动速度y 小于 2：
+        comp 的 惯性滚动中 为 假。
+        comp 的 滚动速度y 为 0。
+        返还。
+    完。
+    做 Compositor_处理滚动 用 comp、0、comp 的 滚动速度y。
+完。
+
+合成动画 是 一种 事物，含 层ID、属性、开始时间、持续时间、起始值、目标值、缓动函数、是否循环、已完成。
+
+缓动_计算 接受 类型、t：
+    若 类型 等于 0：
+        返还 t。
+    完。
+    若 类型 等于 1：
+        t2 为 做 Q乘 用 t、t。
+        t3 为 做 Q乘 用 t2、t。
+        返还 3 乘 t2 减 2 乘 t3。
+    完。
+    若 类型 等于 2：
+        返还 做 Q乘 用 t、t。
+    完。
+    若 类型 等于 3：
+        inv 为 Q_ONE 减 t。
+        返还 Q_ONE 减 做 Q乘 用 inv、inv。
+    完。
+    若 类型 等于 4：
+        t2 为 做 Q乘 用 t、t。
+        t3 为 做 Q乘 用 t2、t。
+        返还 3 乘 t2 减 2 乘 t3。
+    完。
+    返还 t。
+完。
+
+Compositor_更新动画 接受 comp、当前时间：
+    可变 i 为 0。
+    只要 i 小于 comp 的 动画数量：
+        anim 为 做 内存_读64 用 comp 的 动画列表 加 i 乘 8。
+        若 anim 等于 0：
+            i 为 i 加 1。
+            继续。
+        完。
+        elapsed 为 当前时间 减 anim 的 开始时间。
+        若 elapsed 大于或等于 anim 的 持续时间：
+            做 Layer_设置属性 用 anim 的 目标层、anim 的 属性、anim 的 结束值。
+            anim 的 状态 为 ANIM_FINISHED。
+        否则：
+            t 为 elapsed 乘 Q_ONE 除以 anim 的 持续时间。
+            eased_t 为 做 缓动_计算 用 anim 的 缓动类型、t。
+            当前值 为 anim 的 开始值 加 (anim 的 结束值 减 anim 的 开始值) 乘 eased_t 除以 Q_ONE。
+            做 Layer_设置属性 用 anim 的 目标层、anim 的 属性、当前值。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

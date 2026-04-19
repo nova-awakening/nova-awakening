@@ -1,4 +1,9 @@
-# 编译产物
+# ═══════════════════════════════════════════
+# Nova 仓库 .gitignore
+# 发布面：.nova 源码 + Rust 工具源码 + 正式文档
+# ═══════════════════════════════════════════
+
+# ── 编译产物 ──
 *.o
 *.out
 *.bin
@@ -6,34 +11,29 @@
 *.so
 *.dylib
 
-# Nova缓存
-.nova_cache/
-__pycache__/
-*.pyc
+# ── 缓存 ──
+**/.nova_cache/
+**/__pycache__/
+**/*.pyc
 
-# 构建目录
-分离链式自举/阶段1_自举启动/_stage1_build/
-分离链式自举/阶段1_自举启动/阶段1_编译器
-分离链式自举/阶段1_自举启动/固定点_编译器
-分离链式自举/阶段1_自举启动/固定点_编译器.map
-分离链式自举/阶段1_自举启动/阶段1_编译器.map
+# ── Rust 构建产物 ──
+**/target/
+Cargo.lock
 
-# Rust构建产物
-分离链式自举/种子/rust生成器/target/
-
-# IDE
+# ── IDE ──
 .vscode/
 .idea/
+.windsurf/
 *.swp
 *.swo
 *~
 
-# 临时文件
+# ── 临时文件 ──
 .*_nova_files_tmp.txt
 .*_nova_dir_tmp.txt
-_manifest.txt.bak*
+**/_manifest.txt.bak*
 
-# 密钥与敏感文件
+# ── 敏感文件 ──
 *.key
 *.pem
 *.p12
@@ -43,6 +43,8 @@ _manifest.txt.bak*
 运营/
 编译空间/
 
+# ═══ 白名单发布面 ═══
+# 默认排除根目录所有内容，只放行正式文件
 /*
 !/.github/
 !/.github/**
@@ -54,11 +56,23 @@ _manifest.txt.bak*
 !/NOTICE
 !/CONTRIBUTING.md
 !/SECURITY.md
-!/原生编译器/
-!/原生编译器/**
-!/纯净版系统/
-!/纯净版系统/**
-**/.nova_cache/
-**/__pycache__/
-**/*.pyc
-**/_manifest.txt.bak*
+!/Nova编译器/
+!/Nova编译器/**
+!/Nova觉醒/
+!/Nova觉醒/**
+
+# ═══ 不同步的本地工具/文档 ═══
+# Python 脚本（已迁移到 Rust，本地留档不同步）
+**/*.py
+# JSON 工具报告
+**/*.json
+# Shell 脚本
+**/*.sh
+# 本地设计文档与笔记
+MEMORY.md
+Nova语言设计.md
+nova编码教程/
+# 编译器二进制成品（本地保留，不上传）
+nova编译器成品/
+# 辅助脚本（本地工具，不上传）
+脚本/

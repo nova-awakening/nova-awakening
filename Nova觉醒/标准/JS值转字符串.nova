@@ -1,0 +1,596 @@
+《JS值转字符串》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·推理·JS运行时异常》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《..·中枢·字符串替换》。
+
+JSValue_ToString 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「undefined」。
+    完。
+    类型 为 做 内存_读32 用 值。
+    若 类型 等于 JS类型_Undefined：
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「undefined」。
+    完。
+    若 类型 等于 JS类型_Null：
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「null」。
+    完。
+    若 类型 等于 JS类型_Boolean：
+        若 做 内存_读64 用 值 加 8 不等于 0：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「true」。
+        完。
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「false」。
+    完。
+    若 类型 等于 JS类型_Number：
+        n 为 做 内存_读64 用 值 加 8。
+        返还 做 Nova值_创建_String 用 Nova运行时实例、做 整数转字符串 用 n。
+    完。
+    若 类型 等于 JS类型_String：
+        返还 值。
+    完。
+    若 类型 等于 JS类型_符号：
+        做 Nova运行时_抛出异常 用 Nova运行时实例、做 Nova值_创建_String 用 Nova运行时实例、「Type错误: Cannot convert a 符号 value to a string」。
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「」。
+    完。
+    若 类型 大于或等于 JS类型_Object：
+        若 类型 等于 JS类型_数组：
+            返还 做 Nova数组_ToString 用 Nova运行时实例、值。
+        完。
+        若 类型 等于 JS类型_Function：
+            返还 做 Nova值_创建_String 用 Nova运行时实例、「function() { [native code] }」。
+        完。
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「[object Object]」。
+    完。
+    返还 做 Nova值_创建_String 用 Nova运行时实例、「」。
+完。
+
+Nova数组_ToString 接受 Nova运行时实例、arr：
+    obj数据 为 做 内存_读64 用 arr 加 40。
+    若 obj数据 等于 0：
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「」。
+    完。
+    长度 为 做 内存_读32 用 obj数据 加 40。
+    若 长度 等于 0：
+        返还 做 Nova值_创建_String 用 Nova运行时实例、「」。
+    完。
+    可变 结果 为 「」。
+    元素存储 为 做 内存_读64 用 obj数据 加 32。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        若 i 大于 0：
+            结果 为 做 字符串_连接 用 结果、「,」。
+        完。
+        elem 为 做 内存_读64 用 元素存储 加 i 乘 8。
+        若 elem 不等于 0 并且 非 做 JSValue_IsNull 用 elem 并且 非 做 JSValue_IsUndefined 用 elem：
+            str 为 做 JSValue_ToString 用 Nova运行时实例、elem。
+            结果 为 做 字符串_连接 用 结果、做 JSValue_获取字符串 用 str。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 做 Nova值_创建_String 用 Nova运行时实例、结果。
+完。
+
+JSValue_ToBoolean 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    类型 为 做 内存_读32 用 值。
+    若 类型 等于 JS类型_Undefined：
+        返还 假。
+    完。
+    若 类型 等于 JS类型_Null：
+        返还 假。
+    完。
+    若 类型 等于 JS类型_Boolean：
+        返还 做 内存_读64 用 值 加 8 不等于 0。
+    完。
+    若 类型 等于 JS类型_Number：
+        n 为 做 内存_读64 用 值 加 8。
+        返还 n 不等于 0。
+    完。
+    若 类型 等于 JS类型_String：
+        返还 做 内存_读32 用 值 加 32 大于 0。
+    完。
+    返还 真。
+完。
+
+JSValue_IsTrue 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    若 值 等于 Nova运行时实例 的 true值：
+        返还 真。
+    完。
+    若 值 等于 Nova运行时实例 的 false值：
+        返还 假。
+    完。
+    返还 做 JSValue_ToBoolean 用 Nova运行时实例、值。
+完。
+
+JSValue_ToInt32 接受 Nova运行时实例、值：
+    n 为 做 Nova值_转数值 用 Nova运行时实例、值。
+    n32 为 n 位与 0xFFFFFFFF。
+    若 n32 大于或等于 0x80000000：
+        n32 为 n32 减 0x100000000。
+    完。
+    返还 n32。
+完。
+
+JSValue_ToUint32 接受 Nova运行时实例、值：
+    n 为 做 Nova值_转数值 用 Nova运行时实例、值。
+    返还 n 位与 0xFFFFFFFF。
+完。
+
+JSValue_ToPropertyKey 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        返还 「undefined」。
+    完。
+    类型 为 做 内存_读32 用 值。
+    若 类型 等于 JS类型_String：
+        返还 做 JSValue_获取字符串 用 值。
+    完。
+    若 类型 等于 JS类型_符号：
+        返还 值。
+    完。
+    若 类型 等于 JS类型_Number：
+        返还 做 整数转字符串 用 做 内存_读64 用 值 加 8。
+    完。
+    str 为 做 JSValue_ToString 用 Nova运行时实例、值。
+    返还 做 JSValue_获取字符串 用 str。
+完。
+
+JSValue_ToObject 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        做 Nova运行时_抛出异常 用 Nova运行时实例、做 Nova值_创建_String 用 Nova运行时实例、「Type错误: Cannot convert undefined to object」。
+        返还 Nova运行时实例 的 undefined值。
+    完。
+    类型 为 做 内存_读32 用 值。
+    若 类型 等于 JS类型_Undefined 或者 类型 等于 JS类型_Null：
+        做 Nova运行时_抛出异常 用 Nova运行时实例、做 Nova值_创建_String 用 Nova运行时实例、「Type错误: Cannot convert undefined or null to object」。
+        返还 Nova运行时实例 的 undefined值。
+    完。
+    若 类型 等于 JS类型_Number：
+        wrapper 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Number原型。
+        做 Nova对象_设置属性 用 Nova运行时实例、wrapper、「[[PrimitiveValue]]」、值。
+        返还 wrapper。
+    完。
+    若 类型 等于 JS类型_String：
+        wrapper 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 String原型。
+        做 Nova对象_设置属性 用 Nova运行时实例、wrapper、「[[PrimitiveValue]]」、值。
+        返还 wrapper。
+    完。
+    若 类型 等于 JS类型_Boolean：
+        wrapper 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Boolean原型。
+        做 Nova对象_设置属性 用 Nova运行时实例、wrapper、「[[PrimitiveValue]]」、值。
+        返还 wrapper。
+    完。
+    返还 值。
+完。
+
+JS类型_Undefined 为 0。
+
+JS类型_Null 为 1。
+
+JS类型_Boolean 为 2。
+
+JS类型_Number 为 3。
+
+JS类型_String 为 4。
+
+JS类型_符号 为 5。
+
+JS类型_BigInt 为 6。
+
+JS类型_Object 为 10。
+
+JS类型_数组 为 11。
+
+JS类型_Function 为 12。
+
+JS类型_RegExp 为 13。
+
+JS类型_Date 为 14。
+
+JS类型_Error 为 15。
+
+JS类型_Map 为 16。
+
+JS类型_Set 为 17。
+
+JS类型_WeakMap 为 18。
+
+JS类型_WeakSet 为 19。
+
+JS类型_Promise 为 20。
+
+JS类型_Proxy 为 21。
+
+JS类型_ArrayBuffer 为 22。
+
+JS类型_TypedArray 为 23。
+
+JS类型_名称 接受 类型：
+    若 类型 等于 JS类型_Undefined：
+        返还 「undefined」。
+    完。
+    若 类型 等于 JS类型_Null：
+        返还 「object」。
+    完。
+    若 类型 等于 JS类型_Boolean：
+        返还 「boolean」。
+    完。
+    若 类型 等于 JS类型_Number：
+        返还 「number」。
+    完。
+    若 类型 等于 JS类型_String：
+        返还 「string」。
+    完。
+    若 类型 等于 JS类型_符号：
+        返还 「symbol」。
+    完。
+    若 类型 等于 JS类型_BigInt：
+        返还 「bigint」。
+    完。
+    若 类型 等于 JS类型_Function：
+        返还 「function」。
+    完。
+    若 类型 大于或等于 JS类型_Object：
+        返还 「object」。
+    完。
+    返还 「unknown」。
+完。
+
+JS类型_是原始值 接受 类型：
+    返还 类型 小于 JS类型_Object。
+完。
+
+JS类型_是对象 接受 类型：
+    返还 类型 大于或等于 JS类型_Object。
+完。
+
+JS类型_是数值类型 接受 类型：
+    返还 类型 等于 JS类型_Number 或者 类型 等于 JS类型_BigInt。
+完。
+
+JSValue_TypeOf 接受 值：
+    若 值 等于 0：
+        返还 「undefined」。
+    完。
+    类型 为 做 内存_读32 用 值。
+    返还 做 JS类型_名称 用 类型。
+完。
+
+Nova值_转数值 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        返还 0。
+    完。
+    类型 为 做 内存_读32 用 值。
+    若 类型 等于 JS类型_Undefined：
+        返还 0。
+    完。
+    若 类型 等于 JS类型_Null：
+        返还 0。
+    完。
+    若 类型 等于 JS类型_Boolean：
+        若 做 内存_读64 用 值 加 8 不等于 0：
+            返还 1。
+        完。
+        返还 0。
+    完。
+    若 类型 等于 JS类型_Number：
+        返还 做 内存_读64 用 值 加 8。
+    完。
+    若 类型 等于 JS类型_String：
+        s 为 做 JSValue_获取字符串 用 值。
+        返还 做 字符串转整数 用 s。
+    完。
+    若 类型 等于 JS类型_符号：
+        做 Nova运行时_抛出异常 用 Nova运行时实例、做 Nova值_创建_String 用 Nova运行时实例、「Type错误: Cannot convert a Symbol value to a number」。
+        返还 0。
+    完。
+    若 类型 大于或等于 JS类型_Object：
+        prim 为 做 JSValue_ToPrimitive_Number 用 Nova运行时实例、值。
+        返还 做 Nova值_转数值 用 Nova运行时实例、prim。
+    完。
+    返还 0。
+完。
+
+JSValue_ToPrimitive_Number 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        返还 值。
+    完。
+    类型 为 做 内存_读32 用 值。
+    若 类型 小于 JS类型_Object：
+        返还 值。
+    完。
+    valueOf 为 做 Nova对象_获取属性 用 Nova运行时实例、值、「valueOf」。
+    若 valueOf 不等于 0 并且 做 内存_读32 用 valueOf 等于 JS类型_Function：
+        结果 为 做 Nova函数_调用 用 Nova运行时实例、valueOf、值、一组：（空）。
+        若 结果 不等于 0 并且 做 内存_读32 用 结果 小于 JS类型_Object：
+            返还 结果。
+        完。
+    完。
+    toString 为 做 Nova对象_获取属性 用 Nova运行时实例、值、「toString」。
+    若 toString 不等于 0 并且 做 内存_读32 用 toString 等于 JS类型_Function：
+        结果 为 做 Nova函数_调用 用 Nova运行时实例、toString、值、一组：（空）。
+        若 结果 不等于 0 并且 做 内存_读32 用 结果 小于 JS类型_Object：
+            返还 结果。
+        完。
+    完。
+    返还 做 Nova值_创建_Number 用 Nova运行时实例、0。
+完。
+
+JSValue_ToPrimitive_String 接受 Nova运行时实例、值：
+    若 值 等于 0：
+        返还 值。
+    完。
+    类型 为 做 内存_读32 用 值。
+    若 类型 小于 JS类型_Object：
+        返还 值。
+    完。
+    toString 为 做 Nova对象_获取属性 用 Nova运行时实例、值、「toString」。
+    若 toString 不等于 0 并且 做 内存_读32 用 toString 等于 JS类型_Function：
+        结果 为 做 Nova函数_调用 用 Nova运行时实例、toString、值、一组：（空）。
+        若 结果 不等于 0 并且 做 内存_读32 用 结果 小于 JS类型_Object：
+            返还 结果。
+        完。
+    完。
+    valueOf 为 做 Nova对象_获取属性 用 Nova运行时实例、值、「valueOf」。
+    若 valueOf 不等于 0 并且 做 内存_读32 用 valueOf 等于 JS类型_Function：
+        结果 为 做 Nova函数_调用 用 Nova运行时实例、valueOf、值、一组：（空）。
+        若 结果 不等于 0 并且 做 内存_读32 用 结果 小于 JS类型_Object：
+            返还 结果。
+        完。
+    完。
+    返还 做 Nova值_创建_String 用 Nova运行时实例、「[object Object]」。
+完。
+
+JSValue_StrictEquals 接受 a、b：
+    若 a 等于 b：
+        返还 真。
+    完。
+    若 a 等于 0 或者 b 等于 0：
+        返还 假。
+    完。
+    类型a 为 做 内存_读32 用 a。
+    类型b 为 做 内存_读32 用 b。
+    若 类型a 不等于 类型b：
+        返还 假。
+    完。
+    若 类型a 等于 JS类型_Undefined：
+        返还 真。
+    完。
+    若 类型a 等于 JS类型_Null：
+        返还 真。
+    完。
+    若 类型a 等于 JS类型_Boolean：
+        返还 做 内存_读64 用 a 加 8 等于 做 内存_读64 用 b 加 8。
+    完。
+    若 类型a 等于 JS类型_Number：
+        返还 做 内存_读64 用 a 加 8 等于 做 内存_读64 用 b 加 8。
+    完。
+    若 类型a 等于 JS类型_String：
+        返还 做 字符串_相等 用 做 JSValue_获取字符串 用 a、做 JSValue_获取字符串 用 b。
+    完。
+    返还 a 等于 b。
+完。
+
+JSValue_AbstractEquals 接受 Nova运行时实例、a、b：
+    若 a 等于 b：
+        返还 真。
+    完。
+    若 a 等于 0 或者 b 等于 0：
+        返还 假。
+    完。
+    类型a 为 做 内存_读32 用 a。
+    类型b 为 做 内存_读32 用 b。
+    若 类型a 等于 类型b：
+        返还 做 JSValue_StrictEquals 用 a、b。
+    完。
+    若 类型a 等于 JS类型_Null 并且 类型b 等于 JS类型_Undefined：
+        返还 真。
+    完。
+    若 类型a 等于 JS类型_Undefined 并且 类型b 等于 JS类型_Null：
+        返还 真。
+    完。
+    若 类型a 等于 JS类型_Number 并且 类型b 等于 JS类型_String：
+        bn 为 做 Nova值_转数值 用 Nova运行时实例、b。
+        返还 做 内存_读64 用 a 加 8 等于 bn。
+    完。
+    若 类型a 等于 JS类型_String 并且 类型b 等于 JS类型_Number：
+        an 为 做 Nova值_转数值 用 Nova运行时实例、a。
+        返还 an 等于 做 内存_读64 用 b 加 8。
+    完。
+    若 类型a 等于 JS类型_Boolean：
+        an 为 做 Nova值_转数值 用 Nova运行时实例、a。
+        返还 做 JSValue_AbstractEquals 用 Nova运行时实例、做 Nova值_创建_Number 用 Nova运行时实例、an、b。
+    完。
+    若 类型b 等于 JS类型_Boolean：
+        bn 为 做 Nova值_转数值 用 Nova运行时实例、b。
+        返还 做 JSValue_AbstractEquals 用 Nova运行时实例、a、做 Nova值_创建_Number 用 Nova运行时实例、bn。
+    完。
+    返还 假。
+完。
+
+JSValue_IsNull 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_Null。
+完。
+
+JSValue_IsUndefined 接受 值：
+    若 值 等于 0：
+        返还 真。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_Undefined。
+完。
+
+JSValue_IsNullOrUndefined 接受 值：
+    返还 做 JSValue_IsNull 用 值 或者 做 JSValue_IsUndefined 用 值。
+完。
+
+JSValue_IsNumber 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_Number。
+完。
+
+JSValue_IsString 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_String。
+完。
+
+JSValue_IsBoolean 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_Boolean。
+完。
+
+JSValue_IsObject 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 大于或等于 JS类型_Object。
+完。
+
+JSValue_IsFunction 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_Function。
+完。
+
+JSValue_IsArray 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_数组。
+完。
+
+JSValue_IsSymbol 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_符号。
+完。
+
+JSValue_IsBigInt 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 JS类型_BigInt。
+完。
+
+Nova值_创建_String 接受 Nova运行时实例、s：
+    值 为 做 堆_分配 用 48。
+    做 内存_写32 用 值、JS类型_String。
+    做 内存_写64 用 值 加 8、s。
+    长度 为 做 字符串_长度 用 s。
+    做 内存_写32 用 值 加 32、长度。
+    返还 值。
+完。
+
+Nova值_创建_Number 接受 Nova运行时实例、n：
+    值 为 做 堆_分配 用 16。
+    做 内存_写32 用 值、JS类型_Number。
+    做 内存_写64 用 值 加 8、n。
+    返还 值。
+完。
+
+Nova值_创建_Boolean 接受 Nova运行时实例、b：
+    值 为 做 堆_分配 用 16。
+    做 内存_写32 用 值、JS类型_Boolean。
+    做 内存_写64 用 值 加 8、若 b 则 1 否则 0。
+    返还 值。
+完。
+
+Nova值_创建_Null 接受 Nova运行时实例：
+    值 为 做 堆_分配 用 8。
+    做 内存_写32 用 值、JS类型_Null。
+    返还 值。
+完。
+
+Nova值_创建_Undefined 接受 Nova运行时实例：
+    值 为 做 堆_分配 用 8。
+    做 内存_写32 用 值、JS类型_Undefined。
+    返还 值。
+完。
+
+JSValue_获取字符串 接受 值：
+    若 值 等于 0：
+        返还 「」。
+    完。
+    若 做 内存_读32 用 值 不等于 JS类型_String：
+        返还 「」。
+    完。
+    返还 做 内存_读64 用 值 加 8。
+完。
+
+JSValue_获取数值 接受 值：
+    若 值 等于 0：
+        返还 0。
+    完。
+    若 做 内存_读32 用 值 不等于 JS类型_Number：
+        返还 0。
+    完。
+    返还 做 内存_读64 用 值 加 8。
+完。
+
+JSValue_获取布尔 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    若 做 内存_读32 用 值 不等于 JS类型_Boolean：
+        返还 假。
+    完。
+    返还 做 内存_读64 用 值 加 8 不等于 0。
+完。
+
+可变 值操作_ToString总数 为 0。
+
+可变 值操作_ToNumber总数 为 0。
+
+可变 值操作_ToBoolean总数 为 0。
+
+可变 值操作_比较总数 为 0。
+
+可变 值操作_类型检查总数 为 0。
+
+值操作_统计 接受 零参：
+    返还 一本字典：ToString 对应 值操作_ToString总数、ToNumber 对应 值操作_ToNumber总数、ToBoolean 对应 值操作_ToBoolean总数、比较 对应 值操作_比较总数、类型检查 对应 值操作_类型检查总数。
+完。
+
+值操作_健康检查 接受 零参：
+    返还 「值操作子系统健康」。
+完。
+
+值操作_重置统计 接受 零参：
+    值操作_ToString总数 为 0。
+    值操作_ToNumber总数 为 0。
+    值操作_ToBoolean总数 为 0。
+    值操作_比较总数 为 0。
+    值操作_类型检查总数 为 0。
+完。
+
+值操作_完整统计 接受 零参：
+    返还 一组：值操作_ToString总数、值操作_ToNumber总数、值操作_ToBoolean总数、值操作_比较总数。
+完。
+
+本章 收束。

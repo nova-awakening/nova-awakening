@@ -1,0 +1,72 @@
+《ValidityState验证》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+ValidityState 是 一种 事物，含 valueMissing、typeMismatch、patternMismatch、tooLong、tooShort、rangeUnderflow、rangeOverflow、stepMismatch、badInput、custom错误、valid。
+
+ValidityState_创建 接受 零参：
+    vs 为 做 堆_分配 用 ValidityState。
+    vs 的 valueMissing 为 假。
+    vs 的 typeMismatch 为 假。
+    vs 的 patternMismatch 为 假。
+    vs 的 tooLong 为 假。
+    vs 的 tooShort 为 假。
+    vs 的 rangeUnderflow 为 假。
+    vs 的 rangeOverflow 为 假。
+    vs 的 stepMismatch 为 假。
+    vs 的 badInput 为 假。
+    vs 的 custom错误 为 假。
+    vs 的 valid 为 真。
+    返还 vs。
+完。
+
+ValidityState_更新valid 接受 vs：
+    若 vs 等于 0：
+        返还。
+    完。
+    vs 的 valid 为 非 (vs 的 valueMissing 或者 vs 的 typeMismatch 或者 vs 的 patternMismatch 或者 vs 的 tooLong 或者 vs 的 tooShort 或者 vs 的 rangeUnderflow 或者 vs 的 rangeOverflow 或者 vs 的 stepMismatch 或者 vs 的 badInput 或者 vs 的 custom错误)。
+完。
+
+INPUT_TEXT 为 0。
+
+INPUT_EMAIL 为 1。
+
+INPUT_URL 为 2。
+
+INPUT_NUMBER 为 3。
+
+INPUT_DATE 为 4。
+
+INPUT_TIME 为 5。
+
+INPUT_TEL 为 6。
+
+INPUT_PASSWORD 为 7。
+
+INPUT_CHECKBOX 为 8。
+
+INPUT_RADIO 为 9。
+
+INPUT_FILE 为 10。
+
+INPUT_HIDDEN 为 11。
+
+INPUT_SUBMIT 为 12。
+
+INPUT_RANGE 为 13。
+
+INPUT_COLOR 为 14。
+
+INPUT_SEARCH 为 15。
+
+INPUT_DATETIME_LOCAL 为 16。
+
+INPUT_MONTH 为 17。
+
+INPUT_WEEK 为 18。
+
+FormConstraints 是 一种 事物，含 类型、required、minlength、maxlength、min、max、step、pattern、custom错误、值、值长度、checked、selectedIndex、disabled、readonly。
+
+本章 收束。

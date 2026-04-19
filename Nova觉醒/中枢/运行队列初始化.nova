@@ -1,0 +1,183 @@
+《运行队列初始化》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·同步原语》。
+
+引用《.·进程描述符》。
+
+引用《.·公平调度周期》。
+
+引用《.·每处理器》。
+
+引用《.·实时调度》。
+
+引用《.·内核打印》。
+
+最大CPU数 为 64。
+
+运行队列 是 一种 事物，含 cpu、锁、nr_running、curr、idle、stop、Nova公平调度_nr、Nova公平调度_load、Nova公平调度_min_Nova虚拟运行时间、Nova公平调度_红黑树、rt_nr、rt_highest_prio、clock、clock_task、clock_Nova负载追踪、calc_load_active、calc_load_update、idle_stamp、avg_idle、max_idle_balance_cost、sd、nr_switches、nr_migrations、online。
+
+可变 所有运行队列 为 一组：（空）。
+
+可变 在线CPU数 为 0。
+
+运行队列_初始化全部 接受 cpu数：
+    可变 i 为 0。
+    只要 i 小于 cpu数 并且 i 小于 最大CPU数：
+        rq 为 做 运行队列_创建 用 i。
+        做 追加 用 所有运行队列、rq。
+        i 为 i 加 1。
+    完。
+    在线CPU数 为 cpu数。
+    做 内核信息数值 用 「per-CPU运行队列初始化, CPU数」、cpu数。
+完。
+
+运行队列_创建 接受 CPU号：
+    rq 为 新建 运行队列。
+    rq 的 cpu 为 CPU号。
+    rq 的 锁 为 做 自旋锁_创建。
+    rq 的 nr_running 为 0。
+    rq 的 curr 为 空。
+    rq 的 idle 为 空。
+    rq 的 stop 为 空。
+    rq 的 Nova公平调度_nr 为 0。
+    rq 的 Nova公平调度_load 为 0。
+    rq 的 Nova公平调度_min_Nova虚拟运行时间 为 0。
+    rq 的 Nova公平调度_红黑树 为 空。
+    rq 的 rt_nr 为 0。
+    rq 的 rt_highest_prio 为 99。
+    rq 的 clock 为 0。
+    rq 的 clock_task 为 0。
+    rq 的 clock_Nova负载追踪 为 0。
+    rq 的 calc_load_active 为 0。
+    rq 的 calc_load_update 为 0。
+    rq 的 idle_stamp 为 0。
+    rq 的 avg_idle 为 0。
+    rq 的 max_idle_balance_cost 为 500000。
+    rq 的 sd 为 空。
+    rq 的 nr_switches 为 0。
+    rq 的 nr_migrations 为 0。
+    rq 的 online 为 真。
+    返还 rq。
+完。
+
+获取运行队列 接受 cpu：
+    若 cpu 大于或等于 0 并且 cpu 小于 做 计数 用 所有运行队列：
+        返还 所有运行队列 的 第 cpu 项。
+    完。
+    返还 空。
+完。
+
+当前CPU运行队列 接受 零参：
+    返还 做 获取运行队列 用 做 获取当前CPU。
+完。
+
+运行队列_Nova公平调度数 接受 rq：
+    返还 rq 的 Nova公平调度_nr。
+完。
+
+运行队列_RT数 接受 rq：
+    返还 rq 的 rt_nr。
+完。
+
+运行队列_总数 接受 rq：
+    返还 rq 的 nr_running。
+完。
+
+运行队列_当前 接受 rq：
+    返还 rq 的 curr。
+完。
+
+运行队列_idle 接受 rq：
+    返还 rq 的 idle。
+完。
+
+运行队列_是空闲 接受 rq：
+    返还 rq 的 nr_running 等于 0。
+完。
+
+运行队列_锁定 接受 rq：
+    做 自旋锁_获取 用 rq 的 锁。
+完。
+
+运行队列_解锁 接受 rq：
+    做 自旋锁_释放 用 rq 的 锁。
+完。
+
+双运行队列_锁定 接受 rq1、rq2：
+    若 rq1 等于 rq2：
+        做 运行队列_锁定 用 rq1。
+        返还。
+    完。
+    若 rq1 的 cpu 小于 rq2 的 cpu：
+        做 运行队列_锁定 用 rq1。
+        做 运行队列_锁定 用 rq2。
+    否则：
+        做 运行队列_锁定 用 rq2。
+        做 运行队列_锁定 用 rq1。
+    完。
+完。
+
+双运行队列_解锁 接受 rq1、rq2：
+    做 运行队列_解锁 用 rq1。
+    若 rq1 不等于 rq2：
+        做 运行队列_解锁 用 rq2。
+    完。
+完。
+
+运行队列_入队 接受 rq、任务：
+    rq 的 nr_running 为 rq 的 nr_running 加 1。
+    调度类 为 做 进程_调度类 用 任务。
+    若 调度类 等于 调度类_Nova公平调度：
+        rq 的 Nova公平调度_nr 为 rq 的 Nova公平调度_nr 加 1。
+        rq 的 Nova公平调度_load 为 rq 的 Nova公平调度_load 加 做 进程_权重 用 任务。
+        做 Nova公平调度_入队 用 任务。
+    否则若 调度类 等于 调度类_RT：
+        rq 的 rt_nr 为 rq 的 rt_nr 加 1。
+        优先级 为 做 进程_RT优先级 用 任务。
+        若 优先级 小于 rq 的 rt_highest_prio：
+            rq 的 rt_highest_prio 为 优先级。
+        完。
+    完。
+    rq 的 calc_load_active 为 rq 的 calc_load_active 加 1。
+完。
+
+运行队列_出队 接受 rq、任务：
+    rq 的 nr_running 为 rq 的 nr_running 减 1。
+    调度类 为 做 进程_调度类 用 任务。
+    若 调度类 等于 调度类_Nova公平调度：
+        rq 的 Nova公平调度_nr 为 rq 的 Nova公平调度_nr 减 1。
+        rq 的 Nova公平调度_load 为 rq 的 Nova公平调度_load 减 做 进程_权重 用 任务。
+        做 Nova公平调度_出队 用 任务。
+    否则若 调度类 等于 调度类_RT：
+        rq 的 rt_nr 为 rq 的 rt_nr 减 1。
+    完。
+    rq 的 calc_load_active 为 rq 的 calc_load_active 减 1。
+完。
+
+可变 AI_运行队列初_负载窗口 为 一组：（空）。
+
+AI_运行队列初_负载预测 接受 当前负载：
+    做 追加 用 AI_运行队列初_负载窗口、当前负载。
+    若 做 计数 用 AI_运行队列初_负载窗口 大于 20：
+        做 列表_移除 用 AI_运行队列初_负载窗口、0。
+    完。
+    若 做 计数 用 AI_运行队列初_负载窗口 小于 3：
+        返还 当前负载。
+    完。
+    n 为 做 计数 用 AI_运行队列初_负载窗口。
+    趋势 为 AI_运行队列初_负载窗口 的 第 n 减 1 项 减 AI_运行队列初_负载窗口 的 第 n 减 3 项。
+    返还 当前负载 加 趋势。
+完。
+
+AI_运行队列初_迁移建议 接受 源CPU负载、目标CPU负载：
+    若 源CPU负载 大于 目标CPU负载 乘 2：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

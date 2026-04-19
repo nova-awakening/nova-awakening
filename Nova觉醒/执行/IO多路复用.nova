@@ -1,0 +1,107 @@
+《IO多路复用》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·底层系统调用原语》。
+
+引用《..·感知·内核直连层》。
+
+系统调用_Nova事件轮询_创建 接受 flags：
+    返还 做 系统调用1 用 SYS_Nova事件轮询_创建1、flags。
+完。
+
+系统调用_Nova事件轮询_ctl 接受 epfd、op、fd、事件：
+    返还 做 系统调用4 用 SYS_Nova事件轮询_ctl、epfd、op、fd、事件。
+完。
+
+系统调用_Nova事件轮询_wait 接受 epfd、事件s、max事件s、timeout：
+    返还 做 系统调用5 用 SYS_Nova事件轮询_pwait、epfd、事件s、max事件s、timeout、0。
+完。
+
+系统调用_ppoll 接受 fds、nfds、timeout_ms：
+    ts 为 做 堆_分配 用 16。
+    做 内存_写64 用 ts、timeout_ms 除以 1000。
+    做 内存_写64 用 ts 加 8、timeout_ms 取余于 1000 乘 1000000。
+    ret 为 做 系统调用5 用 SYS_ppoll、fds、nfds、ts、0、0。
+    做 堆_释放 用 ts。
+    返还 ret。
+完。
+
+平台_创建Nova事件轮询 接受 零参：
+    返还 做 系统调用_Nova事件轮询_创建 用 O_CLOEXEC。
+完。
+
+平台_Nova事件轮询_添加 接受 epfd、fd、事件s：
+    ev 为 做 堆_分配 用 12。
+    做 内存_写32 用 ev、事件s。
+    做 内存_写32 用 ev 加 4、fd。
+    ret 为 做 系统调用_Nova事件轮询_ctl 用 epfd、Nova事件轮询_CTL_ADD、fd、ev。
+    做 堆_释放 用 ev。
+    返还 ret。
+完。
+
+系统调用_clock_gettime 接受 clk_id、tp：
+    返还 做 系统调用2 用 SYS_clock_gettime、clk_id、tp。
+完。
+
+系统调用_nanosleep 接受 req、rem：
+    返还 做 系统调用2 用 SYS_nanosleep、req、rem。
+完。
+
+平台_获取单调时间_ns 接受 零参：
+    ts 为 做 堆_分配 用 16。
+    做 系统调用_clock_gettime 用 CLOCK_MONOTONIC、ts。
+    sec 为 做 内存_读64 用 ts。
+    nsec 为 做 内存_读64 用 ts 加 8。
+    做 堆_释放 用 ts。
+    返还 sec 乘 1000000000 加 nsec。
+完。
+
+平台_获取时间_ms 接受 零参：
+    ts 为 做 堆_分配 用 16。
+    做 系统调用_clock_gettime 用 CLOCK_REALTIME、ts。
+    sec 为 做 内存_读64 用 ts。
+    nsec 为 做 内存_读64 用 ts 加 8。
+    做 堆_释放 用 ts。
+    返还 sec 乘 1000 加 nsec 除以 1000000。
+完。
+
+平台_sleep_ms 接受 ms：
+    req 为 做 堆_分配 用 16。
+    做 内存_写64 用 req、ms 除以 1000。
+    做 内存_写64 用 req 加 8、ms 取余于 1000 乘 1000000。
+    做 系统调用_nanosleep 用 req、0。
+    做 堆_释放 用 req。
+完。
+
+系统调用_sigaction 接受 signum、act、oldact：
+    返还 做 系统调用4 用 SYS_rt_sigaction、signum、act、oldact、8。
+完。
+
+系统调用_sigprocmask 接受 how、set、oldset：
+    返还 做 系统调用4 用 SYS_rt_sigprocmask、how、set、oldset、8。
+完。
+
+系统调用_getrandom 接受 buf、buflen、flags：
+    返还 做 系统调用3 用 SYS_getrandom、buf、buflen、flags。
+完。
+
+平台_安全随机 接受 buf、len：
+    可变 已读 为 0。
+    只要 已读 小于 len：
+        n 为 做 系统调用_getrandom 用 buf 加 已读、len 减 已读、0。
+        若 n 小于或等于 0：
+            跳出。
+        完。
+        已读 为 已读 加 n。
+    完。
+    返还 已读。
+完。
+
+系统调用_seccomp 接受 op、flags、args：
+    返还 做 系统调用3 用 SYS_seccomp、op、flags、args。
+完。
+
+本章 收束。

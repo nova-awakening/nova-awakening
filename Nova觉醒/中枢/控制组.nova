@@ -1,0 +1,253 @@
+《控制组》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·链表后继》。
+
+CGROUP_SUBSYS_CPU 为 0。
+
+CGROUP_SUBSYS_MEMORY 为 1。
+
+CGROUP_SUBSYS_IO 为 2。
+
+CGROUP_SUBSYS_PIDS 为 3。
+
+CGROUP_SUBSYS_CPUSET 为 4。
+
+CGROUP_SUBSYS_COUNT 为 5。
+
+cgroup 是 一种 事物，含 名称、父、子列表、进程列表、cpu_权重、cpu_最大、内存_最大、内存_当前、pids_最大、pids_当前、cpu_使用_us、内存_峰值、io_读字节、io_写字节、冻结、引用计数。
+
+可变 cgroup_根 为 空。
+
+可变 cgroup_总数 为 0。
+
+cgroup_初始化 接受 零参：
+    cgroup_根 为 做 cgroup_创建 用 「/」、空。
+    cgroup_根 的 cpu_权重 为 100。
+    cgroup_根 的 内存_最大 为 0。
+    cgroup_根 的 pids_最大 为 0。
+    cgroup_总数 为 1。
+    做 内核信息 用 「cgroup v2: 初始化 (cpu/memory/io/pids/cpuset)」。
+完。
+
+cgroup_创建 接受 名称、父：
+    cg 为 新建 cgroup。
+    cg 的 名称 为 名称。
+    cg 的 父 为 父。
+    cg 的 子列表 为 一组：（空）。
+    cg 的 进程列表 为 一组：（空）。
+    cg 的 cpu_权重 为 100。
+    cg 的 cpu_最大 为 0。
+    cg 的 内存_最大 为 0。
+    cg 的 内存_当前 为 0。
+    cg 的 pids_最大 为 0。
+    cg 的 pids_当前 为 0。
+    cg 的 cpu_使用_us 为 0。
+    cg 的 内存_峰值 为 0。
+    cg 的 io_读字节 为 0。
+    cg 的 io_写字节 为 0。
+    cg 的 冻结 为 0。
+    cg 的 引用计数 为 1。
+    若 父 不等于 空：
+        做 追加 用 父 的 子列表、cg。
+    完。
+    cgroup_总数 为 cgroup_总数 加 1。
+    返还 cg。
+完。
+
+cgroup_添加进程 接受 cg、pid：
+    若 cg 等于 空：
+        返还 错误_无效参数。
+    完。
+    若 cg 的 pids_最大 大于 0 并且 cg 的 pids_当前 大于或等于 cg 的 pids_最大：
+        返还 错误_无空间。
+    完。
+    做 追加 用 cg 的 进程列表、pid。
+    cg 的 pids_当前 为 cg 的 pids_当前 加 1。
+    返还 成功。
+完。
+
+cgroup_移除进程 接受 cg、pid：
+    若 cg 等于 空：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 cg 的 进程列表：
+        若 cg 的 进程列表 的 第 i 项 等于 pid：
+            做 链表_删除 用 cg 的 进程列表、i。
+            cg 的 pids_当前 为 cg 的 pids_当前 减 1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+cgroup_检查内存 接受 cg、请求字节：
+    若 cg 等于 空：
+        返还 真。
+    完。
+    若 cg 的 内存_最大 等于 0：
+        返还 真。
+    完。
+    返还 cg 的 内存_当前 加 请求字节 小于或等于 cg 的 内存_最大。
+完。
+
+cgroup_记录内存 接受 cg、字节：
+    若 cg 等于 空：
+        返还。
+    完。
+    cg 的 内存_当前 为 cg 的 内存_当前 加 字节。
+    若 cg 的 内存_当前 大于 cg 的 内存_峰值：
+        cg 的 内存_峰值 为 cg 的 内存_当前。
+    完。
+完。
+
+cgroup_释放内存 接受 cg、字节：
+    若 cg 等于 空：
+        返还。
+    完。
+    若 cg 的 内存_当前 大于或等于 字节：
+        cg 的 内存_当前 为 cg 的 内存_当前 减 字节。
+    否则：
+        cg 的 内存_当前 为 0。
+    完。
+完。
+
+cgroup_获取CPU权重 接受 cg：
+    若 cg 等于 空：
+        返还 100。
+    完。
+    返还 cg 的 cpu_权重。
+完。
+
+cgroup_写控制文件 接受 cg、文件名、值：
+    若 文件名 等于 「memory.max」：
+        cg 的 内存_最大 为 值。
+    否则若 文件名 等于 「cpu.weight」：
+        cg 的 cpu_权重 为 值。
+        若 cg 的 cpu_权重 小于 1：
+            cg 的 cpu_权重 为 1。
+        完。
+        若 cg 的 cpu_权重 大于 10000：
+            cg 的 cpu_权重 为 10000。
+        完。
+    否则若 文件名 等于 「pids.max」：
+        cg 的 pids_最大 为 值。
+    否则若 文件名 等于 「cgroup.freeze」：
+        cg 的 冻结 为 值。
+    完。
+    返还 成功。
+完。
+
+cgroup_读控制文件 接受 cg、文件名：
+    若 文件名 等于 「memory.max」：
+        返还 cg 的 内存_最大。
+    完。
+    若 文件名 等于 「memory.current」：
+        返还 cg 的 内存_当前。
+    完。
+    若 文件名 等于 「memory.peak」：
+        返还 cg 的 内存_峰值。
+    完。
+    若 文件名 等于 「cpu.weight」：
+        返还 cg 的 cpu_权重。
+    完。
+    若 文件名 等于 「pids.max」：
+        返还 cg 的 pids_最大。
+    完。
+    若 文件名 等于 「pids.current」：
+        返还 cg 的 pids_当前。
+    完。
+    若 文件名 等于 「cpu.stat」：
+        返还 cg 的 cpu_使用_us。
+    完。
+    返还 0。
+完。
+
+cgroup_冻结 接受 cg：
+    若 cg 等于 空：
+        返还。
+    完。
+    cg 的 冻结 为 1。
+完。
+
+cgroup_解冻 接受 cg：
+    若 cg 等于 空：
+        返还。
+    完。
+    cg 的 冻结 为 0。
+完。
+
+cgroup_统计 接受 零参：
+    返还 一组：cgroup_总数。
+完。
+
+cgroup_根组 接受 零参：
+    返还 cgroup_根。
+完。
+
+cgroup_子系统名 接受 类型：
+    若 类型 等于 CGROUP_SUBSYS_CPU：
+        返还 「cpu」。
+    完。
+    若 类型 等于 CGROUP_SUBSYS_MEMORY：
+        返还 「memory」。
+    完。
+    若 类型 等于 CGROUP_SUBSYS_IO：
+        返还 「io」。
+    完。
+    若 类型 等于 CGROUP_SUBSYS_PIDS：
+        返还 「pids」。
+    完。
+    若 类型 等于 CGROUP_SUBSYS_CPUSET：
+        返还 「cpuset」。
+    完。
+    返还 「unknown」。
+完。
+
+cgroup_查找子组 接受 cg、名称：
+    若 cg 等于 空：
+        返还 空。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 cg 的 子列表：
+        若 cg 的 子列表 的 第 i 项 的 名称 等于 名称：
+            返还 cg 的 子列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+cgroup_内存使用率 接受 cg：
+    若 cg 等于 空 或者 cg 的 内存_最大 等于 0：
+        返还 0。
+    完。
+    返还 cg 的 内存_当前 乘 100 除以 cg 的 内存_最大。
+完。
+
+cgroup_完整统计 接受 零参：
+    返还 一组：cgroup_总数。
+完。
+
+可变 AI_控制组_运行指标 为 0。
+
+可变 AI_控制组_异常指标 为 0。
+
+AI_控制组_自诊断 接受 零参：
+    AI_控制组_运行指标 为 cgroup_总数。
+    返还 AI_控制组_运行指标。
+完。
+
+AI_控制组_优化建议 接受 零参：
+    指标 为 做 AI_控制组_自诊断。
+    若 AI_控制组_运行指标 大于 10000：
+        返还 「控制组负载较高」。
+    完。
+    返还 「控制组状态正常」。
+完。
+
+本章 收束。

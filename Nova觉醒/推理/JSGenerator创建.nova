@@ -1,0 +1,420 @@
+《JSGenerator创建》
+
+引用《.·上下文运行时》。
+
+引用《.·值型系统》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·定点Q算术》。
+
+引用《..·执行·底层内存操》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·哈希函数》。
+
+GEN_STATE_SUSPENDED_START 为 0。
+
+GEN_STATE_SUSPENDED_YIELD 为 1。
+
+GEN_STATE_EXECUTING 为 2。
+
+GEN_STATE_COMPLETED 为 3。
+
+JSGeneratorObject 是 一种 事物，含 状态、函数、字节码、字节码长度、暂停点PC、暂停点ID、寄存器快照、寄存器数量、栈快照、栈深度、上下文、最后值、receiver、是异步、等待承诺、请求队列、请求队列数量。
+
+JSGenerator_创建 接受 Nova运行时实例、函数、字节码、字节码长度、上下文、receiver：
+    gen 为 做 堆_分配 用 JSGeneratorObject。
+    gen 的 状态 为 GEN_STATE_SUSPENDED_START。
+    gen 的 函数 为 以 零参 为 引，其做法是：
+    gen 的 字节码 为 字节码。
+    gen 的 字节码长度 为 字节码长度。
+    gen 的 暂停点PC 为 0。
+    gen 的 暂停点ID 为 0。
+    gen 的 寄存器数量 为 32。
+    gen 的 寄存器快照 为 做 堆_分配_数组 用 32 乘 8。
+    做 内存_清零 用 gen 的 寄存器快照、32 乘 8。
+    gen 的 栈快照 为 做 堆_分配_数组 用 64 乘 8。
+    gen 的 栈深度 为 0。
+    gen 的 上下文 为 上下文。
+    gen 的 最后值 为 0。
+    gen 的 receiver 为 receiver。
+    gen 的 是异步 为 假。
+    gen 的 等待承诺 为 0。
+    gen 的 请求队列 为 0。
+    gen 的 请求队列数量 为 0。
+    返还 gen。
+完。
+
+可变 全局_gen创建总数 为 0。
+
+可变 全局_gen_next调用 为 0。
+
+可变 全局_gen_return调用 为 0。
+
+可变 全局_gen_throw调用 为 0。
+
+可变 全局_yield总次数 为 0。
+
+可变 全局_快照复用次数 为 0。
+
+可变 全局_AI预取命中 为 0。
+
+可变 全局_AI预取未中 为 0。
+
+迭代结果 是 一种 事物，含 值、已完成。
+
+JSGenerator_next 接受 gen、输入值：
+    全局_gen_next调用 为 全局_gen_next调用 加 1。
+    若 gen 的 状态 等于 GEN_STATE_COMPLETED：
+        返还 新建 迭代结果：值 为 0、已完成 为 真。
+    完。
+    若 gen 的 状态 等于 GEN_STATE_EXECUTING：
+        返还 新建 迭代结果：值 为 0、已完成 为 真。
+    完。
+    若 gen 的 状态 等于 GEN_STATE_SUSPENDED_YIELD：
+        gen 的 最后值 为 输入值。
+    完。
+    gen 的 状态 为 GEN_STATE_EXECUTING。
+    若 非 做 Gen_恢复寄存器 用 gen：
+        gen 的 状态 为 GEN_STATE_COMPLETED。
+        返还 新建 迭代结果：值 为 0、已完成 为 真。
+    完。
+    结果 为 做 Gen_执行字节码 用 gen。
+    若 结果 的 类型 等于 1：
+        gen 的 状态 为 GEN_STATE_SUSPENDED_YIELD。
+        做 Gen_保存寄存器 用 gen。
+        全局_yield总次数 为 全局_yield总次数 加 1。
+        返还 新建 迭代结果：值 为 结果 的 值、已完成 为 假。
+    否则若 结果 的 类型 等于 2：
+        gen 的 状态 为 GEN_STATE_COMPLETED。
+        做 Gen_释放快照 用 gen。
+        返还 新建 迭代结果：值 为 结果 的 值、已完成 为 真。
+    否则：
+        gen 的 状态 为 GEN_STATE_COMPLETED。
+        做 Gen_释放快照 用 gen。
+        返还 新建 迭代结果：值 为 0、已完成 为 真。
+    完。
+完。
+
+JSGenerator_return 接受 gen、返回值：
+    全局_gen_return调用 为 全局_gen_return调用 加 1。
+    若 gen 的 状态 等于 GEN_STATE_COMPLETED：
+        返还 新建 迭代结果：值 为 返回值、已完成 为 真。
+    完。
+    若 gen 的 状态 等于 GEN_STATE_EXECUTING：
+        返还 新建 迭代结果：值 为 0、已完成 为 真。
+    完。
+    若 做 Gen_有finally块 用 gen：
+        gen 的 最后值 为 返回值。
+        gen 的 状态 为 GEN_STATE_EXECUTING。
+        做 Gen_恢复寄存器 用 gen。
+        做 Gen_跳转finally 用 gen。
+        结果 为 做 Gen_执行字节码 用 gen。
+        gen 的 状态 为 GEN_STATE_COMPLETED。
+        做 Gen_释放快照 用 gen。
+        返还 新建 迭代结果：值 为 返回值、已完成 为 真。
+    完。
+    gen 的 状态 为 GEN_STATE_COMPLETED。
+    做 Gen_释放快照 用 gen。
+    返还 新建 迭代结果：值 为 返回值、已完成 为 真。
+完。
+
+JSGenerator_throw 接受 gen、异常值：
+    全局_gen_throw调用 为 全局_gen_throw调用 加 1。
+    若 gen 的 状态 等于 GEN_STATE_COMPLETED：
+        返还 新建 迭代结果：值 为 异常值、已完成 为 真。
+    完。
+    若 gen 的 状态 等于 GEN_STATE_SUSPENDED_START：
+        gen 的 状态 为 GEN_STATE_COMPLETED。
+        返还 新建 迭代结果：值 为 异常值、已完成 为 真。
+    完。
+    若 gen 的 状态 等于 GEN_STATE_EXECUTING：
+        返还 新建 迭代结果：值 为 0、已完成 为 真。
+    完。
+    gen 的 状态 为 GEN_STATE_EXECUTING。
+    做 Gen_恢复寄存器 用 gen。
+    若 做 Gen_有try_catch 用 gen：
+        做 Gen_设置异常 用 gen、异常值。
+        结果 为 做 Gen_执行字节码 用 gen。
+        若 结果 的 类型 等于 1：
+            gen 的 状态 为 GEN_STATE_SUSPENDED_YIELD。
+            做 Gen_保存寄存器 用 gen。
+            全局_yield总次数 为 全局_yield总次数 加 1。
+            返还 新建 迭代结果：值 为 结果 的 值、已完成 为 假。
+        完。
+        gen 的 状态 为 GEN_STATE_COMPLETED。
+        做 Gen_释放快照 用 gen。
+        返还 新建 迭代结果：值 为 结果 的 值、已完成 为 真。
+    完。
+    gen 的 状态 为 GEN_STATE_COMPLETED。
+    做 Gen_释放快照 用 gen。
+    返还 新建 迭代结果：值 为 异常值、已完成 为 真。
+完。
+
+Gen_保存寄存器 接受 gen：
+    若 gen 的 寄存器快照 等于 空 或者 gen 的 寄存器数量 等于 0：
+        返还。
+    完。
+    gen 的 暂停点PC 为 做 获取当前PC 用 gen。
+    gen 的 暂停点ID 为 gen 的 暂停点ID 加 1。
+    可变。
+    i 为 0。
+    只要 i 小于 gen 的 栈深度 并且 i 小于 64：
+        做 内存_写字 用 gen 的 栈快照、i 乘 8、做 获取栈值 用 gen、i。
+        i 为 i 加 1。
+    完。
+完。
+
+Gen_恢复寄存器 接受 gen：
+    若 gen 的 寄存器快照 等于 空：
+        返还 假。
+    完。
+    做 设置当前PC 用 gen、gen 的 暂停点PC。
+    可变。
+    i 为 0。
+    只要 i 小于 gen 的 寄存器数量：
+        做 设置寄存器 用 gen、i、做 内存_读字 用 gen 的 寄存器快照、i 乘 8。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 gen 的 栈深度 并且 i 小于 64：
+        做 设置栈值 用 gen、i、做 内存_读字 用 gen 的 栈快照、i 乘 8。
+        i 为 i 加 1。
+    完。
+    全局_快照复用次数 为 全局_快照复用次数 加 1。
+    返还 真。
+完。
+
+Gen_释放快照 接受 gen：
+    若 gen 的 寄存器快照 不等于 空：
+        做 堆_释放 用 gen 的 寄存器快照。
+        gen 的 寄存器快照 为 空。
+    完。
+    若 gen 的 栈快照 不等于 空：
+        做 堆_释放 用 gen 的 栈快照。
+        gen 的 栈快照 为 空。
+    完。
+    gen 的 寄存器数量 为 0。
+    gen 的 栈深度 为 0。
+完。
+
+OP_YIELD 为 0xF0。
+
+OP_RETURN 为 0xF1。
+
+OP_YIELD_STAR 为 0xF2。
+
+OP_AWAIT 为 0xF3。
+
+执行结果 是 一种 事物，含 类型、值。
+
+Gen_执行字节码 接受 gen：
+    可变。
+    pc 为 gen 的 暂停点PC。
+    可变。
+    安全计数 为 0。
+    最大执行 为 100000。
+    只要 pc 小于 gen 的 字节码长度 并且 安全计数 小于 最大执行：
+        op 为 做 内存_读字节 用 gen 的 字节码、pc。
+        若 op 等于 OP_YIELD：
+            值 为 做 获取栈顶 用 gen。
+            gen 的 暂停点PC 为 pc 加 1。
+            返还 新建 执行结果：类型 为 1、值 为 值。
+        否则若 op 等于 OP_RETURN：
+            值 为 做 获取栈顶 用 gen。
+            返还 新建 执行结果：类型 为 2、值 为 值。
+        否则若 op 等于 OP_YIELD_STAR：
+            内层 为 做 获取栈顶 用 gen。
+            内层结果 为 做 迭代器_下一个 用 内层。
+            若 内层结果 的 已完成：
+                做 压入栈 用 gen、内层结果 的 值。
+                pc 为 pc 加 1。
+            否则：
+                gen 的 暂停点PC 为 pc。
+                返还 新建 执行结果：类型 为 1、值 为 内层结果 的 值。
+            完。
+        否则若 op 等于 OP_AWAIT：
+            承诺 为 做 获取栈顶 用 gen。
+            gen 的 等待承诺 为 承诺。
+            gen 的 暂停点PC 为 pc 加 1。
+            返还 新建 执行结果：类型 为 1、值 为 承诺。
+        否则：
+            pc 为 做 解释单步 用 gen、op、pc。
+        完。
+        安全计数 为 安全计数 加 1。
+    完。
+    返还 新建 执行结果：类型 为 2、值 为 0。
+完。
+
+异步Gen请求 是 一种 事物，含 类型、值、下一个。
+
+AsyncGenerator_创建 接受 Nova运行时实例、函数、字节码、字节码长度、上下文、receiver：
+    gen 为 做 JSGenerator_创建 用 Nova运行时实例、以 零参 为 引，其做法是：、字节码、字节码长度、上下文、receiver。
+    gen 的 是异步 为 真。
+    gen 的 请求队列 为 空。
+    gen 的 请求队列数量 为 0。
+    返还 gen。
+完。
+
+AsyncGenerator_入队 接受 异步Gen、类型、值：
+    请求 为 新建 异步Gen请求：类型 为 类型、值 为 值、下一个 为 空。
+    若 异步Gen 的 请求队列 等于 空：
+        异步Gen 的 请求队列 为 请求。
+    否则：
+        可变。
+        当前 为 异步Gen 的 请求队列。
+        只要 当前 的 下一个 不等于 空：
+            当前 为 当前 的 下一个。
+        完。
+        当前 的 下一个 为 请求。
+    完。
+    异步Gen 的 请求队列数量 为 异步Gen 的 请求队列数量 加 1。
+完。
+
+AsyncGenerator_处理队列 接受 异步Gen：
+    若 异步Gen 的 请求队列 等于 空：
+        返还。
+    完。
+    若 异步Gen 的 状态 等于 GEN_STATE_EXECUTING：
+        返还。
+    完。
+    请求 为 异步Gen 的 请求队列。
+    异步Gen 的 请求队列 为 请求 的 下一个。
+    异步Gen 的 请求队列数量 为 异步Gen 的 请求队列数量 减 1。
+    可变。
+    结果 为 空。
+    若 请求 的 类型 等于 1：
+        结果 为 做 JSGenerator_next 用 异步Gen、请求 的 值。
+    否则若 请求 的 类型 等于 2：
+        结果 为 做 JSGenerator_return 用 异步Gen、请求 的 值。
+    否则：
+        结果 为 做 JSGenerator_throw 用 异步Gen、请求 的 值。
+    完。
+完。
+
+ITER_数组 为 1。
+
+ITER_字符串 为 2。
+
+ITER_Map 为 3。
+
+ITER_Set 为 4。
+
+ITER_Generator 为 5。
+
+ITER_自定义 为 6。
+
+迭代器 是 一种 事物，含 类型、源对象、当前索引、总长度、gen对象、自定义next。
+
+迭代器_创建从数组 接受 数组对象：
+    返还 新建 迭代器：类型 为 ITER_数组、源对象 为 数组对象、当前索引 为 0、总长度 为 做 数组_长度 用 数组对象、gen对象 为 空、自定义next 为 空。
+完。
+
+迭代器_创建从字符串 接受 字符串对象：
+    返还 新建 迭代器：类型 为 ITER_字符串、源对象 为 字符串对象、当前索引 为 0、总长度 为 做 字符串_长度 用 字符串对象、gen对象 为 空、自定义next 为 空。
+完。
+
+迭代器_创建从Generator 接受 gen：
+    返还 新建 迭代器：类型 为 ITER_Generator、源对象 为 空、当前索引 为 0、总长度 为 负 1、gen对象 为 gen、自定义next 为 空。
+完。
+
+迭代器_下一个 接受 迭代：
+    若 迭代 的 类型 等于 ITER_数组：
+        若 迭代 的 当前索引 大于或等于 迭代 的 总长度：
+            返还 新建 迭代结果：值 为 0、已完成 为 真。
+        完。
+        值 为 做 数组_获取 用 迭代 的 源对象、迭代 的 当前索引。
+        迭代 的 当前索引 为 迭代 的 当前索引 加 1。
+        返还 新建 迭代结果：值 为 值、已完成 为 假。
+    否则若 迭代 的 类型 等于 ITER_字符串：
+        若 迭代 的 当前索引 大于或等于 迭代 的 总长度：
+            返还 新建 迭代结果：值 为 0、已完成 为 真。
+        完。
+        ch 为 做 字符串_字符码 用 迭代 的 源对象、迭代 的 当前索引。
+        迭代 的 当前索引 为 迭代 的 当前索引 加 1。
+        返还 新建 迭代结果：值 为 ch、已完成 为 假。
+    否则若 迭代 的 类型 等于 ITER_Generator：
+        返还 做 JSGenerator_next 用 迭代 的 gen对象、0。
+    否则若 迭代 的 类型 等于 ITER_自定义：
+        若 迭代 的 自定义next 不等于 空：
+            返还 做 调用函数 用 迭代 的 自定义next、迭代 的 源对象。
+        完。
+    完。
+    返还 新建 迭代结果：值 为 0、已完成 为 真。
+完。
+
+ForOf_执行 接受 可迭代对象、回调函数：
+    迭代 为 做 获取迭代器 用 可迭代对象。
+    若 迭代 等于 空：
+        返还。
+    完。
+    可变。
+    结果 为 做 迭代器_下一个 用 迭代。
+    只要 非 结果 的 已完成：
+        继续 为 做 回调函数 用 结果 的 值。
+        若 继续 等于 假：
+            若 迭代 的 类型 等于 ITER_Generator 并且 迭代 的 gen对象 不等于 空：
+                做 JSGenerator_return 用 迭代 的 gen对象、0。
+            完。
+            返还。
+        完。
+        结果 为 做 迭代器_下一个 用 迭代。
+    完。
+完。
+
+获取迭代器 接受 对象：
+    类型 为 做 获取对象类型 用 对象。
+    若 类型 等于 1：
+        返还 做 迭代器_创建从数组 用 对象。
+    否则若 类型 等于 2：
+        返还 做 迭代器_创建从字符串 用 对象。
+    否则若 类型 等于 10：
+        返还 做 迭代器_创建从Generator 用 对象。
+    完。
+    iter_fn 为 做 获取属性 用 对象、「符号_迭代器」。
+    若 iter_fn 不等于 空：
+        结果 为 做 调用函数 用 iter_fn、对象。
+        返还 新建 迭代器：类型 为 ITER_自定义、源对象 为 结果、当前索引 为 0、总长度 为 负 1、gen对象 为 空、自定义next 为 做 获取属性 用 结果、「next」。
+    完。
+    返还 空。
+完。
+
+AI_Generator预取 接受 gen：
+    若 gen 等于 空 或者 gen 的 状态 不等于 GEN_STATE_SUSPENDED_YIELD：
+        返还。
+    完。
+    特征 为 做 Tensor_创建 用 1、4。
+    做 Tensor_写 用 特征、0、0、gen 的 暂停点ID 乘 1.0。
+    做 Tensor_写 用 特征、0、1、gen 的 暂停点PC 乘 1.0 除以 (gen 的 字节码长度 加 1)。
+    做 Tensor_写 用 特征、0、2、gen 的 寄存器数量 乘 1.0。
+    做 Tensor_写 用 特征、0、3、gen 的 栈深度 乘 1.0。
+    结果 为 做 AI总线_推理 用 「gen_prefetch_model」、特征。
+    若 结果 不等于 空：
+        conf 为 做 Tensor_读 用 结果、0、0。
+        若 conf 大于 0.7：
+            全局_AI预取命中 为 全局_AI预取命中 加 1。
+        否则：
+            全局_AI预取未中 为 全局_AI预取未中 加 1。
+        完。
+        做 Tensor_释放 用 结果。
+    完。
+    做 Tensor_释放 用 特征。
+完。
+
+Generator_诊断输出 接受 零参：
+    可变。
+    报告 为 「[NGEN诊断报告]\n」。
+    报告 为 报告 加 「Generator创建总数: 」 加 全局_gen创建总数 加 「\n」。
+    报告 为 报告 加 「next()调用: 」 加 全局_gen_next调用 加 「\n」。
+    报告 为 报告 加 「return()调用: 」 加 全局_gen_return调用 加 「\n」。
+    报告 为 报告 加 「throw()调用: 」 加 全局_gen_throw调用 加 「\n」。
+    报告 为 报告 加 「yield总次数: 」 加 全局_yield总次数 加 「\n」。
+    报告 为 报告 加 「快照复用: 」 加 全局_快照复用次数 加 「\n」。
+    报告 为 报告 加 「AI预取命中: 」 加 全局_AI预取命中 加 「\n」。
+    报告 为 报告 加 「AI预取未中: 」 加 全局_AI预取未中 加 「\n」。
+    返还 报告。
+完。
+
+本章 收束。

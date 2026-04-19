@@ -1,0 +1,632 @@
+《更新网缓画布》
+
+引用《..·稳态·图处显示》。
+
+引用《..·执行·IO多路复用》。
+
+引用《.·HTTP头部管理》。
+
+引用《..·推理·AI鼠标事件处理》。
+
+引用《.·原子驻留》。
+
+引用《.·内核直连层》。
+
+渲染级别_低 为 0。
+
+渲染级别_中 为 1。
+
+渲染级别_高 为 2。
+
+渲染级别_子像素 为 3。
+
+字形缓存_最大槽 为 512。
+
+字形缓存_关联数 为 4。
+
+字形_最大宽 为 128。
+
+字形_最大高 为 128。
+
+文本对齐_左 为 0。
+
+文本对齐_居中 为 1。
+
+文本对齐_右 为 2。
+
+折行模式_无 为 0。
+
+折行模式_词 为 1。
+
+折行模式_字符 为 2。
+
+折行模式_应急 为 3。
+
+装饰_无 为 0。
+
+装饰_下划线 为 1。
+
+装饰_删除线 为 2。
+
+装饰_上划线 为 3。
+
+LCD滔波_R权 为 307。
+
+LCD滔波_G权 为 410。
+
+LCD滔波_B权 为 307。
+
+Q_ONE 为 1024。
+
+字形条目 是 一种 事物，含 字符码、字体ID、大小、位图地址、宽、高、起点X、起点Y、advance、使用时戳、有效。
+
+字形缓存 是 一种 事物，含 槽、已用数、命中、未命中、驱逐。
+
+字体度量 是 一种 事物，含 ascent、descent、行间距、单元宽、大写高、x高。
+
+文本行 是 一种 事物，含 起始索引、结束索引、宽度、基线Y。
+
+文本布局结果 是 一种 事物，含 行列表、行数、总宽、总高。
+
+可变 全局_字形缓存 为 空。
+
+文字_最小 接受 a、b：
+    若 a 小于 b：
+        返还 a。
+    完。
+    返还 b。
+完。
+
+文字_最大 接受 a、b：
+    若 a 大于 b：
+        返还 a。
+    完。
+    返还 b。
+完。
+
+文字_限幅 接受 v、lo、hi：
+    若 v 小于 lo：
+        返还 lo。
+    完。
+    若 v 大于 hi：
+        返还 hi。
+    完。
+    返还 v。
+完。
+
+文字_散列_字形 接受 字符码、字体ID、大小：
+    可变 h 为 2166136261。
+    h 为 (h 位异或 字符码) 乘 16777619。
+    h 为 (h 位异或 字体ID) 乘 16777619。
+    h 为 (h 位异或 大小) 乘 16777619。
+    若 h 小于 0：
+        h 为 0 减 h。
+    完。
+    返还 h 取余于 字形缓存_最大槽。
+完。
+
+文字_是否空格 接受 字符码：
+    若 字符码 等于 32：
+        返还 真。
+    完。
+    若 字符码 等于 9：
+        返还 真。
+    完。
+    若 字符码 等于 12288：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+文字_是否CJK 接受 字符码：
+    若 字符码 大于或等于 0x4E00 并且 字符码 小于或等于 0x9FFF：
+        返还 真。
+    完。
+    若 字符码 大于或等于 0x3400 并且 字符码 小于或等于 0x4DBF：
+        返还 真。
+    完。
+    若 字符码 大于或等于 0x3000 并且 字符码 小于或等于 0x303F：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+文字_是否可折行点 接受 字符码：
+    若 做 文字_是否空格 用 字符码：
+        返还 真。
+    完。
+    若 字符码 等于 45：
+        返还 真。
+    完。
+    若 做 文字_是否CJK 用 字符码：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+字形缓存_初始化 接受 零参：
+    若 全局_字形缓存 不等于 空：
+        返还。
+    完。
+    gc 为 做 堆_分配 用 字形缓存。
+    gc 的 槽 为 做 堆_分配_数组 用 字形缓存_最大槽 乘 字形缓存_关联数 乘 48。
+    gc 的 已用数 为 0。
+    gc 的 命中 为 0。
+    gc 的 未命中 为 0。
+    gc 的 驱逐 为 0。
+    可变 i 为 0。
+    只要 i 小于 字形缓存_最大槽 乘 字形缓存_关联数：
+        gc 的 槽 的 第 i 项 的 有效 为 假。
+        i 为 i 加 1。
+    完。
+    全局_字形缓存 为 gc。
+完。
+
+字形缓存_查找 接受 字符码、字体ID、大小：
+    若 全局_字形缓存 等于 空：
+        做 字形缓存_初始化。
+    完。
+    gc 为 全局_字形缓存。
+    slot 为 做 文字_散列_字形 用 字符码、字体ID、大小。
+    base 为 slot 乘 字形缓存_关联数。
+    可变 j 为 0。
+    只要 j 小于 字形缓存_关联数：
+        e 为 gc 的 槽 的 第 base 加 j 项。
+        若 e 的 有效 并且 e 的 字符码 等于 字符码 并且 e 的 字体ID 等于 字体ID 并且 e 的 大小 等于 大小：
+            gc 的 命中 为 gc 的 命中 加 1。
+            e 的 使用时戳 为 做 平台_获取时间_ms。
+            返还 e。
+        完。
+        j 为 j 加 1。
+    完。
+    gc 的 未命中 为 gc 的 未命中 加 1。
+    返还 空。
+完。
+
+字形缓存_插入 接受 字符码、字体ID、大小、位图、宽、高、起点X、起点Y、adv：
+    若 全局_字形缓存 等于 空：
+        做 字形缓存_初始化。
+    完。
+    gc 为 全局_字形缓存。
+    slot 为 做 文字_散列_字形 用 字符码、字体ID、大小。
+    base 为 slot 乘 字形缓存_关联数。
+    可变 victim 为 base。
+    可变 oldest 为 0x7FFFFFFF。
+    可变 j 为 0。
+    只要 j 小于 字形缓存_关联数：
+        idx 为 base 加 j。
+        若 非 gc 的 槽 的 第 idx 项 的 有效：
+            victim 为 idx。
+            跳出。
+        完。
+        若 gc 的 槽 的 第 idx 项 的 使用时戳 小于 oldest：
+            oldest 为 gc 的 槽 的 第 idx 项 的 使用时戳。
+            victim 为 idx。
+        完。
+        j 为 j 加 1。
+    完。
+    若 gc 的 槽 的 第 victim 项 的 有效：
+        gc 的 驱逐 为 gc 的 驱逐 加 1。
+        若 gc 的 槽 的 第 victim 项 的 位图地址 不等于 0：
+            做 堆_释放 用 gc 的 槽 的 第 victim 项 的 位图地址。
+        完。
+    否则：
+        gc 的 已用数 为 gc 的 已用数 加 1。
+    完。
+    gc 的 槽 的 第 victim 项 的 字符码 为 字符码。
+    gc 的 槽 的 第 victim 项 的 字体ID 为 字体ID。
+    gc 的 槽 的 第 victim 项 的 大小 为 大小。
+    gc 的 槽 的 第 victim 项 的 位图地址 为 位图。
+    gc 的 槽 的 第 victim 项 的 宽 为 宽。
+    gc 的 槽 的 第 victim 项 的 高 为 高。
+    gc 的 槽 的 第 victim 项 的 起点X 为 起点X。
+    gc 的 槽 的 第 victim 项 的 起点Y 为 起点Y。
+    gc 的 槽 的 第 victim 项 的 advance 为 adv。
+    gc 的 槽 的 第 victim 项 的 使用时戳 为 做 平台_获取时间_ms。
+    gc 的 槽 的 第 victim 项 的 有效 为 真。
+    返还 gc 的 槽 的 第 victim 项。
+完。
+
+字体Family_解析 接受 族名：
+    若 做 字符串_相等_不区分大小写 用 族名、「sans-serif」 或者 做 字符串_相等_不区分大小写 用 族名、「Arial」 或者 做 字符串_相等_不区分大小写 用 族名、「Helvetica」：
+        返还 「NovaSans」。
+    完。
+    若 做 字符串_相等_不区分大小写 用 族名、「serif」 或者 做 字符串_相等_不区分大小写 用 族名、「Times New Roman」 或者 做 字符串_相等_不区分大小写 用 族名、「Times」：
+        返还 「NovaSerif」。
+    完。
+    若 做 字符串_相等_不区分大小写 用 族名、「monospace」 或者 做 字符串_相等_不区分大小写 用 族名、「Courier New」 或者 做 字符串_相等_不区分大小写 用 族名、「Courier」 或者 做 字符串_相等_不区分大小写 用 族名、「Consolas」：
+        返还 「NovaMono」。
+    完。
+    若 做 字符串_相等_不区分大小写 用 族名、「Microsoft YaHei」 或者 做 字符串_相等_不区分大小写 用 族名、「微软雅黑」 或者 做 字符串_相等_不区分大小写 用 族名、「PingFang SC」 或者 做 字符串_相等_不区分大小写 用 族名、「Noto Sans CJK SC」：
+        返还 「NovaCJK」。
+    完。
+    若 做 字符串_相等_不区分大小写 用 族名、「Meiryo」 或者 做 字符串_相等_不区分大小写 用 族名、「MS Gothic」 或者 做 字符串_相等_不区分大小写 用 族名、「Noto Sans CJK JP」：
+        返还 「NovaCJK」。
+    完。
+    若 做 字符串_相等_不区分大小写 用 族名、「Malgun Gothic」 或者 做 字符串_相等_不区分大小写 用 族名、「Noto Sans CJK KR」：
+        返还 「NovaCJK」。
+    完。
+    若 做 字符串_相等_不区分大小写 用 族名、「Segoe UI Emoji」 或者 做 字符串_相等_不区分大小写 用 族名、「Noto Color Emoji」：
+        返还 「NovaEmoji」。
+    完。
+    返还 族名。
+完。
+
+字体_回退链_查找 接受 字符码、主字体：
+    若 做 字体_包含字符 用 主字体、字符码：
+        返还 主字体。
+    完。
+    若 做 文字_是否CJK 用 字符码：
+        若 做 字体_包含字符 用 「NovaCJK」、字符码：
+            返还 「NovaCJK」。
+        完。
+    完。
+    若 做 字体_包含字符 用 「NovaSans」、字符码：
+        返还 「NovaSans」。
+    完。
+    若 做 字体_包含字符 用 「NovaEmoji」、字符码：
+        返还 「NovaEmoji」。
+    完。
+    返还 主字体。
+完。
+
+字体度量_计算 接受 字体名、大小：
+    m 为 新建 字体度量。
+    raw_asc 为 做 字体_取ascent 用 字体名。
+    raw_desc 为 做 字体_取descent 用 字体名。
+    units 为 做 字体_取unitsPerEm 用 字体名。
+    若 units 小于或等于 0：
+        units 为 1000。
+    完。
+    m 的 ascent 为 raw_asc 乘 大小 除以 units。
+    m 的 descent 为 raw_desc 乘 大小 除以 units。
+    m 的 行间距 为 (m 的 ascent 减 m 的 descent) 乘 120 除以 100。
+    m 的 单元宽 为 大小 乘 600 除以 1000。
+    m 的 大写高 为 m 的 ascent 乘 70 除以 100。
+    m 的 x高 为 m 的 ascent 乘 52 除以 100。
+    返还 m。
+完。
+
+字形_度量_查找或光栅化 接受 字符码、字体ID、大小：
+    cached 为 做 字形缓存_查找 用 字符码、字体ID、大小。
+    若 cached 不等于 空：
+        返还 cached。
+    完。
+    bmp 为 做 字体_光栅化 用 字体ID、字符码、大小。
+    w 为 做 光栅化结果_取宽 用 bmp。
+    h 为 做 光栅化结果_取高 用 bmp。
+    ox 为 做 光栅化结果_取起点X 用 bmp。
+    oy 为 做 光栅化结果_取起点Y 用 bmp。
+    adv 为 做 光栅化结果_取advance 用 bmp。
+    addr 为 做 光栅化结果_取位图 用 bmp。
+    返还 做 字形缓存_插入 用 字符码、字体ID、大小、addr、w、h、ox、oy、adv。
+完。
+
+子像素_LCD渲染_单字形 接受 dst、dst步进、glyph、fg色：
+    gw 为 glyph 的 宽 乘 3。
+    gh 为 glyph 的 高。
+    fgR 为 fg色 右移 16 位与 0xFF。
+    fgG 为 fg色 右移 8 位与 0xFF。
+    fgB 为 fg色 位与 0xFF。
+    可变 row 为 0。
+    只要 row 小于 gh：
+        可变 col 为 0。
+        只要 col 小于 glyph 的 宽：
+            srcOff 为 row 乘 gw 加 col 乘 3。
+            aR 为 做 内存_读8 用 glyph 的 位图地址 加 srcOff。
+            aG 为 做 内存_读8 用 glyph 的 位图地址 加 srcOff 加 1。
+            aB 为 做 内存_读8 用 glyph 的 位图地址 加 srcOff 加 2。
+            wR 为 aR 乘 LCD滔波_R权 除以 Q_ONE。
+            wG 为 aG 乘 LCD滔波_G权 除以 Q_ONE。
+            wB 为 aB 乘 LCD滔波_B权 除以 Q_ONE。
+            dstOff 为 (row 加 glyph 的 起点Y) 乘 dst步进 加 (col 加 glyph 的 起点X) 乘 4。
+            bgR 为 做 内存_读8 用 dst 加 dstOff。
+            bgG 为 做 内存_读8 用 dst 加 dstOff 加 1。
+            bgB 为 做 内存_读8 用 dst 加 dstOff 加 2。
+            outR 为 做 文字_限幅 用 (fgR 乘 wR 加 bgR 乘 (255 减 wR)) 除以 255、0、255。
+            outG 为 做 文字_限幅 用 (fgG 乘 wG 加 bgG 乘 (255 减 wG)) 除以 255、0、255。
+            outB 为 做 文字_限幅 用 (fgB 乘 wB 加 bgB 乘 (255 减 wB)) 除以 255、0、255。
+            做 内存_写08 用 dst 加 dstOff、outR。
+            做 内存_写08 用 dst 加 dstOff 加 1、outG。
+            做 内存_写08 用 dst 加 dstOff 加 2、outB。
+            col 为 col 加 1。
+        完。
+        row 为 row 加 1。
+    完。
+完。
+
+灰度_渲染_单字形 接受 dst、dst步进、glyph、fg色：
+    gw 为 glyph 的 宽。
+    gh 为 glyph 的 高。
+    fgR 为 fg色 右移 16 位与 0xFF。
+    fgG 为 fg色 右移 8 位与 0xFF。
+    fgB 为 fg色 位与 0xFF。
+    可变 row 为 0。
+    只要 row 小于 gh：
+        可变 col 为 0。
+        只要 col 小于 gw：
+            alpha 为 做 内存_读8 用 glyph 的 位图地址 加 row 乘 gw 加 col。
+            若 alpha 等于 0：
+                col 为 col 加 1。
+                继续。
+            完。
+            dstOff 为 (row 加 glyph 的 起点Y) 乘 dst步进 加 (col 加 glyph 的 起点X) 乘 4。
+            bgR 为 做 内存_读8 用 dst 加 dstOff。
+            bgG 为 做 内存_读8 用 dst 加 dstOff 加 1。
+            bgB 为 做 内存_读8 用 dst 加 dstOff 加 2。
+            inv 为 255 减 alpha。
+            做 内存_写08 用 dst 加 dstOff、(fgR 乘 alpha 加 bgR 乘 inv) 除以 255。
+            做 内存_写08 用 dst 加 dstOff 加 1、(fgG 乘 alpha 加 bgG 乘 inv) 除以 255。
+            做 内存_写08 用 dst 加 dstOff 加 2、(fgB 乘 alpha 加 bgB 乘 inv) 除以 255。
+            col 为 col 加 1。
+        完。
+        row 为 row 加 1。
+    完。
+完。
+
+文本布局_计算 接受 文本、文本长、字体ID、大小、最大宽、折行模式：
+    result 为 新建 文本布局结果。
+    result 的 行列表 为 做 堆_分配_数组 用 64 乘 16。
+    result 的 行数 为 0。
+    result 的 总宽 为 0。
+    result 的 总高 为 0。
+    metrics 为 做 字体度量_计算 用 字体ID、大小。
+    行高 为 metrics 的 行间距。
+    可变 lineStart 为 0。
+    可变 lineW 为 0。
+    可变 lastBreak 为 负 1。
+    可变 lastBreakW 为 0。
+    可变 i 为 0。
+    只要 i 小于 文本长：
+        ch 为 做 字符串_取字符码 用 文本、i。
+        若 ch 等于 10：
+            ln 为 result 的 行列表 的 第 result 的 行数 项。
+            ln 的 起始索引 为 lineStart。
+            ln 的 结束索引 为 i。
+            ln 的 宽度 为 lineW。
+            ln 的 基线Y 为 result 的 行数 乘 行高 加 metrics 的 ascent。
+            result 的 行数 为 result 的 行数 加 1。
+            result 的 总宽 为 做 文字_最大 用 result 的 总宽、lineW。
+            lineStart 为 i 加 1。
+            lineW 为 0。
+            lastBreak 为 负 1。
+            i 为 i 加 1。
+            继续。
+        完。
+        g 为 做 字形_度量_查找或光栅化 用 ch、字体ID、大小。
+        adv 为 0。
+        若 g 不等于 空：
+            adv 为 g 的 advance。
+        否则：
+            adv 为 metrics 的 单元宽。
+        完。
+        若 折行模式 不等于 折行模式_无 并且 最大宽 大于 0 并且 lineW 加 adv 大于 最大宽：
+            breakIdx 为 i。
+            若 折行模式 等于 折行模式_词 并且 lastBreak 大于或等于 0：
+                breakIdx 为 lastBreak 加 1。
+                lineW 为 lastBreakW。
+            完。
+            ln2 为 result 的 行列表 的 第 result 的 行数 项。
+            ln2 的 起始索引 为 lineStart。
+            ln2 的 结束索引 为 breakIdx。
+            ln2 的 宽度 为 lineW。
+            ln2 的 基线Y 为 result 的 行数 乘 行高 加 metrics 的 ascent。
+            result 的 行数 为 result 的 行数 加 1。
+            result 的 总宽 为 做 文字_最大 用 result 的 总宽、lineW。
+            lineStart 为 breakIdx。
+            lineW 为 0。
+            lastBreak 为 负 1。
+            继续。
+        完。
+        若 做 文字_是否可折行点 用 ch：
+            lastBreak 为 i。
+            lastBreakW 为 lineW 加 adv。
+        完。
+        lineW 为 lineW 加 adv。
+        i 为 i 加 1。
+    完。
+    若 lineStart 小于或等于 文本长：
+        ln3 为 result 的 行列表 的 第 result 的 行数 项。
+        ln3 的 起始索引 为 lineStart。
+        ln3 的 结束索引 为 文本长。
+        ln3 的 宽度 为 lineW。
+        ln3 的 基线Y 为 result 的 行数 乘 行高 加 metrics 的 ascent。
+        result 的 行数 为 result 的 行数 加 1。
+        result 的 总宽 为 做 文字_最大 用 result 的 总宽、lineW。
+    完。
+    result 的 总高 为 result 的 行数 乘 行高。
+    返还 result。
+完。
+
+装饰线_绘制 接受 dst、dst步进、x、y、宽、厚、色、类型、metrics：
+    lineY 为 0。
+    若 类型 等于 装饰_下划线：
+        lineY 为 y 加 metrics 的 descent 除以 2。
+    完。
+    做 否则如果 用 类型 等于 装饰_删除线。
+    块：
+        lineY 为 y 减 metrics 的 x高 除以 2。
+    完。
+    做 否则如果 用 类型 等于 装饰_上划线。
+    块：
+        lineY 为 y 减 metrics 的 ascent。
+    完。
+    否则。
+    块：
+        返还。
+    完。
+    fgR 为 色 右移 16 位与 0xFF。
+    fgG 为 色 右移 8 位与 0xFF。
+    fgB 为 色 位与 0xFF。
+    可变 dy 为 0。
+    只要 dy 小于 厚：
+        可变 dx 为 0。
+        只要 dx 小于 宽：
+            off 为 (lineY 加 dy) 乘 dst步进 加 (x 加 dx) 乘 4。
+            做 内存_写08 用 dst 加 off、fgR。
+            做 内存_写08 用 dst 加 off 加 1、fgG。
+            做 内存_写08 用 dst 加 off 加 2、fgB。
+            做 内存_写08 用 dst 加 off 加 3、255。
+            dx 为 dx 加 1。
+        完。
+        dy 为 dy 加 1。
+    完。
+完。
+
+智能_Text渲染er_AI渲染精度 接受 区域x、区域y、区域w、区域h：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 渲染级别_中。
+    完。
+    返还 做 AI总线_渲染质量 用 bus、区域x、区域y、区域w、区域h、Q_ONE 除以 2、真。
+完。
+
+智能_选择渲染模式 接受 区域x、区域y、区域w、区域h：
+    level 为 做 智能_Text渲染er_AI渲染精度 用 区域x、区域y、区域w、区域h。
+    若 level 大于或等于 渲染级别_子像素：
+        返还 渲染级别_子像素。
+    完。
+    若 level 大于或等于 渲染级别_高：
+        返还 渲染级别_高。
+    完。
+    若 level 大于或等于 渲染级别_中：
+        返还 渲染级别_中。
+    完。
+    返还 渲染级别_低。
+完。
+
+Sk画布_drawText_完整 接受 c、文本、文本长度、x、y、font、paint：
+    c 的 绘制调用数 为 c 的 绘制调用数 加 1。
+    字体名 为 做 字体Family_解析 用 font 的 字体族。
+    sz 为 font 的 大小 除以 100。
+    字体ID 为 做 字体_获取ID 用 字体名。
+    px 为 x 除以 100。
+    py 为 y 除以 100。
+    mode 为 做 智能_选择渲染模式 用 px、py、300、sz。
+    可变 curX 为 px。
+    可变 i 为 0。
+    只要 i 小于 文本长度：
+        ch 为 做 字符串_取字符码 用 文本、i。
+        realFont 为 做 字体_回退链_查找 用 ch、字体名。
+        realID 为 做 字体_获取ID 用 realFont。
+        g 为 做 字形_度量_查找或光栅化 用 ch、realID、sz。
+        若 g 不等于 空 并且 g 的 宽 大于 0 并且 g 的 高 大于 0：
+            若 mode 等于 渲染级别_子像素：
+                做 子像素_LCD渲染_单字形 用 c 的 位图、c 的 步进、g、paint 的 颜色。
+            否则：
+                做 灰度_渲染_单字形 用 c 的 位图、c 的 步进、g、paint 的 颜色。
+            完。
+            curX 为 curX 加 g 的 advance。
+        否则：
+            curX 为 curX 加 sz 乘 600 除以 1000。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+Sk画布_drawTextLayout_完整 接受 c、文本、文本长、x、y、font、paint、最大宽、对齐、折行、装饰：
+    c 的 绘制调用数 为 c 的 绘制调用数 加 1。
+    字体名 为 做 字体Family_解析 用 font 的 字体族。
+    sz 为 font 的 大小 除以 100。
+    字体ID 为 做 字体_获取ID 用 字体名。
+    metrics 为 做 字体度量_计算 用 字体名、sz。
+    layout 为 做 文本布局_计算 用 文本、文本长、字体ID、sz、最大宽、折行。
+    mode 为 做 智能_选择渲染模式 用 x、y、最大宽、layout 的 总高。
+    可变 li 为 0。
+    只要 li 小于 layout 的 行数：
+        line 为 layout 的 行列表 的 第 li 项。
+        lineX 为 x。
+        若 对齐 等于 文本对齐_居中：
+            lineX 为 x 加 (最大宽 减 line 的 宽度) 除以 2。
+        完。
+        做 否则如果 用 对齐 等于 文本对齐_右。
+        块：
+            lineX 为 x 加 最大宽 减 line 的 宽度。
+        完。
+        lineY 为 y 加 line 的 基线Y。
+        可变 curX 为 lineX。
+        可变 ci 为 line 的 起始索引。
+        只要 ci 小于 line 的 结束索引：
+            ch 为 做 字符串_取字符码 用 文本、ci。
+            realFont 为 做 字体_回退链_查找 用 ch、字体名。
+            realID 为 做 字体_获取ID 用 realFont。
+            g 为 做 字形_度量_查找或光栅化 用 ch、realID、sz。
+            若 g 不等于 空 并且 g 的 宽 大于 0 并且 g 的 高 大于 0：
+                若 mode 等于 渲染级别_子像素：
+                    做 子像素_LCD渲染_单字形 用 c 的 位图、c 的 步进、g、paint 的 颜色。
+                否则：
+                    做 灰度_渲染_单字形 用 c 的 位图、c 的 步进、g、paint 的 颜色。
+                完。
+                curX 为 curX 加 g 的 advance。
+            否则：
+                curX 为 curX 加 metrics 的 单元宽。
+            完。
+            ci 为 ci 加 1。
+        完。
+        若 装饰 不等于 装饰_无：
+            做 装饰线_绘制 用 c 的 位图、c 的 步进、lineX、lineY、line 的 宽度、1、paint 的 颜色、装饰、metrics。
+        完。
+        li 为 li 加 1。
+    完。
+完。
+
+文本_度量宽度 接受 文本、文本长、字体名、大小：
+    字体ID 为 做 字体_获取ID 用 字体名。
+    metrics 为 做 字体度量_计算 用 字体名、大小。
+    可变 total 为 0。
+    可变 i 为 0。
+    只要 i 小于 文本长：
+        ch 为 做 字符串_取字符码 用 文本、i。
+        g 为 做 字形_度量_查找或光栅化 用 ch、字体ID、大小。
+        若 g 不等于 空：
+            total 为 total 加 g 的 advance。
+        否则：
+            total 为 total 加 metrics 的 单元宽。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 total。
+完。
+
+字形缓存_命中率 接受 零参：
+    若 全局_字形缓存 等于 空：
+        返还 0。
+    完。
+    gc 为 全局_字形缓存。
+    total 为 gc 的 命中 加 gc 的 未命中。
+    若 total 等于 0：
+        返还 0。
+    完。
+    返还 gc 的 命中 乘 100 除以 total。
+完。
+
+字形缓存_清理 接受 零参：
+    若 全局_字形缓存 等于 空：
+        返还。
+    完。
+    gc 为 全局_字形缓存。
+    可变 i 为 0。
+    只要 i 小于 字形缓存_最大槽 乘 字形缓存_关联数：
+        若 gc 的 槽 的 第 i 项 的 有效 并且 gc 的 槽 的 第 i 项 的 位图地址 不等于 0：
+            做 堆_释放 用 gc 的 槽 的 第 i 项 的 位图地址。
+        完。
+        gc 的 槽 的 第 i 项 的 有效 为 假。
+        i 为 i 加 1。
+    完。
+    gc 的 已用数 为 0。
+    gc 的 命中 为 0。
+    gc 的 未命中 为 0。
+    gc 的 驱逐 为 0。
+完。
+
+字形缓存_卸载 接受 零参：
+    若 全局_字形缓存 等于 空：
+        返还。
+    完。
+    做 字形缓存_清理。
+    做 堆_释放 用 全局_字形缓存 的 槽。
+    做 堆_释放 用 全局_字形缓存。
+    全局_字形缓存 为 空。
+完。
+
+本章 收束。

@@ -1,0 +1,706 @@
+《图处上下文》
+
+NGCC_CMD_BUF_SIZE 为 262144。
+
+NGCC_MAX_TEXTURES 为 256。
+
+NGCC_MAX_SHADERS 为 64。
+
+NGCC_MAX_FRAMEBUFFERS 为 16。
+
+NGCC_MAX_PROGRAMS 为 32。
+
+NGCC_TEX_CACHE_MAX 为 128。
+
+NGCC_SHADER_CACHE_MAX 为 32。
+
+NGCC_CMD_HEADER_SIZE 为 8。
+
+可变 NGCC_提交次数 为 0。
+
+可变 NGCC_命令总数 为 0。
+
+可变 NGCC_纩理上传次数 为 0。
+
+可变 NGCC_纩理缓存命中 为 0。
+
+可变 NGCC_着色器编译次数 为 0。
+
+可变 NGCC_AI预测次数 为 0。
+
+可变 NGCC_降级次数 为 0。
+
+NGCC_命令剩余空间 接受 ctx：
+    返还 ctx 的 缓冲大小 减 ctx 的 写位置。
+完。
+
+NGCC_写u32 接受 ctx、val：
+    若 做 NGCC_命令剩余空间 用 ctx 小于 4：
+        返还 假。
+    完。
+    做 内存写32 用 ctx 的 命令缓冲 加 ctx 的 写位置、val。
+    ctx 的 写位置 为 ctx 的 写位置 加 4。
+    返还 真。
+完。
+
+NGCC_写u16 接受 ctx、val：
+    若 做 NGCC_命令剩余空间 用 ctx 小于 2：
+        返还 假。
+    完。
+    做 内存写16 用 ctx 的 命令缓冲 加 ctx 的 写位置、val。
+    ctx 的 写位置 为 ctx 的 写位置 加 2。
+    返还 真。
+完。
+
+NGCC_写u8 接受 ctx、val：
+    若 做 NGCC_命令剩余空间 用 ctx 小于 1：
+        返还 假。
+    完。
+    做 内存写8 用 ctx 的 命令缓冲 加 ctx 的 写位置、val。
+    ctx 的 写位置 为 ctx 的 写位置 加 1。
+    返还 真。
+完。
+
+NGCC_写命令头 接受 ctx、cmd_type、payload_size：
+    若 做 NGCC_命令剩余空间 用 ctx 小于 NGCC_CMD_HEADER_SIZE 加 payload_size：
+        返还 假。
+    完。
+    做 NGCC_写u32 用 ctx、cmd_type。
+    做 NGCC_写u32 用 ctx、payload_size。
+    NGCC_命令总数 为 NGCC_命令总数 加 1。
+    返还 真。
+完。
+
+NGCC_CRC32_简化 接受 buf、off、len：
+    可变 crc 为 0xFFFFFFFF。
+    可变 i 为 0。
+    只要 i 小于 len：
+        byte 为 做 内存读8 用 buf 加 off 加 i 位与 0xFF。
+        crc 为 crc 位异或 byte。
+        可变 b 为 0。
+        只要 b 小于 8：
+            若 crc 位与 1：
+                crc 为 crc 右移 1 位异或 0xEDB88320。
+            否则：
+                crc 为 crc 右移 1。
+            完。
+            b 为 b 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 crc 位异或 0xFFFFFFFF。
+完。
+
+图处_提交命令 接受 ctx：
+    若 ctx 等于 0 或者 ctx 的 写位置 等于 0：
+        返还 0。
+    完。
+    crc 为 做 NGCC_CRC32_简化 用 ctx 的 命令缓冲、0、ctx 的 写位置。
+    做 NGCC_写u32 用 ctx、crc。
+    result 为 做 系统调用 用 系统调用_图处_提交命令、ctx 的 ctx_id、ctx 的 命令缓冲、ctx 的 写位置、0、0。
+    ctx 的 写位置 为 0。
+    NGCC_提交次数 为 NGCC_提交次数 加 1。
+    返还 result。
+完。
+
+图处_刷新帧 接受 ctx：
+    若 ctx 等于 0：
+        返还 负 1。
+    完。
+    做 图处_提交命令 用 ctx。
+    r 为 做 系统调用 用 系统调用_图处_交换缓冲、ctx 的 ctx_id、0、0、0、0。
+    ctx 的 帧数 为 ctx 的 帧数 加 1。
+    返还 r。
+完。
+
+图处_自动提交检查 接受 ctx、需要字节：
+    若 做 NGCC_命令剩余空间 用 ctx 小于 需要字节 加 16：
+        做 图处_提交命令 用 ctx。
+    完。
+完。
+
+图处_清屏 接受 ctx、r、g、b、a：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、24。
+    做 NGCC_写命令头 用 ctx、图处命令_清屏、16。
+    做 NGCC_写u32 用 ctx、r。
+    做 NGCC_写u32 用 ctx、g。
+    做 NGCC_写u32 用 ctx、b。
+    做 NGCC_写u32 用 ctx、a。
+完。
+
+图处_绘制矩形 接受 ctx、x、y、w、h、color：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、28。
+    做 NGCC_写命令头 用 ctx、图处命令_绘制矩形、20。
+    做 NGCC_写u32 用 ctx、x。
+    做 NGCC_写u32 用 ctx、y。
+    做 NGCC_写u32 用 ctx、w。
+    做 NGCC_写u32 用 ctx、h。
+    做 NGCC_写u32 用 ctx、color。
+完。
+
+图处_绘制纩理 接受 ctx、tex_id、x、y、w、h、u0、v0、u1、v1：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、44。
+    做 NGCC_写命令头 用 ctx、图处命令_绘制纩理、36。
+    做 NGCC_写u32 用 ctx、tex_id。
+    做 NGCC_写u32 用 ctx、x。
+    做 NGCC_写u32 用 ctx、y。
+    做 NGCC_写u32 用 ctx、w。
+    做 NGCC_写u32 用 ctx、h。
+    做 NGCC_写u32 用 ctx、u0。
+    做 NGCC_写u32 用 ctx、v0。
+    做 NGCC_写u32 用 ctx、u1。
+    做 NGCC_写u32 用 ctx、v1。
+完。
+
+图处_绘制圆角矩形 接受 ctx、x、y、w、h、r、color：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、32。
+    做 NGCC_写命令头 用 ctx、图处命令_绘制圆角矩形、24。
+    做 NGCC_写u32 用 ctx、x。
+    做 NGCC_写u32 用 ctx、y。
+    做 NGCC_写u32 用 ctx、w。
+    做 NGCC_写u32 用 ctx、h。
+    做 NGCC_写u32 用 ctx、r。
+    做 NGCC_写u32 用 ctx、color。
+完。
+
+图处_绘制阴影 接受 ctx、x、y、w、h、模糊半径、color：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、32。
+    做 NGCC_写命令头 用 ctx、图处命令_绘制阴影、24。
+    做 NGCC_写u32 用 ctx、x。
+    做 NGCC_写u32 用 ctx、y。
+    做 NGCC_写u32 用 ctx、w。
+    做 NGCC_写u32 用 ctx、h。
+    做 NGCC_写u32 用 ctx、模糊半径。
+    做 NGCC_写u32 用 ctx、color。
+完。
+
+图处_绘制渐变 接受 ctx、x、y、w、h、color0、color1、方向：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、36。
+    做 NGCC_写命令头 用 ctx、图处命令_绘制渐变、28。
+    做 NGCC_写u32 用 ctx、x。
+    做 NGCC_写u32 用 ctx、y。
+    做 NGCC_写u32 用 ctx、w。
+    做 NGCC_写u32 用 ctx、h。
+    做 NGCC_写u32 用 ctx、color0。
+    做 NGCC_写u32 用 ctx、color1。
+    做 NGCC_写u32 用 ctx、方向。
+完。
+
+图处_设置裁剪 接受 ctx、x、y、w、h：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、24。
+    做 NGCC_写命令头 用 ctx、图处命令_设置裁剪、16。
+    做 NGCC_写u32 用 ctx、x。
+    做 NGCC_写u32 用 ctx、y。
+    做 NGCC_写u32 用 ctx、w。
+    做 NGCC_写u32 用 ctx、h。
+完。
+
+图处_设置混合 接受 ctx、模式：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、12。
+    做 NGCC_写命令头 用 ctx、图处命令_设置混合、4。
+    做 NGCC_写u32 用 ctx、模式。
+完。
+
+图处_设置透明度 接受 ctx、alpha：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、12。
+    做 NGCC_写命令头 用 ctx、图处命令_设置透明度、4。
+    做 NGCC_写u32 用 ctx、alpha。
+完。
+
+图处_设置变换 接受 ctx、m00、m01、m10、m11、tx、ty：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处_自动提交检查 用 ctx、32。
+    做 NGCC_写命令头 用 ctx、图处命令_设置变换、24。
+    做 NGCC_写u32 用 ctx、m00。
+    做 NGCC_写u32 用 ctx、m01。
+    做 NGCC_写u32 用 ctx、m10。
+    做 NGCC_写u32 用 ctx、m11。
+    做 NGCC_写u32 用 ctx、tx。
+    做 NGCC_写u32 用 ctx、ty。
+完。
+
+NGCC纩理信息 是 一种 事物，含 tex_id、宽、高、格式、字节数、哈希、引用计数、最后使用帧。
+
+可变 NGCC_纩理池 为 0。
+
+可变 NGCC_纩理数 为 0。
+
+NGCC_纩理池初始化 接受 零参：
+    NGCC_纩理池 为 做 堆_分配_数组 用 NGCC_MAX_TEXTURES 乘 8。
+    NGCC_纩理数 为 0。
+完。
+
+NGCC_纩理哈希 接受 宽、高、格式：
+    返还 (宽 乘 31 加 高) 乘 17 加 格式。
+完。
+
+图处_创建纩理 接受 ctx、宽、高、格式：
+    若 ctx 等于 0：
+        返还 负 1。
+    完。
+    若 NGCC_纩理数 大于或等于 NGCC_MAX_TEXTURES：
+        返还 负 2。
+    完。
+    tex_id 为 做 系统调用 用 系统调用_图处_创建纩理、ctx 的 ctx_id、宽、高、格式、0。
+    若 tex_id 小于或等于 0：
+        返还 负 3。
+    完。
+    info 为 做 堆_分配 用 NGCC纩理信息。
+    info 的 tex_id 为 tex_id。
+    info 的 宽 为 宽。
+    info 的 高 为 高。
+    info 的 格式 为 格式。
+    bpp 为 4。
+    若 格式 等于 纩理格式_RGB8：
+        bpp 为 3。
+    完。
+    若 格式 等于 纩理格式_A8：
+        bpp 为 1。
+    完。
+    若 格式 等于 纩理格式_RGBA16F：
+        bpp 为 8。
+    完。
+    info 的 字节数 为 宽 乘 高 乘 bpp。
+    info 的 哈希 为 做 NGCC_纩理哈希 用 宽、高、格式。
+    info 的 引用计数 为 1。
+    info 的 最后使用帧 为 ctx 的 帧数。
+    做 内存写64 用 NGCC_纩理池 加 NGCC_纩理数 乘 8、info。
+    NGCC_纩理数 为 NGCC_纩理数 加 1。
+    返还 tex_id。
+完。
+
+图处_上传纩理 接受 ctx、tex_id、data、data_size：
+    若 ctx 等于 0：
+        返还 负 1。
+    完。
+    NGCC_纩理上传次数 为 NGCC_纩理上传次数 加 1。
+    返还 做 系统调用 用 系统调用_图处_上传纩理、ctx 的 ctx_id、tex_id、data、data_size、0。
+完。
+
+图处_销毁纩理 接受 ctx、tex_id：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 系统调用 用 系统调用_图处_销毁纩理、ctx 的 ctx_id、tex_id、0、0、0。
+    可变 i 为 0。
+    只要 i 小于 NGCC_纩理数：
+        info 为 做 内存读64 用 NGCC_纩理池 加 i 乘 8。
+        若 info 不等于 0 并且 info 的 tex_id 等于 tex_id：
+            info 的 引用计数 为 info 的 引用计数 减 1。
+            若 info 的 引用计数 小于或等于 0：
+                做 内存写64 用 NGCC_纩理池 加 i 乘 8、做 内存读64 用 NGCC_纩理池 加 (NGCC_纩理数 减 1) 乘 8。
+                NGCC_纩理数 为 NGCC_纩理数 减 1。
+                做 堆_释放 用 info。
+            完。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NGCC_纩理缓存查找 接受 ctx、宽、高、格式：
+    target_hash 为 做 NGCC_纩理哈希 用 宽、高、格式。
+    可变 i 为 0。
+    只要 i 小于 NGCC_纩理数：
+        info 为 做 内存读64 用 NGCC_纩理池 加 i 乘 8。
+        若 info 不等于 0 并且 info 的 哈希 等于 target_hash 并且 info 的 宽 等于 宽 并且 info 的 高 等于 高 并且 info 的 格式 等于 格式：
+            info 的 引用计数 为 info 的 引用计数 加 1。
+            info 的 最后使用帧 为 ctx 的 帧数。
+            NGCC_纩理缓存命中 为 NGCC_纩理缓存命中 加 1。
+            返还 info 的 tex_id。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+NGCC_纩理LRU淘汰 接受 ctx：
+    若 NGCC_纩理数 小于 NGCC_TEX_CACHE_MAX：
+        返还。
+    完。
+    可变 oldest_i 为 0。
+    可变 oldest_f 为 ctx 的 帧数。
+    可变 i 为 0。
+    只要 i 小于 NGCC_纩理数：
+        info 为 做 内存读64 用 NGCC_纩理池 加 i 乘 8。
+        若 info 不等于 0 并且 info 的 最后使用帧 小于 oldest_f：
+            oldest_f 为 info 的 最后使用帧。
+            oldest_i 为 i。
+        完。
+        i 为 i 加 1。
+    完。
+    victim 为 做 内存读64 用 NGCC_纩理池 加 oldest_i 乘 8。
+    若 victim 不等于 0：
+        做 图处_销毁纩理 用 ctx、victim 的 tex_id。
+    完。
+完。
+
+NGCC着色器信息 是 一种 事物，含 shader_id、哈希、类型、有效。
+
+可变 NGCC_着色器池 为 0。
+
+可变 NGCC_着色器数 为 0。
+
+NGCC_着色器池初始化 接受 零参：
+    NGCC_着色器池 为 做 堆_分配_数组 用 NGCC_MAX_SHADERS 乘 8。
+    NGCC_着色器数 为 0。
+完。
+
+NGCC_着色器哈希 接受 source、len：
+    可变 h 为 2166136261。
+    可变 i 为 0。
+    只要 i 小于 len：
+        h 为 h 位异或 做 内存读8 用 source 加 i 位与 0xFF。
+        h 为 h 乘 16777619。
+        i 为 i 加 1。
+    完。
+    返还 h 位与 0x7FFFFFFF。
+完。
+
+NGCC_着色器缓存查找 接受 hash：
+    可变 i 为 0。
+    只要 i 小于 NGCC_着色器数：
+        info 为 做 内存读64 用 NGCC_着色器池 加 i 乘 8。
+        若 info 不等于 0 并且 info 的 哈希 等于 hash 并且 info 的 有效：
+            返还 info 的 shader_id。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+图处_创建着色器 接受 ctx、source、len、类型：
+    若 ctx 等于 0：
+        返还 负 1。
+    完。
+    hash 为 做 NGCC_着色器哈希 用 source、len。
+    cached 为 做 NGCC_着色器缓存查找 用 hash。
+    若 cached 大于或等于 0：
+        返还 cached。
+    完。
+    NGCC_着色器编译次数 为 NGCC_着色器编译次数 加 1。
+    sid 为 做 系统调用 用 系统调用_图处_创建着色器、ctx 的 ctx_id、source、len、类型、0。
+    若 sid 小于或等于 0：
+        返还 负 2。
+    完。
+    若 NGCC_着色器数 小于 NGCC_MAX_SHADERS：
+        info 为 做 堆_分配 用 NGCC着色器信息。
+        info 的 shader_id 为 sid。
+        info 的 哈希 为 hash。
+        info 的 类型 为 类型。
+        info 的 有效 为 真。
+        做 内存写64 用 NGCC_着色器池 加 NGCC_着色器数 乘 8、info。
+        NGCC_着色器数 为 NGCC_着色器数 加 1。
+    完。
+    返还 sid。
+完。
+
+图处_创建程序 接受 ctx、vs_id、fs_id：
+    若 ctx 等于 0：
+        返还 负 1。
+    完。
+    返还 做 系统调用 用 系统调用_图处_创建程序、ctx 的 ctx_id、vs_id、fs_id、0、0。
+完。
+
+NGCC帧缓冲信息 是 一种 事物，含 fbo_id、宽、高、颜色纩理、深度纩理。
+
+可变 NGCC_帧缓冲池 为 0。
+
+可变 NGCC_帧缓冲数 为 0。
+
+NGCC_帧缓冲初始化 接受 零参：
+    NGCC_帧缓冲池 为 做 堆_分配_数组 用 NGCC_MAX_FRAMEBUFFERS 乘 8。
+    NGCC_帧缓冲数 为 0。
+完。
+
+图处_创建帧缓冲 接受 ctx、宽、高：
+    若 ctx 等于 0：
+        返还 负 1。
+    完。
+    若 NGCC_帧缓冲数 大于或等于 NGCC_MAX_FRAMEBUFFERS：
+        返还 负 2。
+    完。
+    fbo_id 为 做 系统调用 用 系统调用_图处_创建帧缓冲、ctx 的 ctx_id、宽、高、0、0。
+    若 fbo_id 小于或等于 0：
+        返还 负 3。
+    完。
+    color_tex 为 做 图处_创建纩理 用 ctx、宽、高、纩理格式_RGBA8。
+    depth_tex 为 做 图处_创建纩理 用 ctx、宽、高、纩理格式_深度24模板8。
+    info 为 做 堆_分配 用 NGCC帧缓冲信息。
+    info 的 fbo_id 为 fbo_id。
+    info 的 宽 为 宽。
+    info 的 高 为 高。
+    info 的 颜色纩理 为 color_tex。
+    info 的 深度纩理 为 depth_tex。
+    做 内存写64 用 NGCC_帧缓冲池 加 NGCC_帧缓冲数 乘 8、info。
+    NGCC_帧缓冲数 为 NGCC_帧缓冲数 加 1。
+    返还 fbo_id。
+完。
+
+图处_绑定帧缓冲 接受 ctx、fbo_id：
+    若 ctx 等于 0：
+        返还 负 1。
+    完。
+    ctx 的 帧缓冲 为 fbo_id。
+    返还 做 系统调用 用 系统调用_图处_绑定帧缓冲、ctx 的 ctx_id、fbo_id、0、0、0。
+完。
+
+图处_查询繁忙度 接受 ctx：
+    若 ctx 等于 0：
+        返还 0。
+    完。
+    status 为 做 系统调用 用 系统调用_图处_查询状态、ctx 的 ctx_id、0、0、0、0。
+    ctx 的 图处繁忙度 为 status 位与 0x3FF。
+    返还 ctx 的 图处繁忙度。
+完。
+
+图处_设置视口 接受 ctx、宽、高：
+    若 ctx 等于 0：
+        返还。
+    完。
+    ctx 的 视口宽 为 宽。
+    ctx 的 视口高 为 高。
+完。
+
+NGCC_QUALITY_HIGH 为 0。
+
+NGCC_QUALITY_MEDIUM 为 1。
+
+NGCC_QUALITY_LOW 为 2。
+
+可变 NGCC_当前质量 为 0。
+
+NGCC_AI_负载预测 接受 ctx：
+    若 全局AI总线 等于 0 或者 ctx 等于 0：
+        返还。
+    完。
+    NGCC_AI预测次数 为 NGCC_AI预测次数 加 1。
+    tensor 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 tensor、0、ctx 的 图处繁忙度 除以 1000.0。
+    做 Tensor_写 用 tensor、1、NGCC_命令总数 除以 10000.0。
+    做 Tensor_写 用 tensor、2、NGCC_纩理数 除以 NGCC_MAX_TEXTURES。
+    做 Tensor_写 用 tensor、3、ctx 的 写位置 除以 ctx 的 缓冲大小。
+    做 Tensor_写 用 tensor、4、NGCC_帧缓冲数 除以 NGCC_MAX_FRAMEBUFFERS。
+    做 Tensor_写 用 tensor、5、ctx 的 帧数 除以 3600.0。
+    out 为 做 AI总线_推理 用 全局AI总线、「NGCC_负载预测」、tensor、6。
+    若 out 不等于 0：
+        load_score 为 做 Tensor_读 用 out、0。
+        degrade 为 做 Tensor_读 用 out、1。
+        若 load_score 大于 0.85：
+            NGCC_当前质量 为 NGCC_QUALITY_LOW。
+            NGCC_降级次数 为 NGCC_降级次数 加 1。
+        否则若 load_score 大于 0.55：
+            NGCC_当前质量 为 NGCC_QUALITY_MEDIUM。
+        否则：
+            NGCC_当前质量 为 NGCC_QUALITY_HIGH。
+        完。
+        做 Tensor_释放 用 out。
+    完。
+    做 Tensor_释放 用 tensor。
+完。
+
+NGCC_AI_纩理预加载提示 接受 ctx：
+    若 全局AI总线 等于 0 或者 ctx 等于 0：
+        返还。
+    完。
+    tensor 为 做 Tensor_创建 用 4。
+    做 Tensor_写 用 tensor、0、NGCC_纩理数 除以 64.0。
+    做 Tensor_写 用 tensor、1、NGCC_纩理上传次数 除以 100.0。
+    做 Tensor_写 用 tensor、2、NGCC_纩理缓存命中 除以 若 NGCC_纩理上传次数 大于 0 则 NGCC_纩理上传次数 否则 1。
+    做 Tensor_写 用 tensor、3、ctx 的 帧数 除以 1800.0。
+    out 为 做 AI总线_推理 用 全局AI总线、「NGCC_纩理预载」、tensor、4。
+    若 out 不等于 0：
+        做 Tensor_释放 用 out。
+    完。
+    做 Tensor_释放 用 tensor。
+完。
+
+NGCC_性能统计 接受 ctx：
+    texCacheRate 为 0。
+    total 为 NGCC_纩理缓存命中 加 NGCC_纩理上传次数。
+    若 total 大于 0：
+        texCacheRate 为 NGCC_纩理缓存命中 乘 100 除以 total。
+    完。
+    做 打印 用 「[NGCC] frames=」 加 ctx 的 帧数 加 「 submits=」 加 NGCC_提交次数 加 「 cmds=」 加 NGCC_命令总数 加 「 texUploads=」 加 NGCC_纩理上传次数 加 「 texCacheHit=」 加 texCacheRate 加 「%」 加 「 shaderCompiles=」 加 NGCC_着色器编译次数 加 「 aiPredict=」 加 NGCC_AI预测次数 加 「 degrades=」 加 NGCC_降级次数 加 「 quality=」 加 NGCC_当前质量 加 「 busy=」 加 ctx 的 图处繁忙度。
+完。
+
+NGCC_纩理池列表 接受 零参：
+    做 打印 用 「[NGCC] 纩理池 count=」 加 NGCC_纩理数。
+    可变 i 为 0。
+    只要 i 小于 NGCC_纩理数 并且 i 小于 16：
+        info 为 做 内存读64 用 NGCC_纩理池 加 i 乘 8。
+        若 info 不等于 0：
+            做 打印 用 「  tex[」 加 info 的 tex_id 加 「] 」 加 info 的 宽 加 「x」 加 info 的 高 加 「 fmt=」 加 info 的 格式 加 「 refs=」 加 info 的 引用计数。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NGCC_图处系统启动 接受 宽、高：
+    做 NGCC_纩理池初始化。
+    做 NGCC_着色器池初始化。
+    做 NGCC_帧缓冲初始化。
+    ctx 为 做 图处_创建上下文 用 宽、高。
+    若 ctx 等于 0：
+        做 打印 用 「[NGCC] 图处上下文创建失败」。
+        返还 0。
+    完。
+    做 打印 用 「[NGCC] GPU Command Context 启动 」 加 宽 加 「x」 加 高。
+    返还 ctx。
+完。
+
+NGCC_图处系统关闭 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 NGCC_性能统计 用 ctx。
+    做 NGCC_纩理池列表。
+    做 图处_销毁上下文 用 ctx。
+    做 打印 用 「[NGCC] 图处系统已关闭」。
+完。
+
+NGCC_帧更新 接受 ctx、delta_ms：
+    若 ctx 等于 0：
+        返还。
+    完。
+    若 ctx 的 帧数 取余于 60 等于 0：
+        做 图处_查询繁忙度 用 ctx。
+        做 NGCC_AI_负载预测 用 ctx。
+    完。
+    若 ctx 的 帧数 取余于 300 等于 0：
+        做 NGCC_AI_纩理预加载提示 用 ctx。
+    完。
+    若 ctx 的 帧数 取余于 600 等于 0：
+        做 NGCC_纩理LRU淘汰 用 ctx。
+    完。
+完。
+
+引用《..·推理·通信总线》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·引导·端口IO》。
+
+引用《.·平台时间》。
+
+系统调用_图处_创建上下文 为 500。
+
+系统调用_图处_销毁上下文 为 501。
+
+系统调用_图处_提交命令 为 502。
+
+系统调用_图处_创建纹理 为 503。
+
+系统调用_图处_销毁纹理 为 504。
+
+系统调用_图处_上传纹理 为 505。
+
+系统调用_图处_创建帧缓冲 为 506。
+
+系统调用_图处_绑定帧缓冲 为 507。
+
+系统调用_图处_创建着色器 为 508。
+
+系统调用_图处_创建程序 为 509。
+
+系统调用_图处_绘制三角形 为 510。
+
+系统调用_图处_清屏 为 511。
+
+系统调用_图处_交换缓冲 为 512。
+
+系统调用_图处_查询状态 为 513。
+
+纹理格式_RGBA8 为 0。
+
+纹理格式_RGB8 为 1。
+
+纹理格式_A8 为 2。
+
+纹理格式_RGBA16F 为 3。
+
+纹理格式_深度24模板8 为 4。
+
+图处命令_清屏 为 1。
+
+图处命令_绘制矩形 为 2。
+
+图处命令_绘制纹理 为 3。
+
+图处命令_绘制文字 为 4。
+
+图处命令_设置裁剪 为 5。
+
+图处命令_设置变换 为 6。
+
+图处命令_设置混合 为 7。
+
+图处命令_设置透明度 为 8。
+
+图处命令_绘制圆角矩形 为 9。
+
+图处命令_绘制阴影 为 10。
+
+图处命令_绘制渐变 为 11。
+
+图处命令_绘制滤镜 为 12。
+
+图处Context 是 一种 事物，含 ctx_id、命令缓冲、缓冲大小、写位置、纹理表、纹理数、帧缓冲、视口宽、视口高、帧数、上次提交时间、图处繁忙度。
+
+图处_创建上下文 接受 宽、高：
+    ctx 为 做 堆_分配 用 图处Context。
+    ctx 的 ctx_id 为 做 系统调用 用 系统调用_图处_创建上下文、宽、高、0、0、0。
+    若 ctx 的 ctx_id 等于 0：
+        做 堆_释放 用 ctx。
+        返还 0。
+    完。
+    ctx 的 缓冲大小 为 256 乘 1024。
+    ctx 的 命令缓冲 为 做 堆_分配_数组 用 ctx 的 缓冲大小。
+    ctx 的 写位置 为 0。
+    ctx 的 纹理数 为 0。
+    ctx 的 视口宽 为 宽。
+    ctx 的 视口高 为 高。
+    ctx 的 帧数 为 0。
+    ctx 的 图处繁忙度 为 0。
+    返还 ctx。
+完。
+
+图处_销毁上下文 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 系统调用 用 系统调用_图处_销毁上下文、ctx 的 ctx_id、0、0、0、0。
+    做 堆_释放 用 ctx 的 命令缓冲。
+    做 堆_释放 用 ctx。
+完。
+
+本章 收束。

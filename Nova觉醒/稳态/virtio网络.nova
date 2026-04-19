@@ -1,0 +1,262 @@
+《virtio网络》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·外联·网络缓冲读》。
+
+引用《.·virtio通用》。
+
+引用《..·外联·网缓冲分配》。
+
+引用《..·外联·网络设备启停》。
+
+引用《..·中枢·链表后继》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·外联·网络设备分配》。
+
+引用《..·中枢·整数转字符串》。
+
+VIRTIO_NET_F_CSUM 为 1 左移 0。
+
+VIRTIO_NET_F_MAC 为 1 左移 5。
+
+VIRTIO_NET_F_MRG_RXBUF 为 1 左移 15。
+
+VIRTIO_NET_F_STATUS 为 1 左移 16。
+
+VIRTIO_NET_F_MTU 为 1 左移 23。
+
+VIRTIO_NET_HDR_SIZE 为 12。
+
+virtio_net_hdr 是 一种 事物，含 flags、gso_type、hdr_len、gso_size、csum_start、csum_offset。
+
+virtio_net_设备 是 一种 事物，含 rx_vq、tx_vq、ctrl_vq、rx_缓冲区、rx_缓冲区数、mac、net_dev、rx_packets、tx_packets、rx_bytes、tx_bytes、rx_errors、tx_errors、链路状态。
+
+可变 virtio_net_dev 为 空。
+
+virtio网络_初始化 接受 零参：
+    dev 为 新建 virtio_net_设备。
+    dev 的 mac 为 一组：0x52、0x54、0x00、0x12、0x34、0x56。
+    dev 的 rx_vq 为 做 virtqueue_创建 用 0、256、「rx」。
+    dev 的 tx_vq 为 做 virtqueue_创建 用 1、256、「tx」。
+    dev 的 rx_缓冲区 为 一组：（空）。
+    dev 的 rx_缓冲区数 为 64。
+    可变 i 为 0。
+    只要 i 小于 dev 的 rx_缓冲区数：
+        buf 为 做 Nova缓冲_创建 用 1514 加 VIRTIO_NET_HDR_SIZE。
+        若 buf 不等于 空：
+            做 追加 用 dev 的 rx_缓冲区、buf。
+            做 virtqueue_添加缓冲 用 dev 的 rx_vq、buf、1514 加 VIRTIO_NET_HDR_SIZE、假。
+        完。
+        i 为 i 加 1。
+    完。
+    做 virtqueue_通知 用 dev 的 rx_vq、空。
+    dev 的 rx_packets 为 0。
+    dev 的 tx_packets 为 0。
+    dev 的 rx_bytes 为 0。
+    dev 的 tx_bytes 为 0。
+    dev 的 rx_errors 为 0。
+    dev 的 tx_errors 为 0。
+    dev 的 链路状态 为 1。
+    mac_str 为 做 mac_格式化 用 dev 的 mac。
+    做 网络设备_注册 用 「eth0」、virtio网络_发送、dev 的 mac。
+    dev 的 net_dev 为 做 网络设备_查找 用 「eth0」。
+    virtio_net_dev 为 dev。
+    做 内核信息 用 「virtio-net: 」 加 mac_str 加 「 (2个virtqueue, 」 加 做 整数转字符串 用 dev 的 rx_缓冲区数 加 「个RX缓冲)」。
+    返还 成功。
+完。
+
+virtio网络_发送 接受 Nova缓冲：
+    若 virtio_net_dev 等于 空：
+        返还 错误_未初始化。
+    完。
+    dev 为 virtio_net_dev。
+    头ptr 为 做 Nova缓冲_push 用 Nova缓冲、VIRTIO_NET_HDR_SIZE。
+    做 内存清零 用 头ptr、VIRTIO_NET_HDR_SIZE。
+    结果 为 做 virtqueue_添加缓冲 用 dev 的 tx_vq、Nova缓冲、做 Nova缓冲_长度 用 Nova缓冲、真。
+    若 结果 小于 0：
+        dev 的 tx_errors 为 dev 的 tx_errors 加 1。
+        返还 结果。
+    完。
+    做 virtqueue_通知 用 dev 的 tx_vq、空。
+    dev 的 tx_packets 为 dev 的 tx_packets 加 1。
+    dev 的 tx_bytes 为 dev 的 tx_bytes 加 做 Nova缓冲_长度 用 Nova缓冲。
+    返还 成功。
+完。
+
+virtio网络_接收中断 接受 零参：
+    若 virtio_net_dev 等于 空：
+        返还。
+    完。
+    dev 为 virtio_net_dev。
+    可变 处理数 为 0。
+    只要 真：
+        buf 为 做 virtqueue_取出缓冲 用 dev 的 rx_vq。
+        若 buf 等于 空：
+            中断。
+        完。
+        Nova缓冲 为 buf。
+        长度 为 做 virtqueue_缓冲长度 用 dev 的 rx_vq。
+        做 Nova缓冲_pull 用 Nova缓冲、VIRTIO_NET_HDR_SIZE。
+        做 Nova缓冲_设置mac头 用 Nova缓冲。
+        eth_type 为 做 缓冲读 用 做 Nova缓冲_数据 用 Nova缓冲、12 左移 8 位或 做 缓冲读 用 做 Nova缓冲_数据 用 Nova缓冲、13。
+        做 Nova缓冲_设置协议 用 Nova缓冲、eth_type。
+        做 网络设备_接收 用 Nova缓冲。
+        dev 的 rx_packets 为 dev 的 rx_packets 加 1。
+        dev 的 rx_bytes 为 dev 的 rx_bytes 加 长度。
+        处理数 为 处理数 加 1。
+        新buf 为 做 Nova缓冲_创建 用 1514 加 VIRTIO_NET_HDR_SIZE。
+        若 新buf 不等于 空：
+            做 virtqueue_添加缓冲 用 dev 的 rx_vq、新buf、1514 加 VIRTIO_NET_HDR_SIZE、假。
+        完。
+    完。
+    若 处理数 大于 0：
+        做 virtqueue_通知 用 dev 的 rx_vq、空。
+    完。
+完。
+
+virtqueue_创建_网络 接受 索引、大小、名称：
+    返还 一组：索引、大小、名称、一组：（空）、0、0。
+完。
+
+virtqueue_添加缓冲_网络 接受 vq、buf、长度、写：
+    做 追加 用 vq 的 第 3 项、一组：buf、长度、写。
+    返还 成功。
+完。
+
+virtqueue_取出缓冲 接受 vq：
+    若 做 计数 用 vq 的 第 3 项 等于 0：
+        返还 空。
+    完。
+    项 为 vq 的 第 3 项 的 第 0 项。
+    做 链表_删除 用 vq 的 第 3 项、0。
+    返还 项 的 第 0 项。
+完。
+
+virtqueue_缓冲长度 接受 vq：
+    若 vq 等于 空：
+        返还 0。
+    完。
+    若 vq 的 已使用环 不等于 空 并且 vq 的 已使用索引 小于 做 计数 用 vq 的 已使用环：
+        返还 vq 的 已使用环 的 第 vq 的 已使用索引 项。
+    完。
+    返还 0。
+完。
+
+virtqueue_通知_网络 接受 vq：
+    若 virtnet_设备 不等于 空：
+        做 virtqueue_通知 用 vq、virtnet_设备。
+    完。
+完。
+
+mac_格式化 接受 mac：
+    可变 s 为 「」。
+    可变 i 为 0。
+    只要 i 小于 6：
+        若 i 大于 0：
+            s 为 s 加 「:」。
+        完。
+        b 为 mac 的 第 i 项。
+        高 为 b 除以 16。
+        低 为 b 取余于 16。
+        s 为 s 加 做 hex_字符 用 高 加 做 hex_字符 用 低。
+        i 为 i 加 1。
+    完。
+    返还 s。
+完。
+
+hex_字符 接受 v：
+    若 v 小于 10：
+        返还 做 字符 用 48 加 v。
+    完。
+    返还 做 字符 用 87 加 v。
+完。
+
+virtio网络_统计 接受 零参：
+    若 virtio_net_dev 等于 空：
+        返还 空。
+    完。
+    dev 为 virtio_net_dev。
+    返还 一组：dev 的 rx_packets、dev 的 tx_packets、dev 的 rx_bytes、dev 的 tx_bytes、dev 的 rx_errors、dev 的 tx_errors。
+完。
+
+virtio网络_完整统计 接受 零参：
+    若 virtio_net_dev 等于 空：
+        返还 一组：0、0、0、0、0、0。
+    完。
+    dev 为 virtio_net_dev。
+    返还 一组：dev 的 rx_packets、dev 的 tx_packets、dev 的 rx_bytes、dev 的 tx_bytes、dev 的 rx_errors、dev 的 tx_errors。
+完。
+
+virtio网络_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 virtio_net_dev 等于 空：
+        做 追加 用 问题、「virtio网络设备未初始化」。
+        返还 问题。
+    完。
+    dev 为 virtio_net_dev。
+    若 dev 的 rx_errors 大于 dev 的 rx_packets 除以 10 并且 dev 的 rx_packets 大于 100：
+        做 追加 用 问题、「接收错误率过高」。
+    完。
+    若 dev 的 tx_errors 大于 dev 的 tx_packets 除以 10 并且 dev 的 tx_packets 大于 100：
+        做 追加 用 问题、「发送错误率过高」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「virtio网络健康」。
+    完。
+    返还 问题。
+完。
+
+virtio网络_重置统计 接受 零参：
+    若 virtio_net_dev 等于 空：
+        返还。
+    完。
+    virtio_net_dev 的 rx_packets 为 0。
+    virtio_net_dev 的 tx_packets 为 0。
+    virtio_net_dev 的 rx_bytes 为 0。
+    virtio_net_dev 的 tx_bytes 为 0。
+    virtio_net_dev 的 rx_errors 为 0。
+    virtio_net_dev 的 tx_errors 为 0。
+完。
+
+virtio网络_链接状态 接受 零参：
+    若 virtio_net_dev 等于 空：
+        返还 「断开」。
+    完。
+    若 virtio_net_dev 的 链路状态：
+        返还 「连接」。
+    完。
+    返还 「断开」。
+完。
+
+virtio网络_是否就绪 接受 零参：
+    返还 virtio_net_dev 不等于 空 并且 virtio_net_dev 的 链路状态。
+完。
+
+可变 AI_虚驱网络_风暴阈值 为 10000。
+
+可变 AI_虚驱网络_预测IRQ 为 0。
+
+AI_虚驱网络_风暴检测 接受 触发频率：
+    若 触发频率 大于 AI_虚驱网络_风暴阈值：
+        AI_虚驱网络_风暴阈值 为 AI_虚驱网络_风暴阈值 乘 3 除以 2。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_虚驱网络_自适应合并 接受 当前延迟：
+    若 当前延迟 小于 100：
+        返还 16。
+    完。
+    若 当前延迟 小于 500：
+        返还 8。
+    完。
+    返还 1。
+完。
+
+本章 收束。

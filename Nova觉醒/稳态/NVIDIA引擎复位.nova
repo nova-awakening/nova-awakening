@@ -1,0 +1,116 @@
+《NVIDIA引擎复位》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·APIC任务优先级》。
+
+引用《.·GPU命令队列驱动》。
+
+引用《..·中枢·整数转字符串》。
+
+NV_引擎复位 接受 零参：
+    mmio 为 NV状态 的 mmio。
+    原使能 为 做 MMIO读32 用 mmio 加 NV_PMC_ENABLE。
+    做 MMIO写32 用 mmio 加 NV_PMC_ENABLE、0。
+    做 NV_等待us 用 100。
+    做 MMIO写32 用 mmio 加 NV_PMC_ENABLE、原使能。
+    做 NV_等待us 用 100。
+    做 内核信息 用 「NV驱动: 引擎复位完成」。
+完。
+
+NV_引擎使能 接受 零参：
+    mmio 为 NV状态 的 mmio。
+    使能位 为 PMC_ENABLE_PFIFO 位或 PMC_ENABLE_PGRAPH 位或 PMC_ENABLE_PCOPY0 位或 PMC_ENABLE_PCOPY1 位或 PMC_ENABLE_PDISPLAY 位或 PMC_ENABLE_PWR。
+    做 MMIO写32 用 mmio 加 NV_PMC_ENABLE、使能位。
+    做 NV_等待us 用 10。
+    实际 为 做 MMIO读32 用 mmio 加 NV_PMC_ENABLE。
+    若 实际 位与 使能位 不等于 使能位：
+        做 内核警告 用 「NV驱动: 部分引擎未能启动 期望=0x」 加 做 整数转十六进制 用 使能位 加 「 实际=0x」 加 做 整数转十六进制 用 实际。
+    完。
+完。
+
+NV_PTIMER_初始化 接受 零参：
+    mmio 为 NV状态 的 mmio。
+    时间 为 做 MMIO读32 用 mmio 加 NV_PTIMER_TIME_0。
+    做 内核信息 用 「NV驱动: 图处定时器 = 」 加 做 整数转字符串 用 时间 加 「ns」。
+完。
+
+NV_探测拓扑 接受 零参：
+    mmio 为 NV状态 的 mmio。
+    若 NV状态 的 架构代 大于或等于 NV_ARCH_FERMI：
+        NV状态 的 GPC数 为 做 MMIO读32 用 mmio 加 NV_PGRAPH_GPC_NUM 位与 0xFF。
+        tpc_per_gpc 为 做 MMIO读32 用 mmio 加 NV_PGRAPH_TPC_PER_GPC 位与 0xFF。
+        NV状态 的 TPC数 为 NV状态 的 GPC数 乘 tpc_per_gpc。
+        若 NV状态 的 架构代 大于或等于 NV_ARCH_VOLTA：
+            NV状态 的 SM数 为 NV状态 的 TPC数 乘 2。
+        否则：
+            NV状态 的 SM数 为 NV状态 的 TPC数。
+        完。
+        若 NV状态 的 GPC数 等于 0：
+            NV状态 的 GPC数 为 NV状态 的 SM数 除以 8。
+        完。
+        若 NV状态 的 GPC数 等于 0：
+            NV状态 的 GPC数 为 1。
+        完。
+        NV状态 的 最大线程_每SM 为 2048。
+        若 NV状态 的 架构代 小于 NV_ARCH_VOLTA：
+            NV状态 的 最大线程_每SM 为 1024。
+        完。
+    否则：
+        NV状态 的 GPC数 为 1。
+        NV状态 的 SM数 为 8。
+        NV状态 的 最大线程_每SM 为 512。
+    完。
+    做 内核信息 用 「NV驱动: 拓扑 GPC=」 加 做 整数转字符串 用 NV状态 的 GPC数 加 「 TPC=」 加 做 整数转字符串 用 NV状态 的 TPC数 加 「 SM=」 加 做 整数转字符串 用 NV状态 的 SM数 加 「 最大线程/SM=」 加 做 整数转字符串 用 NV状态 的 最大线程_每SM。
+完。
+
+NV通道 是 一种 事物，含 ID、实例块地址、推送缓冲地址、推送缓冲图处、推送缓冲大小、写偏移、引擎、活跃。
+
+NV_PFIFO_初始化 接受 零参：
+    mmio 为 NV状态 的 mmio。
+    NV状态 的 通道列表 为 一组：（空）。
+    NV状态 的 通道数 为 0。
+    做 MMIO写32 用 mmio 加 NV_PFIFO_INTR_0、0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 NV_PFIFO_INTR_EN_0、0xFFFFFFFF。
+    做 NV_创建通道 用 0。
+    做 NV_创建通道 用 2。
+    做 内核信息 用 「NV驱动: PFIFO初始化 通道=」 加 做 整数转字符串 用 NV状态 的 通道数。
+完。
+
+NV_创建通道 接受 引擎：
+    通道 为 新建 NV通道。
+    通道 的 ID 为 NV状态 的 通道数。
+    通道 的 引擎 为 引擎。
+    通道 的 推送缓冲大小 为 131072。
+    通道 的 推送缓冲地址 为 做 图处内存_分配 用 通道 的 推送缓冲大小、GTT、用途_命令缓冲。
+    若 通道 的 推送缓冲地址 等于 空：
+        返还 空。
+    完。
+    通道 的 推送缓冲图处 为 通道 的 推送缓冲地址 的 图处地址。
+    实例偏移 为 NV_PRAMIN_BASE 加 通道 的 ID 乘 NV_PFIFO_CHAN_SIZE。
+    通道 的 实例块地址 为 实例偏移。
+    mmio 为 NV状态 的 mmio。
+    做 MMIO写32 用 mmio 加 实例偏移 加 0、通道 的 推送缓冲图处 位与 0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 实例偏移 加 4、通道 的 推送缓冲图处 右移 32 位与 0xFF。
+    做 MMIO写32 用 mmio 加 实例偏移 加 8、引擎。
+    做 MMIO写32 用 mmio 加 实例偏移 加 12、1。
+    通道 的 写偏移 为 0。
+    通道 的 活跃 为 真。
+    做 追加 用 NV状态 的 通道列表、通道。
+    NV状态 的 通道数 为 NV状态 的 通道数 加 1。
+    可变 引擎名 为 「GR」。
+    若 引擎 等于 1：
+        引擎名 为 「CE」。
+    完。
+    若 引擎 等于 2：
+        引擎名 为 「COMPUTE」。
+    完。
+    做 内核信息 用 「NV驱动: 通道」 加 做 整数转字符串 用 通道 的 ID 加 「 」 加 引擎名 加 「 创建」。
+    返还 通道。
+完。
+
+本章 收束。

@@ -1,0 +1,118 @@
+《AMD中断处理》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·APIC任务优先级》。
+
+引用《.·GPU命令队列驱动》。
+
+引用《.·PCI总线驱动》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·中断请求管理》。
+
+引用《..·中枢·整数转字符串》。
+
+AMD_IH_初始化 接受 零参：
+    mmio 为 AMD状态 的 mmio。
+    AMD状态 的 IH环_大小 为 65536。
+    AMD状态 的 IH环_地址 为 做 图处内存_分配 用 AMD状态 的 IH环_大小、GTT、用途_命令缓冲。
+    若 AMD状态 的 IH环_地址 等于 空：
+        返还。
+    完。
+    基地址 为 AMD状态 的 IH环_地址 的 物理地址。
+    做 MMIO写32 用 mmio 加 mmIH_RB_BASE、基地址 右移 8 位与 0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 mmIH_RB_CNTL、12。
+    做 MMIO写32 用 mmio 加 mmIH_RB_RPTR、0。
+    做 MMIO写32 用 mmio 加 mmIH_RB_WPTR、0。
+    做 MMIO写32 用 mmio 加 mmIH_CNTL、0x03。
+    做 内核信息 用 「AMD驱动: IH初始化 64KB中断环」。
+完。
+
+AMD_中断初始化 接受 零参：
+    gpu 为 AMD状态 的 gpu。
+    gpu 的 中断号 为 做 PCI_配置MSI 用 gpu 的 PCI总线、gpu 的 PCI设备、gpu 的 PCI功能。
+    若 gpu 的 中断号 大于 0：
+        做 IRQ_注册 用 gpu 的 中断号、「AMD-」 加 gpu 的 型号名、AMD_中断处理。
+    完。
+完。
+
+AMD_中断处理 接受 中断号：
+    mmio 为 AMD状态 的 mmio。
+    wptr 为 做 MMIO读32 用 mmio 加 mmIH_RB_WPTR。
+    rptr 为 做 MMIO读32 用 mmio 加 mmIH_RB_RPTR。
+    只要 rptr 不等于 wptr：
+        条目地址 为 AMD状态 的 IH环_地址 的 CPU地址 加 rptr。
+        源ID 为 做 内存读32 用 条目地址 位与 0xFF。
+        数据 为 做 内存读32 用 条目地址 加 4。
+        若 源ID 等于 1：
+        完。
+        做 否则如果 用 源ID 等于 2。
+        块：
+        完。
+        做 否则如果 用 源ID 等于 176。
+        块：
+        完。
+        做 否则如果 用 源ID 等于 224。
+        块：
+        完。
+        做 否则如果 用 源ID 等于 0xE0。
+        块：
+            做 内核警告 用 「AMD驱动: 图处页面故障 地址=0x」 加 做 整数转十六进制 用 数据。
+        完。
+        rptr 为 (rptr 加 16) 取余于 AMD状态 的 IH环_大小。
+    完。
+    做 MMIO写32 用 mmio 加 mmIH_RB_RPTR、rptr。
+完。
+
+AMD_DCN_初始化 接受 零参：
+    AMD状态 的 OTG数 为 4。
+    做 内核信息 用 「AMD驱动: DCN」 加 做 整数转字符串 用 AMD状态 的 DCN版本 加 「 OTG=」 加 做 整数转字符串 用 AMD状态 的 OTG数。
+完。
+
+AMD_设置显示模式 接受 OTG索引、宽、高、刷新率：
+    若 非 AMD状态 的 已初始化 或者 OTG索引 大于或等于 AMD状态 的 OTG数：
+        返还。
+    完。
+    mmio 为 AMD状态 的 mmio。
+    基 为 mmDCN_OTG0_CONTROL 加 OTG索引 乘 mmDCN_OTG_OFFSET。
+    h_front 为 48。
+    h_sync 为 32。
+    h_back 为 80。
+    h_total 为 宽 加 h_front 加 h_sync 加 h_back。
+    v_front 为 3。
+    v_sync 为 5。
+    v_back 为 33。
+    v_total 为 高 加 v_front 加 v_sync 加 v_back。
+    像素时钟_kHz 为 h_total 乘 v_total 乘 刷新率 除以 1000。
+    做 MMIO写32 用 mmio 加 基、1。
+    做 MMIO写32 用 mmio 加 基 加 4、h_total。
+    做 MMIO写32 用 mmio 加 基 加 8、v_total。
+    做 MMIO写32 用 mmio 加 基 加 12、宽。
+    做 MMIO写32 用 mmio 加 基 加 16、高。
+    hubp基 为 mmDCN_HUBP0_SURFACE_ADDR 加 OTG索引 乘 0x40。
+    若 AMD状态 的 GFX环_地址 不等于 空：
+        做 MMIO写32 用 mmio 加 hubp基、AMD状态 的 gpu 的 BAR1_地址 位与 0xFFFFFFFF。
+        做 MMIO写32 用 mmio 加 hubp基 加 4、高 左移 16 位或 宽。
+    完。
+    做 AMD_配置显示PLL 用 像素时钟_kHz。
+    做 内核信息 用 「AMD驱动: OTG」 加 做 整数转字符串 用 OTG索引 加 「 」 加 做 整数转字符串 用 宽 加 「×」 加 做 整数转字符串 用 高 加 「@」 加 做 整数转字符串 用 刷新率 加 「Hz」 加 「 像素时钟=」 加 做 整数转字符串 用 像素时钟_kHz 加 「kHz」。
+完。
+
+AMD_配置显示PLL 接受 目标_kHz：
+    参考_kHz 为 100000。
+    若 目标_kHz 等于 0：
+        返还。
+    完。
+    FBDIV 为 目标_kHz 除以 (参考_kHz 除以 10)。
+    若 FBDIV 大于 511：
+        FBDIV 为 511。
+    完。
+完。
+
+本章 收束。

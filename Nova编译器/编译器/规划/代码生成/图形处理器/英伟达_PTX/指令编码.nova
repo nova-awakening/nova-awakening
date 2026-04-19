@@ -1,0 +1,2315 @@
+《指令编码》
+
+ptx_算术指令 接受 op、ty：
+    返还 0x10000000 位或 (op 位与 0xFF) 左移 16 位或 ty 位与 0xFFFF。
+完。
+
+ptx_内存指令 接受 op、space、ty：
+    返还 0x20000000 位或 (op 位与 0xFF) 左移 20 位或 (space 位与 0xF) 左移 16 位或 ty 位与 0xFFFF。
+完。
+
+ptx_控制流指令 接受 op：
+    返还 0x30000000 位或 op 位与 0xFFFFFF。
+完。
+
+ptx_纹理指令 接受 op：
+    返还 0x40000000 位或 op 位与 0xFFFFFF。
+完。
+
+ptx_特殊指令 接受 op：
+    返还 0x50000000 位或 op 位与 0xFFFFFF。
+完。
+
+ptx_张量指令 接受 op：
+    返还 0x60000000 位或 op 位与 0xFFFFFF。
+完。
+
+ptx_杂项指令 接受 op：
+    返还 0x70000000 位或 op 位与 0xFFFFFF。
+完。
+
+编码_ptx_add_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 0、16。
+完。
+
+编码_ptx_add_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 0、32。
+完。
+
+编码_ptx_add_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 0、64。
+完。
+
+编码_ptx_add_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 1、16。
+完。
+
+编码_ptx_add_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 1、32。
+完。
+
+编码_ptx_add_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 1、64。
+完。
+
+编码_ptx_sub_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 2、16。
+完。
+
+编码_ptx_sub_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 2、32。
+完。
+
+编码_ptx_sub_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 2、64。
+完。
+
+编码_ptx_sub_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 3、16。
+完。
+
+编码_ptx_sub_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 3、32。
+完。
+
+编码_ptx_sub_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 3、64。
+完。
+
+编码_ptx_mul_lo_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 4、16。
+完。
+
+编码_ptx_mul_lo_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 4、32。
+完。
+
+编码_ptx_mul_lo_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 4、64。
+完。
+
+编码_ptx_mul_lo_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 5、16。
+完。
+
+编码_ptx_mul_lo_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 5、32。
+完。
+
+编码_ptx_mul_lo_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 5、64。
+完。
+
+编码_ptx_mul_hi_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 6、16。
+完。
+
+编码_ptx_mul_hi_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 6、32。
+完。
+
+编码_ptx_mul_hi_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 6、64。
+完。
+
+编码_ptx_mul_hi_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 7、16。
+完。
+
+编码_ptx_mul_hi_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 7、32。
+完。
+
+编码_ptx_mul_hi_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 7、64。
+完。
+
+编码_ptx_mul_wide_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 8、16。
+完。
+
+编码_ptx_mul_wide_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 8、32。
+完。
+
+编码_ptx_mul_wide_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 9、16。
+完。
+
+编码_ptx_mul_wide_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 9、32。
+完。
+
+编码_ptx_mad_lo_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 10、32。
+完。
+
+编码_ptx_mad_lo_s64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 10、64。
+完。
+
+编码_ptx_mad_lo_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 11、32。
+完。
+
+编码_ptx_mad_lo_u64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 11、64。
+完。
+
+编码_ptx_mad_hi_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 12、32。
+完。
+
+编码_ptx_mad_hi_s64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 12、64。
+完。
+
+编码_ptx_mad_hi_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 13、32。
+完。
+
+编码_ptx_mad_hi_u64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 13、64。
+完。
+
+编码_ptx_mad_wide_s16 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 14、16。
+完。
+
+编码_ptx_mad_wide_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 14、32。
+完。
+
+编码_ptx_mad_wide_u16 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 15、16。
+完。
+
+编码_ptx_mad_wide_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 15、32。
+完。
+
+编码_ptx_div_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 16、16。
+完。
+
+编码_ptx_div_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 16、32。
+完。
+
+编码_ptx_div_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 16、64。
+完。
+
+编码_ptx_div_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 17、16。
+完。
+
+编码_ptx_div_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 17、32。
+完。
+
+编码_ptx_div_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 17、64。
+完。
+
+编码_ptx_rem_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 18、16。
+完。
+
+编码_ptx_rem_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 18、32。
+完。
+
+编码_ptx_rem_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 18、64。
+完。
+
+编码_ptx_rem_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 19、16。
+完。
+
+编码_ptx_rem_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 19、32。
+完。
+
+编码_ptx_rem_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 19、64。
+完。
+
+编码_ptx_abs_s16 接受 d、a：
+    返还 做 ptx_算术指令 用 20、16。
+完。
+
+编码_ptx_abs_s32 接受 d、a：
+    返还 做 ptx_算术指令 用 20、32。
+完。
+
+编码_ptx_abs_s64 接受 d、a：
+    返还 做 ptx_算术指令 用 20、64。
+完。
+
+编码_ptx_neg_s16 接受 d、a：
+    返还 做 ptx_算术指令 用 21、16。
+完。
+
+编码_ptx_neg_s32 接受 d、a：
+    返还 做 ptx_算术指令 用 21、32。
+完。
+
+编码_ptx_neg_s64 接受 d、a：
+    返还 做 ptx_算术指令 用 21、64。
+完。
+
+编码_ptx_min_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 22、16。
+完。
+
+编码_ptx_min_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 22、32。
+完。
+
+编码_ptx_min_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 22、64。
+完。
+
+编码_ptx_min_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 23、16。
+完。
+
+编码_ptx_min_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 23、32。
+完。
+
+编码_ptx_min_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 23、64。
+完。
+
+编码_ptx_max_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 24、16。
+完。
+
+编码_ptx_max_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 24、32。
+完。
+
+编码_ptx_max_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 24、64。
+完。
+
+编码_ptx_max_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 25、16。
+完。
+
+编码_ptx_max_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 25、32。
+完。
+
+编码_ptx_max_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 25、64。
+完。
+
+编码_ptx_popc_b32 接受 d、a：
+    返还 做 ptx_算术指令 用 26、32。
+完。
+
+编码_ptx_popc_b64 接受 d、a：
+    返还 做 ptx_算术指令 用 26、64。
+完。
+
+编码_ptx_clz_b32 接受 d、a：
+    返还 做 ptx_算术指令 用 27、32。
+完。
+
+编码_ptx_clz_b64 接受 d、a：
+    返还 做 ptx_算术指令 用 27、64。
+完。
+
+编码_ptx_bfind_s32 接受 d、a：
+    返还 做 ptx_算术指令 用 28、32。
+完。
+
+编码_ptx_bfind_s64 接受 d、a：
+    返还 做 ptx_算术指令 用 28、64。
+完。
+
+编码_ptx_bfind_u32 接受 d、a：
+    返还 做 ptx_算术指令 用 29、32。
+完。
+
+编码_ptx_bfind_u64 接受 d、a：
+    返还 做 ptx_算术指令 用 29、64。
+完。
+
+编码_ptx_brev_b32 接受 d、a：
+    返还 做 ptx_算术指令 用 30、32。
+完。
+
+编码_ptx_brev_b64 接受 d、a：
+    返还 做 ptx_算术指令 用 30、64。
+完。
+
+编码_ptx_bfe_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 31、32。
+完。
+
+编码_ptx_bfe_s64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 31、64。
+完。
+
+编码_ptx_bfe_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 32、32。
+完。
+
+编码_ptx_bfe_u64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 32、64。
+完。
+
+编码_ptx_bfi_b32 接受 d、a、b、c、e：
+    返还 做 ptx_算术指令 用 33、32。
+完。
+
+编码_ptx_bfi_b64 接受 d、a、b、c、e：
+    返还 做 ptx_算术指令 用 33、64。
+完。
+
+编码_ptx_dp4a_s32_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 34、32。
+完。
+
+编码_ptx_dp4a_u32_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 35、32。
+完。
+
+编码_ptx_dp2a_lo_s32_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 36、32。
+完。
+
+编码_ptx_dp2a_hi_s32_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 37、32。
+完。
+
+编码_ptx_dp2a_lo_u32_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 38、32。
+完。
+
+编码_ptx_dp2a_hi_u32_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 39、32。
+完。
+
+编码_ptx_sad_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 40、32。
+完。
+
+编码_ptx_sad_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 41、32。
+完。
+
+编码_ptx_and_b16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 50、16。
+完。
+
+编码_ptx_and_b32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 50、32。
+完。
+
+编码_ptx_and_b64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 50、64。
+完。
+
+编码_ptx_or_b16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 51、16。
+完。
+
+编码_ptx_or_b32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 51、32。
+完。
+
+编码_ptx_or_b64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 51、64。
+完。
+
+编码_ptx_xor_b16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 52、16。
+完。
+
+编码_ptx_xor_b32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 52、32。
+完。
+
+编码_ptx_xor_b64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 52、64。
+完。
+
+编码_ptx_not_b16 接受 d、a：
+    返还 做 ptx_算术指令 用 53、16。
+完。
+
+编码_ptx_not_b32 接受 d、a：
+    返还 做 ptx_算术指令 用 53、32。
+完。
+
+编码_ptx_not_b64 接受 d、a：
+    返还 做 ptx_算术指令 用 53、64。
+完。
+
+编码_ptx_cnot_b16 接受 d、a：
+    返还 做 ptx_算术指令 用 54、16。
+完。
+
+编码_ptx_cnot_b32 接受 d、a：
+    返还 做 ptx_算术指令 用 54、32。
+完。
+
+编码_ptx_cnot_b64 接受 d、a：
+    返还 做 ptx_算术指令 用 54、64。
+完。
+
+编码_ptx_shl_b16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 55、16。
+完。
+
+编码_ptx_shl_b32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 55、32。
+完。
+
+编码_ptx_shl_b64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 55、64。
+完。
+
+编码_ptx_shr_s16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 56、16。
+完。
+
+编码_ptx_shr_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 56、32。
+完。
+
+编码_ptx_shr_s64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 56、64。
+完。
+
+编码_ptx_shr_u16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 57、16。
+完。
+
+编码_ptx_shr_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 57、32。
+完。
+
+编码_ptx_shr_u64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 57、64。
+完。
+
+编码_ptx_shf_l_wrap_b32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 58、32。
+完。
+
+编码_ptx_shf_l_clamp_b32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 59、32。
+完。
+
+编码_ptx_shf_r_wrap_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 60、32。
+完。
+
+编码_ptx_shf_r_clamp_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 61、32。
+完。
+
+编码_ptx_shf_r_wrap_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 62、32。
+完。
+
+编码_ptx_shf_r_clamp_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 63、32。
+完。
+
+编码_ptx_prmt_b32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 64、32。
+完。
+
+编码_ptx_lop3_b32 接受 d、a、b、c、imm：
+    返还 做 ptx_算术指令 用 65、32。
+完。
+
+编码_ptx_add_f16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 70、16。
+完。
+
+编码_ptx_add_f16x2 接受 d、a、b：
+    返还 做 ptx_算术指令 用 70、17。
+完。
+
+编码_ptx_add_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 70、32。
+完。
+
+编码_ptx_add_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 70、64。
+完。
+
+编码_ptx_add_bf16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 70、8。
+完。
+
+编码_ptx_add_bf16x2 接受 d、a、b：
+    返还 做 ptx_算术指令 用 70、9。
+完。
+
+编码_ptx_sub_f16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 71、16。
+完。
+
+编码_ptx_sub_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 71、32。
+完。
+
+编码_ptx_sub_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 71、64。
+完。
+
+编码_ptx_mul_f16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 72、16。
+完。
+
+编码_ptx_mul_f16x2 接受 d、a、b：
+    返还 做 ptx_算术指令 用 72、17。
+完。
+
+编码_ptx_mul_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 72、32。
+完。
+
+编码_ptx_mul_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 72、64。
+完。
+
+编码_ptx_div_approx_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 73、32。
+完。
+
+编码_ptx_div_full_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 74、32。
+完。
+
+编码_ptx_div_rn_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 75、32。
+完。
+
+编码_ptx_div_rn_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 75、64。
+完。
+
+编码_ptx_fma_rn_f16 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 76、16。
+完。
+
+编码_ptx_fma_rn_f16x2 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 76、17。
+完。
+
+编码_ptx_fma_rn_f32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 76、32。
+完。
+
+编码_ptx_fma_rn_f64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 76、64。
+完。
+
+编码_ptx_fma_rn_bf16 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 76、8。
+完。
+
+编码_ptx_fma_rn_bf16x2 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 76、9。
+完。
+
+编码_ptx_mad_f32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 77、32。
+完。
+
+编码_ptx_mad_f64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 77、64。
+完。
+
+编码_ptx_abs_f16 接受 d、a：
+    返还 做 ptx_算术指令 用 78、16。
+完。
+
+编码_ptx_abs_f16x2 接受 d、a：
+    返还 做 ptx_算术指令 用 78、17。
+完。
+
+编码_ptx_abs_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 78、32。
+完。
+
+编码_ptx_abs_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 78、64。
+完。
+
+编码_ptx_neg_f16 接受 d、a：
+    返还 做 ptx_算术指令 用 79、16。
+完。
+
+编码_ptx_neg_f16x2 接受 d、a：
+    返还 做 ptx_算术指令 用 79、17。
+完。
+
+编码_ptx_neg_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 79、32。
+完。
+
+编码_ptx_neg_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 79、64。
+完。
+
+编码_ptx_min_f16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 80、16。
+完。
+
+编码_ptx_min_f16x2 接受 d、a、b：
+    返还 做 ptx_算术指令 用 80、17。
+完。
+
+编码_ptx_min_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 80、32。
+完。
+
+编码_ptx_min_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 80、64。
+完。
+
+编码_ptx_max_f16 接受 d、a、b：
+    返还 做 ptx_算术指令 用 81、16。
+完。
+
+编码_ptx_max_f16x2 接受 d、a、b：
+    返还 做 ptx_算术指令 用 81、17。
+完。
+
+编码_ptx_max_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 81、32。
+完。
+
+编码_ptx_max_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 81、64。
+完。
+
+编码_ptx_rcp_approx_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 82、32。
+完。
+
+编码_ptx_rcp_rn_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 83、32。
+完。
+
+编码_ptx_rcp_rn_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 83、64。
+完。
+
+编码_ptx_sqrt_approx_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 84、32。
+完。
+
+编码_ptx_sqrt_rn_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 85、32。
+完。
+
+编码_ptx_sqrt_rn_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 85、64。
+完。
+
+编码_ptx_rsqrt_approx_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 86、32。
+完。
+
+编码_ptx_rsqrt_approx_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 86、64。
+完。
+
+编码_ptx_sin_approx_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 87、32。
+完。
+
+编码_ptx_cos_approx_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 88、32。
+完。
+
+编码_ptx_lg2_approx_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 89、32。
+完。
+
+编码_ptx_ex2_approx_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 90、32。
+完。
+
+编码_ptx_tanh_approx_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 91、32。
+完。
+
+编码_ptx_copysign_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 92、32。
+完。
+
+编码_ptx_copysign_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 92、64。
+完。
+
+编码_ptx_testp_finite_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 93、32。
+完。
+
+编码_ptx_testp_infinite_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 94、32。
+完。
+
+编码_ptx_testp_number_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 95、32。
+完。
+
+编码_ptx_testp_notanumber_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 96、32。
+完。
+
+编码_ptx_testp_normal_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 97、32。
+完。
+
+编码_ptx_testp_subnormal_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 98、32。
+完。
+
+编码_ptx_testp_finite_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 93、64。
+完。
+
+编码_ptx_testp_infinite_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 94、64。
+完。
+
+编码_ptx_testp_number_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 95、64。
+完。
+
+编码_ptx_testp_notanumber_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 96、64。
+完。
+
+编码_ptx_cvt_s32_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 100、1。
+完。
+
+编码_ptx_cvt_s32_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 100、2。
+完。
+
+编码_ptx_cvt_s64_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 100、3。
+完。
+
+编码_ptx_cvt_s64_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 100、4。
+完。
+
+编码_ptx_cvt_u32_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 101、1。
+完。
+
+编码_ptx_cvt_u32_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 101、2。
+完。
+
+编码_ptx_cvt_u64_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 101、3。
+完。
+
+编码_ptx_cvt_u64_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 101、4。
+完。
+
+编码_ptx_cvt_f32_s32 接受 d、a：
+    返还 做 ptx_算术指令 用 102、1。
+完。
+
+编码_ptx_cvt_f32_s64 接受 d、a：
+    返还 做 ptx_算术指令 用 102、2。
+完。
+
+编码_ptx_cvt_f32_u32 接受 d、a：
+    返还 做 ptx_算术指令 用 102、3。
+完。
+
+编码_ptx_cvt_f32_u64 接受 d、a：
+    返还 做 ptx_算术指令 用 102、4。
+完。
+
+编码_ptx_cvt_f32_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 102、5。
+完。
+
+编码_ptx_cvt_f32_f16 接受 d、a：
+    返还 做 ptx_算术指令 用 102、6。
+完。
+
+编码_ptx_cvt_f64_s32 接受 d、a：
+    返还 做 ptx_算术指令 用 103、1。
+完。
+
+编码_ptx_cvt_f64_s64 接受 d、a：
+    返还 做 ptx_算术指令 用 103、2。
+完。
+
+编码_ptx_cvt_f64_u32 接受 d、a：
+    返还 做 ptx_算术指令 用 103、3。
+完。
+
+编码_ptx_cvt_f64_u64 接受 d、a：
+    返还 做 ptx_算术指令 用 103、4。
+完。
+
+编码_ptx_cvt_f64_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 103、5。
+完。
+
+编码_ptx_cvt_f16_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 104、1。
+完。
+
+编码_ptx_cvt_f16_f64 接受 d、a：
+    返还 做 ptx_算术指令 用 104、2。
+完。
+
+编码_ptx_cvt_bf16_f32 接受 d、a：
+    返还 做 ptx_算术指令 用 105、1。
+完。
+
+编码_ptx_cvt_f32_bf16 接受 d、a：
+    返还 做 ptx_算术指令 用 105、2。
+完。
+
+编码_ptx_cvt_s8_s32 接受 d、a：
+    返还 做 ptx_算术指令 用 106、1。
+完。
+
+编码_ptx_cvt_s16_s32 接受 d、a：
+    返还 做 ptx_算术指令 用 106、2。
+完。
+
+编码_ptx_cvt_s32_s16 接受 d、a：
+    返还 做 ptx_算术指令 用 106、3。
+完。
+
+编码_ptx_cvt_s32_s8 接受 d、a：
+    返还 做 ptx_算术指令 用 106、4。
+完。
+
+编码_ptx_cvt_u8_u32 接受 d、a：
+    返还 做 ptx_算术指令 用 107、1。
+完。
+
+编码_ptx_cvt_u16_u32 接受 d、a：
+    返还 做 ptx_算术指令 用 107、2。
+完。
+
+编码_ptx_cvt_u32_u16 接受 d、a：
+    返还 做 ptx_算术指令 用 107、3。
+完。
+
+编码_ptx_cvt_u32_u8 接受 d、a：
+    返还 做 ptx_算术指令 用 107、4。
+完。
+
+编码_ptx_setp_eq_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 110、32。
+完。
+
+编码_ptx_setp_ne_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 111、32。
+完。
+
+编码_ptx_setp_lt_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 112、32。
+完。
+
+编码_ptx_setp_le_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 113、32。
+完。
+
+编码_ptx_setp_gt_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 114、32。
+完。
+
+编码_ptx_setp_ge_s32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 115、32。
+完。
+
+编码_ptx_setp_eq_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 110、33。
+完。
+
+编码_ptx_setp_ne_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 111、33。
+完。
+
+编码_ptx_setp_lt_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 112、33。
+完。
+
+编码_ptx_setp_le_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 113、33。
+完。
+
+编码_ptx_setp_gt_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 114、33。
+完。
+
+编码_ptx_setp_ge_u32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 115、33。
+完。
+
+编码_ptx_setp_eq_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 110、34。
+完。
+
+编码_ptx_setp_ne_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 111、34。
+完。
+
+编码_ptx_setp_lt_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 112、34。
+完。
+
+编码_ptx_setp_le_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 113、34。
+完。
+
+编码_ptx_setp_gt_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 114、34。
+完。
+
+编码_ptx_setp_ge_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 115、34。
+完。
+
+编码_ptx_setp_eq_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 110、64。
+完。
+
+编码_ptx_setp_ne_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 111、64。
+完。
+
+编码_ptx_setp_lt_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 112、64。
+完。
+
+编码_ptx_setp_le_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 113、64。
+完。
+
+编码_ptx_setp_gt_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 114、64。
+完。
+
+编码_ptx_setp_ge_f64 接受 d、a、b：
+    返还 做 ptx_算术指令 用 115、64。
+完。
+
+编码_ptx_selp_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 120、32。
+完。
+
+编码_ptx_selp_s64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 120、64。
+完。
+
+编码_ptx_selp_f32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 120、34。
+完。
+
+编码_ptx_selp_f64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 120、66。
+完。
+
+编码_ptx_selp_b16 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 120、16。
+完。
+
+编码_ptx_selp_b32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 121、32。
+完。
+
+编码_ptx_selp_b64 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 121、64。
+完。
+
+编码_ptx_slct_f32_s32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 122、32。
+完。
+
+编码_ptx_slct_f32_u32 接受 d、a、b、c：
+    返还 做 ptx_算术指令 用 123、32。
+完。
+
+编码_ptx_ld_global_b8 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、1、8。
+完。
+
+编码_ptx_ld_global_b16 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、1、16。
+完。
+
+编码_ptx_ld_global_b32 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、1、32。
+完。
+
+编码_ptx_ld_global_b64 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、1、64。
+完。
+
+编码_ptx_ld_global_b128 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、1、128。
+完。
+
+编码_ptx_ld_shared_b8 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、2、8。
+完。
+
+编码_ptx_ld_shared_b16 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、2、16。
+完。
+
+编码_ptx_ld_shared_b32 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、2、32。
+完。
+
+编码_ptx_ld_shared_b64 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、2、64。
+完。
+
+编码_ptx_ld_local_b32 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、3、32。
+完。
+
+编码_ptx_ld_local_b64 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、3、64。
+完。
+
+编码_ptx_ld_const_b32 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、4、32。
+完。
+
+编码_ptx_ld_const_b64 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、4、64。
+完。
+
+编码_ptx_ld_param_b32 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、5、32。
+完。
+
+编码_ptx_ld_param_b64 接受 d、addr：
+    返还 做 ptx_内存指令 用 0、5、64。
+完。
+
+编码_ptx_st_global_b8 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、1、8。
+完。
+
+编码_ptx_st_global_b16 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、1、16。
+完。
+
+编码_ptx_st_global_b32 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、1、32。
+完。
+
+编码_ptx_st_global_b64 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、1、64。
+完。
+
+编码_ptx_st_global_b128 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、1、128。
+完。
+
+编码_ptx_st_shared_b8 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、2、8。
+完。
+
+编码_ptx_st_shared_b16 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、2、16。
+完。
+
+编码_ptx_st_shared_b32 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、2、32。
+完。
+
+编码_ptx_st_shared_b64 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、2、64。
+完。
+
+编码_ptx_st_local_b32 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、3、32。
+完。
+
+编码_ptx_st_local_b64 接受 addr、s：
+    返还 做 ptx_内存指令 用 1、3、64。
+完。
+
+编码_ptx_atom_global_add_s32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 2、1、32。
+完。
+
+编码_ptx_atom_global_add_u32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 3、1、32。
+完。
+
+编码_ptx_atom_global_add_u64 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 3、1、64。
+完。
+
+编码_ptx_atom_global_add_f32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 3、1、33。
+完。
+
+编码_ptx_atom_global_add_f64 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 3、1、65。
+完。
+
+编码_ptx_atom_global_min_s32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 4、1、32。
+完。
+
+编码_ptx_atom_global_min_u32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 5、1、32。
+完。
+
+编码_ptx_atom_global_max_s32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 6、1、32。
+完。
+
+编码_ptx_atom_global_max_u32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 7、1、32。
+完。
+
+编码_ptx_atom_global_and_b32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 8、1、32。
+完。
+
+编码_ptx_atom_global_or_b32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 9、1、32。
+完。
+
+编码_ptx_atom_global_xor_b32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 10、1、32。
+完。
+
+编码_ptx_atom_global_exch_b32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 11、1、32。
+完。
+
+编码_ptx_atom_global_exch_b64 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 11、1、64。
+完。
+
+编码_ptx_atom_global_cas_b32 接受 d、addr、b、c：
+    返还 做 ptx_内存指令 用 12、1、32。
+完。
+
+编码_ptx_atom_global_cas_b64 接受 d、addr、b、c：
+    返还 做 ptx_内存指令 用 12、1、64。
+完。
+
+编码_ptx_atom_global_inc_u32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 13、1、32。
+完。
+
+编码_ptx_atom_global_dec_u32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 14、1、32。
+完。
+
+编码_ptx_atom_shared_add_u32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 3、2、32。
+完。
+
+编码_ptx_atom_shared_add_f32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 3、2、33。
+完。
+
+编码_ptx_atom_shared_min_s32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 4、2、32。
+完。
+
+编码_ptx_atom_shared_max_s32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 6、2、32。
+完。
+
+编码_ptx_atom_shared_and_b32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 8、2、32。
+完。
+
+编码_ptx_atom_shared_or_b32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 9、2、32。
+完。
+
+编码_ptx_atom_shared_xor_b32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 10、2、32。
+完。
+
+编码_ptx_atom_shared_exch_b32 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 11、2、32。
+完。
+
+编码_ptx_atom_shared_cas_b32 接受 d、addr、b、c：
+    返还 做 ptx_内存指令 用 12、2、32。
+完。
+
+编码_ptx_red_global_add_u32 接受 addr、v：
+    返还 做 ptx_内存指令 用 15、1、32。
+完。
+
+编码_ptx_red_global_add_f32 接受 addr、v：
+    返还 做 ptx_内存指令 用 15、1、33。
+完。
+
+编码_ptx_red_global_min_s32 接受 addr、v：
+    返还 做 ptx_内存指令 用 16、1、32。
+完。
+
+编码_ptx_red_global_max_s32 接受 addr、v：
+    返还 做 ptx_内存指令 用 17、1、32。
+完。
+
+编码_ptx_red_global_and_b32 接受 addr、v：
+    返还 做 ptx_内存指令 用 18、1、32。
+完。
+
+编码_ptx_red_global_or_b32 接受 addr、v：
+    返还 做 ptx_内存指令 用 19、1、32。
+完。
+
+编码_ptx_red_global_xor_b32 接受 addr、v：
+    返还 做 ptx_内存指令 用 20、1、32。
+完。
+
+编码_ptx_prefetch_global_L1 接受 addr：
+    返还 做 ptx_内存指令 用 21、1、0。
+完。
+
+编码_ptx_prefetch_global_L2 接受 addr：
+    返还 做 ptx_内存指令 用 22、1、0。
+完。
+
+编码_ptx_prefetchu_L1 接受 addr：
+    返还 做 ptx_内存指令 用 23、0、0。
+完。
+
+编码_ptx_bra 接受 tgt：
+    返还 做 ptx_控制流指令 用 0。
+完。
+
+编码_ptx_bra_uni 接受 tgt：
+    返还 做 ptx_控制流指令 用 1。
+完。
+
+编码_ptx_call 接受 tgt：
+    返还 做 ptx_控制流指令 用 2。
+完。
+
+编码_ptx_call_uni 接受 tgt：
+    返还 做 ptx_控制流指令 用 3。
+完。
+
+编码_ptx_ret 接受 零参：
+    返还 做 ptx_控制流指令 用 4。
+完。
+
+编码_ptx_ret_uni 接受 零参：
+    返还 做 ptx_控制流指令 用 5。
+完。
+
+编码_ptx_exit 接受 零参：
+    返还 做 ptx_控制流指令 用 6。
+完。
+
+编码_ptx_trap 接受 零参：
+    返还 做 ptx_控制流指令 用 7。
+完。
+
+编码_ptx_brkpt 接受 零参：
+    返还 做 ptx_控制流指令 用 8。
+完。
+
+编码_ptx_bar_sync 接受 id：
+    返还 做 ptx_控制流指令 用 10。
+完。
+
+编码_ptx_bar_arrive 接受 id、cnt：
+    返还 做 ptx_控制流指令 用 11。
+完。
+
+编码_ptx_bar_red_and 接受 d、id、cnt、p：
+    返还 做 ptx_控制流指令 用 12。
+完。
+
+编码_ptx_bar_red_or 接受 d、id、cnt、p：
+    返还 做 ptx_控制流指令 用 13。
+完。
+
+编码_ptx_bar_red_popc 接受 d、id、cnt、p：
+    返还 做 ptx_控制流指令 用 14。
+完。
+
+编码_ptx_membar_cta 接受 零参：
+    返还 做 ptx_控制流指令 用 15。
+完。
+
+编码_ptx_membar_gl 接受 零参：
+    返还 做 ptx_控制流指令 用 16。
+完。
+
+编码_ptx_membar_sys 接受 零参：
+    返还 做 ptx_控制流指令 用 17。
+完。
+
+编码_ptx_fence_sc_cta 接受 零参：
+    返还 做 ptx_控制流指令 用 18。
+完。
+
+编码_ptx_fence_sc_gpu 接受 零参：
+    返还 做 ptx_控制流指令 用 19。
+完。
+
+编码_ptx_fence_sc_sys 接受 零参：
+    返还 做 ptx_控制流指令 用 20。
+完。
+
+编码_ptx_fence_acq_rel_cta 接受 零参：
+    返还 做 ptx_控制流指令 用 21。
+完。
+
+编码_ptx_fence_acq_rel_gpu 接受 零参：
+    返还 做 ptx_控制流指令 用 22。
+完。
+
+编码_ptx_fence_acq_rel_sys 接受 零参：
+    返还 做 ptx_控制流指令 用 23。
+完。
+
+编码_ptx_mov_b16 接受 d、a：
+    返还 做 ptx_杂项指令 用 0。
+完。
+
+编码_ptx_mov_b32 接受 d、a：
+    返还 做 ptx_杂项指令 用 1。
+完。
+
+编码_ptx_mov_b64 接受 d、a：
+    返还 做 ptx_杂项指令 用 2。
+完。
+
+编码_ptx_mov_u16 接受 d、a：
+    返还 做 ptx_杂项指令 用 3。
+完。
+
+编码_ptx_mov_u32 接受 d、a：
+    返还 做 ptx_杂项指令 用 4。
+完。
+
+编码_ptx_mov_u64 接受 d、a：
+    返还 做 ptx_杂项指令 用 5。
+完。
+
+编码_ptx_mov_f32 接受 d、a：
+    返还 做 ptx_杂项指令 用 6。
+完。
+
+编码_ptx_mov_f64 接受 d、a：
+    返还 做 ptx_杂项指令 用 7。
+完。
+
+编码_ptx_mov_pred 接受 d、a：
+    返还 做 ptx_杂项指令 用 8。
+完。
+
+编码_ptx_shfl_sync_up_b32 接受 d、a、b、c、mask：
+    返还 做 ptx_杂项指令 用 10。
+完。
+
+编码_ptx_shfl_sync_down_b32 接受 d、a、b、c、mask：
+    返还 做 ptx_杂项指令 用 11。
+完。
+
+编码_ptx_shfl_sync_bfly_b32 接受 d、a、b、c、mask：
+    返还 做 ptx_杂项指令 用 12。
+完。
+
+编码_ptx_shfl_sync_idx_b32 接受 d、a、b、c、mask：
+    返还 做 ptx_杂项指令 用 13。
+完。
+
+编码_ptx_vote_sync_all 接受 d、mask、p：
+    返还 做 ptx_杂项指令 用 14。
+完。
+
+编码_ptx_vote_sync_any 接受 d、mask、p：
+    返还 做 ptx_杂项指令 用 15。
+完。
+
+编码_ptx_vote_sync_uni 接受 d、mask、p：
+    返还 做 ptx_杂项指令 用 16。
+完。
+
+编码_ptx_vote_sync_ballot 接受 d、mask、p：
+    返还 做 ptx_杂项指令 用 17。
+完。
+
+编码_ptx_match_any_sync_b32 接受 d、mask、a：
+    返还 做 ptx_杂项指令 用 18。
+完。
+
+编码_ptx_match_all_sync_b32 接受 d、mask、a：
+    返还 做 ptx_杂项指令 用 19。
+完。
+
+编码_ptx_redux_sync_add_s32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 20。
+完。
+
+编码_ptx_redux_sync_min_s32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 21。
+完。
+
+编码_ptx_redux_sync_max_s32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 22。
+完。
+
+编码_ptx_redux_sync_add_u32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 23。
+完。
+
+编码_ptx_redux_sync_min_u32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 24。
+完。
+
+编码_ptx_redux_sync_max_u32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 25。
+完。
+
+编码_ptx_redux_sync_and_b32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 26。
+完。
+
+编码_ptx_redux_sync_or_b32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 27。
+完。
+
+编码_ptx_redux_sync_xor_b32 接受 d、a、mask：
+    返还 做 ptx_杂项指令 用 28。
+完。
+
+编码_ptx_activemask_b32 接受 d：
+    返还 做 ptx_杂项指令 用 29。
+完。
+
+编码_ptx_tex_1d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 0。
+完。
+
+编码_ptx_tex_1d_v4_s32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 1。
+完。
+
+编码_ptx_tex_1d_v4_u32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 2。
+完。
+
+编码_ptx_tex_2d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 3。
+完。
+
+编码_ptx_tex_2d_v4_s32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 4。
+完。
+
+编码_ptx_tex_2d_v4_u32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 5。
+完。
+
+编码_ptx_tex_3d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 6。
+完。
+
+编码_ptx_tex_3d_v4_s32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 7。
+完。
+
+编码_ptx_tex_3d_v4_u32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 8。
+完。
+
+编码_ptx_tex_a1d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 9。
+完。
+
+编码_ptx_tex_a2d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 10。
+完。
+
+编码_ptx_tex_cube_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 11。
+完。
+
+编码_ptx_tex_acube_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 12。
+完。
+
+编码_ptx_tld4_r_2d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 13。
+完。
+
+编码_ptx_tld4_g_2d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 14。
+完。
+
+编码_ptx_tld4_b_2d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 15。
+完。
+
+编码_ptx_tld4_a_2d_v4_f32_f32 接受 d、t、s：
+    返还 做 ptx_纹理指令 用 16。
+完。
+
+编码_ptx_txq_width 接受 d、t：
+    返还 做 ptx_纹理指令 用 17。
+完。
+
+编码_ptx_txq_height 接受 d、t：
+    返还 做 ptx_纹理指令 用 18。
+完。
+
+编码_ptx_txq_depth 接受 d、t：
+    返还 做 ptx_纹理指令 用 19。
+完。
+
+编码_ptx_txq_num_mipmap_levels 接受 d、t：
+    返还 做 ptx_纹理指令 用 20。
+完。
+
+编码_ptx_suld_b_1d_v4_b32 接受 d、s、x：
+    返还 做 ptx_纹理指令 用 21。
+完。
+
+编码_ptx_suld_b_2d_v4_b32 接受 d、s、x、y：
+    返还 做 ptx_纹理指令 用 22。
+完。
+
+编码_ptx_suld_b_3d_v4_b32 接受 d、s、x、y、z：
+    返还 做 ptx_纹理指令 用 23。
+完。
+
+编码_ptx_sust_b_1d_v4_b32 接受 s、x、v：
+    返还 做 ptx_纹理指令 用 24。
+完。
+
+编码_ptx_sust_b_2d_v4_b32 接受 s、x、y、v：
+    返还 做 ptx_纹理指令 用 25。
+完。
+
+编码_ptx_sust_b_3d_v4_b32 接受 s、x、y、z、v：
+    返还 做 ptx_纹理指令 用 26。
+完。
+
+编码_ptx_suq_width 接受 d、s：
+    返还 做 ptx_纹理指令 用 27。
+完。
+
+编码_ptx_suq_height 接受 d、s：
+    返还 做 ptx_纹理指令 用 28。
+完。
+
+编码_ptx_suq_depth 接受 d、s：
+    返还 做 ptx_纹理指令 用 29。
+完。
+
+编码_ptx_wmma_load_a_m16n16k16_f16 接受 d、addr：
+    返还 做 ptx_张量指令 用 0。
+完。
+
+编码_ptx_wmma_load_b_m16n16k16_f16 接受 d、addr：
+    返还 做 ptx_张量指令 用 1。
+完。
+
+编码_ptx_wmma_load_c_m16n16k16_f32 接受 d、addr：
+    返还 做 ptx_张量指令 用 2。
+完。
+
+编码_ptx_wmma_load_c_m16n16k16_f16 接受 d、addr：
+    返还 做 ptx_张量指令 用 3。
+完。
+
+编码_ptx_wmma_store_d_m16n16k16_f32 接受 addr、d：
+    返还 做 ptx_张量指令 用 4。
+完。
+
+编码_ptx_wmma_store_d_m16n16k16_f16 接受 addr、d：
+    返还 做 ptx_张量指令 用 5。
+完。
+
+编码_ptx_wmma_mma_m16n16k16_f32_f16 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 6。
+完。
+
+编码_ptx_wmma_mma_m16n16k16_f16_f16 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 7。
+完。
+
+编码_ptx_wmma_load_a_m8n32k16_f16 接受 d、addr：
+    返还 做 ptx_张量指令 用 8。
+完。
+
+编码_ptx_wmma_load_b_m8n32k16_f16 接受 d、addr：
+    返还 做 ptx_张量指令 用 9。
+完。
+
+编码_ptx_wmma_mma_m8n32k16_f32_f16 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 10。
+完。
+
+编码_ptx_wmma_load_a_m32n8k16_f16 接受 d、addr：
+    返还 做 ptx_张量指令 用 11。
+完。
+
+编码_ptx_wmma_load_b_m32n8k16_f16 接受 d、addr：
+    返还 做 ptx_张量指令 用 12。
+完。
+
+编码_ptx_wmma_mma_m32n8k16_f32_f16 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 13。
+完。
+
+编码_ptx_mma_m16n8k16_f32_f16 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 14。
+完。
+
+编码_ptx_mma_m16n8k8_f32_tf32 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 15。
+完。
+
+编码_ptx_mma_m16n8k16_s32_s8 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 16。
+完。
+
+编码_ptx_mma_m16n8k16_s32_u8 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 17。
+完。
+
+编码_ptx_mma_m16n8k32_s32_s8 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 18。
+完。
+
+编码_ptx_mma_m16n8k64_s32_s4 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 19。
+完。
+
+编码_ptx_mma_m16n8k256_s32_b1 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 20。
+完。
+
+编码_ptx_mma_m16n8k4_f32_f64 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 21。
+完。
+
+编码_ptx_mma_m16n8k16_f32_bf16 接受 d、a、b、c：
+    返还 做 ptx_张量指令 用 22。
+完。
+
+编码_ptx_ldmatrix_sync_x1_m8n8_b16 接受 d、addr：
+    返还 做 ptx_张量指令 用 30。
+完。
+
+编码_ptx_ldmatrix_sync_x2_m8n8_b16 接受 d、addr：
+    返还 做 ptx_张量指令 用 31。
+完。
+
+编码_ptx_ldmatrix_sync_x4_m8n8_b16 接受 d、addr：
+    返还 做 ptx_张量指令 用 32。
+完。
+
+编码_ptx_stmatrix_sync_x1_m8n8_b16 接受 addr、s：
+    返还 做 ptx_张量指令 用 33。
+完。
+
+编码_ptx_stmatrix_sync_x2_m8n8_b16 接受 addr、s：
+    返还 做 ptx_张量指令 用 34。
+完。
+
+编码_ptx_stmatrix_sync_x4_m8n8_b16 接受 addr、s：
+    返还 做 ptx_张量指令 用 35。
+完。
+
+编码_ptx_cp_async_ca_shared_global_4 接受 dst、src：
+    返还 做 ptx_张量指令 用 40。
+完。
+
+编码_ptx_cp_async_ca_shared_global_8 接受 dst、src：
+    返还 做 ptx_张量指令 用 41。
+完。
+
+编码_ptx_cp_async_ca_shared_global_16 接受 dst、src：
+    返还 做 ptx_张量指令 用 42。
+完。
+
+编码_ptx_cp_async_cg_shared_global_16 接受 dst、src：
+    返还 做 ptx_张量指令 用 43。
+完。
+
+编码_ptx_cp_async_commit_group 接受 零参：
+    返还 做 ptx_张量指令 用 44。
+完。
+
+编码_ptx_cp_async_wait_group 接受 n：
+    返还 做 ptx_张量指令 用 45。
+完。
+
+编码_ptx_cp_async_wait_all 接受 零参：
+    返还 做 ptx_张量指令 用 46。
+完。
+
+编码_ptx_mov_tid_x 接受 d：
+    返还 做 ptx_特殊指令 用 0。
+完。
+
+编码_ptx_mov_tid_y 接受 d：
+    返还 做 ptx_特殊指令 用 1。
+完。
+
+编码_ptx_mov_tid_z 接受 d：
+    返还 做 ptx_特殊指令 用 2。
+完。
+
+编码_ptx_mov_ntid_x 接受 d：
+    返还 做 ptx_特殊指令 用 3。
+完。
+
+编码_ptx_mov_ntid_y 接受 d：
+    返还 做 ptx_特殊指令 用 4。
+完。
+
+编码_ptx_mov_ntid_z 接受 d：
+    返还 做 ptx_特殊指令 用 5。
+完。
+
+编码_ptx_mov_ctaid_x 接受 d：
+    返还 做 ptx_特殊指令 用 6。
+完。
+
+编码_ptx_mov_ctaid_y 接受 d：
+    返还 做 ptx_特殊指令 用 7。
+完。
+
+编码_ptx_mov_ctaid_z 接受 d：
+    返还 做 ptx_特殊指令 用 8。
+完。
+
+编码_ptx_mov_nctaid_x 接受 d：
+    返还 做 ptx_特殊指令 用 9。
+完。
+
+编码_ptx_mov_nctaid_y 接受 d：
+    返还 做 ptx_特殊指令 用 10。
+完。
+
+编码_ptx_mov_nctaid_z 接受 d：
+    返还 做 ptx_特殊指令 用 11。
+完。
+
+编码_ptx_mov_laneid 接受 d：
+    返还 做 ptx_特殊指令 用 12。
+完。
+
+编码_ptx_mov_warpid 接受 d：
+    返还 做 ptx_特殊指令 用 13。
+完。
+
+编码_ptx_mov_nwarpid 接受 d：
+    返还 做 ptx_特殊指令 用 14。
+完。
+
+编码_ptx_mov_smid 接受 d：
+    返还 做 ptx_特殊指令 用 15。
+完。
+
+编码_ptx_mov_nsmid 接受 d：
+    返还 做 ptx_特殊指令 用 16。
+完。
+
+编码_ptx_mov_gridid 接受 d：
+    返还 做 ptx_特殊指令 用 17。
+完。
+
+编码_ptx_mov_clock 接受 d：
+    返还 做 ptx_特殊指令 用 18。
+完。
+
+编码_ptx_mov_clock64 接受 d：
+    返还 做 ptx_特殊指令 用 19。
+完。
+
+编码_ptx_mov_globaltimer 接受 d：
+    返还 做 ptx_特殊指令 用 20。
+完。
+
+编码_ptx_mov_pm0 接受 d：
+    返还 做 ptx_特殊指令 用 21。
+完。
+
+编码_ptx_mov_pm1 接受 d：
+    返还 做 ptx_特殊指令 用 22。
+完。
+
+编码_ptx_mov_pm2 接受 d：
+    返还 做 ptx_特殊指令 用 23。
+完。
+
+编码_ptx_mov_pm3 接受 d：
+    返还 做 ptx_特殊指令 用 24。
+完。
+
+编码_ptx_mov_lanemask_eq 接受 d：
+    返还 做 ptx_特殊指令 用 25。
+完。
+
+编码_ptx_mov_lanemask_le 接受 d：
+    返还 做 ptx_特殊指令 用 26。
+完。
+
+编码_ptx_mov_lanemask_lt 接受 d：
+    返还 做 ptx_特殊指令 用 27。
+完。
+
+编码_ptx_mov_lanemask_ge 接受 d：
+    返还 做 ptx_特殊指令 用 28。
+完。
+
+编码_ptx_mov_lanemask_gt 接受 d：
+    返还 做 ptx_特殊指令 用 29。
+完。
+
+编码_ptx_mov_dynamic_smem_size 接受 d：
+    返还 做 ptx_特殊指令 用 30。
+完。
+
+编码_ptx_mov_total_smem_size 接受 d：
+    返还 做 ptx_特殊指令 用 31。
+完。
+
+编码_ptx_wgmma_mma_async_m64n8k16_f32_f16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 50。
+完。
+
+编码_ptx_wgmma_mma_async_m64n16k16_f32_f16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 51。
+完。
+
+编码_ptx_wgmma_mma_async_m64n32k16_f32_f16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 52。
+完。
+
+编码_ptx_wgmma_mma_async_m64n64k16_f32_f16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 53。
+完。
+
+编码_ptx_wgmma_mma_async_m64n128k16_f32_f16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 54。
+完。
+
+编码_ptx_wgmma_mma_async_m64n256k16_f32_f16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 55。
+完。
+
+编码_ptx_wgmma_mma_async_m64n8k16_f32_bf16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 56。
+完。
+
+编码_ptx_wgmma_mma_async_m64n16k16_f32_bf16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 57。
+完。
+
+编码_ptx_wgmma_mma_async_m64n32k16_f32_bf16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 58。
+完。
+
+编码_ptx_wgmma_mma_async_m64n64k16_f32_bf16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 59。
+完。
+
+编码_ptx_wgmma_mma_async_m64n128k16_f32_bf16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 60。
+完。
+
+编码_ptx_wgmma_mma_async_m64n256k16_f32_bf16 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 61。
+完。
+
+编码_ptx_wgmma_mma_async_m64n8k8_f32_tf32 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 62。
+完。
+
+编码_ptx_wgmma_mma_async_m64n16k8_f32_tf32 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 63。
+完。
+
+编码_ptx_wgmma_mma_async_m64n32k8_f32_tf32 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 64。
+完。
+
+编码_ptx_wgmma_mma_async_m64n64k8_f32_tf32 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 65。
+完。
+
+编码_ptx_wgmma_mma_async_m64n128k8_f32_tf32 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 66。
+完。
+
+编码_ptx_wgmma_mma_async_m64n256k8_f32_tf32 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 67。
+完。
+
+编码_ptx_wgmma_mma_async_m64n32k32_s32_s8 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 68。
+完。
+
+编码_ptx_wgmma_mma_async_m64n64k32_s32_s8 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 69。
+完。
+
+编码_ptx_wgmma_mma_async_m64n128k32_s32_s8 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 70。
+完。
+
+编码_ptx_wgmma_mma_async_m64n256k32_s32_s8 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 71。
+完。
+
+编码_ptx_wgmma_fence_aligned 接受 零参：
+    返还 做 ptx_张量指令 用 72。
+完。
+
+编码_ptx_wgmma_commit_group_aligned 接受 零参：
+    返还 做 ptx_张量指令 用 73。
+完。
+
+编码_ptx_wgmma_wait_group_aligned 接受 n：
+    返还 做 ptx_张量指令 用 74。
+完。
+
+编码_ptx_wgmma_mma_async_m64n32k32_f32_e4m3 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 80。
+完。
+
+编码_ptx_wgmma_mma_async_m64n64k32_f32_e4m3 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 81。
+完。
+
+编码_ptx_wgmma_mma_async_m64n128k32_f32_e4m3 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 82。
+完。
+
+编码_ptx_wgmma_mma_async_m64n256k32_f32_e4m3 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 83。
+完。
+
+编码_ptx_wgmma_mma_async_m64n32k32_f32_e5m2 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 84。
+完。
+
+编码_ptx_wgmma_mma_async_m64n64k32_f32_e5m2 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 85。
+完。
+
+编码_ptx_wgmma_mma_async_m64n128k32_f32_e5m2 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 86。
+完。
+
+编码_ptx_wgmma_mma_async_m64n256k32_f32_e5m2 接受 d、adesc、bdesc：
+    返还 做 ptx_张量指令 用 87。
+完。
+
+编码_ptx_cp_async_bulk_tensor_1d_shared_global 接受 dst、src、mbar：
+    返还 做 ptx_张量指令 用 90。
+完。
+
+编码_ptx_cp_async_bulk_tensor_2d_shared_global 接受 dst、src、mbar：
+    返还 做 ptx_张量指令 用 91。
+完。
+
+编码_ptx_cp_async_bulk_tensor_3d_shared_global 接受 dst、src、mbar：
+    返还 做 ptx_张量指令 用 92。
+完。
+
+编码_ptx_cp_async_bulk_tensor_4d_shared_global 接受 dst、src、mbar：
+    返还 做 ptx_张量指令 用 93。
+完。
+
+编码_ptx_cp_async_bulk_tensor_5d_shared_global 接受 dst、src、mbar：
+    返还 做 ptx_张量指令 用 94。
+完。
+
+编码_ptx_cp_async_bulk_tensor_1d_global_shared 接受 dst、src：
+    返还 做 ptx_张量指令 用 95。
+完。
+
+编码_ptx_cp_async_bulk_tensor_2d_global_shared 接受 dst、src：
+    返还 做 ptx_张量指令 用 96。
+完。
+
+编码_ptx_cp_async_bulk_tensor_3d_global_shared 接受 dst、src：
+    返还 做 ptx_张量指令 用 97。
+完。
+
+编码_ptx_cp_async_bulk_shared_shared 接受 dst、src、mbar、sz：
+    返还 做 ptx_张量指令 用 98。
+完。
+
+编码_ptx_cp_async_bulk_global_shared 接受 dst、src、sz：
+    返还 做 ptx_张量指令 用 99。
+完。
+
+编码_ptx_cp_async_bulk_prefetch_tensor_1d 接受 src：
+    返还 做 ptx_张量指令 用 100。
+完。
+
+编码_ptx_cp_async_bulk_prefetch_tensor_2d 接受 src：
+    返还 做 ptx_张量指令 用 101。
+完。
+
+编码_ptx_cp_async_bulk_commit_group 接受 零参：
+    返还 做 ptx_张量指令 用 102。
+完。
+
+编码_ptx_cp_async_bulk_wait_group 接受 n：
+    返还 做 ptx_张量指令 用 103。
+完。
+
+编码_ptx_barrier_cluster_arrive 接受 零参：
+    返还 做 ptx_控制流指令 用 30。
+完。
+
+编码_ptx_barrier_cluster_wait 接受 零参：
+    返还 做 ptx_控制流指令 用 31。
+完。
+
+编码_ptx_mbarrier_init_shared 接受 addr、cnt：
+    返还 做 ptx_控制流指令 用 32。
+完。
+
+编码_ptx_mbarrier_arrive_shared 接受 addr：
+    返还 做 ptx_控制流指令 用 33。
+完。
+
+编码_ptx_mbarrier_arrive_expect_tx 接受 addr、tx：
+    返还 做 ptx_控制流指令 用 34。
+完。
+
+编码_ptx_mbarrier_try_wait_shared 接受 addr、phase：
+    返还 做 ptx_控制流指令 用 35。
+完。
+
+编码_ptx_mbarrier_try_wait_parity 接受 addr、ph：
+    返还 做 ptx_控制流指令 用 36。
+完。
+
+编码_ptx_mbarrier_test_wait 接受 d、addr、phase：
+    返还 做 ptx_控制流指令 用 37。
+完。
+
+编码_ptx_mbarrier_pending_count 接受 d、addr：
+    返还 做 ptx_控制流指令 用 38。
+完。
+
+编码_ptx_mbarrier_inval 接受 addr：
+    返还 做 ptx_控制流指令 用 39。
+完。
+
+编码_ptx_ld_shared_cluster_b32 接受 d、addr：
+    返还 做 ptx_内存指令 用 30、2、32。
+完。
+
+编码_ptx_ld_shared_cluster_b64 接受 d、addr：
+    返还 做 ptx_内存指令 用 30、2、64。
+完。
+
+编码_ptx_st_shared_cluster_b32 接受 addr、s：
+    返还 做 ptx_内存指令 用 31、2、32。
+完。
+
+编码_ptx_st_shared_cluster_b64 接受 addr、s：
+    返还 做 ptx_内存指令 用 31、2、64。
+完。
+
+编码_ptx_mapa_shared_cluster 接受 d、addr、rank：
+    返还 做 ptx_杂项指令 用 40。
+完。
+
+编码_ptx_getctarank 接受 d、addr：
+    返还 做 ptx_杂项指令 用 41。
+完。
+
+编码_ptx_cvt_e4m3x2_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 130、1。
+完。
+
+编码_ptx_cvt_e5m2x2_f32 接受 d、a、b：
+    返还 做 ptx_算术指令 用 131、1。
+完。
+
+编码_ptx_cvt_f32_e4m3 接受 d、a：
+    返还 做 ptx_算术指令 用 132、1。
+完。
+
+编码_ptx_cvt_f32_e5m2 接受 d、a：
+    返还 做 ptx_算术指令 用 133、1。
+完。
+
+编码_ptx_cvt_f16x2_e4m3x2 接受 d、a：
+    返还 做 ptx_算术指令 用 134、1。
+完。
+
+编码_ptx_cvt_f16x2_e5m2x2 接受 d、a：
+    返还 做 ptx_算术指令 用 135、1。
+完。
+
+编码_ptx_cvt_e4m3x2_f16x2 接受 d、a：
+    返还 做 ptx_算术指令 用 136、1。
+完。
+
+编码_ptx_cvt_e5m2x2_f16x2 接受 d、a：
+    返还 做 ptx_算术指令 用 137、1。
+完。
+
+编码_ptx_ld_global_nc_b32 接受 d、addr：
+    返还 做 ptx_内存指令 用 25、1、32。
+完。
+
+编码_ptx_ld_global_nc_b64 接受 d、addr：
+    返还 做 ptx_内存指令 用 25、1、64。
+完。
+
+编码_ptx_ld_global_nc_b128 接受 d、addr：
+    返还 做 ptx_内存指令 用 25、1、128。
+完。
+
+编码_ptx_multimem_ld_reduce_add_f32 接受 d、addr：
+    返还 做 ptx_内存指令 用 26、1、32。
+完。
+
+编码_ptx_multimem_ld_reduce_min_u32 接受 d、addr：
+    返还 做 ptx_内存指令 用 27、1、32。
+完。
+
+编码_ptx_multimem_ld_reduce_max_u32 接受 d、addr：
+    返还 做 ptx_内存指令 用 28、1、32。
+完。
+
+编码_ptx_multimem_st_global_b32 接受 addr、s：
+    返还 做 ptx_内存指令 用 29、1、32。
+完。
+
+编码_ptx_multimem_st_global_b64 接受 addr、s：
+    返还 做 ptx_内存指令 用 29、1、64。
+完。
+
+编码_ptx_ld_global_acquire_b32 接受 d、addr：
+    返还 做 ptx_内存指令 用 32、1、32。
+完。
+
+编码_ptx_ld_global_acquire_b64 接受 d、addr：
+    返还 做 ptx_内存指令 用 32、1、64。
+完。
+
+编码_ptx_st_global_release_b32 接受 addr、s：
+    返还 做 ptx_内存指令 用 33、1、32。
+完。
+
+编码_ptx_st_global_release_b64 接受 addr、s：
+    返还 做 ptx_内存指令 用 33、1、64。
+完。
+
+编码_ptx_atom_global_add_f16x2 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 3、1、17。
+完。
+
+编码_ptx_atom_global_add_bf16x2 接受 d、addr、v：
+    返还 做 ptx_内存指令 用 3、1、9。
+完。
+
+编码_ptx_red_global_add_f16x2 接受 addr、v：
+    返还 做 ptx_内存指令 用 15、1、17。
+完。
+
+编码_ptx_red_global_add_bf16x2 接受 addr、v：
+    返还 做 ptx_内存指令 用 15、1、9。
+完。
+
+编码_ptx_setmaxnreg_inc 接受 n：
+    返还 做 ptx_杂项指令 用 50。
+完。
+
+编码_ptx_setmaxnreg_dec 接受 n：
+    返还 做 ptx_杂项指令 用 51。
+完。
+
+编码_ptx_elect_sync 接受 d、mask：
+    返还 做 ptx_杂项指令 用 52。
+完。
+
+编码_ptx_stacksave_u32 接受 d：
+    返还 做 ptx_杂项指令 用 53。
+完。
+
+编码_ptx_stackrestore_u32 接受 a：
+    返还 做 ptx_杂项指令 用 54。
+完。
+
+编码_ptx_nanosleep 接受 ns：
+    返还 做 ptx_杂项指令 用 55。
+完。
+
+编码_ptx_isspacep_global 接受 d、addr：
+    返还 做 ptx_杂项指令 用 56。
+完。
+
+编码_ptx_isspacep_shared 接受 d、addr：
+    返还 做 ptx_杂项指令 用 57。
+完。
+
+编码_ptx_isspacep_local 接受 d、addr：
+    返还 做 ptx_杂项指令 用 58。
+完。
+
+编码_ptx_cvta_global_u64 接受 d、a：
+    返还 做 ptx_杂项指令 用 59。
+完。
+
+编码_ptx_cvta_shared_u64 接受 d、a：
+    返还 做 ptx_杂项指令 用 60。
+完。
+
+编码_ptx_cvta_local_u64 接受 d、a：
+    返还 做 ptx_杂项指令 用 61。
+完。
+
+编码_ptx_cvta_to_global_u64 接受 d、a：
+    返还 做 ptx_杂项指令 用 62。
+完。
+
+编码_ptx_cvta_to_shared_u64 接受 d、a：
+    返还 做 ptx_杂项指令 用 63。
+完。
+
+编码_ptx_cvta_to_local_u64 接受 d、a：
+    返还 做 ptx_杂项指令 用 64。
+完。
+
+本章 收束。

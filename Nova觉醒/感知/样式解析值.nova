@@ -1,0 +1,318 @@
+《样式解析值》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+CSS值_关键字 为 1。
+
+CSS值_数字 为 2。
+
+CSS值_百分比 为 3。
+
+CSS值_长度 为 4。
+
+CSS值_颜色 为 5。
+
+CSS值_字符串 为 6。
+
+CSS值_URL 为 7。
+
+CSS值_函数 为 8。
+
+CSS值_列表 为 9。
+
+CSS值_对 为 10。
+
+CSS值_图像 为 11。
+
+CSS值_角度 为 12。
+
+CSS值_时间 为 13。
+
+CSS值_分辨率 为 14。
+
+CSS值_自定义属性 为 15。
+
+单位_px 为 1。
+
+单位_em 为 2。
+
+单位_rem 为 3。
+
+单位_vw 为 4。
+
+单位_vh 为 5。
+
+单位_vmin 为 6。
+
+单位_vmax 为 7。
+
+单位_pt 为 8。
+
+单位_pc 为 9。
+
+单位_in 为 10。
+
+单位_cm 为 11。
+
+单位_mm 为 12。
+
+单位_ch 为 13。
+
+单位_ex 为 14。
+
+单位_百分比 为 15。
+
+单位_无 为 0。
+
+关键字_inherit 为 1。
+
+关键字_initial 为 2。
+
+关键字_unset 为 3。
+
+关键字_revert 为 4。
+
+关键字_auto 为 5。
+
+关键字_none 为 6。
+
+关键字_normal 为 7。
+
+关键字_bold 为 8。
+
+关键字_italic 为 9。
+
+关键字_oblique 为 10。
+
+关键字_underline 为 11。
+
+关键字_overline 为 12。
+
+关键字_line_through 为 13。
+
+关键字_capitalize 为 14。
+
+关键字_uppercase 为 15。
+
+关键字_lowercase 为 16。
+
+关键字_nowrap 为 17。
+
+关键字_pre 为 18。
+
+关键字_pre_wrap 为 19。
+
+关键字_pre_line 为 20。
+
+关键字_break_word 为 21。
+
+关键字_hidden 为 22。
+
+关键字_visible 为 23。
+
+关键字_collapse 为 24。
+
+关键字_scroll 为 25。
+
+关键字_fixed 为 26。
+
+关键字_local 为 27。
+
+关键字_cover 为 28。
+
+关键字_contain 为 29。
+
+关键字_transparent 为 30。
+
+关键字_currentColor 为 31。
+
+关键字_solid 为 32。
+
+关键字_dashed 为 33。
+
+关键字_dotted 为 34。
+
+关键字_double 为 35。
+
+关键字_groove 为 36。
+
+关键字_ridge 为 37。
+
+关键字_inset 为 38。
+
+关键字_outset 为 39。
+
+关键字_thin 为 40。
+
+关键字_medium 为 41。
+
+关键字_thick 为 42。
+
+关键字_left 为 43。
+
+关键字_right 为 44。
+
+关键字_center 为 45。
+
+关键字_justify 为 46。
+
+关键字_top 为 47。
+
+关键字_bottom 为 48。
+
+关键字_middle 为 49。
+
+关键字_baseline 为 50。
+
+关键字_static 为 51。
+
+关键字_relative 为 52。
+
+关键字_absolute 为 53。
+
+关键字_sticky 为 54。
+
+关键字_block 为 55。
+
+关键字_inline 为 56。
+
+关键字_inline_block 为 57。
+
+关键字_flex 为 58。
+
+关键字_inline_flex 为 59。
+
+关键字_grid 为 60。
+
+关键字_inline_grid 为 61。
+
+关键字_table 为 62。
+
+关键字_table_row 为 63。
+
+关键字_table_cell 为 64。
+
+关键字_list_item 为 65。
+
+关键字_row 为 66。
+
+关键字_column 为 67。
+
+关键字_row_reverse 为 68。
+
+关键字_column_reverse 为 69。
+
+关键字_wrap 为 70。
+
+关键字_nowrap2 为 71。
+
+关键字_wrap_reverse 为 72。
+
+关键字_flex_start 为 73。
+
+关键字_flex_end 为 74。
+
+关键字_space_between 为 75。
+
+关键字_space_around 为 76。
+
+关键字_space_evenly 为 77。
+
+关键字_stretch 为 78。
+
+关键字_pointer 为 79。
+
+关键字_text2 为 80。
+
+关键字_wait 为 81。
+
+关键字_not_allowed 为 82。
+
+关键字_grab 为 83。
+
+关键字_grabbing 为 84。
+
+关键字_border_box 为 85。
+
+关键字_padding_box 为 86。
+
+关键字_content_box 为 87。
+
+关键字_repeat 为 88。
+
+关键字_no_repeat 为 89。
+
+关键字_repeat_x 为 90。
+
+关键字_repeat_y 为 91。
+
+关键字_round 为 92。
+
+关键字_space 为 93。
+
+关键字_ease 为 94。
+
+关键字_ease_in 为 95。
+
+关键字_ease_out 为 96。
+
+关键字_ease_in_out 为 97。
+
+关键字_linear 为 98。
+
+关键字_step_start 为 99。
+
+关键字_step_end 为 100。
+
+关键字_forwards 为 101。
+
+关键字_backwards 为 102。
+
+关键字_both 为 103。
+
+关键字_infinite 为 104。
+
+关键字_alternate 为 105。
+
+关键字_alternate_reverse 为 106。
+
+关键字_running 为 107。
+
+关键字_paused 为 108。
+
+CSSParsedValue 是 一种 事物，含 类型、整数值、单位、关键字ID、颜色值、字符串、字符串长度、子值列表、子值数量。
+
+CSSParsedValue_创建 接受 类型：
+    v 为 做 堆_分配 用 CSSParsedValue。
+    v 的 类型 为 类型。
+    v 的 整数值 为 0。
+    v 的 单位 为 单位_无。
+    v 的 关键字ID 为 0。
+    v 的 颜色值 为 0。
+    v 的 字符串 为 0。
+    v 的 字符串长度 为 0。
+    v 的 子值列表 为 0。
+    v 的 子值数量 为 0。
+    返还 v。
+完。
+
+可变 AI_样式解析值_样式缓存命中 为 0。
+
+AI_样式解析值_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+        返还 「高复杂度」。
+    完。
+    若 组合子数 大于 2：
+        返还 「中复杂度」。
+    完。
+    返还 「低复杂度」。
+完。
+
+AI_样式解析值_布局缓存 接受 元素哈希：
+    AI_样式解析值_样式缓存命中 为 AI_样式解析值_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。

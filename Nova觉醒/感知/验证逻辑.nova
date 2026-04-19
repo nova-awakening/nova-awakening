@@ -1,0 +1,694 @@
+《验证逻辑》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+FormValidation_验证 接受 约束：
+    若 约束 等于 0：
+        返还 0。
+    完。
+    vs 为 做 ValidityState_创建。
+    若 约束 的 disabled 或者 约束 的 类型 等于 INPUT_HIDDEN 或者 约束 的 类型 等于 INPUT_SUBMIT：
+        返还 vs。
+    完。
+    若 约束 的 required：
+        若 约束 的 类型 等于 INPUT_CHECKBOX：
+            vs 的 valueMissing 为 非 约束 的 checked。
+        否则若 约束 的 类型 等于 INPUT_RADIO：
+            vs 的 valueMissing 为 非 约束 的 checked 并且 非 做 Radio_同名组已选中 用 约束 的 表单、约束 的 名称。
+        否则若 约束 的 类型 等于 INPUT_FILE：
+            vs 的 valueMissing 为 约束 的 值 等于 0。
+        否则：
+            vs 的 valueMissing 为 约束 的 值 等于 0 或者 约束 的 值长度 等于 0。
+        完。
+    完。
+    若 约束 的 值 不等于 0 并且 约束 的 值长度 大于 0：
+        若 约束 的 类型 等于 INPUT_EMAIL：
+            vs 的 typeMismatch 为 非 做 FormValidation_是有效邮件 用 约束 的 值、约束 的 值长度。
+        否则若 约束 的 类型 等于 INPUT_URL：
+            vs 的 typeMismatch 为 非 做 FormValidation_是有效URL 用 约束 的 值、约束 的 值长度。
+        完。
+    完。
+    若 约束 的 pattern 不等于 0 并且 约束 的 值 不等于 0 并且 约束 的 值长度 大于 0：
+        vs 的 patternMismatch 为 非 做 FormValidation_匹配pattern 用 约束 的 值、约束 的 pattern。
+    完。
+    若 约束 的 值 不等于 0：
+        若 约束 的 maxlength 大于或等于 0 并且 约束 的 值长度 大于 约束 的 maxlength：
+            vs 的 tooLong 为 真。
+        完。
+        若 约束 的 minlength 大于或等于 0 并且 约束 的 值长度 大于 0 并且 约束 的 值长度 小于 约束 的 minlength：
+            vs 的 tooShort 为 真。
+        完。
+    完。
+    若 约束 的 类型 等于 INPUT_NUMBER 或者 约束 的 类型 等于 INPUT_RANGE 或者 约束 的 类型 等于 INPUT_DATE 或者 约束 的 类型 等于 INPUT_TIME：
+        若 约束 的 值 不等于 0 并且 约束 的 值长度 大于 0：
+            数值 为 做 FormValidation_解析数值 用 约束 的 值、约束 的 类型。
+            若 约束 的 min 不等于 负 1 并且 数值 小于 约束 的 min：
+                vs 的 rangeUnderflow 为 真。
+            完。
+            若 约束 的 max 不等于 负 1 并且 数值 大于 约束 的 max：
+                vs 的 rangeOverflow 为 真。
+            完。
+            若 约束 的 step 大于 0 并且 约束 的 min 不等于 负 1：
+                diff 为 数值 减 约束 的 min。
+                余 为 diff 取余于 约束 的 step。
+                若 余 不等于 0：
+                    vs 的 stepMismatch 为 真。
+                完。
+            完。
+        完。
+    完。
+    若 约束 的 类型 等于 INPUT_NUMBER 并且 约束 的 值 不等于 0 并且 约束 的 值长度 大于 0：
+        vs 的 badInput 为 非 做 FormValidation_是有效数字 用 约束 的 值、约束 的 值长度。
+    完。
+    若 约束 的 custom错误 不等于 0 并且 做 字节长度 用 约束 的 custom错误 大于 0：
+        vs 的 custom错误 为 真。
+    完。
+    做 ValidityState_更新valid 用 vs。
+    返还 vs。
+完。
+
+FormValidation_是有效邮件 接受 值、长度：
+    若 值 等于 0 或者 长度 等于 0：
+        返还 假。
+    完。
+    可变 at位置 为 负 1。
+    可变 dot后at 为 假。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        ch 为 做 字节取 用 值、i。
+        若 ch 等于 64：
+            若 at位置 大于或等于 0：
+                返还 假。
+            完。
+            at位置 为 i。
+        完。
+        若 ch 等于 46 并且 at位置 大于或等于 0：
+            dot后at 为 真。
+        完。
+        i 为 i 加 1。
+    完。
+    若 at位置 小于或等于 0：
+        返还 假。
+    完。
+    若 at位置 大于或等于 长度 减 1：
+        返还 假。
+    完。
+    若 非 dot后at：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+FormValidation_是有效URL 接受 值、长度：
+    若 值 等于 0 或者 长度 小于 8：
+        返还 假。
+    完。
+    若 做 字符串_以开头 用 值、「http://」 或者 做 字符串_以开头 用 值、「https://」：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+FormValidation_是有效数字 接受 值、长度：
+    若 值 等于 0 或者 长度 等于 0：
+        返还 假。
+    完。
+    可变 有数字 为 假。
+    可变 有点 为 假。
+    可变 i 为 0。
+    若 做 字节取 用 值、0 等于 45 或者 做 字节取 用 值、0 等于 43：
+        i 为 1。
+    完。
+    只要 i 小于 长度：
+        ch 为 做 字节取 用 值、i。
+        若 ch 大于或等于 48 并且 ch 小于或等于 57：
+            有数字 为 真。
+        否则若 ch 等于 46 并且 非 有点：
+            有点 为 真。
+        否则若 ch 等于 101 或者 ch 等于 69：
+        否则：
+            返还 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 有数字。
+完。
+
+FormValidation_匹配pattern 接受 值、pattern：
+    若 值 等于 0 或者 pattern 等于 0：
+        返还 真。
+    完。
+    返还 做 RegExp_全匹配 用 值、pattern。
+完。
+
+FormValidation_解析数值 接受 值、类型：
+    若 值 等于 0：
+        返还 0。
+    完。
+    若 类型 等于 INPUT_DATE：
+        返还 做 FormValidation_解析日期值 用 值。
+    完。
+    若 类型 等于 INPUT_TIME：
+        返还 做 FormValidation_解析时间值 用 值。
+    完。
+    返还 做 转整数 用 值 乘 1024。
+完。
+
+INPUT_TEXT 为 0。
+
+INPUT_PASSWORD 为 1。
+
+INPUT_EMAIL 为 2。
+
+INPUT_URL 为 3。
+
+INPUT_NUMBER 为 4。
+
+INPUT_RANGE 为 5。
+
+INPUT_DATE 为 6。
+
+INPUT_TIME 为 7。
+
+INPUT_CHECKBOX 为 8。
+
+INPUT_RADIO 为 9。
+
+INPUT_FILE 为 10。
+
+INPUT_HIDDEN 为 11。
+
+INPUT_SUBMIT 为 12。
+
+INPUT_RESET 为 13。
+
+INPUT_BUTTON 为 14。
+
+INPUT_TEL 为 15。
+
+INPUT_SEARCH 为 16。
+
+INPUT_COLOR 为 17。
+
+INPUT_DATETIME_LOCAL 为 18。
+
+INPUT_MONTH 为 19。
+
+INPUT_WEEK 为 20。
+
+INPUT_IMAGE 为 21。
+
+FormValidation_输入类型名 接受 类型：
+    若 类型 等于 INPUT_TEXT：
+        返还 「text」。
+    完。
+    若 类型 等于 INPUT_PASSWORD：
+        返还 「password」。
+    完。
+    若 类型 等于 INPUT_EMAIL：
+        返还 「email」。
+    完。
+    若 类型 等于 INPUT_URL：
+        返还 「url」。
+    完。
+    若 类型 等于 INPUT_NUMBER：
+        返还 「number」。
+    完。
+    若 类型 等于 INPUT_RANGE：
+        返还 「range」。
+    完。
+    若 类型 等于 INPUT_DATE：
+        返还 「date」。
+    完。
+    若 类型 等于 INPUT_TIME：
+        返还 「time」。
+    完。
+    若 类型 等于 INPUT_CHECKBOX：
+        返还 「checkbox」。
+    完。
+    若 类型 等于 INPUT_RADIO：
+        返还 「radio」。
+    完。
+    若 类型 等于 INPUT_FILE：
+        返还 「file」。
+    完。
+    若 类型 等于 INPUT_HIDDEN：
+        返还 「hidden」。
+    完。
+    若 类型 等于 INPUT_SUBMIT：
+        返还 「submit」。
+    完。
+    若 类型 等于 INPUT_TEL：
+        返还 「tel」。
+    完。
+    若 类型 等于 INPUT_SEARCH：
+        返还 「search」。
+    完。
+    若 类型 等于 INPUT_COLOR：
+        返还 「color」。
+    完。
+    返还 「unknown」。
+完。
+
+FormValidation_需要验证的类型 接受 类型：
+    若 类型 等于 INPUT_HIDDEN：
+        返还 假。
+    完。
+    若 类型 等于 INPUT_SUBMIT：
+        返还 假。
+    完。
+    若 类型 等于 INPUT_RESET：
+        返还 假。
+    完。
+    若 类型 等于 INPUT_BUTTON：
+        返还 假。
+    完。
+    若 类型 等于 INPUT_IMAGE：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+ValidityState 是 一种 事物，含 valueMissing、typeMismatch、patternMismatch、tooLong、tooShort、rangeUnderflow、rangeOverflow、stepMismatch、badInput、custom错误、valid。
+
+ValidityState_创建 接受 零参：
+    vs 为 新建 ValidityState。
+    vs 的 valueMissing 为 假。
+    vs 的 typeMismatch 为 假。
+    vs 的 patternMismatch 为 假。
+    vs 的 tooLong 为 假。
+    vs 的 tooShort 为 假。
+    vs 的 rangeUnderflow 为 假。
+    vs 的 rangeOverflow 为 假。
+    vs 的 stepMismatch 为 假。
+    vs 的 badInput 为 假。
+    vs 的 custom错误 为 假。
+    vs 的 valid 为 真。
+    返还 vs。
+完。
+
+ValidityState_更新valid 接受 vs：
+    vs 的 valid 为 非 vs 的 valueMissing 并且 非 vs 的 typeMismatch 并且 非 vs 的 patternMismatch 并且 非 vs 的 tooLong 并且 非 vs 的 tooShort 并且 非 vs 的 rangeUnderflow 并且 非 vs 的 rangeOverflow 并且 非 vs 的 stepMismatch 并且 非 vs 的 badInput 并且 非 vs 的 custom错误。
+完。
+
+ValidityState_第一个错误 接受 vs：
+    若 vs 的 valueMissing：
+        返还 「valueMissing」。
+    完。
+    若 vs 的 typeMismatch：
+        返还 「typeMismatch」。
+    完。
+    若 vs 的 patternMismatch：
+        返还 「patternMismatch」。
+    完。
+    若 vs 的 tooLong：
+        返还 「tooLong」。
+    完。
+    若 vs 的 tooShort：
+        返还 「tooShort」。
+    完。
+    若 vs 的 rangeUnderflow：
+        返还 「rangeUnderflow」。
+    完。
+    若 vs 的 rangeOverflow：
+        返还 「rangeOverflow」。
+    完。
+    若 vs 的 stepMismatch：
+        返还 「stepMismatch」。
+    完。
+    若 vs 的 badInput：
+        返还 「badInput」。
+    完。
+    若 vs 的 custom错误：
+        返还 「customError」。
+    完。
+    返还 「」。
+完。
+
+ValidityState_错误数 接受 vs：
+    可变 数 为 0。
+    若 vs 的 valueMissing：
+        数 为 数 加 1。
+    完。
+    若 vs 的 typeMismatch：
+        数 为 数 加 1。
+    完。
+    若 vs 的 patternMismatch：
+        数 为 数 加 1。
+    完。
+    若 vs 的 tooLong：
+        数 为 数 加 1。
+    完。
+    若 vs 的 tooShort：
+        数 为 数 加 1。
+    完。
+    若 vs 的 rangeUnderflow：
+        数 为 数 加 1。
+    完。
+    若 vs 的 rangeOverflow：
+        数 为 数 加 1。
+    完。
+    若 vs 的 stepMismatch：
+        数 为 数 加 1。
+    完。
+    若 vs 的 badInput：
+        数 为 数 加 1。
+    完。
+    若 vs 的 custom错误：
+        数 为 数 加 1。
+    完。
+    返还 数。
+完。
+
+FormValidation_默认错误消息 接受 vs、约束：
+    若 vs 的 valueMissing：
+        若 约束 的 类型 等于 INPUT_CHECKBOX：
+            返还 「请勾选此复选框」。
+        完。
+        若 约束 的 类型 等于 INPUT_RADIO：
+            返还 「请从中选择一项」。
+        完。
+        若 约束 的 类型 等于 INPUT_FILE：
+            返还 「请选择一个文件」。
+        完。
+        返还 「请填写此字段」。
+    完。
+    若 vs 的 typeMismatch：
+        若 约束 的 类型 等于 INPUT_EMAIL：
+            返还 「请输入有效的电子邮件地址」。
+        完。
+        若 约束 的 类型 等于 INPUT_URL：
+            返还 「请输入有效的URL」。
+        完。
+        返还 「类型不匹配」。
+    完。
+    若 vs 的 patternMismatch：
+        若 约束 的 title 不等于 0：
+            返还 约束 的 title。
+        完。
+        返还 「请匹配所需的格式」。
+    完。
+    若 vs 的 tooLong：
+        返还 「请将值缩短到」 加 做 整数转字符串 用 约束 的 maxlength 加 「个字符以内（当前为」 加 做 整数转字符串 用 约束 的 值长度 加 「个字符）」。
+    完。
+    若 vs 的 tooShort：
+        返还 「请将值扩展到至少」 加 做 整数转字符串 用 约束 的 minlength 加 「个字符（当前为」 加 做 整数转字符串 用 约束 的 值长度 加 「个字符）」。
+    完。
+    若 vs 的 rangeUnderflow：
+        返还 「值必须大于或等于」 加 做 整数转字符串 用 约束 的 min。
+    完。
+    若 vs 的 rangeOverflow：
+        返还 「值必须小于或等于」 加 做 整数转字符串 用 约束 的 max。
+    完。
+    若 vs 的 stepMismatch：
+        返还 「请输入有效值，最近的两个值是」 加 做 整数转字符串 用 约束 的 min 加 「和」 加 做 整数转字符串 用 约束 的 min 加 约束 的 step。
+    完。
+    若 vs 的 badInput：
+        返还 「请输入有效的数字」。
+    完。
+    若 vs 的 custom错误：
+        返还 约束 的 custom错误。
+    完。
+    返还 「」。
+完。
+
+FormValidation_解析日期值 接受 值：
+    若 值 等于 0：
+        返还 0。
+    完。
+    长度 为 做 字节长度 用 值。
+    若 长度 小于 10：
+        返还 0。
+    完。
+    年 为 做 FormValidation_解析整数段 用 值、0、4。
+    月 为 做 FormValidation_解析整数段 用 值、5、7。
+    日 为 做 FormValidation_解析整数段 用 值、8、10。
+    返还 年 乘 10000 加 月 乘 100 加 日。
+完。
+
+FormValidation_解析时间值 接受 值：
+    若 值 等于 0：
+        返还 0。
+    完。
+    长度 为 做 字节长度 用 值。
+    若 长度 小于 5：
+        返还 0。
+    完。
+    时 为 做 FormValidation_解析整数段 用 值、0、2。
+    分 为 做 FormValidation_解析整数段 用 值、3、5。
+    返还 时 乘 60 加 分。
+完。
+
+FormValidation_解析整数段 接受 值、起始、结束：
+    可变 结果 为 0。
+    可变 i 为 起始。
+    只要 i 小于 结束：
+        ch 为 做 字节取 用 值、i。
+        若 ch 大于或等于 48 并且 ch 小于或等于 57：
+            结果 为 结果 乘 10 加 (ch 减 48)。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+FormValidation_是有效日期 接受 年、月、日：
+    若 月 小于 1 或者 月 大于 12：
+        返还 假。
+    完。
+    若 日 小于 1：
+        返还 假。
+    完。
+    可变 天数 为 31。
+    若 月 等于 2：
+        若 做 FormValidation_是闰年 用 年：
+            天数 为 29。
+        否则：
+            天数 为 28。
+        完。
+    否则若 月 等于 4 或者 月 等于 6 或者 月 等于 9 或者 月 等于 11：
+        天数 为 30。
+    完。
+    返还 日 小于或等于 天数。
+完。
+
+FormValidation_是闰年 接受 年：
+    若 年 取余于 400 等于 0：
+        返还 真。
+    完。
+    若 年 取余于 100 等于 0：
+        返还 假。
+    完。
+    返还 年 取余于 4 等于 0。
+完。
+
+FormValidation_是有效时间 接受 时、分：
+    返还 时 大于或等于 0 并且 时 小于或等于 23 并且 分 大于或等于 0 并且 分 小于或等于 59。
+完。
+
+FormValidation_是有效电话 接受 值、长度：
+    若 值 等于 0 或者 长度 等于 0：
+        返还 假。
+    完。
+    可变 数字数 为 0。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        ch 为 做 字节取 用 值、i。
+        若 ch 大于或等于 48 并且 ch 小于或等于 57：
+            数字数 为 数字数 加 1。
+        否则若 ch 等于 43 并且 i 等于 0：
+        否则若 ch 等于 45 或者 ch 等于 32 或者 ch 等于 40 或者 ch 等于 41：
+        否则：
+            返还 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 数字数 大于或等于 7 并且 数字数 小于或等于 15。
+完。
+
+FormValidation_是有效颜色 接受 值、长度：
+    若 值 等于 0 或者 长度 不等于 7：
+        返还 假。
+    完。
+    若 做 字节取 用 值、0 不等于 35：
+        返还 假。
+    完。
+    可变 i 为 1。
+    只要 i 小于 7：
+        ch 为 做 字节取 用 值、i。
+        若 非 (ch 大于或等于 48 并且 ch 小于或等于 57 或者 ch 大于或等于 65 并且 ch 小于或等于 70 或者 ch 大于或等于 97 并且 ch 小于或等于 102)：
+            返还 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+FormValidation_是有效月份 接受 值、长度：
+    若 值 等于 0 或者 长度 小于 7：
+        返还 假。
+    完。
+    月 为 做 FormValidation_解析整数段 用 值、5、7。
+    返还 月 大于或等于 1 并且 月 小于或等于 12。
+完。
+
+可变 验证_总次数 为 0。
+
+可变 验证_成功次数 为 0。
+
+可变 验证_失败次数 为 0。
+
+可变 验证_valueMissing计数 为 0。
+
+可变 验证_typeMismatch计数 为 0。
+
+可变 验证_patternMismatch计数 为 0。
+
+可变 验证_tooLong计数 为 0。
+
+可变 验证_tooShort计数 为 0。
+
+可变 验证_rangeError计数 为 0。
+
+FormValidation_记录结果 接受 vs：
+    验证_总次数 为 验证_总次数 加 1。
+    若 vs 的 valid：
+        验证_成功次数 为 验证_成功次数 加 1。
+    否则：
+        验证_失败次数 为 验证_失败次数 加 1。
+    完。
+    若 vs 的 valueMissing：
+        验证_valueMissing计数 为 验证_valueMissing计数 加 1。
+    完。
+    若 vs 的 typeMismatch：
+        验证_typeMismatch计数 为 验证_typeMismatch计数 加 1。
+    完。
+    若 vs 的 patternMismatch：
+        验证_patternMismatch计数 为 验证_patternMismatch计数 加 1。
+    完。
+    若 vs 的 tooLong：
+        验证_tooLong计数 为 验证_tooLong计数 加 1。
+    完。
+    若 vs 的 tooShort：
+        验证_tooShort计数 为 验证_tooShort计数 加 1。
+    完。
+    若 vs 的 rangeUnderflow 或者 vs 的 rangeOverflow：
+        验证_rangeError计数 为 验证_rangeError计数 加 1。
+    完。
+完。
+
+FormValidation_统计 接受 零参：
+    返还 一本字典：总次数 对应 验证_总次数、成功 对应 验证_成功次数、失败 对应 验证_失败次数、成功率 对应 做 FormValidation_成功率、valueMissing 对应 验证_valueMissing计数、typeMismatch 对应 验证_typeMismatch计数、patternMismatch 对应 验证_patternMismatch计数、tooLong 对应 验证_tooLong计数、tooShort 对应 验证_tooShort计数、rangeError 对应 验证_rangeError计数。
+完。
+
+FormValidation_成功率 接受 零参：
+    若 验证_总次数 等于 0：
+        返还 0。
+    完。
+    返还 验证_成功次数 乘 100 除以 验证_总次数。
+完。
+
+FormValidation_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 验证_总次数 大于 100 并且 验证_失败次数 大于 验证_成功次数：
+        做 追加 用 问题、「表单验证失败率过高: 」 加 做 整数转字符串 用 100 减 做 FormValidation_成功率 加 「%」。
+    完。
+    若 验证_valueMissing计数 大于 验证_总次数 除以 2 并且 验证_总次数 大于 50：
+        做 追加 用 问题、「大量必填项未填: 可能需要改善UI提示」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「表单验证健康」。
+    完。
+    返还 问题。
+完。
+
+FormValidation_重置统计 接受 零参：
+    验证_总次数 为 0。
+    验证_成功次数 为 0。
+    验证_失败次数 为 0。
+    验证_valueMissing计数 为 0。
+    验证_typeMismatch计数 为 0。
+    验证_patternMismatch计数 为 0。
+    验证_tooLong计数 为 0。
+    验证_tooShort计数 为 0。
+    验证_rangeError计数 为 0。
+完。
+
+FormValidation_最常见错误 接受 零参：
+    可变 最大 为 验证_valueMissing计数。
+    可变 名称 为 「valueMissing」。
+    若 验证_typeMismatch计数 大于 最大：
+        最大 为 验证_typeMismatch计数。
+        名称 为 「typeMismatch」。
+    完。
+    若 验证_patternMismatch计数 大于 最大：
+        最大 为 验证_patternMismatch计数。
+        名称 为 「patternMismatch」。
+    完。
+    若 验证_tooLong计数 大于 最大：
+        最大 为 验证_tooLong计数。
+        名称 为 「tooLong」。
+    完。
+    若 验证_tooShort计数 大于 最大：
+        最大 为 验证_tooShort计数。
+        名称 为 「tooShort」。
+    完。
+    若 验证_rangeError计数 大于 最大：
+        最大 为 验证_rangeError计数。
+        名称 为 「rangeError」。
+    完。
+    返还 名称。
+完。
+
+FormValidation_验证表单 接受 控件列表：
+    可变 结果 为 一组：（空）。
+    可变 所有valid 为 真。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 控件列表：
+        vs 为 做 FormValidation_验证 用 控件列表 的 第 i 项。
+        做 FormValidation_记录结果 用 vs。
+        做 追加 用 结果、vs。
+        若 非 vs 的 valid：
+            所有valid 为 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 一本字典：结果列表 对应 结果、所有有效 对应 所有valid。
+完。
+
+FormValidation_第一个无效控件索引 接受 控件列表：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 控件列表：
+        vs 为 做 FormValidation_验证 用 控件列表 的 第 i 项。
+        若 非 vs 的 valid：
+            返还 i。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+FormValidation_无效控件数 接受 控件列表：
+    可变 数 为 0。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 控件列表：
+        vs 为 做 FormValidation_验证 用 控件列表 的 第 i 项。
+        若 非 vs 的 valid：
+            数 为 数 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 数。
+完。
+
+FormValidation_完整统计 接受 零参：
+    返还 一组：验证_总次数、验证_成功次数、验证_失败次数。
+完。
+
+本章 收束。

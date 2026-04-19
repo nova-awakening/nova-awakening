@@ -1,0 +1,140 @@
+《信任锚存储》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·推理·权重持久》。
+
+引用《.·散列函数》。
+
+可变 信任锚_数量 为 0。
+
+可变 信任锚_指纹 为 0。
+
+X509_初始化信任锚 接受 零参：
+    路径列表 为 一组：「/etc/ssl/certs/ca-certificates.crt」、「/etc/pki/tls/certs/ca-bundle.crt」、「/etc/ssl/cert.pem」、0。
+    可变 i 为 0。
+    只要 路径列表 的 第 i 项 不等于 0：
+        大小指针 为 做 堆_分配 用 8。
+        数据 为 做 文件_读取 用 路径列表 的 第 i 项、大小指针。
+        大小 为 做 内存_读64 用 大小指针。
+        做 堆_释放 用 大小指针。
+        若 数据 不等于 0 并且 大小 大于 0：
+            做 X509_加载PEM_CA束 用 数据、大小。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+X509_加载PEM_CA束 接受 数据、大小：
+    信任锚_指纹 为 做 堆_分配 用 256 乘 32。
+    信任锚_数量 为 0。
+    begin_marker 为 「-----BEGIN CERTIFICATE-----」。
+    end_marker 为 「-----END CERTIFICATE-----」。
+    begin_len 为 27。
+    end_len 为 25。
+    可变 pos 为 0。
+    只要 pos 小于 大小 并且 信任锚_数量 小于 256：
+        可变 found 为 假。
+        只要 pos 加 begin_len 小于或等于 大小：
+            若 做 内存_比较 用 数据 加 pos、begin_marker、begin_len 等于 0：
+                found 为 真。
+                pos 为 pos 加 begin_len。
+                跳出。
+            完。
+            pos 为 pos 加 1。
+        完。
+        若 非 found：
+            跳出。
+        完。
+        只要 pos 小于 大小 并且 (做 内存_读8 用 数据 加 pos 等于 0x0A 或者 做 内存_读8 用 数据 加 pos 等于 0x0D)：
+            pos 为 pos 加 1。
+        完。
+        base64_start 为 pos。
+        只要 pos 加 end_len 小于或等于 大小：
+            若 做 内存_比较 用 数据 加 pos、end_marker、end_len 等于 0：
+                跳出。
+            完。
+            pos 为 pos 加 1。
+        完。
+        base64_end 为 pos。
+        若 base64_end 小于或等于 base64_start：
+            pos 为 pos 加 end_len。
+            继续。
+        完。
+        der 为 做 堆_分配 用 base64_end 减 base64_start。
+        der_len 为 做 Base64_解码 用 数据 加 base64_start、base64_end 减 base64_start、der。
+        若 der_len 大于 0：
+            做 SHA256 用 der、der_len、信任锚_指纹 加 信任锚_数量 乘 32。
+            信任锚_数量 为 信任锚_数量 加 1。
+        完。
+        做 堆_释放 用 der。
+        pos 为 pos 加 end_len。
+    完。
+完。
+
+X509_是信任锚 接受 cert：
+    digest 为 做 堆_分配 用 32。
+    做 SHA256 用 cert 的 der数据、cert 的 der长度、digest。
+    可变 i 为 0。
+    只要 i 小于 信任锚_数量：
+        若 做 内存_比较 用 digest、信任锚_指纹 加 i 乘 32、32 等于 0：
+            做 堆_释放 用 digest。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    做 堆_释放 用 digest。
+    返还 假。
+完。
+
+Base64_解码 接受 输入、输入长度、输出：
+    可变 out_pos 为 0。
+    可变 accum 为 0。
+    可变 bits 为 0。
+    可变 i 为 0。
+    只要 i 小于 输入长度：
+        ch 为 做 内存_读8 用 输入 加 i。
+        i 为 i 加 1。
+        val 为 做 Base64_字符值 用 ch。
+        若 val 小于 0：
+            继续。
+        完。
+        accum 为 accum 左移 6 位或 val。
+        bits 为 bits 加 6。
+        若 bits 大于或等于 8：
+            bits 为 bits 减 8。
+            做 内存_写8 用 输出 加 out_pos、accum 右移 bits 位与 0xFF。
+            out_pos 为 out_pos 加 1。
+        完。
+    完。
+    返还 out_pos。
+完。
+
+Base64_字符值 接受 ch：
+    若 ch 大于或等于 0x41 并且 ch 小于或等于 0x5A：
+        返还 ch 减 0x41。
+    完。
+    若 ch 大于或等于 0x61 并且 ch 小于或等于 0x7A：
+        返还 ch 减 0x61 加 26。
+    完。
+    若 ch 大于或等于 0x30 并且 ch 小于或等于 0x39：
+        返还 ch 减 0x30 加 52。
+    完。
+    若 ch 等于 0x2B：
+        返还 62。
+    完。
+    若 ch 等于 0x2F：
+        返还 63。
+    完。
+    若 ch 等于 0x3D：
+        返还 0。
+    完。
+    返还 负 1。
+完。
+
+本章 收束。

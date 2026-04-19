@@ -1,0 +1,214 @@
+《ACPI设备树》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·整数转字符串》。
+
+ACPI_SIG_RSDP 为 「RSD PTR 」。
+
+ACPI_SIG_RSDT 为 「RSDT」。
+
+ACPI_SIG_XSDT 为 「XSDT」。
+
+ACPI_SIG_MADT 为 「接口C」。
+
+ACPI_SIG_FADT 为 「FACP」。
+
+ACPI_SIG_MCFG 为 「MCFG」。
+
+ACPI_SIG_HPET 为 「HPET」。
+
+ACPI_RSDP 是 一种 事物，含 签名、校验和、OEM_ID、版本、RSDT地址、XSDT地址。
+
+MADT_LOCAL_接口C 为 0。
+
+MADT_IO_接口C 为 1。
+
+MADT_INT_OVERRIDE 为 2。
+
+MADT_LOCAL_接口C_NMI 为 4。
+
+ACPI_CPU 是 一种 事物，含 接口C_ID、处理器ID、可用。
+
+可变 acpi_rsdp 为 空。
+
+可变 acpi_cpu列表 为 一组：（空）。
+
+可变 acpi_ioapic地址 为 0。
+
+可变 acpi_lapic地址 为 0xFEE00000。
+
+acpi_查找RSDP 接受 零参：
+    可变 地址 为 0xE0000。
+    只要 地址 小于 0x100000：
+        若 做 内存读64 用 地址 等于 0x2052545020445352：
+            做 内核信息 用 「ACPI: 找到RSDP @ 0x」 加 做 hex32 用 地址。
+            返还 地址。
+        完。
+        地址 为 地址 加 16。
+    完。
+    做 内核警告 用 「ACPI: 未找到RSDP」。
+    返还 0。
+完。
+
+acpi_解析MADT 接受 madt地址：
+    若 madt地址 等于 0：
+        返还。
+    完。
+    acpi_lapic地址 为 做 内存读32 用 madt地址 加 36。
+    做 内核信息 用 「ACPI: Local 接口C @ 0x」 加 做 hex32 用 acpi_lapic地址。
+    总长度 为 做 内存读32 用 madt地址 加 4。
+    可变 偏移 为 44。
+    只要 偏移 小于 总长度：
+        类型 为 做 内存读8 用 madt地址 加 偏移。
+        长度 为 做 内存读8 用 madt地址 加 偏移 加 1。
+        若 长度 等于 0：
+            中断。
+        完。
+        若 类型 等于 MADT_LOCAL_接口C：
+            处理器ID 为 做 内存读8 用 madt地址 加 偏移 加 2。
+            apic_id 为 做 内存读8 用 madt地址 加 偏移 加 3。
+            标志 为 做 内存读32 用 madt地址 加 偏移 加 4。
+            若 标志 位与 1 不等于 0：
+                cpu 为 新建 ACPI_CPU。
+                cpu 的 接口C_ID 为 apic_id。
+                cpu 的 处理器ID 为 处理器ID。
+                cpu 的 可用 为 1。
+                做 追加 用 acpi_cpu列表、cpu。
+                做 内核信息 用 「ACPI: CPU 」 加 做 整数转字符串 用 处理器ID 加 「 接口C=」 加 做 整数转字符串 用 apic_id。
+            完。
+        否则若 类型 等于 MADT_IO_接口C：
+            acpi_ioapic地址 为 做 内存读32 用 madt地址 加 偏移 加 4。
+            做 内核信息 用 「ACPI: IO 接口C @ 0x」 加 做 hex32 用 acpi_ioapic地址。
+        完。
+        偏移 为 偏移 加 长度。
+    完。
+    做 内核信息 用 「ACPI: 检测到 」 加 做 整数转字符串 用 做 计数 用 acpi_cpu列表 加 「 个CPU」。
+完。
+
+acpi_初始化 接受 零参：
+    rsdp 为 做 acpi_查找RSDP。
+    若 rsdp 等于 0：
+        返还。
+    完。
+    rsdt 为 做 内存读32 用 rsdp 加 16。
+    做 内核信息 用 「ACPI: RSDT @ 0x」 加 做 hex32 用 rsdt。
+    rsdt长度 为 做 内存读32 用 rsdt 加 4。
+    条目数 为 (rsdt长度 减 36) 除以 4。
+    可变 i 为 0。
+    只要 i 小于 条目数：
+        表地址 为 做 内存读32 用 rsdt 加 36 加 i 乘 4。
+        签名 为 做 内存读32 用 表地址。
+        若 签名 等于 0x43495041：
+            做 acpi_解析MADT 用 表地址。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+acpi_CPU数 接受 零参：
+    返还 做 计数 用 acpi_cpu列表。
+完。
+
+acpi_L接口C地址 接受 零参：
+    返还 acpi_lapic地址。
+完。
+
+acpi_IO接口C地址 接受 零参：
+    返还 acpi_ioapic地址。
+完。
+
+hex32 接受 值：
+    可变 s 为 「」。
+    可变 i 为 0。
+    只要 i 小于 8：
+        d 为 值 右移 28 减 i 乘 4 位与 0xF。
+        若 d 小于 10：
+            s 为 s 加 做 字符 用 48 加 d。
+        否则：
+            s 为 s 加 做 字符 用 87 加 d。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 s。
+完。
+
+acpi_验证校验和 接受 表地址：
+    长度 为 做 内存读32 用 表地址 加 4。
+    若 长度 等于 0 或者 长度 大于 0x100000：
+        返还 假。
+    完。
+    可变 和 为 0。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        和 为 和 加 做 内存读8 用 表地址 加 i。
+        i 为 i 加 1。
+    完。
+    返还 和 位与 0xFF 等于 0。
+完。
+
+acpi_查找表 接受 签名32：
+    rsdp 为 做 acpi_查找RSDP。
+    若 rsdp 等于 0：
+        返还 0。
+    完。
+    rsdt 为 做 内存读32 用 rsdp 加 16。
+    rsdt长度 为 做 内存读32 用 rsdt 加 4。
+    条目数 为 (rsdt长度 减 36) 除以 4。
+    可变 i 为 0。
+    只要 i 小于 条目数：
+        表地址 为 做 内存读32 用 rsdt 加 36 加 i 乘 4。
+        若 做 内存读32 用 表地址 等于 签名32：
+            返还 表地址。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+acpi_CPU查找 接受 apic_id：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 acpi_cpu列表：
+        若 acpi_cpu列表 的 第 i 项 的 接口C_ID 等于 apic_id：
+            返还 acpi_cpu列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+acpi_BSP_接口C_ID 接受 零参：
+    若 做 计数 用 acpi_cpu列表 大于 0：
+        返还 acpi_cpu列表 的 第 0 项 的 接口C_ID。
+    完。
+    返还 0。
+完。
+
+acpi_完整统计 接受 零参：
+    返还 一组：做 计数 用 acpi_cpu列表、做 acpi_BSP_接口C_ID。
+完。
+
+可变 AI_设备树_故障预警数 为 0。
+
+AI_设备树_设备健康 接受 错误率、响应时间、温度：
+    可变 分 为 1000。
+    若 错误率 大于 10：
+        分 为 分 减 错误率 乘 5。
+    完。
+    若 响应时间 大于 1000：
+        分 为 分 减 200。
+    完。
+    若 温度 大于 80：
+        分 为 分 减 300。
+    完。
+    若 分 小于 300：
+        AI_设备树_故障预警数 为 AI_设备树_故障预警数 加 1。
+    完。
+    返还 分。
+完。
+
+本章 收束。

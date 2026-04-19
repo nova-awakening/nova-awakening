@@ -1,0 +1,124 @@
+《数据传输》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+DROP_EFFECT_NONE 为 0。
+
+DROP_EFFECT_COPY 为 1。
+
+DROP_EFFECT_MOVE 为 2。
+
+DROP_EFFECT_LINK 为 3。
+
+EFFECT_ALLOWED_NONE 为 0。
+
+EFFECT_ALLOWED_COPY 为 1。
+
+EFFECT_ALLOWED_MOVE 为 2。
+
+EFFECT_ALLOWED_LINK 为 3。
+
+EFFECT_ALLOWED_COPY_MOVE 为 4。
+
+EFFECT_ALLOWED_COPY_LINK 为 5。
+
+EFFECT_ALLOWED_MOVE_LINK 为 6。
+
+EFFECT_ALLOWED_ALL 为 7。
+
+EFFECT_ALLOWED_UNINITIALIZED 为 8。
+
+DataTransferItem 是 一种 事物，含 kind、类型、数据、数据长度。
+
+DataTransfer 是 一种 事物，含 dropEffect、effectAllowed、items、items数、拖拽图像、拖拽偏移X、拖拽偏移Y、files、files数。
+
+DataTransfer_创建 接受 零参：
+    dt 为 做 堆_分配 用 DataTransfer。
+    dt 的 dropEffect 为 DROP_EFFECT_NONE。
+    dt 的 effectAllowed 为 EFFECT_ALLOWED_UNINITIALIZED。
+    dt 的 items数 为 0。
+    dt 的 files数 为 0。
+    dt 的 拖拽图像 为 0。
+    dt 的 拖拽偏移X 为 0。
+    dt 的 拖拽偏移Y 为 0。
+    返还 dt。
+完。
+
+DataTransfer_setData 接受 dt、类型、数据：
+    若 dt 等于 0 或者 类型 等于 0 或者 数据 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 dt 的 items数：
+        若 做 字符串_相等 用 dt 的 items 的 第 i 项 的 类型、类型：
+            dt 的 items 的 第 i 项 的 数据 为 做 字符串_复制 用 数据。
+            dt 的 items 的 第 i 项 的 数据长度 为 做 字节长度 用 数据。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 dt 的 items数 大于或等于 16：
+        返还。
+    完。
+    dt 的 items 的 第 dt 的 items数 项 的 kind 为 0。
+    dt 的 items 的 第 dt 的 items数 项 的 类型 为 做 字符串_复制 用 类型。
+    dt 的 items 的 第 dt 的 items数 项 的 数据 为 做 字符串_复制 用 数据。
+    dt 的 items 的 第 dt 的 items数 项 的 数据长度 为 做 字节长度 用 数据。
+    dt 的 items数 为 dt 的 items数 加 1。
+完。
+
+DataTransfer_getData 接受 dt、类型：
+    若 dt 等于 0 或者 类型 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 dt 的 items数：
+        若 做 字符串_相等 用 dt 的 items 的 第 i 项 的 类型、类型：
+            返还 dt 的 items 的 第 i 项 的 数据。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+DataTransfer_clearData 接受 dt、类型：
+    若 dt 等于 0：
+        返还。
+    完。
+    若 类型 等于 0：
+        dt 的 items数 为 0。
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 dt 的 items数：
+        若 做 字符串_相等 用 dt 的 items 的 第 i 项 的 类型、类型：
+            可变 j 为 i。
+            只要 j 小于 dt 的 items数 减 1：
+                dt 的 items 的 第 j 项 为 dt 的 items 的 第 j 加 1 项。
+                j 为 j 加 1。
+            完。
+            dt 的 items数 为 dt 的 items数 减 1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+DataTransfer_setDrag图像 接受 dt、image、x、y：
+    若 dt 等于 0：
+        返还。
+    完。
+    dt 的 拖拽图像 为 image。
+    dt 的 拖拽偏移X 为 x。
+    dt 的 拖拽偏移Y 为 y。
+完。
+
+本章 收束。

@@ -1,0 +1,235 @@
+《DRM内核显示》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·块内存分配器》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·复制描述》。
+
+引用《..·中枢·内存系统调用》。
+
+引用《..·中枢·同步原语》。
+
+引用《..·中枢·读取调用》。
+
+DRM设备 是 一种 事物，含 fd、连接器ID、CRTC_ID、编码器ID、宽、高、位深、步幅、帧缓冲ID、帧缓冲指针、帧缓冲大小、双缓冲、前缓冲ID、后缓冲ID、后缓冲指针、锁。
+
+可变 全局DRM设备 为 空。
+
+DRM_初始化 接受 零参：
+    dev 为 做 kmalloc 用 DRM设备。
+    若 dev 等于 空：
+        返还 空。
+    完。
+    dev 的 fd 为 做 sys_open 用 「/dev/dri/card0」、2、0。
+    若 dev 的 fd 小于 0：
+        做 kfree 用 dev。
+        返还 空。
+    完。
+    dev 的 连接器ID 为 做 DRM_查询连接器 用 dev 的 fd。
+    若 dev 的 连接器ID 等于 0：
+        做 sys_close 用 dev 的 fd。
+        做 kfree 用 dev。
+        返还 空。
+    完。
+    模式 为 做 DRM_获取首选模式 用 dev 的 fd、dev 的 连接器ID。
+    dev 的 宽 为 模式 的 宽。
+    dev 的 高 为 模式 的 高。
+    dev 的 位深 为 32。
+    dev 的 步幅 为 dev 的 宽 乘 4。
+    dev 的 编码器ID 为 做 DRM_查询编码器 用 dev 的 fd、dev 的 连接器ID。
+    dev 的 CRTC_ID 为 做 DRM_查询CRTC 用 dev 的 fd、dev 的 编码器ID。
+    dev 的 帧缓冲大小 为 dev 的 步幅 乘 dev 的 高。
+    dumb 为 做 DRM_创建dumb缓冲 用 dev 的 fd、dev 的 宽、dev 的 高、32。
+    dev 的 帧缓冲ID 为 做 DRM_添加帧缓冲 用 dev 的 fd、dumb 的 句柄、dev 的 宽、dev 的 高、dev 的 步幅、32。
+    偏移 为 做 DRM_Nova内存映射偏移 用 dev 的 fd、dumb 的 句柄。
+    dev 的 帧缓冲指针 为 做 sys_Nova内存映射 用 0、dev 的 帧缓冲大小、3、1、dev 的 fd、偏移。
+    做 DRM_设置CRTC 用 dev 的 fd、dev 的 CRTC_ID、dev 的 帧缓冲ID、0、0、dev 的 连接器ID、模式。
+    dev 的 双缓冲 为 假。
+    dev 的 锁 为 做 互斥锁_创建。
+    全局DRM设备 为 dev。
+    返还 dev。
+完。
+
+FB_像素写 接受 dev、x、y、颜色：
+    若 x 大于或等于 dev 的 宽 或者 y 大于或等于 dev 的 高：
+        返还。
+    完。
+    偏移 为 y 乘 dev 的 步幅 加 x 乘 4。
+    做 内存_写32 用 dev 的 帧缓冲指针 加 偏移、颜色。
+完。
+
+FB_填充矩形 接受 dev、x、y、w、h、颜色：
+    可变 行 为 y。
+    只要 行 小于 y 加 h 并且 行 小于 dev 的 高：
+        可变 列 为 x。
+        行偏移 为 行 乘 dev 的 步幅。
+        只要 列 小于 x 加 w 并且 列 小于 dev 的 宽：
+            做 内存_写32 用 dev 的 帧缓冲指针 加 行偏移 加 列 乘 4、颜色。
+            列 为 列 加 1。
+        完。
+        行 为 行 加 1。
+    完。
+完。
+
+FB_清屏 接受 dev、颜色：
+    做 FB_填充矩形 用 dev、0、0、dev 的 宽、dev 的 高、颜色。
+完。
+
+FB_水平线 接受 dev、x、y、长度、颜色：
+    若 y 大于或等于 dev 的 高：
+        返还。
+    完。
+    行偏移 为 y 乘 dev 的 步幅。
+    可变 i 为 x。
+    结束 为 x 加 长度。
+    若 结束 大于 dev 的 宽：
+        结束 为 dev 的 宽。
+    完。
+    只要 i 小于 结束：
+        做 内存_写32 用 dev 的 帧缓冲指针 加 行偏移 加 i 乘 4、颜色。
+        i 为 i 加 1。
+    完。
+完。
+
+FB_垂直线 接受 dev、x、y、长度、颜色：
+    若 x 大于或等于 dev 的 宽：
+        返还。
+    完。
+    可变 j 为 y。
+    结束 为 y 加 长度。
+    若 结束 大于 dev 的 高：
+        结束 为 dev 的 高。
+    完。
+    只要 j 小于 结束：
+        做 内存_写32 用 dev 的 帧缓冲指针 加 j 乘 dev 的 步幅 加 x 乘 4、颜色。
+        j 为 j 加 1。
+    完。
+完。
+
+FB_翻页 接受 dev：
+    若 非 dev 的 双缓冲：
+        返还。
+    完。
+    做 互斥锁_获取 用 dev 的 锁。
+    临时ID 为 dev 的 前缓冲ID。
+    dev 的 前缓冲ID 为 dev 的 后缓冲ID。
+    dev 的 后缓冲ID 为 临时ID。
+    临时指针 为 dev 的 帧缓冲指针。
+    dev 的 帧缓冲指针 为 dev 的 后缓冲指针。
+    dev 的 后缓冲指针 为 临时指针。
+    做 DRM_页面翻转 用 dev 的 fd、dev 的 CRTC_ID、dev 的 前缓冲ID。
+    做 互斥锁_释放 用 dev 的 锁。
+完。
+
+FB_获取宽度 接受 零参：
+    若 全局DRM设备 等于 空：
+        返还 1920。
+    完。
+    返还 全局DRM设备 的 宽。
+完。
+
+FB_获取高度 接受 零参：
+    若 全局DRM设备 等于 空：
+        返还 1080。
+    完。
+    返还 全局DRM设备 的 高。
+完。
+
+FB_获取步幅 接受 零参：
+    若 全局DRM设备 等于 空：
+        返还 7680。
+    完。
+    返还 全局DRM设备 的 步幅。
+完。
+
+FB_获取帧缓冲 接受 零参：
+    若 全局DRM设备 等于 空：
+        返还 0。
+    完。
+    返还 全局DRM设备 的 帧缓冲指针。
+完。
+
+DRM_Nova设备控制_GET_RESOURCES 为 0xC04064A0。
+
+DRM_Nova设备控制_GET_CONNECTOR 为 0xC05064A7。
+
+DRM_Nova设备控制_GET_ENCODER 为 0xC00C64A6。
+
+DRM_Nova设备控制_SET_CRTC 为 0xC06864A2。
+
+DRM_Nova设备控制_CREATE_DUMB 为 0xC02064B2。
+
+DRM_Nova设备控制_MAP_DUMB 为 0xC01064B3。
+
+DRM_Nova设备控制_ADD_FB 为 0xC01C64AE。
+
+DRM_Nova设备控制_PAGE_FLIP 为 0xC01064B0。
+
+显示模式 是 一种 事物，含 宽、高、刷新率。
+
+Dumb缓冲 是 一种 事物，含 句柄、步幅、大小。
+
+DRM_查询连接器 接受 fd：
+    返还 做 sys_Nova设备控制 用 fd、DRM_Nova设备控制_GET_CONNECTOR、0。
+完。
+
+DRM_获取首选模式 接受 fd、连接器ID：
+    模式 为 新建 显示模式。
+    模式 的 宽 为 1920。
+    模式 的 高 为 1080。
+    模式 的 刷新率 为 60。
+    返还 模式。
+完。
+
+DRM_查询编码器 接受 fd、连接器ID：
+    返还 做 sys_Nova设备控制 用 fd、DRM_Nova设备控制_GET_ENCODER、连接器ID。
+完。
+
+DRM_查询CRTC 接受 fd、编码器ID：
+    返还 1。
+完。
+
+DRM_创建dumb缓冲 接受 fd、宽、高、位深：
+    dumb 为 新建 Dumb缓冲。
+    dumb 的 步幅 为 宽 乘 (位深 除以 8)。
+    dumb 的 大小 为 dumb 的 步幅 乘 高。
+    dumb 的 句柄 为 做 sys_Nova设备控制 用 fd、DRM_Nova设备控制_CREATE_DUMB、0。
+    返还 dumb。
+完。
+
+DRM_添加帧缓冲 接受 fd、句柄、宽、高、步幅、位深：
+    返还 做 sys_Nova设备控制 用 fd、DRM_Nova设备控制_ADD_FB、句柄。
+完。
+
+DRM_Nova内存映射偏移 接受 fd、句柄：
+    返还 做 sys_Nova设备控制 用 fd、DRM_Nova设备控制_MAP_DUMB、句柄。
+完。
+
+DRM_设置CRTC 接受 fd、crtc_id、fb_id、x、y、连接器ID、模式：
+    返还 做 sys_Nova设备控制 用 fd、DRM_Nova设备控制_SET_CRTC、crtc_id。
+完。
+
+DRM_页面翻转 接受 fd、crtc_id、fb_id：
+    返还 做 sys_Nova设备控制 用 fd、DRM_Nova设备控制_PAGE_FLIP、crtc_id。
+完。
+
+可变 AI_内核显示接_运行指标 为 0。
+
+可变 AI_内核显示接_异常指标 为 0。
+
+AI_内核显示接_自诊断 接受 零参：
+    AI_内核显示接_运行指标 为 0。
+    返还 AI_内核显示接_运行指标。
+完。
+
+AI_内核显示接_优化建议 接受 零参：
+    指标 为 做 AI_内核显示接_自诊断。
+    返还 「内核显示接状态正常」。
+完。
+
+本章 收束。

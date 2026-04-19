@@ -1,0 +1,296 @@
+《词法创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+TOK_EOF 为 0。
+
+TOK_IDENT 为 1。
+
+TOK_INT_LIT 为 2。
+
+TOK_FLOAT_LIT 为 3。
+
+TOK_KEYWORD 为 4。
+
+TOK_LPAREN 为 10。
+
+TOK_RPAREN 为 11。
+
+TOK_LBRACE 为 12。
+
+TOK_RBRACE 为 13。
+
+TOK_LBRACKET 为 14。
+
+TOK_RBRACKET 为 15。
+
+TOK_SEMI 为 16。
+
+TOK_COMMA 为 17。
+
+TOK_DOT 为 18。
+
+TOK_EQ 为 19。
+
+TOK_PLUS 为 20。
+
+TOK_MINUS 为 21。
+
+TOK_STAR 为 22。
+
+TOK_SLASH 为 23。
+
+TOK_LT 为 24。
+
+TOK_GT 为 25。
+
+TOK_LE 为 26。
+
+TOK_GE 为 27。
+
+TOK_EQEQ 为 28。
+
+TOK_NEQ 为 29。
+
+TOK_AND 为 30。
+
+TOK_OR 为 31。
+
+TOK_NOT 为 32。
+
+TOK_QUESTION 为 33。
+
+TOK_COLON 为 34。
+
+TY_VOID 为 0。
+
+TY_BOOL 为 1。
+
+TY_INT 为 2。
+
+TY_UINT 为 3。
+
+TY_FLOAT 为 4。
+
+TY_VEC2 为 5。
+
+TY_VEC3 为 6。
+
+TY_VEC4 为 7。
+
+TY_IVEC2 为 8。
+
+TY_IVEC3 为 9。
+
+TY_IVEC4 为 10。
+
+TY_MAT2 为 11。
+
+TY_MAT3 为 12。
+
+TY_MAT4 为 13。
+
+TY_SAMPLER2D 为 14。
+
+TY_SAMPLER3D 为 15。
+
+TY_SAMPLERCUBE 为 16。
+
+TY_STRUCT 为 50。
+
+GLSL令牌 是 一种 事物，含 类型、值、行号、列号。
+
+GLSLLexer 是 一种 事物，含 源码、源码长度、位置、行号、列号、当前令牌。
+
+GLSLLexer_创建 接受 源码、长度：
+    lex 为 做 堆_分配 用 GLSLLexer。
+    lex 的 源码 为 源码。
+    lex 的 源码长度 为 长度。
+    lex 的 位置 为 0。
+    lex 的 行号 为 1。
+    lex 的 列号 为 1。
+    返还 lex。
+完。
+
+GLSLLexer_下一个 接受 lex：
+    若 lex 等于 0：
+        返还。
+    完。
+    做 GLSLLexer_跳过空白 用 lex。
+    若 lex 的 位置 大于或等于 lex 的 源码长度：
+        lex 的 当前令牌 的 类型 为 TOK_EOF。
+        返还。
+    完。
+    ch 为 做 字节取 用 lex 的 源码、lex 的 位置。
+    lex 的 当前令牌 的 行号 为 lex 的 行号。
+    lex 的 当前令牌 的 列号 为 lex 的 列号。
+    若 ch 大于或等于 0x61 并且 ch 小于或等于 0x7A 或者 ch 大于或等于 0x41 并且 ch 小于或等于 0x5A 或者 ch 等于 0x5F：
+        起始 为 lex 的 位置。
+        只要 lex 的 位置 小于 lex 的 源码长度：
+            c 为 做 字节取 用 lex 的 源码、lex 的 位置。
+            若 c 大于或等于 0x61 并且 c 小于或等于 0x7A 或者 c 大于或等于 0x41 并且 c 小于或等于 0x5A 或者 c 大于或等于 0x30 并且 c 小于或等于 0x39 或者 c 等于 0x5F：
+                lex 的 位置 为 lex 的 位置 加 1。
+                lex 的 列号 为 lex 的 列号 加 1。
+            否则：
+                跳出。
+            完。
+        完。
+        长度 为 lex 的 位置 减 起始。
+        词 为 做 堆_分配 用 长度 加 1。
+        做 内存_复制 用 词、lex 的 源码 加 起始、长度。
+        做 字节写 用 词、长度、0。
+        若 做 GLSLLexer_是关键字 用 词：
+            lex 的 当前令牌 的 类型 为 TOK_KEYWORD。
+        否则：
+            lex 的 当前令牌 的 类型 为 TOK_IDENT。
+        完。
+        lex 的 当前令牌 的 值 为 词。
+        返还。
+    完。
+    若 ch 大于或等于 0x30 并且 ch 小于或等于 0x39：
+        可变 是浮点 为 假。
+        起始 为 lex 的 位置。
+        只要 lex 的 位置 小于 lex 的 源码长度：
+            c 为 做 字节取 用 lex 的 源码、lex 的 位置。
+            若 c 大于或等于 0x30 并且 c 小于或等于 0x39：
+                lex 的 位置 为 lex 的 位置 加 1。
+                lex 的 列号 为 lex 的 列号 加 1。
+            否则若 c 等于 0x2E 并且 非 是浮点：
+                是浮点 为 真。
+                lex 的 位置 为 lex 的 位置 加 1。
+                lex 的 列号 为 lex 的 列号 加 1。
+            否则：
+                跳出。
+            完。
+        完。
+        lex 的 当前令牌 的 类型 为 若 是浮点 则 TOK_FLOAT_LIT 否则 TOK_INT_LIT。
+        返还。
+    完。
+    lex 的 位置 为 lex 的 位置 加 1。
+    lex 的 列号 为 lex 的 列号 加 1。
+    若 ch 等于 0x28：
+        lex 的 当前令牌 的 类型 为 TOK_LPAREN。
+    否则若 ch 等于 0x29：
+        lex 的 当前令牌 的 类型 为 TOK_RPAREN。
+    否则若 ch 等于 0x7B：
+        lex 的 当前令牌 的 类型 为 TOK_LBRACE。
+    否则若 ch 等于 0x7D：
+        lex 的 当前令牌 的 类型 为 TOK_RBRACE。
+    否则若 ch 等于 0x5B：
+        lex 的 当前令牌 的 类型 为 TOK_LBRACKET。
+    否则若 ch 等于 0x5D：
+        lex 的 当前令牌 的 类型 为 TOK_RBRACKET。
+    否则若 ch 等于 0x3B：
+        lex 的 当前令牌 的 类型 为 TOK_SEMI。
+    否则若 ch 等于 0x2C：
+        lex 的 当前令牌 的 类型 为 TOK_COMMA。
+    否则若 ch 等于 0x2E：
+        lex 的 当前令牌 的 类型 为 TOK_DOT。
+    否则若 ch 等于 0x2B：
+        lex 的 当前令牌 的 类型 为 TOK_PLUS。
+    否则若 ch 等于 0x2D：
+        lex 的 当前令牌 的 类型 为 TOK_MINUS。
+    否则若 ch 等于 0x2A：
+        lex 的 当前令牌 的 类型 为 TOK_STAR。
+    否则若 ch 等于 0x2F：
+        lex 的 当前令牌 的 类型 为 TOK_SLASH。
+    否则若 ch 等于 0x3F：
+        lex 的 当前令牌 的 类型 为 TOK_QUESTION。
+    否则若 ch 等于 0x3A：
+        lex 的 当前令牌 的 类型 为 TOK_COLON。
+    否则若 ch 等于 0x21：
+        若 lex 的 位置 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 等于 0x3D：
+            lex 的 当前令牌 的 类型 为 TOK_NEQ。
+            lex 的 位置 为 lex 的 位置 加 1。
+            lex 的 列号 为 lex 的 列号 加 1。
+        否则：
+            lex 的 当前令牌 的 类型 为 TOK_NOT。
+        完。
+    否则若 ch 等于 0x3D：
+        若 lex 的 位置 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 等于 0x3D：
+            lex 的 当前令牌 的 类型 为 TOK_EQEQ。
+            lex 的 位置 为 lex 的 位置 加 1。
+            lex 的 列号 为 lex 的 列号 加 1。
+        否则：
+            lex 的 当前令牌 的 类型 为 TOK_EQ。
+        完。
+    否则若 ch 等于 0x3C：
+        若 lex 的 位置 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 等于 0x3D：
+            lex 的 当前令牌 的 类型 为 TOK_LE。
+            lex 的 位置 为 lex 的 位置 加 1。
+            lex 的 列号 为 lex 的 列号 加 1。
+        否则：
+            lex 的 当前令牌 的 类型 为 TOK_LT。
+        完。
+    否则若 ch 等于 0x3E：
+        若 lex 的 位置 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 等于 0x3D：
+            lex 的 当前令牌 的 类型 为 TOK_GE。
+            lex 的 位置 为 lex 的 位置 加 1。
+            lex 的 列号 为 lex 的 列号 加 1。
+        否则：
+            lex 的 当前令牌 的 类型 为 TOK_GT。
+        完。
+    否则若 ch 等于 0x26 并且 lex 的 位置 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 等于 0x26：
+        lex 的 当前令牌 的 类型 为 TOK_AND。
+        lex 的 位置 为 lex 的 位置 加 1。
+        lex 的 列号 为 lex 的 列号 加 1。
+    否则若 ch 等于 0x7C 并且 lex 的 位置 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 等于 0x7C：
+        lex 的 当前令牌 的 类型 为 TOK_OR。
+        lex 的 位置 为 lex 的 位置 加 1。
+        lex 的 列号 为 lex 的 列号 加 1。
+    否则：
+        lex 的 当前令牌 的 类型 为 TOK_EOF。
+    完。
+完。
+
+GLSLLexer_跳过空白 接受 lex：
+    只要 lex 的 位置 小于 lex 的 源码长度：
+        ch 为 做 字节取 用 lex 的 源码、lex 的 位置。
+        若 ch 等于 0x20 或者 ch 等于 0x09：
+            lex 的 位置 为 lex 的 位置 加 1。
+            lex 的 列号 为 lex 的 列号 加 1。
+        否则若 ch 等于 0x0A：
+            lex 的 位置 为 lex 的 位置 加 1。
+            lex 的 行号 为 lex 的 行号 加 1。
+            lex 的 列号 为 1。
+        否则若 ch 等于 0x0D：
+            lex 的 位置 为 lex 的 位置 加 1。
+        否则若 ch 等于 0x2F 并且 lex 的 位置 加 1 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 加 1 等于 0x2F：
+            只要 lex 的 位置 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 不等于 0x0A：
+                lex 的 位置 为 lex 的 位置 加 1。
+            完。
+        否则若 ch 等于 0x2F 并且 lex 的 位置 加 1 小于 lex 的 源码长度 并且 做 字节取 用 lex 的 源码、lex 的 位置 加 1 等于 0x2A：
+            lex 的 位置 为 lex 的 位置 加 2。
+            只要 lex 的 位置 加 1 小于 lex 的 源码长度：
+                若 做 字节取 用 lex 的 源码、lex 的 位置 等于 0x2A 并且 做 字节取 用 lex 的 源码、lex 的 位置 加 1 等于 0x2F：
+                    lex 的 位置 为 lex 的 位置 加 2。
+                    跳出。
+                完。
+                若 做 字节取 用 lex 的 源码、lex 的 位置 等于 0x0A：
+                    lex 的 行号 为 lex 的 行号 加 1。
+                    lex 的 列号 为 0。
+                完。
+                lex 的 位置 为 lex 的 位置 加 1。
+            完。
+        否则：
+            跳出。
+        完。
+    完。
+完。
+
+GLSLLexer_是关键字 接受 词：
+    若 做 字符串_相等 用 词、「void」 或者 做 字符串_相等 用 词、「bool」 或者 做 字符串_相等 用 词、「int」 或者 做 字符串_相等 用 词、「uint」 或者 做 字符串_相等 用 词、「float」 或者 做 字符串_相等 用 词、「vec2」 或者 做 字符串_相等 用 词、「vec3」 或者 做 字符串_相等 用 词、「vec4」 或者 做 字符串_相等 用 词、「ivec2」 或者 做 字符串_相等 用 词、「ivec3」 或者 做 字符串_相等 用 词、「ivec4」 或者 做 字符串_相等 用 词、「mat2」 或者 做 字符串_相等 用 词、「mat3」 或者 做 字符串_相等 用 词、「mat4」 或者 做 字符串_相等 用 词、「sampler2D」 或者 做 字符串_相等 用 词、「sampler3D」 或者 做 字符串_相等 用 词、「samplerCube」 或者 做 字符串_相等 用 词、「in」 或者 做 字符串_相等 用 词、「out」 或者 做 字符串_相等 用 词、「uniform」 或者 做 字符串_相等 用 词、「const」 或者 做 字符串_相等 用 词、「if」 或者 做 字符串_相等 用 词、「else」 或者 做 字符串_相等 用 词、「for」 或者 做 字符串_相等 用 词、「while」 或者 做 字符串_相等 用 词、「return」 或者 做 字符串_相等 用 词、「discard」 或者 做 字符串_相等 用 词、「struct」 或者 做 字符串_相等 用 词、「layout」 或者 做 字符串_相等 用 词、「precision」 或者 做 字符串_相等 用 词、「flat」 或者 做 字符串_相等 用 词、「smooth」 或者 做 字符串_相等 用 词、「break」 或者 做 字符串_相等 用 词、「continue」：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

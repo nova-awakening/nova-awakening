@@ -1,0 +1,472 @@
+《变换流》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·ReadableStream》。
+
+TransformStreamNova注意力架构 是 一种 事物，含 transform回调、flush回调、start回调。
+
+TransformStreamDefaultController 是 一种 事物，含 stream、enqueue回调。
+
+TransformStream 是 一种 事物，含 readable、writable、Nova注意力架构、controller、正在转换。
+
+TransformStream_创建 接受 Nova注意力架构、writableStrategy、readableStrategy：
+    ts 为 做 堆_分配 用 TransformStream。
+    ts 的 Nova注意力架构 为 Nova注意力架构。
+    ts 的 正在转换 为 假。
+    ts 的 controller 为 做 堆_分配 用 TransformStreamDefaultController。
+    ts 的 controller 的 stream 为 ts。
+    sink 为 做 堆_分配 用 WritableStreamSink。
+    sink 的 write回调 为 TransformStream_内部write。
+    sink 的 close回调 为 TransformStream_内部close。
+    sink 的 abort回调 为 0。
+    sink 的 start回调 为 0。
+    ts 的 writable 为 做 WritableStream_创建 用 sink、writableStrategy。
+    ts 的 readable 为 做 ReadableStream_创建 用 0、0、若 readableStrategy 不等于 0 则 readableStrategy 的 highWaterMark 否则 1。
+    若 Nova注意力架构 不等于 0 并且 Nova注意力架构 的 start回调 不等于 0：
+    完。
+    返还 ts。
+完。
+
+TransformStream_内部write 接受 ts、chunk：
+    若 ts 等于 0 或者 ts 的 Nova注意力架构 等于 0：
+        返还。
+    完。
+    ts 的 正在转换 为 真。
+    若 ts 的 Nova注意力架构 的 transform回调 不等于 0：
+    否则：
+        做 TransformController_enqueue 用 ts 的 controller、chunk、0。
+    完。
+    ts 的 正在转换 为 假。
+完。
+
+TransformStream_内部close 接受 ts：
+    若 ts 等于 0：
+        返还。
+    完。
+    若 ts 的 Nova注意力架构 不等于 0 并且 ts 的 Nova注意力架构 的 flush回调 不等于 0：
+    完。
+    若 ts 的 readable 不等于 0：
+        做 ReadableStream_close 用 ts 的 readable。
+    完。
+完。
+
+TransformController_enqueue 接受 ctrl、chunk、chunkSize：
+    若 ctrl 等于 0 或者 ctrl 的 stream 等于 0：
+        返还。
+    完。
+    ts 为 ctrl 的 stream。
+    若 ts 的 readable 不等于 0：
+        做 ReadableStream_enqueue 用 ts 的 readable、chunk、chunkSize。
+    完。
+完。
+
+TransformController_error 接受 ctrl、reason：
+    若 ctrl 等于 0 或者 ctrl 的 stream 等于 0：
+        返还。
+    完。
+完。
+
+TransformController_terminate 接受 ctrl：
+    若 ctrl 等于 0 或者 ctrl 的 stream 等于 0：
+        返还。
+    完。
+    ts 为 ctrl 的 stream。
+    若 ts 的 readable 不等于 0：
+        做 ReadableStream_close 用 ts 的 readable。
+    完。
+完。
+
+NTST_版本 为 1。
+
+NTST_默认高水位 为 1。
+
+NTST_AI特征维度 为 8。
+
+可变 NTST_创建总数 为 0。
+
+可变 NTST_转换总数 为 0。
+
+可变 NTST_字节总数 为 0。
+
+可变 NTST_管道总数 为 0。
+
+可变 NTST_AI推理次数 为 0。
+
+NTST_检查背压 接受 ts：
+    若 ts 等于 0 或者 ts 的 readable 等于 0：
+        返还 0。
+    完。
+    队列大小 为 做 ReadableStream_获取队列大小 用 ts 的 readable。
+    高水位 为 做 ReadableStream_获取高水位 用 ts 的 readable。
+    若 队列大小 大于或等于 高水位：
+        返还 1。
+    完。
+    返还 0。
+完。
+
+NTST_等待背压释放 接受 ts：
+    可变 重试 为 0。
+    只要 做 NTST_检查背压 用 ts 并且 重试 小于 100：
+        重试 为 重试 加 1。
+    完。
+完。
+
+NTST_pipeThrough 接受 源流、变换流：
+    若 源流 等于 0 或者 变换流 等于 0：
+        返还 0。
+    完。
+    做 NTST_pipeTo 用 源流、变换流 的 writable。
+    NTST_管道总数 为 NTST_管道总数 加 1。
+    返还 变换流 的 readable。
+完。
+
+NTST_pipeTo 接受 源流、目标流：
+    若 源流 等于 0 或者 目标流 等于 0：
+        返还。
+    完。
+    reader 为 做 ReadableStream_getReader 用 源流。
+    writer 为 做 WritableStream_getWriter 用 目标流。
+    若 reader 等于 0 或者 writer 等于 0：
+        返还。
+    完。
+    做 NTST_管道循环 用 reader、writer。
+完。
+
+NTST_管道循环 接受 reader、writer：
+    可变 完成 为 假。
+    只要 非 完成：
+        结果 为 做 ReadableStreamReader_read 用 reader。
+        若 结果 等于 0 或者 结果 的 done：
+            做 WritableStreamWriter_close 用 writer。
+            完成 为 真。
+        否则：
+            做 WritableStreamWriter_write 用 writer、结果 的 value。
+            NTST_转换总数 为 NTST_转换总数 加 1。
+        完。
+    完。
+完。
+
+NTST_创建文本编码流 接受 零参：
+    架构 为 做 堆_分配 用 TransformStreamNova注意力架构。
+    架构 的 transform回调 为 NTST_文本编码_transform。
+    架构 的 flush回调 为 0。
+    架构 的 start回调 为 0。
+    NTST_创建总数 为 NTST_创建总数 加 1。
+    返还 做 TransformStream_创建 用 架构、0、0。
+完。
+
+NTST_文本编码_transform 接受 chunk、ctrl：
+    若 chunk 等于 0：
+        返还。
+    完。
+    长度 为 做 字符串长度 用 chunk。
+    缓冲 为 做 堆_分配 用 长度 乘 4。
+    可变 写位置 为 0。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        c 为 做 字符串_取字符 用 chunk、i。
+        若 c 小于 0x80：
+            做 内存_写字节 用 缓冲 加 写位置、c。
+            写位置 为 写位置 加 1。
+        否则若 c 小于 0x800：
+            做 内存_写字节 用 缓冲 加 写位置、0xC0 位或 c 右移 6。
+            做 内存_写字节 用 缓冲 加 写位置 加 1、0x80 位或 c 位与 0x3F。
+            写位置 为 写位置 加 2。
+        否则：
+            做 内存_写字节 用 缓冲 加 写位置、0xE0 位或 c 右移 12。
+            做 内存_写字节 用 缓冲 加 写位置 加 1、0x80 位或 c 右移 6 位与 0x3F。
+            做 内存_写字节 用 缓冲 加 写位置 加 2、0x80 位或 c 位与 0x3F。
+            写位置 为 写位置 加 3。
+        完。
+        i 为 i 加 1。
+    完。
+    NTST_字节总数 为 NTST_字节总数 加 写位置。
+    做 TransformController_enqueue 用 ctrl、缓冲、写位置。
+完。
+
+NTST_创建文本解码流 接受 零参：
+    架构 为 做 堆_分配 用 TransformStreamNova注意力架构。
+    架构 的 transform回调 为 NTST_文本解码_transform。
+    架构 的 flush回调 为 0。
+    架构 的 start回调 为 0。
+    NTST_创建总数 为 NTST_创建总数 加 1。
+    返还 做 TransformStream_创建 用 架构、0、0。
+完。
+
+NTST_文本解码_transform 接受 chunk、ctrl：
+    若 chunk 等于 0：
+        返还。
+    完。
+    大小 为 做 内存_获取大小 用 chunk。
+    可变 结果 为 「」。
+    可变 i 为 0。
+    只要 i 小于 大小：
+        b 为 做 内存_读字节 用 chunk 加 i。
+        若 b 小于 0x80：
+            结果 为 结果 加 做 字符_从编码 用 b。
+            i 为 i 加 1。
+        否则若 b 位与 0xE0 等于 0xC0：
+            c 为 (b 位与 0x1F) 左移 6 位或 做 内存_读字节 用 chunk 加 i 加 1 位与 0x3F。
+            结果 为 结果 加 做 字符_从编码 用 c。
+            i 为 i 加 2。
+        否则若 b 位与 0xF0 等于 0xE0：
+            c 为 (b 位与 0x0F) 左移 12 位或 (做 内存_读字节 用 chunk 加 i 加 1 位与 0x3F) 左移 6 位或 做 内存_读字节 用 chunk 加 i 加 2 位与 0x3F。
+            结果 为 结果 加 做 字符_从编码 用 c。
+            i 为 i 加 3。
+        否则：
+            i 为 i 加 1。
+        完。
+    完。
+    NTST_字节总数 为 NTST_字节总数 加 大小。
+    做 TransformController_enqueue 用 ctrl、结果、做 字符串长度 用 结果。
+完。
+
+NTST_AI预测流量 接受 零参：
+    特征 为 做 Tensor_创建 用 一组：NTST_AI特征维度。
+    做 Tensor_写 用 特征、一组：0、NTST_创建总数。
+    做 Tensor_写 用 特征、一组：1、NTST_转换总数。
+    做 Tensor_写 用 特征、一组：2、NTST_字节总数。
+    做 Tensor_写 用 特征、一组：3、NTST_管道总数。
+    做 Tensor_写 用 特征、一组：4、0。
+    做 Tensor_写 用 特征、一组：5、0。
+    做 Tensor_写 用 特征、一组：6、0。
+    做 Tensor_写 用 特征、一组：7、0。
+    预测 为 做 AI总线_推理 用 「NTST流量预测」、特征。
+    NTST_AI推理次数 为 NTST_AI推理次数 加 1。
+    做 Tensor_释放 用 特征。
+    做 Tensor_释放 用 预测。
+完。
+
+NTST_获取统计 接受 零参：
+    返还 一本字典：版本 对应 NTST_版本、创建总数 对应 NTST_创建总数、转换总数 对应 NTST_转换总数、字节总数 对应 NTST_字节总数、管道总数 对应 NTST_管道总数、AI推理次数 对应 NTST_AI推理次数。
+完。
+
+NTST_重置统计 接受 零参：
+    NTST_创建总数 为 0。
+    NTST_转换总数 为 0。
+    NTST_字节总数 为 0。
+    NTST_管道总数 为 0。
+    NTST_AI推理次数 为 0。
+完。
+
+NTST_默认分片大小 为 4096。
+
+NTST_创建分片流 接受 分片大小：
+    若 分片大小 小于或等于 0：
+        分片大小 为 NTST_默认分片大小。
+    完。
+    架构 为 做 堆_分配 用 TransformStreamNova注意力架构。
+    架构 的 transform回调 为 NTST_分片_transform。
+    架构 的 flush回调 为 NTST_分片_flush。
+    架构 的 start回调 为 0。
+    NTST_创建总数 为 NTST_创建总数 加 1。
+    返还 做 TransformStream_创建 用 架构、0、0。
+完。
+
+NTST_分片_transform 接受 chunk、ctrl：
+    若 chunk 等于 0：
+        返还。
+    完。
+    大小 为 做 内存_获取大小 用 chunk。
+    可变 偏移 为 0。
+    只要 偏移 小于 大小：
+        剩余 为 大小 减 偏移。
+        片大小 为 NTST_默认分片大小。
+        若 剩余 小于 片大小：
+            片大小 为 剩余。
+        完。
+        片 为 做 堆_分配 用 片大小。
+        做 内存_复制 用 片、chunk 加 偏移、片大小。
+        做 TransformController_enqueue 用 ctrl、片、片大小。
+        偏移 为 偏移 加 片大小。
+        NTST_转换总数 为 NTST_转换总数 加 1。
+    完。
+    NTST_字节总数 为 NTST_字节总数 加 大小。
+完。
+
+NTST_分片_flush 接受 ctrl：
+    若 ctrl 不等于 0 并且 ctrl 的 缓冲大小 大于 0：
+        做 ctrl 的 输出回调 用 ctrl 的 缓冲、ctrl 的 缓冲大小。
+        ctrl 的 缓冲大小 为 0。
+    完。
+完。
+
+NTST_创建JSON行流 接受 零参：
+    架构 为 做 堆_分配 用 TransformStreamNova注意力架构。
+    架构 的 transform回调 为 NTST_JSON行_transform。
+    架构 的 flush回调 为 NTST_JSON行_flush。
+    架构 的 start回调 为 0。
+    NTST_创建总数 为 NTST_创建总数 加 1。
+    返还 做 TransformStream_创建 用 架构、0、0。
+完。
+
+可变 NTST_行缓冲 为 「」。
+
+NTST_JSON行_transform 接受 chunk、ctrl：
+    若 chunk 等于 0：
+        返还。
+    完。
+    NTST_行缓冲 为 NTST_行缓冲 加 chunk。
+    可变 开始 为 0。
+    长度 为 做 字符串长度 用 NTST_行缓冲。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        c 为 做 字符串_取字符 用 NTST_行缓冲、i。
+        若 c 等于 10：
+            行 为 做 字符串_取子串 用 NTST_行缓冲、开始、i 减 开始。
+            若 做 字符串长度 用 行 大于 0：
+                做 TransformController_enqueue 用 ctrl、行、做 字符串长度 用 行。
+                NTST_转换总数 为 NTST_转换总数 加 1。
+            完。
+            开始 为 i 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    NTST_行缓冲 为 做 字符串_取子串 用 NTST_行缓冲、开始、长度 减 开始。
+完。
+
+NTST_JSON行_flush 接受 ctrl：
+    若 做 字符串长度 用 NTST_行缓冲 大于 0：
+        做 TransformController_enqueue 用 ctrl、NTST_行缓冲、做 字符串长度 用 NTST_行缓冲。
+        NTST_转换总数 为 NTST_转换总数 加 1。
+        NTST_行缓冲 为 「」。
+    完。
+完。
+
+NTST_创建压缩流 接受 格式：
+    架构 为 做 堆_分配 用 TransformStreamNova注意力架构。
+    架构 的 transform回调 为 NTST_压缩_transform。
+    架构 的 flush回调 为 NTST_压缩_flush。
+    架构 的 start回调 为 0。
+    NTST_创建总数 为 NTST_创建总数 加 1。
+    返还 做 TransformStream_创建 用 架构、0、0。
+完。
+
+NTST_压缩_transform 接受 chunk、ctrl：
+    若 chunk 等于 0：
+        返还。
+    完。
+    大小 为 做 内存_获取大小 用 chunk。
+    压缩缓冲 为 做 堆_分配 用 大小。
+    压缩大小 为 做 平台_deflate压缩 用 chunk、大小、压缩缓冲。
+    做 TransformController_enqueue 用 ctrl、压缩缓冲、压缩大小。
+    NTST_字节总数 为 NTST_字节总数 加 大小。
+    NTST_转换总数 为 NTST_转换总数 加 1。
+完。
+
+NTST_压缩_flush 接受 ctrl：
+    若 ctrl 不等于 0：
+        做 ctrl 的 输出回调 用 0、0。
+    完。
+完。
+
+NTST_创建解压流 接受 格式：
+    架构 为 做 堆_分配 用 TransformStreamNova注意力架构。
+    架构 的 transform回调 为 NTST_解压_transform。
+    架构 的 flush回调 为 0。
+    架构 的 start回调 为 0。
+    NTST_创建总数 为 NTST_创建总数 加 1。
+    返还 做 TransformStream_创建 用 架构、0、0。
+完。
+
+NTST_解压_transform 接受 chunk、ctrl：
+    若 chunk 等于 0：
+        返还。
+    完。
+    大小 为 做 内存_获取大小 用 chunk。
+    解压缓冲 为 做 堆_分配 用 大小 乘 4。
+    解压大小 为 做 平台_inflate解压 用 chunk、大小、解压缓冲。
+    做 TransformController_enqueue 用 ctrl、解压缓冲、解压大小。
+    NTST_字节总数 为 NTST_字节总数 加 大小。
+    NTST_转换总数 为 NTST_转换总数 加 1。
+完。
+
+NTST_传播错误 接受 ts、原因：
+    若 ts 等于 0：
+        返还。
+    完。
+    若 ts 的 readable 不等于 0：
+        做 ReadableStream_error 用 ts 的 readable、原因。
+    完。
+    若 ts 的 writable 不等于 0：
+        做 WritableStream_error 用 ts 的 writable、原因。
+    完。
+完。
+
+NTST_链式组合 接受 源流、变换流数组、数量：
+    若 源流 等于 0 或者 数量 等于 0：
+        返还 源流。
+    完。
+    可变 当前 为 源流。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        当前 为 做 NTST_pipeThrough 用 当前、变换流数组 的 第 i 项。
+        若 当前 等于 0：
+            返还 0。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 当前。
+完。
+
+NTST_pipeTo_可取消 接受 源流、目标流、取消信号：
+    若 源流 等于 0 或者 目标流 等于 0：
+        返还。
+    完。
+    reader 为 做 ReadableStream_getReader 用 源流。
+    writer 为 做 WritableStream_getWriter 用 目标流。
+    若 reader 等于 0 或者 writer 等于 0：
+        返还。
+    完。
+    可变 完成 为 假。
+    只要 非 完成：
+        若 取消信号 不等于 0 并且 取消信号 的 已取消：
+            做 ReadableStreamReader_releaseLock 用 reader。
+            做 WritableStreamWriter_abort 用 writer、「已取消」。
+            完成 为 真。
+        否则：
+            结果 为 做 ReadableStreamReader_read 用 reader。
+            若 结果 等于 0 或者 结果 的 done：
+                做 WritableStreamWriter_close 用 writer。
+                完成 为 真。
+            否则：
+                做 WritableStreamWriter_write 用 writer、结果 的 value。
+                NTST_转换总数 为 NTST_转换总数 加 1。
+            完。
+        完。
+    完。
+完。
+
+NTST_tee 接受 源流：
+    若 源流 等于 0：
+        返还 一组：0、0。
+    完。
+    分支1 为 做 ReadableStream_创建 用 0、0、1。
+    分支2 为 做 ReadableStream_创建 用 0、0、1。
+    reader 为 做 ReadableStream_getReader 用 源流。
+    若 reader 等于 0：
+        返还 一组：0、0。
+    完。
+    可变 完成 为 假。
+    只要 非 完成：
+        结果 为 做 ReadableStreamReader_read 用 reader。
+        若 结果 等于 0 或者 结果 的 done：
+            做 ReadableStream_close 用 分支1。
+            做 ReadableStream_close 用 分支2。
+            完成 为 真。
+        否则：
+            做 ReadableStream_enqueue 用 分支1、结果 的 value、0。
+            做 ReadableStream_enqueue 用 分支2、结果 的 value、0。
+        完。
+    完。
+    返还 一组：分支1、分支2。
+完。
+
+本章 收束。

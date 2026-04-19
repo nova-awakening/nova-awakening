@@ -1,0 +1,278 @@
+《字体扩展编》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·统一码编码》。
+
+引用《.·GBK索引》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·内核直连层》。
+
+TextEncoder 是 一种 事物，含 编码名。
+
+TextEncoder_创建 接受 零参：
+    enc 为 做 堆_分配 用 TextEncoder。
+    enc 的 编码名 为 「utf-8」。
+    返还 enc。
+完。
+
+TextEncoder_encode 接受 enc、字符串：
+    若 enc 等于 0 或者 字符串 等于 0：
+        返还 0。
+    完。
+    len 为 做 字节长度 用 字符串。
+    结果 为 做 堆_分配 用 len。
+    做 内存_复制 用 结果、字符串、len。
+    返还 结果。
+完。
+
+EncodeResult 是 一种 事物，含 read、written。
+
+TextEncoder_encodeInto 接受 enc、字符串、目标、目标长度：
+    若 enc 等于 0 或者 字符串 等于 0 或者 目标 等于 0：
+        返还 0。
+    完。
+    result 为 做 堆_分配 用 EncodeResult。
+    len 为 做 字节长度 用 字符串。
+    可变 读位置 为 0。
+    可变 写位置 为 0。
+    只要 读位置 小于 len 并且 写位置 小于 目标长度：
+        b0 为 做 字节取 用 字符串、读位置。
+        字节数 为 做 UTF8_字节长度 用 b0。
+        若 写位置 加 字节数 大于 目标长度：
+            跳出。
+        完。
+        可变 j 为 0。
+        只要 j 小于 字节数 并且 读位置 加 j 小于 len：
+            做 字节写 用 目标、写位置 加 j、做 字节取 用 字符串、读位置 加 j。
+            j 为 j 加 1。
+        完。
+        读位置 为 读位置 加 字节数。
+        写位置 为 写位置 加 字节数。
+    完。
+    result 的 read 为 读位置。
+    result 的 written 为 写位置。
+    返还 result。
+完。
+
+ENC_UTF8 为 0。
+
+ENC_UTF16LE 为 1。
+
+ENC_UTF16BE 为 2。
+
+ENC_GBK 为 3。
+
+ENC_GB18030 为 4。
+
+ENC_BIG5 为 5。
+
+ENC_SHIFT_JIS 为 6。
+
+ENC_EUC_JP 为 7。
+
+ENC_EUC_KR 为 8。
+
+ENC_ISO8859_1 为 9。
+
+ENC_WINDOWS1252 为 10。
+
+TextDecoder 是 一种 事物，含 编码、fatal、ignoreBOM、残留、残留长度。
+
+TextDecoder_创建 接受 编码名、fatal、ignoreBOM：
+    dec 为 做 堆_分配 用 TextDecoder。
+    dec 的 编码 为 做 TextDecoder_解析编码名 用 编码名。
+    dec 的 fatal 为 fatal。
+    dec 的 ignoreBOM 为 ignoreBOM。
+    dec 的 残留长度 为 0。
+    返还 dec。
+完。
+
+TextDecoder_解析编码名 接受 名称：
+    若 名称 等于 0：
+        返还 ENC_UTF8。
+    完。
+    若 做 字符串_相等 用 名称、「utf-8」 或者 做 字符串_相等 用 名称、「utf8」：
+        返还 ENC_UTF8。
+    完。
+    若 做 字符串_相等 用 名称、「utf-16le」 或者 做 字符串_相等 用 名称、「utf-16」：
+        返还 ENC_UTF16LE。
+    完。
+    若 做 字符串_相等 用 名称、「utf-16be」：
+        返还 ENC_UTF16BE。
+    完。
+    若 做 字符串_相等 用 名称、「gbk」 或者 做 字符串_相等 用 名称、「gb2312」 或者 做 字符串_相等 用 名称、「chinese」：
+        返还 ENC_GBK。
+    完。
+    若 做 字符串_相等 用 名称、「gb18030」：
+        返还 ENC_GB18030。
+    完。
+    若 做 字符串_相等 用 名称、「big5」：
+        返还 ENC_BIG5。
+    完。
+    若 做 字符串_相等 用 名称、「shift_jis」 或者 做 字符串_相等 用 名称、「shift-jis」：
+        返还 ENC_SHIFT_JIS。
+    完。
+    若 做 字符串_相等 用 名称、「euc-jp」：
+        返还 ENC_EUC_JP。
+    完。
+    若 做 字符串_相等 用 名称、「euc-kr」：
+        返还 ENC_EUC_KR。
+    完。
+    若 做 字符串_相等 用 名称、「iso-8859-1」 或者 做 字符串_相等 用 名称、「latin1」：
+        返还 ENC_ISO8859_1。
+    完。
+    若 做 字符串_相等 用 名称、「windows-1252」：
+        返还 ENC_WINDOWS1252。
+    完。
+    返还 ENC_UTF8。
+完。
+
+TextDecoder_decode 接受 dec、数据、长度：
+    若 dec 等于 0 或者 数据 等于 0 或者 长度 等于 0：
+        返还 「」。
+    完。
+    若 dec 的 编码 等于 ENC_UTF8：
+        返还 做 TextDecoder_UTF8 用 dec、数据、长度。
+    否则若 dec 的 编码 等于 ENC_UTF16LE：
+        返还 做 TextDecoder_UTF16LE 用 数据、长度。
+    否则若 dec 的 编码 等于 ENC_ISO8859_1：
+        返还 做 TextDecoder_ISO8859_1 用 数据、长度。
+    否则若 dec 的 编码 等于 ENC_GBK：
+        返还 做 TextDecoder_GBK 用 数据、长度。
+    完。
+    返还 做 TextDecoder_UTF8 用 dec、数据、长度。
+完。
+
+TextDecoder_UTF8 接受 dec、数据、长度：
+    若 数据 等于 0：
+        返还 「」。
+    完。
+    结果 为 做 堆_分配 用 长度 加 1。
+    可变 rpos 为 0。
+    可变 wpos 为 0。
+    若 非 dec 的 ignoreBOM 并且 长度 大于或等于 3：
+        若 做 字节取 用 数据、0 等于 0xEF 并且 做 字节取 用 数据、1 等于 0xBB 并且 做 字节取 用 数据、2 等于 0xBF：
+            rpos 为 3。
+        完。
+    完。
+    只要 rpos 小于 长度：
+        b0 为 做 字节取 用 数据、rpos。
+        字节数 为 做 UTF8_字节长度 用 b0。
+        若 rpos 加 字节数 大于 长度：
+            若 dec 的 fatal：
+                返还 0。
+            完。
+            做 字节写 用 结果、wpos、0xEF。
+            做 字节写 用 结果、wpos 加 1、0xBF。
+            做 字节写 用 结果、wpos 加 2、0xBD。
+            wpos 为 wpos 加 3。
+            rpos 为 rpos 加 1。
+            继续。
+        完。
+        可变 j 为 0。
+        只要 j 小于 字节数：
+            做 字节写 用 结果、wpos、做 字节取 用 数据、rpos。
+            rpos 为 rpos 加 1。
+            wpos 为 wpos 加 1。
+            j 为 j 加 1。
+        完。
+    完。
+    做 字节写 用 结果、wpos、0。
+    返还 结果。
+完。
+
+TextDecoder_UTF16LE 接受 数据、长度：
+    若 数据 等于 0 或者 长度 小于 2：
+        返还 「」。
+    完。
+    结果 为 做 堆_分配 用 长度 乘 2。
+    可变 rpos 为 0。
+    可变 wpos 为 0。
+    只要 rpos 加 1 小于 长度：
+        lo 为 做 字节取 用 数据、rpos。
+        hi 为 做 字节取 用 数据、rpos 加 1。
+        cp 为 lo 位或 hi 左移 8。
+        rpos 为 rpos 加 2。
+        若 cp 大于或等于 0xD800 并且 cp 小于或等于 0xDBFF 并且 rpos 加 1 小于 长度：
+            lo2 为 做 字节取 用 数据、rpos。
+            hi2 为 做 字节取 用 数据、rpos 加 1。
+            trail 为 lo2 位或 hi2 左移 8。
+            若 trail 大于或等于 0xDC00 并且 trail 小于或等于 0xDFFF：
+                cp 为 0x10000 加 (cp 减 0xD800 左移 10) 加 (trail 减 0xDC00)。
+                rpos 为 rpos 加 2。
+            完。
+        完。
+        wpos 为 wpos 加 做 UTF8_编码码点 用 cp、结果、wpos。
+    完。
+    做 字节写 用 结果、wpos、0。
+    返还 结果。
+完。
+
+TextDecoder_ISO8859_1 接受 数据、长度：
+    若 数据 等于 0：
+        返还 「」。
+    完。
+    结果 为 做 堆_分配 用 长度 乘 2 加 1。
+    可变 rpos 为 0。
+    可变 wpos 为 0。
+    只要 rpos 小于 长度：
+        cp 为 做 字节取 用 数据、rpos。
+        rpos 为 rpos 加 1。
+        wpos 为 wpos 加 做 UTF8_编码码点 用 cp、结果、wpos。
+    完。
+    做 字节写 用 结果、wpos、0。
+    返还 结果。
+完。
+
+TextDecoder_GBK 接受 数据、长度：
+    若 数据 等于 0：
+        返还 「」。
+    完。
+    结果 为 做 堆_分配 用 长度 乘 3 加 1。
+    可变 rpos 为 0。
+    可变 wpos 为 0。
+    只要 rpos 小于 长度：
+        b0 为 做 字节取 用 数据、rpos。
+        若 b0 小于 0x80：
+            做 字节写 用 结果、wpos、b0。
+            wpos 为 wpos 加 1。
+            rpos 为 rpos 加 1。
+        否则：
+            若 rpos 加 1 小于 长度：
+                wpos 为 wpos 加 做 UTF8_编码码点 用 0xFFFD、结果、wpos。
+                rpos 为 rpos 加 2。
+            否则：
+                wpos 为 wpos 加 做 UTF8_编码码点 用 0xFFFD、结果、wpos。
+                rpos 为 rpos 加 1。
+            完。
+        完。
+    完。
+    做 字节写 用 结果、wpos、0。
+    返还 结果。
+完。
+
+可变 AI_字体扩展编_热点函数 为 一组：（空）。
+
+AI_字体扩展编_JIT候选 接受 函数名、调用次数：
+    若 调用次数 大于 100：
+        做 追加 用 AI_字体扩展编_热点函数、函数名。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_字体扩展编_内联建议 接受 函数体大小、调用次数：
+    若 函数体大小 小于 30 并且 调用次数 大于 50：
+        返还 「内联」。
+    完。
+    返还 「不内联」。
+完。
+
+本章 收束。

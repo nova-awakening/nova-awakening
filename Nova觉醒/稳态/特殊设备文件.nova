@@ -1,0 +1,305 @@
+《特殊设备文件》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·日志缓冲区》。
+
+引用《..·中枢·字符设备分配》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·时钟中枢》。
+
+引用《..·中枢·整数转字符串》。
+
+外部。
+
+devtmpfs_创建节点。
+
+null_read 接受 缓冲、长度：
+    返还 0。
+完。
+
+null_write 接受 数据、长度：
+    返还 长度。
+完。
+
+zero_read 接受 缓冲、长度：
+    做 内存清零 用 缓冲、长度。
+    返还 长度。
+完。
+
+zero_write 接受 数据、长度：
+    返还 长度。
+完。
+
+full_read 接受 缓冲、长度：
+    做 内存清零 用 缓冲、长度。
+    返还 长度。
+完。
+
+full_write 接受 数据、长度：
+    返还 负 28。
+完。
+
+kmsg_read 接受 缓冲、长度：
+    返还 做 dmesg_读取。
+完。
+
+kmsg_write 接受 数据、长度：
+    做 日志_写入 用 6、数据。
+    返还 长度。
+完。
+
+可变 urandom_种子 为 0x5DEECE66D。
+
+可变 urandom_熵池 为 一组：（空）。
+
+可变 urandom_熵计数 为 0。
+
+ENTROPY_POOL_SIZE 为 128。
+
+urandom_初始化 接受 零参：
+    urandom_种子 为 做 读取纳秒 位异或 做 内联汇编_返回值 用 「rdtsc」。
+    urandom_熵池 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 ENTROPY_POOL_SIZE：
+        做 追加 用 urandom_熵池、urandom_种子 位异或 i 乘 0x9E3779B9。
+        urandom_种子 为 做 urandom_xorshift64 用 urandom_种子。
+        i 为 i 加 1。
+    完。
+    urandom_熵计数 为 0。
+完。
+
+urandom_xorshift64 接受 s：
+    s 为 s 位异或 s 左移 13。
+    s 为 s 位异或 s 右移 7。
+    s 为 s 位异或 s 左移 17。
+    返还 s。
+完。
+
+urandom_mix_entropy 接受 值：
+    idx 为 urandom_熵计数 取余于 ENTROPY_POOL_SIZE。
+    urandom_熵池 的 第 idx 项 为 urandom_熵池 的 第 idx 项 位异或 值。
+    urandom_熵计数 为 urandom_熵计数 加 1。
+    下一个 为 (idx 加 1) 取余于 ENTROPY_POOL_SIZE。
+    urandom_熵池 的 第 下一个 项 为 urandom_熵池 的 第 下一个 项 位异或 做 urandom_xorshift64 用 值。
+完。
+
+urandom_extract 接受 零参：
+    idx 为 urandom_熵计数 取余于 ENTROPY_POOL_SIZE。
+    a 为 urandom_熵池 的 第 idx 项。
+    b 为 urandom_熵池 的 第 (idx 加 37) 取余于 ENTROPY_POOL_SIZE 项。
+    c 为 urandom_熵池 的 第 (idx 加 79) 取余于 ENTROPY_POOL_SIZE 项。
+    urandom_种子 为 做 urandom_xorshift64 用 urandom_种子 位异或 a 位异或 b。
+    urandom_熵池 的 第 idx 项 为 urandom_种子。
+    urandom_熵计数 为 urandom_熵计数 加 1。
+    返还 urandom_种子 位异或 c。
+完。
+
+urandom_read 接受 缓冲、长度：
+    若 长度 小于或等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        r 为 做 urandom_extract。
+        做 内存写8 用 缓冲 加 i、r 位与 0xFF。
+        若 i 加 1 小于 长度：
+            做 内存写8 用 缓冲 加 i 加 1、r 右移 8 位与 0xFF。
+        完。
+        若 i 加 2 小于 长度：
+            做 内存写8 用 缓冲 加 i 加 2、r 右移 16 位与 0xFF。
+        完。
+        若 i 加 3 小于 长度：
+            做 内存写8 用 缓冲 加 i 加 3、r 右移 24 位与 0xFF。
+        完。
+        若 i 加 4 小于 长度：
+            做 内存写8 用 缓冲 加 i 加 4、r 右移 32 位与 0xFF。
+        完。
+        若 i 加 5 小于 长度：
+            做 内存写8 用 缓冲 加 i 加 5、r 右移 40 位与 0xFF。
+        完。
+        若 i 加 6 小于 长度：
+            做 内存写8 用 缓冲 加 i 加 6、r 右移 48 位与 0xFF。
+        完。
+        若 i 加 7 小于 长度：
+            做 内存写8 用 缓冲 加 i 加 7、r 右移 56 位与 0xFF。
+        完。
+        i 为 i 加 8。
+    完。
+    返还 长度。
+完。
+
+urandom_write 接受 数据、长度：
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 urandom_mix_entropy 用 做 内存读8 用 数据 加 i。
+        i 为 i 加 1。
+    完。
+    返还 长度。
+完。
+
+urandom_Nova设备控制 接受 命令、参数：
+    若 命令 等于 0x5401：
+        返还 urandom_熵计数。
+    完。
+    若 命令 等于 0x5402：
+        做 urandom_mix_entropy 用 参数。
+        返还 成功。
+    完。
+    返还 错误_无效参数。
+完。
+
+可变 null_fops 为 空。
+
+可变 zero_fops 为 空。
+
+可变 full_fops 为 空。
+
+可变 kmsg_fops 为 空。
+
+可变 urandom_fops 为 空。
+
+可变 char_dev_统计 为 一组：0、0、0、0、0。
+
+chardev_初始化 接受 零参：
+    做 urandom_初始化。
+    null_fops 为 一组：null_read、null_write、空、空、空。
+    zero_fops 为 一组：zero_read、zero_write、空、空、空。
+    full_fops 为 一组：full_read、full_write、空、空、空。
+    kmsg_fops 为 一组：kmsg_read、kmsg_write、空、空、空。
+    urandom_fops 为 一组：urandom_read、urandom_write、urandom_Nova设备控制、空、空。
+    做 chardev_注册 用 「/dev/null」、1、3、null_fops。
+    做 chardev_注册 用 「/dev/zero」、1、5、zero_fops。
+    做 chardev_注册 用 「/dev/full」、1、7、full_fops。
+    做 chardev_注册 用 「/dev/kmsg」、1、11、kmsg_fops。
+    做 chardev_注册 用 「/dev/urandom」、1、9、urandom_fops。
+    做 chardev_注册 用 「/dev/random」、1、8、urandom_fops。
+    做 内核信息 用 「字符设备: null/zero/full/kmsg/urandom 已注册」。
+完。
+
+chardev_注册 接受 路径、主设备号、次设备号、fops：
+    做 devtmpfs_创建节点 用 路径、主设备号、次设备号、fops。
+完。
+
+chardev_统计 接受 零参：
+    返还 一组：char_dev_统计 的 第 0 项、char_dev_统计 的 第 1 项、char_dev_统计 的 第 2 项、char_dev_统计 的 第 3 项、char_dev_统计 的 第 4 项。
+完。
+
+mem_read 接受 缓冲、长度、偏移：
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 内存写8 用 缓冲 加 i、做 内存读8 用 偏移 加 i。
+        i 为 i 加 1。
+    完。
+    返还 长度。
+完。
+
+mem_write 接受 数据、长度、偏移：
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 内存写8 用 偏移 加 i、做 内存读8 用 数据 加 i。
+        i 为 i 加 1。
+    完。
+    返还 长度。
+完。
+
+port_read 接受 缓冲、长度、偏移：
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 内存写8 用 缓冲 加 i、做 inb 用 偏移 加 i。
+        i 为 i 加 1。
+    完。
+    返还 长度。
+完。
+
+port_write 接受 数据、长度、偏移：
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 outb 用 偏移 加 i、做 内存读8 用 数据 加 i。
+        i 为 i 加 1。
+    完。
+    返还 长度。
+完。
+
+chardev_设备名 接受 次设备号：
+    若 次设备号 等于 3：
+        返还 「null」。
+    完。
+    若 次设备号 等于 5：
+        返还 「zero」。
+    完。
+    若 次设备号 等于 7：
+        返还 「full」。
+    完。
+    若 次设备号 等于 8：
+        返还 「random」。
+    完。
+    若 次设备号 等于 9：
+        返还 「urandom」。
+    完。
+    若 次设备号 等于 11：
+        返还 「kmsg」。
+    完。
+    返还 「unknown」。
+完。
+
+urandom_熵统计 接受 零参：
+    返还 一组：urandom_熵计数、ENTROPY_POOL_SIZE。
+完。
+
+null_zero_完整统计 接受 零参：
+    返还 一组：urandom_熵计数、ENTROPY_POOL_SIZE。
+完。
+
+可变 null_写入字节数 为 0。
+
+可变 zero_读取字节数 为 0。
+
+可变 urandom_读取字节数 为 0。
+
+null_zero_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 urandom_熵计数 小于 128：
+        做 追加 用 问题、「熵池不足: 」 加 做 整数转字符串 用 urandom_熵计数。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「null/zero/urandom健康」。
+    完。
+    返还 问题。
+完。
+
+null_zero_IO统计 接受 零参：
+    返还 一本字典：null写入 对应 null_写入字节数、zero读取 对应 zero_读取字节数、urandom读取 对应 urandom_读取字节数、熵池 对应 urandom_熵计数。
+完。
+
+null_zero_熵充足 接受 零参：
+    返还 urandom_熵计数 大于或等于 ENTROPY_POOL_SIZE 除以 2。
+完。
+
+null_zero_重置统计 接受 零参：
+    null_写入字节数 为 0。
+    zero_读取字节数 为 0。
+    urandom_读取字节数 为 0。
+完。
+
+null_zero_总IO 接受 零参：
+    返还 null_写入字节数 加 zero_读取字节数 加 urandom_读取字节数。
+完。
+
+可变 AI_稳态甲_调用数 为 0。
+
+AI_稳态甲_风险评分 接受 异常数、总操作：
+    AI_稳态甲_调用数 为 AI_稳态甲_调用数 加 1。
+    若 总操作 等于 0：
+        返还 0。
+    完。
+    返还 异常数 乘 1000 除以 总操作。
+完。
+
+本章 收束。

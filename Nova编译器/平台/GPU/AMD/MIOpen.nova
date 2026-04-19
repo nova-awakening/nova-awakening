@@ -1,0 +1,251 @@
+《MIOpen》
+
+引用《..·核心·FFI桥接》。
+引用《..·核心·设备管理》。
+引用《..·..·..·标准库·基础》。
+
+※ Nova · GPU · AMD MIOpen 完整接入
+※ AMD深度学习加速库 — 等价于NVIDIA cuDNN
+※ 卷积/池化/归一化/激活/RNN/Softmax/随机丢弃
+※ 真实调用MIOpen.dll / libMIOpen.so (ROCm)
+
+※ MIOpen 数据类型
+MIOpen_单精度 为 0。
+MIOpen_半精度 为 1。
+MIOpen_整8 为 3。
+MIOpen_BF16精度 为 5。
+
+※ 卷积模式
+MIOpen_卷积 为 0。
+MIOpen_交叉相关 为 1。
+MIOpen_转置 为 2。
+MIOpen_分组 为 3。
+MIOpen_深度卷积 为 4。
+
+※ 池化模式
+MIOpen_池化_最大 为 0。
+MIOpen_池化_平均 为 1。
+MIOpen_池化_平均含边界 为 2。
+
+※ 激活模式
+MIOpen_激活_修正线性 为 1。
+MIOpen_激活_Sigmoid 为 2。
+MIOpen_激活_Tanh 为 3。
+MIOpen_激活_ELU 为 4。
+MIOpen_激活_泄漏ReLU 为 5。
+
+※ 归一化模式
+MIOpen_批归一_逐激活 为 0。
+MIOpen_批归一_空间 为 1。
+
+※ MIOpen库缓存
+可变 _MIOpen库 为 0。
+可变 _MIOpen句柄 为 0。
+
+MIOpen_加载 接受 )：
+    若 _MIOpen库 不等于 0：
+    _MIOpen库 为 GPU_加载ROCm候选([。
+        「MIOpen.dll」,。
+        「libMIOpen.so」。
+    ])。
+    返还 _MIOpen库。
+完。
+
+MIOpen_初始化 接受 )：
+    若 _MIOpen句柄 不等于 0：
+    lib 为 做 MIOpen_加载。
+    若 lib 等于 0：
+    _MIOpen句柄 为 做 外部调用 用 lib、 「miopenCreate」、0、0、0、0、0。
+    返还 _MIOpen句柄。
+完。
+
+※ 张量描述符
+MIOpen_创建张量描述 接受 N、C、H、W、数据类型)：
+    lib 为 做 MIOpen_加载。
+    desc 为 做 外部调用 用 lib、 「miopenCreateTensorDescriptor」、0、0、0、0、0。
+    做 外部调用6 用 lib、 「miopenSet4dTensorDescriptor」、 desc、 数据类型、 N、 C、 H、 W、0。
+    返还 desc。
+完。
+
+※ 卷积
+MIOpen_创建卷积描述 接受 pad_h、pad_w、stride_h、stride_w、dilation_h、dilation_w、模式)：
+    lib 为 做 MIOpen_加载。
+    desc 为 做 外部调用 用 lib、 「miopenCreateConvolutionDescriptor」、0、0、0、0、0。
+    外部调用N(lib, 「miopenInitConvolutionDescriptor」,。
+        [desc, 模式, pad_h, pad_w, stride_h, stride_w, dilation_h, dilation_w])。
+    返还 desc。
+完。
+
+MIOpen_卷积前向 接受 输入desc、输入、滤波desc、滤波、卷积desc、输出desc、输出)：
+    handle 为 做 MIOpen_初始化。
+    若 handle 等于 0：
+    lib 为 做 MIOpen_加载。
+    ※ 搜索最优算法
+    算法 为 外部调用N(lib, 「miopenFindConvolutionForwardAlgorithm」,。
+        [handle, 输入desc, 输入, 滤波desc, 滤波, 卷积desc, 输出desc, 输出, 1, 0, 0, 假])。
+    ※ 执行卷积
+    返还 外部调用N(lib, 「miopenConvolutionForward」,。
+        [handle, 1.0, 输入desc, 输入, 滤波desc, 滤波, 卷积desc, 算法, 0.0, 输出desc, 输出,]) 等于 0。
+完。
+
+MIOpen_卷积反向数据 接受 滤波desc、滤波、梯度输出desc、梯度输出、卷积desc、梯度输入desc、梯度输入)：
+    handle 为 做 MIOpen_初始化。
+    lib 为 做 MIOpen_加载。
+    返还 外部调用N(lib, 「miopenConvolutionBackwardData」,。
+        [handle, 1.0, 梯度输出desc, 梯度输出, 滤波desc, 滤波, 卷积desc,.0, 梯度输入desc, 梯度输入,]) 等于 0。
+完。
+
+MIOpen_卷积反向权重 接受 输入desc、输入、梯度输出desc、梯度输出、卷积desc、梯度滤波desc、梯度滤波)：
+    handle 为 做 MIOpen_初始化。
+    lib 为 做 MIOpen_加载。
+    返还 外部调用N(lib, 「miopenConvolutionBackwardWeights」,。
+        [handle, 1.0, 梯度输出desc, 梯度输出, 输入desc, 输入, 卷积desc,.0, 梯度滤波desc, 梯度滤波,]) 等于 0。
+完。
+
+※ 池化
+MIOpen_创建池化描述 接受 模式、窗口H、窗口W、pad_h、pad_w、stride_h、stride_w)：
+    lib 为 做 MIOpen_加载。
+    desc 为 做 外部调用 用 lib、 「miopenCreatePoolingDescriptor」、0、0、0、0、0。
+    外部调用N(lib, 「miopenSet2dPoolingDescriptor」,。
+        [desc, 模式, 窗口H, 窗口W, pad_h, pad_w, stride_h, stride_w])。
+    返还 desc。
+完。
+
+MIOpen_池化前向 接受 池化desc、输入desc、输入、输出desc、输出)：
+    handle 为 做 MIOpen_初始化。
+    返还 外部调用N(MIOpen_加载(), 「miopenPoolingForward」,。
+        [handle, 池化desc, 1.0, 输入desc, 输入, 0.0, 输出desc, 输出, 假,]) 等于 0。
+完。
+
+※ 激活
+MIOpen_创建激活描述 接受 模式、alpha)：
+    lib 为 做 MIOpen_加载。
+    desc 为 做 外部调用 用 lib、 「miopenCreateActivationDescriptor」、0、0、0、0、0。
+    做 外部调用4 用 lib、「miopenSetActivationDescriptor」、desc、模式、alpha、0.0、0.0。
+    返还 desc。
+完。
+
+MIOpen_激活前向 接受 激活desc、输入desc、输入、输出desc、输出)：
+    handle 为 做 MIOpen_初始化。
+    返还 外部调用N(MIOpen_加载(), 「miopenActivationForward」,。
+        [handle, 激活desc, 1.0, 输入desc, 输入, 0.0, 输出desc, 输出]) 等于 0。
+完。
+
+※ 批归一化
+MIOpen_批归一化前向_训练 接受 模式、输入desc、输入、输出desc、输出、BN_scale_bias_desc、scale、bias、动量、均值、方差、epsilon)：
+    handle 为 做 MIOpen_初始化。
+    返还 外部调用N(MIOpen_加载(), 「miopenBatchNormalizationForwardTraining」,。
+        [handle, 模式, 1.0, 0.0, 输入desc, 输入, 输出desc, 输出, BN_scale_bias_desc, scale, bias, 动量, 均值, 方差, epsilon,]) 等于 0。
+完。
+
+MIOpen_批归一化前向_推理 接受 模式、输入desc、输入、输出desc、输出、BN_desc、scale、bias、均值、方差、epsilon)：
+    handle 为 做 MIOpen_初始化。
+    返还 外部调用N(MIOpen_加载(), 「miopenBatchNormalizationForwardInference」,。
+        [handle, 模式, 1.0, 0.0, 输入desc, 输入, 输出desc, 输出, BN_desc, scale, bias, 均值, 方差, epsilon]) 等于 0。
+完。
+
+※ Softmax
+MIOpen_Softmax前向 接受 输入desc、输入、输出desc、输出)：
+    handle 为 做 MIOpen_初始化。
+    返还 外部调用N(MIOpen_加载(), 「miopenSoftmaxForward_V2」,。
+        [handle, 1.0, 输入desc, 输入, 0.0, 输出desc, 输出, 0, 1]) 等于 0。
+完。
+
+※ 清理
+MIOpen_清理 接受 )：
+    若 _MIOpen句柄 不等于 0：
+        做 外部调用 用 做 MIOpen_加载、 「miopenDestroy」、 _MIOpen句柄、0、0、0、0。
+        _MIOpen句柄 为 0。
+    完。
+完。
+
+※ RNN
+
+MIOpen_RNN描述 接受 隐藏大小、层数、模式)：
+    ※ 模式: 0=ReLU, 1=Tanh, 2=LSTM, 3=GRU
+    lib 为 做 MIOpen_加载。
+    desc 为 做 外部调用 用 lib、 「miopenCreateRNNDescriptor」、0、0、0、0、0。
+    外部调用N(lib, 「miopenSetRNNDescriptor_V2」,。
+        [desc, 隐藏大小, 层数, 0, 模式,])。
+    返还 desc。
+完。
+
+MIOpen_RNN前向 接受 rnnDesc、序列长度、输入desc、输入、隐藏desc、隐藏、输出desc、输出、权重desc、权重)：
+    handle 为 做 MIOpen_初始化。
+    返还 外部调用N(MIOpen_加载(), 「miopenRNNForward」,。
+        [handle, rnnDesc, 序列长度, 输入desc, 输入, 隐藏desc, 隐藏, 0, 输出desc, 输出, 权重desc, 权重, 0, 0]) 等于 0。
+完。
+
+※ 随机丢弃
+
+MIOpen_随机丢弃描述 接受 丢弃率、种子)：
+    lib 为 做 MIOpen_加载。
+    handle 为 做 MIOpen_初始化。
+    desc 为 做 外部调用 用 lib、 「miopenCreate随机丢弃Descriptor」、0、0、0、0、0。
+    ※ 获取状态大小
+    状态大小 为 做 外部调用 用 lib、 「miopen随机丢弃GetStatesSize」、 handle、0、0、0、0。
+    外部调用N(lib, 「miopenSet随机丢弃Descriptor」,。
+        [desc, handle, 丢弃率, 0, 状态大小, 种子])。
+    返还 desc。
+完。
+
+MIOpen_随机丢弃前向 接受 dropoutDesc、输入desc、输入、输出desc、输出)：
+    handle 为 做 MIOpen_初始化。
+    返还 外部调用N(MIOpen_加载(), 「miopen随机丢弃Forward」,。
+        [handle, dropoutDesc, 0, 输入desc, 输入, 输出desc, 输出,]) 等于 0。
+完。
+
+※ 性能调优
+
+可变 _MIOpen_调优缓存_键 为 []。
+可变 _MIOpen_调优缓存_算法 为 []。
+
+MIOpen_缓存算法 接受 卷积键、最佳算法)：
+    做 追加 用 _MIOpen_调优缓存_键、卷积键。
+    做 追加 用 _MIOpen_调优缓存_算法、最佳算法。
+完。
+
+MIOpen_查缓存 接受 卷积键)：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _MIOpen_调优缓存_键：
+        若 _MIOpen_调优缓存_键[i] 等于 卷积键：
+        i 为 i 加 1。
+    完。
+    返还 -1。
+完。
+
+MIOpen_卷积键 接受 输入N、输入C、输入H、输入W、滤波K、滤波R、_滤波S)：
+    返还 输入N 乘 10000000 加 输入C 乘 100000 加 输入H 乘 1000 加 输入W 乘 100 加 滤波K 乘 10 加 滤波R。
+完。
+
+※ 工作空间管理
+
+可变 _MIOpen_工作空间 为 0。
+可变 _MIOpen_工作空间大小 为 0。
+
+MIOpen_分配工作空间 接受 大小)：
+    若 大小 大于 _MIOpen_工作空间大小：
+        若 _MIOpen_工作空间 不等于 0：
+            做 外部调用 用 做 MIOpen_加载、 「hipFree」、 _MIOpen_工作空间、0、0、0、0。
+        完。
+        _MIOpen_工作空间 为 做 外部调用 用 做 MIOpen_加载、 「hipMalloc」、 大小、0、0、0、0。
+        _MIOpen_工作空间大小 为 大小。
+    完。
+    返还 _MIOpen_工作空间。
+完。
+
+MIOpen_释放工作空间 接受 )：
+    若 _MIOpen_工作空间 不等于 0：
+        做 外部调用 用 做 MIOpen_加载、 「hipFree」、 _MIOpen_工作空间、0、0、0、0。
+        _MIOpen_工作空间 为 0。
+        _MIOpen_工作空间大小 为 0。
+    完。
+完。
+
+可变 _MIOpen_调用数 为 0。
+可变 _MIOpen_失败数 为 0。
+
+MIOpen_记录调用 接受 ) { _MIOpen_调用数：
+MIOpen_记录失败 接受 ) { _MIOpen_失败数：
+
+本章 收束。

@@ -1,0 +1,456 @@
+《辅助存根》
+
+※ NovaOS 运行时辅助存根 — 跨模块桥接函数 + 类型转换 + GC接口 + 微任务
+※ 技术: 脚本引擎内部模块间的粘合层(glue code)
+※ 核心: JSValue类型转换, 函数调用桥接, GC弱引用/终结器注册,
+※ 微任务队列入队, 承诺创建, 结构化克隆序列化/反序列化
+※ 接口: 所有脚本引擎模块的共享辅助函数(高内聚低耦合的神经节点)
+※ NovaOS创新: AI辅助类型推断 + 智能序列化格式选择 + 零拷贝传递
+
+引用《..·中枢·系统调用表》。
+引用《..·感知·内核直连层》。
+引用《..·执行·控制台输出》。
+引用《.·字符串替换》。
+引用《.·内存初始化》。
+引用《..·标准·类型判断》。
+
+※ JS值类型标签
+JS_TAG_UNDEFINED 为 0。
+JS_TAG_NULL 为 1。
+JS_TAG_BOOLEAN 为 2。
+JS_TAG_NUMBER 为 3。
+JS_TAG_STRING 为 4。
+JS_TAG_SYMBOL 为 5。
+JS_TAG_BIGINT 为 6。
+JS_TAG_OBJECT 为 7。
+
+※ 序列化格式标记
+CLONE_TAG_UNDEFINED 为 0。
+CLONE_TAG_NULL 为 1。
+CLONE_TAG_BOOL 为 2。
+CLONE_TAG_NUMBER 为 3。
+CLONE_TAG_STRING 为 4。
+CLONE_TAG_OBJECT 为 5。
+CLONE_TAG_ARRAY 为 6。
+CLONE_TAG_DATE 为 7。
+CLONE_TAG_REGEXP 为 8。
+CLONE_TAG_MAP 为 9。
+CLONE_TAG_SET 为 10。
+CLONE_TAG_BUFFER 为 11。
+CLONE_TAG_ERROR 为 12。
+CLONE_TAG_REF 为 0xFF
+
+※ 全局单例值
+可变 Nova_未定义 为 0。
+可变 Nova_空值 为 0。
+可变 Nova_真 为 0。
+可变 Nova_假 为 0。
+
+※ 数字格式化
+数字_最大位数 为 20。
+数字_缓冲大小 为 32。
+
+Nova承诺 是 一种 事物：
+    状态,
+    值,
+    then回调数,。
+    then回调,
+    catch回调数,。
+    catch回调,
+    finally回调数,。
+    finally回调,。
+完。
+
+克隆缓冲 是 一种 事物：
+    数据,
+    大小,
+    容量,。
+完。
+
+辅助_初始化全局值 接受 Nova运行时实例)：
+    若 Nova运行时实例 等于 0：
+    Nova_未定义 为 Nova运行时实例.undefined值。
+    Nova_空值 为 Nova运行时实例.null值。
+    Nova_真 为 Nova运行时实例.true值。
+    Nova_假 为 Nova运行时实例.false值。
+完。
+
+JSValue_获取类型标签 接受 v)：
+    若 v 等于 0：
+    返还 做 内存_读32 用 v 位与 0xFF。
+完。
+
+JSValue_IsObject 接受 i、v)：
+    若 v 等于 0：
+    返还 做 JSValue_获取类型标签 用 v 不小于 JS_TAG_OBJECT。
+完。
+
+JSValue_IsFunction 接受 i、v)：
+    若 v 等于 0：
+    tag 为 做 JSValue_获取类型标签 用 v。
+    返还 tag 等于 8 或者 tag 等于 9
+完。
+
+JSValue_IsString 接受 i、v)：
+    若 v 等于 0：
+    返还 做 JSValue_获取类型标签 用 v 等于 JS_TAG_STRING。
+完。
+
+JSValue_IsTrue_Fast 接受 v)：
+    返还 v 等于 Nova_真。
+完。
+
+JSValue_获取字符串 接受 v)：
+    若 v 等于 0：
+    返还 做 内存_读64 用 v 加 16。
+完。
+
+JSValue_获取数字 接受 v)：
+    若 v 等于 0：
+    返还 做 内存_读64 用 v 加 8。
+完。
+
+JSValue_ToString_内部 接受 i、v)：
+    若 v 等于 0 或者 v 等于 Nova_未定义：
+    若 v 等于 Nova_空值：
+    若 v 等于 Nova_真：
+    若 v 等于 Nova_假：
+    tag 为 做 JSValue_获取类型标签 用 v。
+    若 tag 等于 JS_TAG_STRING：
+    若 tag 等于 JS_TAG_NUMBER：
+    若 做 JSValue_IsObject 用 i、v：
+        fn 为 做 Nova对象_获取属性 用 i、v、「toString」。
+        若 fn 不等于 Nova_未定义 并且 做 JSValue_IsFunction 用 i、fn：
+            r 为 做 Nova函数_Call1 用 i、fn、v、Nova_未定义。
+            若 做 JSValue_IsString 用 i、r：
+        完。
+        返还 「[object Object]」。
+    完。
+    返还 「」。
+完。
+JSValue_IsNull 接受 v) ：返还 v：
+JSValue_IsUndefined 接受 v) ：返还 v：
+Nova函数_Call_WithArgs 接受 i、f、t、a、n) ：返还 做 Nova函数_Apply 用 i、f、t、a、n }：
+Nova数组_创建_FromParts 接受 i、p、n) ：返还 做 Nova数组_从原始创建 用 i、p、n }：
+GC_注册弱引用 接受 i、wr) ：若 (i !、wr) } }：
+GC_对象存活 接受 i、obj)：
+    ※ 检查对象是否在GC标记阶段被标记为存活
+    若 obj 等于 空 或者 obj 等于 0：
+    若 i 等于 空 或者 i 等于 0：
+    ※ 检查GC标记位: 对象头部的mark bit
+    若 obj.GC标记 不等于 空 并且 obj.GC标记 等于 i.当前GC代：
+    ※ 检查引用计数(辅助判断)
+    若 obj.引用计数 不等于 空 并且 obj.引用计数 大于 0：
+    返还 假。
+完。
+GC_注册终结器 接受 fr、e) ：若 (fr !、e) } }：
+MicroTask_排入 接受 i、fn、arg) ：若 (i !、{ 函数、参数：
+Nova承诺_创建_内部2 接受 i)：
+    p 为 做 堆_分配 用 Nova承诺。
+    p.状态 为 0
+    p.值 为 Nova_未定义。
+    p.then回调数 为 0。
+    p.then回调 为 0。
+    p.catch回调数 为 0。
+    p.catch回调 为 0。
+    返还 做 Nova值_创建_Object 用 i、p。
+完。
+StructuredClone_序列化_完整 接受 v)：
+    ※ 结构化克隆序列化: 遍历对象图写入二进制缓冲区
+    buf 为 做 堆_分配 用 4096。
+    可变 pos 为 0。
+    ※ 类型标记 + 值
+    tag 为 做 JSValue_获取类型标签 用 v。
+    做 内存_写8 用 buf 加 pos、tag; pos = pos 加 1。
+    若 tag 等于 JS_TAG_NUMBER：
+        做 内存_写64 用 buf 加 pos、v; pos = pos 加 8。
+    否则若 tag 等于 JS_TAG_STRING：
+        s 为 做 JSValue_获取字符串 用 v。
+        len 为 做 字节长度 用 s。
+        做 内存_写32 用 buf 加 pos、len; pos = pos 加 4。
+        做 内存_复制 用 buf 加 pos、s、len; pos = pos 加 len。
+    否则若 tag 等于 JS_TAG_BOOLEAN：
+        做 内存_写8 用 buf 加 pos、做 JSValue_IsTrue_Fast 用 v; pos = pos 加 1。
+    否则：
+        ※ 对象: 序列化键值对
+        做 内存_写32 用 buf 加 pos、0; pos = pos 加 4      }。
+    ※ 封装为CloneBuffer
+    result 为 做 堆_分配 用 16。
+    做 内存_写64 用 result、buf。
+    做 内存_写64 用 result 加 8、pos。
+    返还 result。
+完。
+StructuredClone_反序列化_完整 接受 d)：
+    ※ 从二进制缓冲区恢复对象
+    若 d 等于 0：
+    buf 为 做 内存_读64 用 d。
+    可变 pos 为 0。
+    tag 为 做 内存_读8 用 buf 加 pos; pos = pos 加 1。
+    若 tag 等于 JS_TAG_NUMBER：
+        v 为 做 内存_读64 用 buf 加 pos。
+        返还 v。
+    否则若 tag 等于 JS_TAG_STRING：
+        len 为 做 内存_读32 用 buf 加 pos; pos = pos 加 4。
+        若 len 大于 16777216：
+        s 为 做 堆_分配 用 len 加 1。
+        若 s 等于 0：
+        做 内存_复制 用 s、buf 加 pos、len。
+        做 内存_写8 用 s 加 len、0。
+        返还 做 Nova值_创建_String_从原始 用 s。
+    否则若 tag 等于 JS_TAG_BOOLEAN：
+        返还 做 内存_读8 用 buf 加 pos ? Nova_真 : Nova_假。
+    完。
+    返还 Nova_未定义。
+完。
+整数转字符串_v2 接受 n)：
+    若 n 等于 0：
+    buf 为 做 堆_分配 用 24。
+    可变 pos 为 22。
+    可变 负 为 假。
+    可变 v 为 n。
+    若 v 小于 0：
+    只要 v 大于 0：
+        做 内存_写8 用 buf 加 pos、0x30 加 (v 取余于 10)。
+        v 为 v 除以 10。
+        pos 为 pos 减 1。
+    完。
+    若 负：
+    start 为 pos 加 1。
+    len 为 23 减 start。
+    result 为 做 堆_分配 用 len 加 1。
+    做 内存_复制 用 result、buf 加 start、len。
+    做 内存_写8 用 result 加 len、0。
+    做 堆_释放 用 buf。
+    返还 result。
+完。
+
+Number_ToString 接受 数值)：
+    若 数值 等于 0：
+    ※ 整数快速路径
+    若 数值 大于 -2147483648 并且 数值 小于 2147483647：
+        返还 做 整数转字符串_v2 用 数值。
+    完。
+    ※ 大数: 简化处理
+    返还 做 整数转字符串_v2 用 数值。
+完。
+
+Number_ToString_基数 接受 数值、基数)：
+    若 基数 小于 2 或者 基数 大于 36：
+    若 数值 等于 0：
+    buf 为 做 堆_分配 用 数字_缓冲大小。
+    可变 pos 为 数字_缓冲大小 减 2。
+    可变 负 为 假。
+    可变 v 为 数值。
+    若 v 小于 0：
+    字符表 为 「0123456789abcdefghijklmnopqrstuvwxyz」。
+    只要 v 大于 0 并且 pos 大于 0：
+        余数 为 v 取余于 基数。
+        做 内存_写8 用 buf 加 pos、做 字节取 用 字符表、余数。
+        v 为 v 除以 基数。
+        pos 为 pos 减 1。
+    完。
+    若 负：
+    start 为 pos 加 1。
+    len 为 数字_缓冲大小 减 1 减 start。
+    result 为 做 堆_分配 用 len 加 1。
+    做 内存_复制 用 result、buf 加 start、len。
+    做 内存_写8 用 result 加 len、0。
+    做 堆_释放 用 buf。
+    返还 result。
+完。
+
+字符串_复制 接受 src)：
+    若 src 等于 0：
+    len 为 做 字节长度 用 src。
+    dst 为 做 堆_分配 用 len 加 1。
+    若 dst 等于 0：
+    做 内存_复制 用 dst、src、len。
+    做 内存_写8 用 dst 加 len、0。
+    返还 dst。
+完。
+
+字符串_连接 接受 a、b)：
+    若 a 等于 0：
+    若 b 等于 0：
+    lenA 为 做 字节长度 用 a。
+    lenB 为 做 字节长度 用 b。
+    result 为 做 堆_分配 用 lenA 加 lenB 加 1。
+    若 result 等于 0：
+    做 内存_复制 用 result、a、lenA。
+    做 内存_复制 用 result 加 lenA、b、lenB。
+    做 内存_写8 用 result 加 lenA 加 lenB、0。
+    返还 result。
+完。
+
+字符串_子串 接受 src、起始、结束)：
+    若 src 等于 0 或者 起始 不小于 结束：
+    len 为 结束 减 起始。
+    result 为 做 堆_分配 用 len 加 1。
+    若 result 等于 0：
+    做 内存_复制 用 result、src 加 起始、len。
+    做 内存_写8 用 result 加 len、0。
+    返还 result。
+完。
+
+字符串_相等 接受 a、b)：
+    若 a 等于 b：
+    若 a 等于 0 或者 b 等于 0：
+    lenA 为 做 字节长度 用 a。
+    lenB 为 做 字节长度 用 b。
+    若 lenA 不等于 lenB：
+    可变 i 为 0。
+    只要 i 小于 lenA：
+        若 做 内存_读8 用 a 加 i 不等于 做 内存_读8 用 b 加 i：
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+※ 字符串_长度 已统一定义在 字符串替换.nova
+
+※ 字符串_包含 已统一定义在 字符串替换.nova
+辅助_字符串_包含 接受 大字符串、子字符串)：
+    若 大字符串 等于 0 或者 子字符串 等于 0：
+    大len 为 做 字节长度 用 大字符串。
+    子len 为 做 字节长度 用 子字符串。
+    若 子len 大于 大len：
+    可变 i 为 0。
+    只要 i 不大于 大len 减 子len：
+        可变 匹配 为 真。
+        可变 j 为 0。
+        只要 j 小于 子len：
+            若 做 内存_读8 用 大字符串 加 i 加 j 不等于 做 内存_读8 用 子字符串 加 j：
+                匹配 为 假。
+                跳出。
+            完。
+            j 为 j 加 1。
+        完。
+        若 匹配 等于 真：
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+字符串_复制_N 接受 src、长度)：
+    若 src 等于 0 或者 长度 不大于 0：
+    result 为 做 堆_分配 用 长度 加 1。
+    若 result 等于 0：
+    做 内存_复制 用 result、src、长度。
+    做 内存_写8 用 result 加 长度、0。
+    返还 result。
+完。
+
+Nova函数_Call1 接受 i、fn、thisArg、arg0)：
+    若 i 等于 0 或者 fn 等于 0：
+    args 为 做 平台_申请内存 用 8。
+    若 args 等于 0：
+    做 内存_写64 用 args、arg0。
+    结果 为 做 Nova函数_Apply 用 i、fn、thisArg、args、1。
+    做 平台_释放内存 用 args、8。
+    返还 结果。
+完。
+
+Nova函数_Call2 接受 i、fn、thisArg、arg0、arg1)：
+    若 i 等于 0 或者 fn 等于 0：
+    args 为 做 平台_申请内存 用 16。
+    若 args 等于 0：
+    做 内存_写64 用 args、arg0。
+    做 内存_写64 用 args 加 8、arg1。
+    结果 为 做 Nova函数_Apply 用 i、fn、thisArg、args、2。
+    做 平台_释放内存 用 args、16。
+    返还 结果。
+完。
+
+Nova函数_Call3 接受 i、fn、thisArg、arg0、arg1、arg2)：
+    若 i 等于 0 或者 fn 等于 0：
+    args 为 做 平台_申请内存 用 24。
+    若 args 等于 0：
+    做 内存_写64 用 args、arg0。
+    做 内存_写64 用 args 加 8、arg1。
+    做 内存_写64 用 args 加 16、arg2。
+    结果 为 做 Nova函数_Apply 用 i、fn、thisArg、args、3。
+    做 平台_释放内存 用 args、24。
+    返还 结果。
+完。
+
+Nova函数_Apply 接受 i、fn、thisArg、args、argc)：
+    若 i 等于 0 或者 fn 等于 0：
+    ※ 桥接到字节码解释器的函数调用
+    返还 做 Interpreter_调用函数 用 i、fn、thisArg、args、argc、0。
+完。
+
+Nova值_创建_Object 接受 i、内部数据)：
+    若 i 等于 0：
+    obj 为 做 Nova对象_创建 用 i、i.Object原型。
+    若 obj 不等于 0 并且 内部数据 不等于 0：
+        做 Nova对象_设置属性 用 i、obj、「[[内部]]」、内部数据。
+    完。
+    返还 obj。
+完。
+
+Nova值_创建_String_从原始 接受 原始字符串)：
+    若 原始字符串 等于 0：
+    长度 为 做 字节长度 用 原始字符串。
+    obj 为 做 堆_分配 用 24 加 长度 加 1。
+    若 obj 等于 0：
+    做 内存_写32 用 obj、JS_TAG_STRING。
+    做 内存_写32 用 obj 加 8、长度。
+    做 内存_写64 用 obj 加 16、obj 加 24。
+    做 内存_复制 用 obj 加 24、原始字符串、长度。
+    做 内存_写8 用 obj 加 24 加 长度、0。
+    返还 obj。
+完。
+
+Nova值_创建_Boolean 接受 i、布尔值)：
+    若 布尔值 等于 真：
+    返还 Nova_假。
+完。
+
+Nova值_转数值 接受 i、v)：
+    若 v 等于 0：
+    tag 为 做 JSValue_获取类型标签 用 v。
+    若 tag 等于 JS_TAG_NUMBER：
+    若 tag 等于 JS_TAG_BOOLEAN：
+    返还 0。
+完。
+
+Nova数组_从原始创建 接受 i、元素指针、数量)：
+    若 i 等于 0 或者 数量 等于 0：
+    arr 为 做 Nova数组_创建 用 i、数量。
+    若 arr 等于 0：
+    可变 idx 为 0。
+    只要 idx 小于 数量：
+        元素 为 做 内存_读64 用 元素指针 加 idx 乘 8。
+        做 Nova数组_设置 用 i、arr、idx、元素。
+        idx 为 idx 加 1。
+    完。
+    返还 arr。
+完。
+
+AI_推断值类型 接受 v)：
+    若 v 等于 0：
+    tag 为 做 JSValue_获取类型标签 用 v。
+    若 tag 等于 JS_TAG_NUMBER：
+    若 tag 等于 JS_TAG_STRING：
+    若 tag 等于 JS_TAG_BOOLEAN：
+    若 tag 等于 JS_TAG_OBJECT：
+    返还 「unknown」。
+完。
+
+可变 统计_ToString调用数 为 0。
+可变 统计_序列化调用数 为 0。
+可变 统计_反序列化调用数 为 0。
+可变 统计_函数调用桥接数 为 0。
+可变 统计_微任务入队数 为 0。
+
+辅助存根_打印统计 接受 )：
+    做 打印 用 「[辅助存根] ═══════════ 辅助存根统计 ═══════════」。
+    做 打印 用 做 字符串拼接 用 「  ToString调用数:   」、做 转字符串 用 统计_ToString调用数。
+    做 打印 用 做 字符串拼接 用 「  序列化调用数:     」、做 转字符串 用 统计_序列化调用数。
+    做 打印 用 做 字符串拼接 用 「  反序列化调用数:   」、做 转字符串 用 统计_反序列化调用数。
+    做 打印 用 做 字符串拼接 用 「  函数调用桥接数:   」、做 转字符串 用 统计_函数调用桥接数。
+    做 打印 用 做 字符串拼接 用 「  微任务入队数:     」、做 转字符串 用 统计_微任务入队数。
+    做 打印 用 「[辅助存根] ═══════════════════════════════════════」。
+完。
+
+本章 收束。

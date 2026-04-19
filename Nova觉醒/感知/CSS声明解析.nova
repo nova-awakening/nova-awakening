@@ -1,0 +1,542 @@
+《CSS声明解析》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·CSS令牌化》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·CSS单位与颜色解析》。
+
+引用《..·执行·底层内存操》。
+
+CSSParser_解析声明 接受 tk、属性名令牌：
+    声明 为 做 堆_分配 用 CSS声明。
+    声明 的 属性ID 为 做 CSSParser_属性名转ID 用 属性名令牌 的 值、属性名令牌 的 值长度。
+    声明 的 重要 为 假。
+    令牌 为 做 堆_分配 用 CSS令牌。
+    做 CSS令牌izer_下一个令牌 用 tk、令牌。
+    若 令牌 的 类型 不等于 CSS_令牌_冒号：
+        返还 0。
+    完。
+    值 为 做 CSSParser_解析值 用 tk。
+    声明 的 值 为 值。
+    返还 声明。
+完。
+
+CSSParser_解析值 接受 tk：
+    值 为 做 堆_分配 用 CSSValue。
+    令牌 为 做 堆_分配 用 CSS令牌。
+    做 CSS令牌izer_下一个令牌 用 tk、令牌。
+    若 令牌 的 类型 等于 CSS_令牌_尺寸：
+        值 的 类型 为 CSS值_长度。
+        值 的 数值 为 令牌 的 数值。
+        值 的 单位 为 做 CSSParser_解析单位 用 令牌 的 单位、令牌 的 单位长度。
+        返还 值。
+    完。
+    若 令牌 的 类型 等于 CSS_令牌_百分比：
+        值 的 类型 为 CSS值_百分比。
+        值 的 数值 为 令牌 的 数值。
+        值 的 单位 为 单位_百分比。
+        返还 值。
+    完。
+    若 令牌 的 类型 等于 CSS_令牌_数字：
+        值 的 类型 为 CSS值_数字。
+        值 的 数值 为 令牌 的 数值。
+        返还 值。
+    完。
+    若 令牌 的 类型 等于 CSS_令牌_哈希：
+        值 的 类型 为 CSS值_颜色。
+        值 的 颜色 为 做 CSSParser_解析十六进制颜色 用 令牌 的 值、令牌 的 值长度。
+        返还 值。
+    完。
+    若 令牌 的 类型 等于 CSS_令牌_标识符：
+        值 的 类型 为 CSS值_关键字。
+        值 的 字符串值 为 做 字符串_复制_N 用 令牌 的 值、令牌 的 值长度。
+        值 的 关键字ID 为 做 CSSParser_关键字转ID 用 令牌 的 值、令牌 的 值长度。
+        颜色 为 做 CSSParser_命名颜色 用 令牌 的 值、令牌 的 值长度。
+        若 颜色 不等于 0：
+            值 的 类型 为 CSS值_颜色。
+            值 的 颜色 为 颜色。
+        完。
+        返还 值。
+    完。
+    若 令牌 的 类型 等于 CSS_令牌_函数：
+        值 的 类型 为 CSS值_函数。
+        值 的 字符串值 为 做 字符串_复制_N 用 令牌 的 值、令牌 的 值长度。
+        可变 深度 为 1。
+        只要 深度 大于 0：
+            做 CSS令牌izer_下一个令牌 用 tk、令牌。
+            若 令牌 的 类型 等于 CSS_令牌_左圆括号：
+                深度 为 深度 加 1。
+            完。
+            若 令牌 的 类型 等于 CSS_令牌_右圆括号：
+                深度 为 深度 减 1。
+            完。
+            若 令牌 的 类型 等于 CSS_令牌_EOF：
+                跳出。
+            完。
+        完。
+        返还 值。
+    完。
+    若 令牌 的 类型 等于 CSS_令牌_字符串：
+        值 的 类型 为 CSS值_字符串。
+        值 的 字符串值 为 做 字符串_复制_N 用 令牌 的 值、令牌 的 值长度。
+        返还 值。
+    完。
+    返还 值。
+完。
+
+CSSParser_属性名转ID 接受 名、长度：
+    若 做 字符串_等于N 用 名、长度、「display」：
+        返还 CSS属性_display。
+    完。
+    若 做 字符串_等于N 用 名、长度、「position」：
+        返还 CSS属性_position。
+    完。
+    若 做 字符串_等于N 用 名、长度、「width」：
+        返还 CSS属性_width。
+    完。
+    若 做 字符串_等于N 用 名、长度、「height」：
+        返还 CSS属性_height。
+    完。
+    若 做 字符串_等于N 用 名、长度、「margin」：
+        返还 CSS属性_margin。
+    完。
+    若 做 字符串_等于N 用 名、长度、「margin-top」：
+        返还 CSS属性_margin_top。
+    完。
+    若 做 字符串_等于N 用 名、长度、「margin-right」：
+        返还 CSS属性_margin_right。
+    完。
+    若 做 字符串_等于N 用 名、长度、「margin-bottom」：
+        返还 CSS属性_margin_bottom。
+    完。
+    若 做 字符串_等于N 用 名、长度、「margin-left」：
+        返还 CSS属性_margin_left。
+    完。
+    若 做 字符串_等于N 用 名、长度、「padding」：
+        返还 CSS属性_padding。
+    完。
+    若 做 字符串_等于N 用 名、长度、「padding-top」：
+        返还 CSS属性_padding_top。
+    完。
+    若 做 字符串_等于N 用 名、长度、「padding-right」：
+        返还 CSS属性_padding_right。
+    完。
+    若 做 字符串_等于N 用 名、长度、「padding-bottom」：
+        返还 CSS属性_padding_bottom。
+    完。
+    若 做 字符串_等于N 用 名、长度、「padding-left」：
+        返还 CSS属性_padding_left。
+    完。
+    若 做 字符串_等于N 用 名、长度、「color」：
+        返还 CSS属性_color。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background」：
+        返还 CSS属性_background。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background-color」：
+        返还 CSS属性_background_color。
+    完。
+    若 做 字符串_等于N 用 名、长度、「font-size」：
+        返还 CSS属性_font_size。
+    完。
+    若 做 字符串_等于N 用 名、长度、「font-weight」：
+        返还 CSS属性_font_weight。
+    完。
+    若 做 字符串_等于N 用 名、长度、「font-family」：
+        返还 CSS属性_font_family。
+    完。
+    若 做 字符串_等于N 用 名、长度、「line-height」：
+        返还 CSS属性_line_height。
+    完。
+    若 做 字符串_等于N 用 名、长度、「text-align」：
+        返还 CSS属性_text_align。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border」：
+        返还 CSS属性_border。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-radius」：
+        返还 CSS属性_border_radius。
+    完。
+    若 做 字符串_等于N 用 名、长度、「overflow」：
+        返还 CSS属性_overflow。
+    完。
+    若 做 字符串_等于N 用 名、长度、「float」：
+        返还 CSS属性_float。
+    完。
+    若 做 字符串_等于N 用 名、长度、「z-index」：
+        返还 CSS属性_z_index。
+    完。
+    若 做 字符串_等于N 用 名、长度、「opacity」：
+        返还 CSS属性_opacity。
+    完。
+    若 做 字符串_等于N 用 名、长度、「transform」：
+        返还 CSS属性_transform。
+    完。
+    若 做 字符串_等于N 用 名、长度、「flex」：
+        返还 CSS属性_flex。
+    完。
+    若 做 字符串_等于N 用 名、长度、「flex-direction」：
+        返还 CSS属性_flex_direction。
+    完。
+    若 做 字符串_等于N 用 名、长度、「justify-content」：
+        返还 CSS属性_justify_content。
+    完。
+    若 做 字符串_等于N 用 名、长度、「align-items」：
+        返还 CSS属性_align_items。
+    完。
+    若 做 字符串_等于N 用 名、长度、「gap」：
+        返还 CSS属性_gap。
+    完。
+    若 做 字符串_等于N 用 名、长度、「box-shadow」：
+        返还 CSS属性_box_shadow。
+    完。
+    若 做 字符串_等于N 用 名、长度、「cursor」：
+        返还 CSS属性_cursor。
+    完。
+    若 做 字符串_等于N 用 名、长度、「visibility」：
+        返还 CSS属性_visibility。
+    完。
+    若 做 字符串_等于N 用 名、长度、「box-sizing」：
+        返还 CSS属性_box_sizing。
+    完。
+    若 做 字符串_等于N 用 名、长度、「max-width」：
+        返还 CSS属性_max_width。
+    完。
+    若 做 字符串_等于N 用 名、长度、「min-width」：
+        返还 CSS属性_min_width。
+    完。
+    若 做 字符串_等于N 用 名、长度、「top」：
+        返还 CSS属性_top。
+    完。
+    若 做 字符串_等于N 用 名、长度、「right」：
+        返还 CSS属性_right。
+    完。
+    若 做 字符串_等于N 用 名、长度、「bottom」：
+        返还 CSS属性_bottom。
+    完。
+    若 做 字符串_等于N 用 名、长度、「left」：
+        返还 CSS属性_left。
+    完。
+    若 做 字符串_等于N 用 名、长度、「font-style」：
+        返还 CSS属性_font_style。
+    完。
+    若 做 字符串_等于N 用 名、长度、「text-decoration」：
+        返还 CSS属性_text_decoration。
+    完。
+    若 做 字符串_等于N 用 名、长度、「text-transform」：
+        返还 CSS属性_text_transform。
+    完。
+    若 做 字符串_等于N 用 名、长度、「text-indent」：
+        返还 CSS属性_text_indent。
+    完。
+    若 做 字符串_等于N 用 名、长度、「text-overflow」：
+        返还 CSS属性_text_overflow。
+    完。
+    若 做 字符串_等于N 用 名、长度、「text-shadow」：
+        返还 CSS属性_text_shadow。
+    完。
+    若 做 字符串_等于N 用 名、长度、「letter-spacing」：
+        返还 CSS属性_letter_spacing。
+    完。
+    若 做 字符串_等于N 用 名、长度、「word-spacing」：
+        返还 CSS属性_word_spacing。
+    完。
+    若 做 字符串_等于N 用 名、长度、「word-break」：
+        返还 CSS属性_word_break。
+    完。
+    若 做 字符串_等于N 用 名、长度、「word-wrap」：
+        返还 CSS属性_word_wrap。
+    完。
+    若 做 字符串_等于N 用 名、长度、「overflow-wrap」：
+        返还 CSS属性_overflow_wrap。
+    完。
+    若 做 字符串_等于N 用 名、长度、「overflow-x」：
+        返还 CSS属性_overflow_x。
+    完。
+    若 做 字符串_等于N 用 名、长度、「overflow-y」：
+        返还 CSS属性_overflow_y。
+    完。
+    若 做 字符串_等于N 用 名、长度、「white-space」：
+        返还 CSS属性_white_space。
+    完。
+    若 做 字符串_等于N 用 名、长度、「vertical-align」：
+        返还 CSS属性_vertical_align。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background-image」：
+        返还 CSS属性_background_image。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background-position」：
+        返还 CSS属性_background_position。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background-repeat」：
+        返还 CSS属性_background_repeat。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background-size」：
+        返还 CSS属性_background_size。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background-attachment」：
+        返还 CSS属性_background_attachment。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background-clip」：
+        返还 CSS属性_background_clip。
+    完。
+    若 做 字符串_等于N 用 名、长度、「background-origin」：
+        返还 CSS属性_background_origin。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-top」：
+        返还 CSS属性_border_top。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-right」：
+        返还 CSS属性_border_right2。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-bottom」：
+        返还 CSS属性_border_bottom。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-left」：
+        返还 CSS属性_border_left2。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-width」：
+        返还 CSS属性_border_width。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-style」：
+        返还 CSS属性_border_style。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-color」：
+        返还 CSS属性_border_color。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-top-style」：
+        返还 CSS属性_border_top_style。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-right-style」：
+        返还 CSS属性_border_right_style。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-bottom-style」：
+        返还 CSS属性_border_bottom_style。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-left-style」：
+        返还 CSS属性_border_left_style。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-top-left-radius」：
+        返还 CSS属性_border_top_left_radius。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-top-right-radius」：
+        返还 CSS属性_border_top_right_radius。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-bottom-left-radius」：
+        返还 CSS属性_border_bottom_left_radius。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-bottom-right-radius」：
+        返还 CSS属性_border_bottom_right_radius。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-collapse」：
+        返还 CSS属性_border_collapse。
+    完。
+    若 做 字符串_等于N 用 名、长度、「border-spacing」：
+        返还 CSS属性_border_spacing。
+    完。
+    若 做 字符串_等于N 用 名、长度、「flex-grow」：
+        返还 CSS属性_flex_grow。
+    完。
+    若 做 字符串_等于N 用 名、长度、「flex-shrink」：
+        返还 CSS属性_flex_shrink。
+    完。
+    若 做 字符串_等于N 用 名、长度、「flex-basis」：
+        返还 CSS属性_flex_basis。
+    完。
+    若 做 字符串_等于N 用 名、长度、「flex-wrap」：
+        返还 CSS属性_flex_wrap。
+    完。
+    若 做 字符串_等于N 用 名、长度、「flex-flow」：
+        返还 CSS属性_flex_flow。
+    完。
+    若 做 字符串_等于N 用 名、长度、「align-self」：
+        返还 CSS属性_align_self。
+    完。
+    若 做 字符串_等于N 用 名、长度、「align-content」：
+        返还 CSS属性_align_content。
+    完。
+    若 做 字符串_等于N 用 名、长度、「order」：
+        返还 CSS属性_order。
+    完。
+    若 做 字符串_等于N 用 名、长度、「grid-template-columns」：
+        返还 CSS属性_grid_template_columns。
+    完。
+    若 做 字符串_等于N 用 名、长度、「grid-template-rows」：
+        返还 CSS属性_grid_template_rows。
+    完。
+    若 做 字符串_等于N 用 名、长度、「grid-column」：
+        返还 CSS属性_grid_column。
+    完。
+    若 做 字符串_等于N 用 名、长度、「grid-row」：
+        返还 CSS属性_grid_row。
+    完。
+    若 做 字符串_等于N 用 名、长度、「grid-gap」：
+        返还 CSS属性_grid_gap。
+    完。
+    若 做 字符串_等于N 用 名、长度、「column-gap」：
+        返还 CSS属性_column_gap。
+    完。
+    若 做 字符串_等于N 用 名、长度、「row-gap」：
+        返还 CSS属性_row_gap。
+    完。
+    若 做 字符串_等于N 用 名、长度、「transform-origin」：
+        返还 CSS属性_transform_origin。
+    完。
+    若 做 字符串_等于N 用 名、长度、「transition」：
+        返还 CSS属性_transition。
+    完。
+    若 做 字符串_等于N 用 名、长度、「transition-property」：
+        返还 CSS属性_transition_property。
+    完。
+    若 做 字符串_等于N 用 名、长度、「transition-duration」：
+        返还 CSS属性_transition_duration。
+    完。
+    若 做 字符串_等于N 用 名、长度、「transition-timing-function」：
+        返还 CSS属性_transition_timing_function。
+    完。
+    若 做 字符串_等于N 用 名、长度、「transition-delay」：
+        返还 CSS属性_transition_delay。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation」：
+        返还 CSS属性_animation。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation-name」：
+        返还 CSS属性_animation_name。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation-duration」：
+        返还 CSS属性_animation_duration。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation-timing-function」：
+        返还 CSS属性_animation_timing_function。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation-delay」：
+        返还 CSS属性_animation_delay。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation-iteration-count」：
+        返还 CSS属性_animation_iteration_count。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation-direction」：
+        返还 CSS属性_animation_direction。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation-fill-mode」：
+        返还 CSS属性_animation_fill_mode。
+    完。
+    若 做 字符串_等于N 用 名、长度、「animation-play-state」：
+        返还 CSS属性_animation_play_state。
+    完。
+    若 做 字符串_等于N 用 名、长度、「filter」：
+        返还 CSS属性_filter。
+    完。
+    若 做 字符串_等于N 用 名、长度、「backdrop-filter」：
+        返还 CSS属性_backdrop_filter。
+    完。
+    若 做 字符串_等于N 用 名、长度、「mix-blend-mode」：
+        返还 CSS属性_mix_blend_mode。
+    完。
+    若 做 字符串_等于N 用 名、长度、「object-fit」：
+        返还 CSS属性_object_fit。
+    完。
+    若 做 字符串_等于N 用 名、长度、「object-position」：
+        返还 CSS属性_object_position。
+    完。
+    若 做 字符串_等于N 用 名、长度、「will-change」：
+        返还 CSS属性_will_change。
+    完。
+    若 做 字符串_等于N 用 名、长度、「contain」：
+        返还 CSS属性_contain。
+    完。
+    若 做 字符串_等于N 用 名、长度、「clip-path」：
+        返还 CSS属性_clip_path。
+    完。
+    若 做 字符串_等于N 用 名、长度、「resize」：
+        返还 CSS属性_resize。
+    完。
+    若 做 字符串_等于N 用 名、长度、「table-layout」：
+        返还 CSS属性_table_layout。
+    完。
+    若 做 字符串_等于N 用 名、长度、「direction」：
+        返还 CSS属性_direction。
+    完。
+    若 做 字符串_等于N 用 名、长度、「writing-mode」：
+        返还 CSS属性_writing_mode。
+    完。
+    若 做 字符串_等于N 用 名、长度、「hyphens」：
+        返还 CSS属性_hyphens。
+    完。
+    若 做 字符串_等于N 用 名、长度、「tab-size」：
+        返还 CSS属性_tab_size。
+    完。
+    若 做 字符串_等于N 用 名、长度、「appearance」：
+        返还 CSS属性_appearance。
+    完。
+    若 做 字符串_等于N 用 名、长度、「-nova-appearance」：
+        返还 CSS属性_appearance。
+    完。
+    若 做 字符串_等于N 用 名、长度、「scroll-behavior」：
+        返还 CSS属性_scroll_behavior。
+    完。
+    若 做 字符串_等于N 用 名、长度、「aspect-ratio」：
+        返还 CSS属性_aspect_ratio。
+    完。
+    若 做 字符串_等于N 用 名、长度、「accent-color」：
+        返还 CSS属性_accent_color。
+    完。
+    若 做 字符串_等于N 用 名、长度、「color-scheme」：
+        返还 CSS属性_color_scheme。
+    完。
+    若 做 字符串_等于N 用 名、长度、「list-style」：
+        返还 CSS属性_list_style。
+    完。
+    若 做 字符串_等于N 用 名、长度、「list-style-type」：
+        返还 CSS属性_list_style。
+    完。
+    若 做 字符串_等于N 用 名、长度、「outline」：
+        返还 CSS属性_outline。
+    完。
+    若 做 字符串_等于N 用 名、长度、「content」：
+        返还 CSS属性_content。
+    完。
+    若 做 字符串_等于N 用 名、长度、「clear」：
+        返还 CSS属性_clear。
+    完。
+    若 做 字符串_等于N 用 名、长度、「min-height」：
+        返还 CSS属性_min_height。
+    完。
+    若 做 字符串_等于N 用 名、长度、「max-height」：
+        返还 CSS属性_max_height。
+    完。
+    若 做 字符串_等于N 用 名、长度、「pointer-事件s」：
+        返还 CSS属性_pointer_事件s。
+    完。
+    若 做 字符串_等于N 用 名、长度、「user-select」：
+        返还 CSS属性_user_select。
+    完。
+    若 做 字符串_等于N 用 名、长度、「-nova-user-select」：
+        返还 CSS属性_user_select。
+    完。
+    返还 0。
+完。
+
+可变 AI_样式解析解_样式缓存命中 为 0。
+
+AI_样式解析解_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+        返还 「高复杂度」。
+    完。
+    若 组合子数 大于 2：
+        返还 「中复杂度」。
+    完。
+    返还 「低复杂度」。
+完。
+
+AI_样式解析解_布局缓存 接受 元素哈希：
+    AI_样式解析解_样式缓存命中 为 AI_样式解析解_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。

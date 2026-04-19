@@ -1,0 +1,106 @@
+《HTML_TextArea》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·字符串替换》。
+
+HTMLTextArea元素 是 一种 事物，含 节点、name、值、defaultValue、placeholder、rows、cols、maxlength、minlength、required、disabled、readonly、autofocus、wrap、autocomplete、spellcheck、selectionStart、selectionEnd、selectionDirection、值已修改、form、oninput、onchange、onselect。
+
+TextArea_创建 接受 零参：
+    ta 为 做 堆_分配 用 HTMLTextArea元素。
+    ta 的 节点 为 0。
+    ta 的 name 为 0。
+    ta 的 值 为 「」。
+    ta 的 defaultValue 为 「」。
+    ta 的 placeholder 为 0。
+    ta 的 rows 为 2。
+    ta 的 cols 为 20。
+    ta 的 maxlength 为 负 1。
+    ta 的 minlength 为 负 1。
+    ta 的 required 为 假。
+    ta 的 disabled 为 假。
+    ta 的 readonly 为 假。
+    ta 的 autofocus 为 假。
+    ta 的 wrap 为 0。
+    ta 的 autocomplete 为 0。
+    ta 的 spellcheck 为 真。
+    ta 的 selectionStart 为 0。
+    ta 的 selectionEnd 为 0。
+    ta 的 selectionDirection 为 2。
+    ta 的 值已修改 为 假。
+    ta 的 form 为 0。
+    返还 ta。
+完。
+
+TextArea_setValue 接受 ta、值：
+    若 ta 等于 0：
+        返还。
+    完。
+    若 ta 的 maxlength 大于或等于 0 并且 做 字节长度 用 值 大于 ta 的 maxlength：
+        ta 的 值 为 做 字符串_子串 用 值、0、ta 的 maxlength。
+    否则：
+        ta 的 值 为 做 字符串_复制 用 值。
+    完。
+    ta 的 值已修改 为 真。
+完。
+
+TextArea_setSelectionRange 接受 ta、start、end、direction：
+    若 ta 等于 0：
+        返还。
+    完。
+    len 为 做 字节长度 用 ta 的 值。
+    若 start 大于 len：
+        start 为 len。
+    完。
+    若 end 大于 len：
+        end 为 len。
+    完。
+    若 start 大于 end：
+        start 为 end。
+    完。
+    ta 的 selectionStart 为 start。
+    ta 的 selectionEnd 为 end。
+    ta 的 selectionDirection 为 direction。
+完。
+
+TextArea_select 接受 ta：
+    若 ta 等于 0：
+        返还。
+    完。
+    做 TextArea_setSelectionRange 用 ta、0、做 字节长度 用 ta 的 值、0。
+完。
+
+HTMLDataList元素 是 一种 事物，含 节点、id、选项头、选项数。
+
+DataList_创建 接受 id：
+    dl 为 做 堆_分配 用 HTMLDataList元素。
+    dl 的 节点 为 0。
+    dl 的 id 为 id。
+    dl 的 选项头 为 0。
+    dl 的 选项数 为 0。
+    返还 dl。
+完。
+
+DataList_匹配 接受 dl、输入值、结果、最大数：
+    若 dl 等于 0 或者 输入值 等于 0 或者 结果 等于 0：
+        返还 0。
+    完。
+    可变 count 为 0。
+    可变 opt 为 dl 的 选项头。
+    只要 opt 不等于 0 并且 count 小于 最大数：
+        若 opt 的 值 不等于 0 并且 做 字符串_包含 用 opt 的 值、输入值：
+            做 内存_写64 用 结果 加 count 乘 8、opt。
+            count 为 count 加 1。
+        完。
+        opt 为 opt 的 下一个。
+    完。
+    返还 count。
+完。
+
+本章 收束。

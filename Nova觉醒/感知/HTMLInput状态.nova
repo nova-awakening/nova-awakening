@@ -1,0 +1,205 @@
+《HTMLInput状态》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·原子驻留》。
+
+引用《.·HTTP头部管理》。
+
+引用《.·文件上传列》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+输入类型_text 为 0。
+
+输入类型_password 为 1。
+
+输入类型_email 为 2。
+
+输入类型_number 为 3。
+
+输入类型_tel 为 4。
+
+输入类型_url 为 5。
+
+输入类型_search 为 6。
+
+输入类型_checkbox 为 7。
+
+输入类型_radio 为 8。
+
+输入类型_file 为 9。
+
+输入类型_hidden 为 10。
+
+输入类型_submit 为 11。
+
+输入类型_reset 为 12。
+
+输入类型_button 为 13。
+
+输入类型_image 为 14。
+
+输入类型_date 为 15。
+
+输入类型_time 为 16。
+
+输入类型_datetime 为 17。
+
+输入类型_month 为 18。
+
+输入类型_week 为 19。
+
+输入类型_range 为 20。
+
+输入类型_color 为 21。
+
+InputState 是 一种 事物，含 输入类型、值、默认值、名、占位文本、选区起始、选区结束、选区方向、已选中、已禁用、只读、必填、自动填充、模式、最小值、最大值、步长、最大长度、最小长度、有效性、自定义错误、文件列表、接受、多文件、所属表单。
+
+InputState_创建 接受 元素：
+    state 为 做 堆_分配 用 InputState。
+    state 的 输入类型 为 输入类型_text。
+    state 的 值 为 做 字符串_复制 用 「」。
+    state 的 默认值 为 0。
+    state 的 名 为 0。
+    state 的 占位文本 为 0。
+    state 的 选区起始 为 0。
+    state 的 选区结束 为 0。
+    state 的 选区方向 为 0。
+    state 的 已选中 为 假。
+    state 的 已禁用 为 假。
+    state 的 只读 为 假。
+    state 的 必填 为 假。
+    state 的 自动填充 为 0。
+    state 的 模式 为 0。
+    state 的 最小值 为 负 9999999。
+    state 的 最大值 为 9999999。
+    state 的 步长 为 100。
+    state 的 最大长度 为 负 1。
+    state 的 最小长度 为 0。
+    state 的 有效性 为 0。
+    state 的 自定义错误 为 0。
+    state 的 文件列表 为 0。
+    state 的 接受 为 0。
+    state 的 多文件 为 假。
+    state 的 所属表单 为 0。
+    若 元素 不等于 0：
+        type 为 做 元素_getAttribute 用 元素、「type」。
+        若 type 不等于 0：
+            state 的 输入类型 为 做 Input_解析类型 用 type。
+        完。
+        value 为 做 元素_getAttribute 用 元素、「value」。
+        若 value 不等于 0：
+            state 的 值 为 做 字符串_复制 用 value。
+            state 的 默认值 为 做 字符串_复制 用 value。
+        完。
+        state 的 名 为 做 元素_getAttribute 用 元素、「name」。
+        state 的 占位文本 为 做 元素_getAttribute 用 元素、「placeholder」。
+        若 做 元素_getAttribute 用 元素、「checked」 不等于 0：
+            state 的 已选中 为 真。
+        完。
+        若 做 元素_getAttribute 用 元素、「disabled」 不等于 0：
+            state 的 已禁用 为 真。
+        完。
+        若 做 元素_getAttribute 用 元素、「readonly」 不等于 0：
+            state 的 只读 为 真。
+        完。
+        若 做 元素_getAttribute 用 元素、「required」 不等于 0：
+            state 的 必填 为 真。
+        完。
+        state 的 模式 为 做 元素_getAttribute 用 元素、「pattern」。
+        state 的 接受 为 做 元素_getAttribute 用 元素、「accept」。
+        若 做 元素_getAttribute 用 元素、「multiple」 不等于 0：
+            state 的 多文件 为 真。
+        完。
+        maxlen 为 做 元素_getAttribute 用 元素、「maxlength」。
+        若 maxlen 不等于 0：
+            state 的 最大长度 为 做 字符串转整数 用 maxlen。
+        完。
+    完。
+    若 state 的 输入类型 等于 输入类型_file：
+        state 的 文件列表 为 做 FileList_创建。
+    完。
+    返还 state。
+完。
+
+Input_解析类型 接受 type字符串：
+    若 做 字符串_相等_不区分大小写 用 type字符串、「text」：
+        返还 输入类型_text。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「password」：
+        返还 输入类型_password。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「email」：
+        返还 输入类型_email。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「number」：
+        返还 输入类型_number。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「tel」：
+        返还 输入类型_tel。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「url」：
+        返还 输入类型_url。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「search」：
+        返还 输入类型_search。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「checkbox」：
+        返还 输入类型_checkbox。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「radio」：
+        返还 输入类型_radio。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「file」：
+        返还 输入类型_file。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「hidden」：
+        返还 输入类型_hidden。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「submit」：
+        返还 输入类型_submit。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「reset」：
+        返还 输入类型_reset。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「button」：
+        返还 输入类型_button。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「date」：
+        返还 输入类型_date。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「time」：
+        返还 输入类型_time。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「range」：
+        返还 输入类型_range。
+    完。
+    若 做 字符串_相等_不区分大小写 用 type字符串、「color」：
+        返还 输入类型_color。
+    完。
+    返还 输入类型_text。
+完。
+
+可变 AI_输入状态创_热点函数 为 一组：（空）。
+
+AI_输入状态创_JIT候选 接受 函数名、调用次数：
+    若 调用次数 大于 100：
+        做 追加 用 AI_输入状态创_热点函数、函数名。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_输入状态创_内联建议 接受 函数体大小、调用次数：
+    若 函数体大小 小于 30 并且 调用次数 大于 50：
+        返还 「内联」。
+    完。
+    返还 「不内联」。
+完。
+
+本章 收束。

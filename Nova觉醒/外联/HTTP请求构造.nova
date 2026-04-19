@@ -1,0 +1,93 @@
+《HTTP请求构造》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·URL解析辅助》。
+
+HTTP_GET 为 0。
+
+HTTP_POST 为 1。
+
+HTTP_PUT 为 2。
+
+HTTP_DELETE 为 3。
+
+HTTP_PATCH 为 4。
+
+HTTP_版本 为 「HTTP/1.1」。
+
+HTTP_默认超时 为 30000。
+
+HTTP_最大重试 为 3。
+
+HTTP_最大头部 为 32。
+
+HTTP_最大正文 为 1048576。
+
+HTTP头部 是 一种 事物，含 名称、值。
+
+HTTP请求 是 一种 事物，含 方法、URL、主机、路径、端口、头部列表、正文、超时_ms、使用安全。
+
+HTTP响应 是 一种 事物，含 状态码、状态文本、头部列表、正文、正文长度、耗时_ms、成功。
+
+可变 HTTP_请求总数 为 0。
+
+可变 HTTP_成功总数 为 0。
+
+可变 HTTP_失败总数 为 0。
+
+可变 HTTP_总耗时 为 0。
+
+HTTP_创建请求 接受 方法、URL：
+    req 为 新建 HTTP请求。
+    req 的 方法 为 方法。
+    req 的 URL 为 URL。
+    req 的 头部列表 为 一组：（空）。
+    req 的 正文 为 「」。
+    req 的 超时_ms 为 HTTP_默认超时。
+    req 的 使用安全 为 假。
+    解析结果 为 做 URL_解析 用 URL。
+    req 的 主机 为 解析结果 的 第 0 项。
+    req 的 路径 为 解析结果 的 第 1 项。
+    req 的 端口 为 解析结果 的 第 2 项。
+    若 解析结果 的 第 3 项 等于 1：
+        req 的 使用安全 为 真。
+    完。
+    做 HTTP_添加头部 用 req、「Host」、req 的 主机。
+    做 HTTP_添加头部 用 req、「User-智能体」、「NovaOS/1.0」。
+    做 HTTP_添加头部 用 req、「Accept」、「*/*」。
+    做 HTTP_添加头部 用 req、「Connection」、「keep-alive」。
+    返还 req。
+完。
+
+HTTP_添加头部 接受 req、名称、值、附加：
+    若 做 计数 用 req 的 头部列表 大于或等于 HTTP_最大头部：
+        返还。
+    完。
+    h 为 新建 HTTP头部。
+    h 的 名称 为 名称。
+    h 的 值 为 值。
+    做 追加 用 req 的 头部列表、h。
+完。
+
+HTTP_设正文 接受 req、正文、内容类型：
+    req 的 正文 为 正文。
+    做 HTTP_添加头部 用 req、「Content-Type」、内容类型。
+    做 HTTP_添加头部 用 req、「Content-Length」、做 整数转字符串 用 做 字符串长度 用 正文。
+完。
+
+HTTP_设序列正文 接受 req、json字符串：
+    做 HTTP_设正文 用 req、json字符串、「application/json」。
+完。
+
+HTTP_设授权 接受 req、令牌：
+    做 HTTP_添加头部 用 req、「Authorization」、「Bearer 」 加 令牌。
+完。
+
+本章 收束。

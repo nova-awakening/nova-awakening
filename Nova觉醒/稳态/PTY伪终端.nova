@@ -1,0 +1,213 @@
+《PTY伪终端》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·环形缓冲》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·同步原语》。
+
+引用《..·中枢·整数转字符串》。
+
+pty_对 是 一种 事物，含 master_fd、slave_fd、slave_名称、master_到_slave、slave_到_master、master_等待、slave_等待、回显、规范模式、master_打开、slave_打开、索引。
+
+PTY_MAX 为 256。
+
+可变 pty_表 为 一组：（空）。
+
+可变 下一个pty索引 为 0。
+
+pty_创建 接受 零参：
+    若 下一个pty索引 大于或等于 PTY_MAX：
+        返还 空。
+    完。
+    pty 为 新建 pty_对。
+    pty 的 索引 为 下一个pty索引。
+    下一个pty索引 为 下一个pty索引 加 1。
+    pty 的 slave_名称 为 「/dev/pts/」 加 做 整数转字符串 用 pty 的 索引。
+    pty 的 master_到_slave 为 做 环形缓冲_创建 用 4096。
+    pty 的 slave_到_master 为 做 环形缓冲_创建 用 4096。
+    pty 的 master_等待 为 做 等待队列_创建。
+    pty 的 slave_等待 为 做 等待队列_创建。
+    pty 的 回显 为 1。
+    pty 的 规范模式 为 1。
+    pty 的 master_打开 为 1。
+    pty 的 slave_打开 为 0。
+    做 追加 用 pty_表、pty。
+    返还 pty。
+完。
+
+sys_openpty 接受 零参：
+    pty 为 做 pty_创建。
+    若 pty 等于 空：
+        返还 错误_无空间。
+    完。
+    pty 的 slave_打开 为 1。
+    返还 一组：pty 的 master_fd、pty 的 slave_fd、pty 的 slave_名称。
+完。
+
+pty_master_读 接受 pty：
+    若 做 环形缓冲_为空 用 pty 的 slave_到_master：
+        只要 做 环形缓冲_为空 用 pty 的 slave_到_master：
+            若 pty 的 slave_打开 等于 0：
+                返还 0。
+            完。
+            做 调度。
+        完。
+    完。
+    可变 结果 为 「」。
+    只要 非 做 环形缓冲_为空 用 pty 的 slave_到_master：
+        c 为 做 环形缓冲_读取 用 pty 的 slave_到_master。
+        若 c 不等于 空：
+            结果 为 结果 加 做 字符 用 c。
+        完。
+    完。
+    返还 结果。
+完。
+
+pty_master_写 接受 pty、数据：
+    可变 i 为 0。
+    只要 i 小于 做 字符串长度 用 数据：
+        c 为 做 编码 用 做 字符串取字符 用 数据、i。
+        做 环形缓冲_写入 用 pty 的 master_到_slave、c。
+        i 为 i 加 1。
+    完。
+    做 等待队列_唤醒全部 用 pty 的 slave_等待。
+    返还 做 字符串长度 用 数据。
+完。
+
+pty_slave_读 接受 pty：
+    若 做 环形缓冲_为空 用 pty 的 master_到_slave：
+        只要 做 环形缓冲_为空 用 pty 的 master_到_slave：
+            若 pty 的 master_打开 等于 0：
+                返还 0。
+            完。
+            做 调度。
+        完。
+    完。
+    可变 结果 为 「」。
+    只要 非 做 环形缓冲_为空 用 pty 的 master_到_slave：
+        c 为 做 环形缓冲_读取 用 pty 的 master_到_slave。
+        若 c 不等于 空：
+            结果 为 结果 加 做 字符 用 c。
+        完。
+    完。
+    返还 结果。
+完。
+
+pty_slave_写 接受 pty、数据：
+    可变 i 为 0。
+    只要 i 小于 做 字符串长度 用 数据：
+        c 为 做 编码 用 做 字符串取字符 用 数据、i。
+        若 pty 的 回显 不等于 0：
+            做 环形缓冲_写入 用 pty 的 master_到_slave、c。
+        完。
+        做 环形缓冲_写入 用 pty 的 slave_到_master、c。
+        i 为 i 加 1。
+    完。
+    做 等待队列_唤醒全部 用 pty 的 master_等待。
+    返还 做 字符串长度 用 数据。
+完。
+
+pty_关闭master 接受 pty：
+    pty 的 master_打开 为 0。
+    做 等待队列_唤醒全部 用 pty 的 slave_等待。
+完。
+
+pty_关闭slave 接受 pty：
+    pty 的 slave_打开 为 0。
+    做 等待队列_唤醒全部 用 pty 的 master_等待。
+完。
+
+pty_查找 接受 索引：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 pty_表：
+        若 pty_表 的 第 i 项 的 索引 等于 索引：
+            返还 pty_表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+pty_数量 接受 零参：
+    返还 做 计数 用 pty_表。
+完。
+
+pty_设置回显 接受 pty、开启：
+    若 pty 等于 空：
+        返还。
+    完。
+    pty 的 回显 为 若 开启 则 1 否则 0。
+完。
+
+pty_设置规范模式 接受 pty、开启：
+    若 pty 等于 空：
+        返还。
+    完。
+    pty 的 规范模式 为 若 开启 则 1 否则 0。
+完。
+
+可变 pty_默认行 为 24。
+
+可变 pty_默认列 为 80。
+
+pty_设置窗口大小 接受 pty、行、列：
+    若 pty 等于 空：
+        返还。
+    完。
+    pty_默认行 为 行。
+    pty_默认列 为 列。
+完。
+
+pty_获取窗口大小 接受 pty：
+    返还 一组：pty_默认行、pty_默认列。
+完。
+
+pty_master_poll 接受 pty：
+    若 pty 等于 空：
+        返还 0。
+    完。
+    可变 事件 为 0。
+    若 非 做 环形缓冲_为空 用 pty 的 slave_到_master：
+        事件 为 事件 位或 1。
+    完。
+    若 非 做 环形缓冲_已满 用 pty 的 master_到_slave：
+        事件 为 事件 位或 4。
+    完。
+    若 pty 的 slave_打开 等于 0：
+        事件 为 事件 位或 16。
+    完。
+    返还 事件。
+完。
+
+pty_统计 接受 零参：
+    返还 一组：做 计数 用 pty_表、下一个pty索引。
+完。
+
+pty_完整统计 接受 零参：
+    返还 一组：做 计数 用 pty_表、下一个pty索引、pty_默认行、pty_默认列。
+完。
+
+可变 AI_稳态乙_调用数 为 0。
+
+可变 AI_稳态乙_异常数 为 0。
+
+AI_稳态乙_监控 接受 零参：
+    AI_稳态乙_调用数 为 AI_稳态乙_调用数 加 1。
+    返还 AI_稳态乙_异常数 等于 0。
+完。
+
+AI_稳态乙_健康检查 接受 零参：
+    若 AI_稳态乙_调用数 大于 0 并且 AI_稳态乙_异常数 乘 100 除以 AI_稳态乙_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

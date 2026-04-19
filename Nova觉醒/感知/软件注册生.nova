@@ -1,0 +1,221 @@
+《软件注册生》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·内容可见性》。
+
+取数事件 是 一种 事物，含 基类、request、clientId、resultingClientId、已响应、响应、预加载响应。
+
+Request 是 一种 事物，含 url、method、headers、body、body长度、mode、credentials、cache、redirect。
+
+Response 是 一种 事物，含 status、statusText、headers、body、body长度、类型、url、ok。
+
+SW_拦截fetch 接受 sw、request：
+    若 sw 等于 0 或者 sw 的 fetch处理器 等于 0 或者 request 等于 0：
+        返还 0。
+    完。
+    若 非 做 字符串_以开头 用 request 的 url、sw 的 作用域：
+        返还 0。
+    完。
+    evt 为 做 堆_分配 用 取数事件。
+    evt 的 基类 为 做 事件_创建2 用 「fetch」、假、真。
+    evt 的 request 为 request。
+    evt 的 已响应 为 假。
+    evt 的 响应 为 0。
+    evt 的 预加载响应 为 0。
+    若 evt 的 已响应 并且 evt 的 响应 不等于 0：
+        返还 evt 的 响应。
+    完。
+    返还 0。
+完。
+
+取数事件_respondWith 接受 evt、response：
+    若 evt 等于 0 或者 evt 的 已响应：
+        返还。
+    完。
+    evt 的 已响应 为 真。
+    evt 的 响应 为 response。
+完。
+
+缓存Entry 是 一种 事物，含 请求URL、请求Method、响应、时间戳、下一个。
+
+缓存 是 一种 事物，含 名称、头、条目数。
+
+缓存存储 是 一种 事物，含 缓存、缓存数、缓存容量。
+
+可变 全局缓存存储 为 0。
+
+缓存存储_获取 接受 零参：
+    若 全局缓存存储 等于 0：
+        全局缓存存储 为 做 堆_分配 用 缓存存储。
+        全局缓存存储 的 缓存容量 为 32。
+        全局缓存存储 的 缓存 为 做 堆_分配_数组 用 32 乘 8。
+        全局缓存存储 的 缓存数 为 0。
+    完。
+    返还 全局缓存存储。
+完。
+
+缓存存储_open 接受 名称：
+    cs 为 做 缓存存储_获取。
+    可变 i 为 0。
+    只要 i 小于 cs 的 缓存数：
+        c 为 做 内存_读64 用 cs 的 缓存 加 i 乘 8。
+        若 c 不等于 0 并且 做 字符串_相等 用 c 的 名称、名称：
+            返还 c。
+        完。
+        i 为 i 加 1。
+    完。
+    c 为 做 堆_分配 用 缓存。
+    c 的 名称 为 做 字符串_复制 用 名称。
+    c 的 头 为 0。
+    c 的 条目数 为 0。
+    若 cs 的 缓存数 小于 cs 的 缓存容量：
+        做 内存_写64 用 cs 的 缓存 加 cs 的 缓存数 乘 8、c。
+        cs 的 缓存数 为 cs 的 缓存数 加 1。
+    完。
+    返还 c。
+完。
+
+缓存存储_delete 接受 名称：
+    cs 为 做 缓存存储_获取。
+    可变 i 为 0。
+    只要 i 小于 cs 的 缓存数：
+        c 为 做 内存_读64 用 cs 的 缓存 加 i 乘 8。
+        若 c 不等于 0 并且 做 字符串_相等 用 c 的 名称、名称：
+            做 内存_写64 用 cs 的 缓存 加 i 乘 8、0。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+缓存_put 接受 cache、requestURL、response：
+    若 cache 等于 0 或者 requestURL 等于 0 或者 response 等于 0：
+        返还。
+    完。
+    可变 entry 为 cache 的 头。
+    只要 entry 不等于 0：
+        若 做 字符串_相等 用 entry 的 请求URL、requestURL：
+            entry 的 响应 为 response。
+            entry 的 时间戳 为 做 平台_获取高精度时间。
+            返还。
+        完。
+        entry 为 entry 的 下一个。
+    完。
+    新entry 为 做 堆_分配 用 缓存Entry。
+    新entry 的 请求URL 为 做 字符串_复制 用 requestURL。
+    新entry 的 请求Method 为 「GET」。
+    新entry 的 响应 为 response。
+    新entry 的 时间戳 为 做 平台_获取高精度时间。
+    新entry 的 下一个 为 cache 的 头。
+    cache 的 头 为 新entry。
+    cache 的 条目数 为 cache 的 条目数 加 1。
+完。
+
+缓存_match 接受 cache、requestURL：
+    若 cache 等于 0 或者 requestURL 等于 0：
+        返还 0。
+    完。
+    可变 entry 为 cache 的 头。
+    只要 entry 不等于 0：
+        若 做 字符串_相等 用 entry 的 请求URL、requestURL：
+            返还 entry 的 响应。
+        完。
+        entry 为 entry 的 下一个。
+    完。
+    返还 0。
+完。
+
+缓存_delete 接受 cache、requestURL：
+    若 cache 等于 0 或者 requestURL 等于 0：
+        返还 假。
+    完。
+    可变 prev 为 0。
+    可变 entry 为 cache 的 头。
+    只要 entry 不等于 0：
+        若 做 字符串_相等 用 entry 的 请求URL、requestURL：
+            若 prev 等于 0：
+                cache 的 头 为 entry 的 下一个。
+            否则：
+                prev 的 下一个 为 entry 的 下一个。
+            完。
+            cache 的 条目数 为 cache 的 条目数 减 1。
+            返还 真。
+        完。
+        prev 为 entry。
+        entry 为 entry 的 下一个。
+    完。
+    返还 假。
+完。
+
+缓存_addAll 接受 cache、urls、数量：
+    若 cache 等于 0 或者 urls 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        url 为 做 内存_读64 用 urls 加 i 乘 8。
+        若 url 不等于 0：
+            resp 为 做 堆_分配 用 Response。
+            resp 的 status 为 200。
+            resp 的 ok 为 真。
+            resp 的 body 为 0。
+            resp 的 body长度 为 0。
+            做 缓存_put 用 cache、url、resp。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+缓存_keys 接受 cache、结果、最大数：
+    若 cache 等于 0 或者 结果 等于 0：
+        返还 0。
+    完。
+    可变 count 为 0。
+    可变 entry 为 cache 的 头。
+    只要 entry 不等于 0 并且 count 小于 最大数：
+        做 内存_写64 用 结果 加 count 乘 8、entry 的 请求URL。
+        count 为 count 加 1。
+        entry 为 entry 的 下一个。
+    完。
+    返还 count。
+完。
+
+可变 AI_软件注册生_事件频率 为 0。
+
+可变 AI_软件注册生_节流阈值 为 16。
+
+AI_软件注册生_节流判断 接受 事件类型、间隔毫秒：
+    AI_软件注册生_事件频率 为 AI_软件注册生_事件频率 加 1。
+    若 事件类型 等于 「滚动」 并且 间隔毫秒 小于 AI_软件注册生_节流阈值：
+        返还 真。
+    完。
+    若 事件类型 等于 「移动」 并且 间隔毫秒 小于 AI_软件注册生_节流阈值：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_软件注册生_优先级排序 接受 事件类型：
+    若 事件类型 等于 「点击」：
+        返还 100。
+    完。
+    若 事件类型 等于 「输入」：
+        返还 90。
+    完。
+    若 事件类型 等于 「滚动」：
+        返还 30。
+    完。
+    返还 50。
+完。
+
+本章 收束。

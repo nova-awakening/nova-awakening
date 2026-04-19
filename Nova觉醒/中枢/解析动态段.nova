@@ -1,0 +1,161 @@
+《解析动态段》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·哈希函数》。
+
+引用《.·可执行加载》。
+
+引用《..·记忆·VFS文件读写》。
+
+引用《..·稳态·E1000收发初始化》。
+
+引用《..·记忆·VFS读写》。
+
+引用《.·内核打印》。
+
+引用《..·引导·端口IO》。
+
+引用《..·记忆·ramfs文件创建》。
+
+解析动态段 接受 obj：
+    可变 addr 为 obj 的 动态段。
+    只要 真：
+        d_tag 为 做 内存读64 用 addr。
+        d_val 为 做 内存读64 用 addr 加 8。
+        若 d_tag 等于 DT_NULL：
+            跳出。
+        完。
+        若 d_tag 等于 DT_NEEDED：
+            做 追加 用 obj 的 NEEDED列表、d_val。
+        完。
+        若 d_tag 等于 DT_STRTAB：
+            obj 的 字符串表 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_SYMTAB：
+            obj 的 符号表 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_STRSZ：
+            obj 的 字符串表大小 为 d_val。
+        完。
+        若 d_tag 等于 DT_SYMENT：
+            obj 的 符号表条目大小 为 d_val。
+        完。
+        若 d_tag 等于 DT_RELA：
+            obj 的 RELA表 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_RELASZ：
+            obj 的 RELA大小 为 d_val。
+        完。
+        若 d_tag 等于 DT_JMPREL：
+            obj 的 JMPREL表 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_PLTRELSZ：
+            obj 的 JMPREL大小 为 d_val。
+        完。
+        若 d_tag 等于 DT_PLTGOT：
+            obj 的 GOT地址 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_HASH：
+            obj 的 哈希表 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_GNU_HASH：
+            obj 的 GNU哈希表 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_INIT：
+            obj 的 INIT 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_FINI：
+            obj 的 FINI 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_INIT_ARRAY：
+            obj 的 INIT_ARRAY 为 d_val 加 obj 的 基地址。
+        完。
+        若 d_tag 等于 DT_INIT_ARRAYSZ：
+            obj 的 INIT_ARRAY大小 为 d_val。
+        完。
+        addr 为 addr 加 16。
+    完。
+    若 obj 的 字符串表 不等于 0：
+        可变 新列表 为 一组：（空）。
+        可变 n 为 0。
+        只要 n 小于 做 计数 用 obj 的 NEEDED列表：
+            偏移 为 obj 的 NEEDED列表 的 第 n 项。
+            名称 为 做 读取C字符串 用 obj 的 字符串表 加 偏移。
+            做 追加 用 新列表、名称。
+            n 为 n 加 1。
+        完。
+        obj 的 NEEDED列表 为 新列表。
+    完。
+完。
+
+加载共享库 接受 路径、名称：
+    做 内核调试 用 「ld.so: 加载 」 加 名称 加 「 ← 」 加 路径。
+    fd 为 做 vfs_open 用 路径、0。
+    若 fd 小于 0：
+        返还。
+    完。
+    头 为 做 分配内存 用 4096。
+    做 vfs_read 用 fd、头、4096。
+    e_type 为 做 内存读16 用 头 加 16。
+    e_entry 为 做 内存读64 用 头 加 24。
+    e_phoff 为 做 内存读64 用 头 加 32。
+    e_phnum 为 做 内存读16 用 头 加 56。
+    obj 为 新建 已加载对象。
+    obj 的 路径 为 路径。
+    obj 的 名称 为 名称。
+    obj 的 类型 为 e_type。
+    obj 的 NEEDED列表 为 一组：（空）。
+    obj 的 已初始化 为 假。
+    基地址 为 做 分配SO地址。
+    obj 的 基地址 为 基地址。
+    phdr_buf 为 做 分配内存 用 e_phnum 乘 56。
+    做 vfs_lseek 用 fd、e_phoff、0。
+    做 vfs_read 用 fd、phdr_buf、e_phnum 乘 56。
+    可变 i 为 0。
+    只要 i 小于 e_phnum：
+        ph 为 phdr_buf 加 i 乘 56。
+        p_type 为 做 内存读32 用 ph。
+        p_flags 为 做 内存读32 用 ph 加 4。
+        p_offset 为 做 内存读64 用 ph 加 8。
+        p_vaddr 为 做 内存读64 用 ph 加 16。
+        p_filesz 为 做 内存读64 用 ph 加 32。
+        p_memsz 为 做 内存读64 用 ph 加 40。
+        若 p_type 等于 PT_LOAD：
+            映射地址 为 基地址 加 p_vaddr。
+            做 Nova内存映射_映射 用 映射地址、做 页对齐 用 p_memsz、做 转换保护标志 用 p_flags。
+            做 vfs_lseek 用 fd、p_offset、0。
+            做 vfs_read 用 fd、映射地址、p_filesz。
+            若 p_memsz 大于 p_filesz：
+                做 内存填零 用 映射地址 加 p_filesz、p_memsz 减 p_filesz。
+            完。
+        完。
+        若 p_type 等于 PT_DYNAMIC：
+            obj 的 动态段 为 基地址 加 p_vaddr。
+        完。
+        若 p_type 等于 PT_安全：
+            obj 的 安全大小 为 p_memsz。
+        完。
+        i 为 i 加 1。
+    完。
+    做 vfs_close 用 fd。
+    做 释放内存 用 头。
+    做 释放内存 用 phdr_buf。
+    obj 的 入口点 为 基地址 加 e_entry。
+    若 obj 的 动态段 不等于 0：
+        做 解析动态段 用 obj。
+    完。
+    做 追加 用 已加载对象列表、obj。
+完。
+
+可变 下一个SO地址 为 0x7F000000。
+
+分配SO地址 接受 零参：
+    addr 为 下一个SO地址。
+    下一个SO地址 为 下一个SO地址 加 0x400000。
+    返还 addr。
+完。
+
+本章 收束。

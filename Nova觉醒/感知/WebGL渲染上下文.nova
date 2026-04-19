@@ -1,0 +1,95 @@
+《WebGL渲染上下文》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+GL_ARRAY_BUFFER 为 0x8892。
+
+GL_元素_ARRAY_BUFFER 为 0x8893。
+
+GL_UNIFORM_BUFFER 为 0x8A11。
+
+GL_STATIC_DRAW 为 0x88E4。
+
+GL_DYNAMIC_DRAW 为 0x88E8。
+
+GL_STREAM_DRAW 为 0x88E0。
+
+GL_VERTEX_SHADER 为 0x8B31。
+
+GL_FRAGMENT_SHADER 为 0x8B30。
+
+GL_FLOAT 为 0x1406。
+
+GL_INT 为 0x1404。
+
+GL_UNSIGNED_INT 为 0x1405。
+
+GL_UNSIGNED_SHORT 为 0x1403。
+
+GL_UNSIGNED_BYTE 为 0x1401。
+
+GL_TRIANGLES 为 0x0004。
+
+GL_TRIANGLE_STRIP 为 0x0005。
+
+GL_TRIANGLE_FAN 为 0x0006。
+
+GL_LINES 为 0x0001。
+
+GL_LINE_STRIP 为 0x0003。
+
+GL_POINTS 为 0x0000。
+
+GL_TEXTURE_2D 为 0x0DE1。
+
+GL_TEXTURE_CUBE_MAP 为 0x8513。
+
+GL_TEXTURE_3D 为 0x806F。
+
+GL_RGBA 为 0x1908。
+
+GL_RGB 为 0x1907。
+
+GL_RGBA8 为 0x8058。
+
+GL_DEPTH_COMPONENT 为 0x1902。
+
+GL_FRAMEBUFFER 为 0x8D40。
+
+GL_RENDERBUFFER 为 0x8D41。
+
+GL_COLOR_ATTACHMENT0 为 0x8CE0。
+
+GL_DEPTH_ATTACHMENT 为 0x8D00。
+
+GL_BLEND 为 0x0BE2。
+
+GL_DEPTH_TEST 为 0x0B71。
+
+GL_CULL_FACE 为 0x0B44。
+
+GL_SCISSOR_TEST 为 0x0C11。
+
+GL_STENCIL_TEST 为 0x0B90。
+
+GL_COMPILE_STATUS 为 0x8B81。
+
+GL_LINK_STATUS 为 0x8B82。
+
+GLBuffer 是 一种 事物，含 id、目标、数据、大小、用法。
+
+GLShader 是 一种 事物，含 id、类型、源码、已编译、错误日志。
+
+GLProgram 是 一种 事物，含 id、顶点着色器、片段着色器、已链接、错误日志、uniform列表、uniform数量、attribute列表、attribute数量。
+
+GLTexture 是 一种 事物，含 id、目标、宽、高、格式、数据、min_filter、mag_filter、wrap_s、wrap_t、已生成mipmap。
+
+GLFramebuffer 是 一种 事物，含 id、颜色附件、深度附件、模板附件、宽、高。
+
+GL渲染buffer 是 一种 事物，含 id、格式、宽、高、数据。
+
+GLVAO 是 一种 事物，含 id、属性启用、属性缓冲、属性偏移、属性步长、属性类型、属性大小、属性数量、索引缓冲。
+
+本章 收束。

@@ -1,0 +1,140 @@
+《空闲》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·内容可见性》。
+
+IdleCallback 是 一种 事物，含 ID、回调、超时、入队时间、已取消、下一个。
+
+IdleDeadline 是 一种 事物，含 帧结束时间、didTimeout。
+
+可变 Idle_链头 为 0。
+
+可变 Idle_下一ID 为 1。
+
+requestIdleCallback 接受 回调、超时：
+    若 回调 等于 0：
+        返还 0。
+    完。
+    entry 为 做 堆_分配 用 IdleCallback。
+    entry 的 ID 为 Idle_下一ID。
+    Idle_下一ID 为 Idle_下一ID 加 1。
+    entry 的 回调 为 回调。
+    entry 的 超时 为 超时。
+    entry 的 入队时间 为 做 平台_获取高精度时间。
+    entry 的 已取消 为 假。
+    entry 的 下一个 为 Idle_链头。
+    Idle_链头 为 entry。
+    返还 entry 的 ID。
+完。
+
+cancelIdleCallback 接受 id：
+    可变 entry 为 Idle_链头。
+    只要 entry 不等于 0：
+        若 entry 的 ID 等于 id：
+            entry 的 已取消 为 真。
+            返还。
+        完。
+        entry 为 entry 的 下一个。
+    完。
+完。
+
+Idle_执行 接受 帧结束时间、现在：
+    可变 prev 为 0。
+    可变 entry 为 Idle_链头。
+    只要 entry 不等于 0：
+        next 为 entry 的 下一个。
+        若 entry 的 已取消：
+            若 prev 等于 0：
+                Idle_链头 为 next。
+            否则：
+                prev 的 下一个 为 next。
+            完。
+            entry 为 next。
+            继续。
+        完。
+        已超时 为 假。
+        若 entry 的 超时 大于 0：
+            已超时 为 现在 减 entry 的 入队时间 大于或等于 entry 的 超时。
+        完。
+        剩余时间 为 帧结束时间 减 现在。
+        若 剩余时间 大于 0 或者 已超时：
+            deadline 为 做 堆_分配 用 IdleDeadline。
+            deadline 的 帧结束时间 为 帧结束时间。
+            deadline 的 didTimeout 为 已超时。
+            若 prev 等于 0：
+                Idle_链头 为 next。
+            否则：
+                prev 的 下一个 为 next。
+            完。
+            entry 为 next。
+            继续。
+        完。
+        prev 为 entry。
+        entry 为 next。
+    完。
+完。
+
+IdleDeadline_timeRemaining 接受 deadline：
+    若 deadline 等于 0：
+        返还 0。
+    完。
+    现在 为 做 平台_获取高精度时间。
+    剩余 为 deadline 的 帧结束时间 减 现在。
+    若 剩余 小于 0：
+        返还 0。
+    完。
+    返还 剩余。
+完。
+
+MacroTask 是 一种 事物，含 回调、优先级、入队时间、下一个。
+
+可变 宏任务_用户阻塞 为 0。
+
+可变 宏任务_用户可见 为 0。
+
+可变 宏任务_后台 为 0。
+
+事件Loop_入队宏任务 接受 回调、优先级：
+    若 回调 等于 0：
+        返还。
+    完。
+    task 为 做 堆_分配 用 MacroTask。
+    task 的 回调 为 回调。
+    task 的 优先级 为 优先级。
+    task 的 入队时间 为 做 平台_获取高精度时间。
+    task 的 下一个 为 0。
+    若 优先级 等于 TASK_PRIORITY_USER_BLOCKING：
+        task 的 下一个 为 宏任务_用户阻塞。
+        宏任务_用户阻塞 为 task。
+    否则若 优先级 等于 TASK_PRIORITY_USER_VISIBLE：
+        task 的 下一个 为 宏任务_用户可见。
+        宏任务_用户可见 为 task。
+    否则：
+        task 的 下一个 为 宏任务_后台。
+        宏任务_后台 为 task。
+    完。
+完。
+
+事件Loop_取宏任务 接受 零参：
+    若 宏任务_用户阻塞 不等于 0：
+        task 为 宏任务_用户阻塞。
+        宏任务_用户阻塞 为 task 的 下一个。
+        返还 task。
+    完。
+    若 宏任务_用户可见 不等于 0：
+        task 为 宏任务_用户可见。
+        宏任务_用户可见 为 task 的 下一个。
+        返还 task。
+    完。
+    若 宏任务_后台 不等于 0：
+        task 为 宏任务_后台。
+        宏任务_后台 为 task 的 下一个。
+        返还 task。
+    完。
+    返还 0。
+完。
+
+本章 收束。

@@ -1,0 +1,152 @@
+《底层系统调用原语》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+系统调用0 接受 号：
+    做 内联汇编 用 「mv a7, a0」。
+    做 内联汇编 用 「ecall」。
+    做 内联汇编 用 「mv a0, a0」。
+完。
+
+系统调用1 接受 号、a1：
+    做 内联汇编 用 「mv a7, a0」。
+    做 内联汇编 用 「mv a0, a1」。
+    做 内联汇编 用 「ecall」。
+完。
+
+系统调用2 接受 号、a1、a2：
+    做 内联汇编 用 「mv a7, a0」。
+    做 内联汇编 用 「mv a0, a1」。
+    做 内联汇编 用 「mv a1, a2」。
+    做 内联汇编 用 「ecall」。
+完。
+
+系统调用3 接受 号、a1、a2、a3：
+    做 内联汇编 用 「mv a7, a0」。
+    做 内联汇编 用 「mv a0, a1」。
+    做 内联汇编 用 「mv a1, a2」。
+    做 内联汇编 用 「mv a2, a3」。
+    做 内联汇编 用 「ecall」。
+完。
+
+系统调用4 接受 号、a1、a2、a3、a4：
+    做 内联汇编 用 「mv a7, a0」。
+    做 内联汇编 用 「mv a0, a1」。
+    做 内联汇编 用 「mv a1, a2」。
+    做 内联汇编 用 「mv a2, a3」。
+    做 内联汇编 用 「mv a3, a4」。
+    做 内联汇编 用 「ecall」。
+完。
+
+系统调用5 接受 号、a1、a2、a3、a4、a5：
+    做 内联汇编 用 「mv a7, a0」。
+    做 内联汇编 用 「mv a0, a1」。
+    做 内联汇编 用 「mv a1, a2」。
+    做 内联汇编 用 「mv a2, a3」。
+    做 内联汇编 用 「mv a3, a4」。
+    做 内联汇编 用 「mv a4, a5」。
+    做 内联汇编 用 「ecall」。
+完。
+
+系统调用6 接受 号、a1、a2、a3、a4、a5、a6：
+    做 内联汇编 用 「mv a7, a0」。
+    做 内联汇编 用 「mv a0, a1」。
+    做 内联汇编 用 「mv a1, a2」。
+    做 内联汇编 用 「mv a2, a3」。
+    做 内联汇编 用 「mv a3, a4」。
+    做 内联汇编 用 「mv a4, a5」。
+    做 内联汇编 用 「mv a5, a6」。
+    做 内联汇编 用 「ecall」。
+完。
+
+系统调用_open 接受 路径、标志：
+    返还 做 系统调用4 用 SYS_openat、AT_FDCWD、路径、标志、420。
+完。
+
+系统调用_open_模式 接受 路径、标志、模式：
+    返还 做 系统调用4 用 SYS_openat、AT_FDCWD、路径、标志、模式。
+完。
+
+系统调用_read 接受 fd、buf、count：
+    返还 做 系统调用3 用 SYS_read、fd、buf、count。
+完。
+
+系统调用_write 接受 fd、buf、count：
+    返还 做 系统调用3 用 SYS_write、fd、buf、count。
+完。
+
+系统调用_close 接受 fd：
+    返还 做 系统调用1 用 SYS_close、fd。
+完。
+
+系统调用_fstat 接受 fd、statbuf：
+    返还 做 系统调用2 用 SYS_fstat、fd、statbuf。
+完。
+
+系统调用_lseek 接受 fd、offset、whence：
+    返还 做 系统调用3 用 SYS_lseek、fd、offset、whence。
+完。
+
+系统调用_pread 接受 fd、buf、count、offset：
+    返还 做 系统调用4 用 SYS_pread64、fd、buf、count、offset。
+完。
+
+系统调用_pwrite 接受 fd、buf、count、offset：
+    返还 做 系统调用4 用 SYS_pwrite64、fd、buf、count、offset。
+完。
+
+系统调用_writev 接受 fd、iov、iovcnt：
+    返还 做 系统调用3 用 SYS_writev、fd、iov、iovcnt。
+完。
+
+系统调用_readv 接受 fd、iov、iovcnt：
+    返还 做 系统调用3 用 SYS_readv、fd、iov、iovcnt。
+完。
+
+系统调用_dup 接受 fd：
+    返还 做 系统调用1 用 SYS_dup、fd。
+完。
+
+系统调用_dup3 接受 oldfd、newfd、flags：
+    返还 做 系统调用3 用 SYS_dup3、oldfd、newfd、flags。
+完。
+
+系统调用_pipe2 接受 fds、flags：
+    返还 做 系统调用2 用 SYS_pipe2、fds、flags。
+完。
+
+系统调用_fcntl 接受 fd、cmd、arg：
+    返还 做 系统调用3 用 SYS_fcntl、fd、cmd、arg。
+完。
+
+系统调用_Nova设备控制 接受 fd、request、arg：
+    返还 做 系统调用3 用 SYS_Nova设备控制、fd、request、arg。
+完。
+
+系统调用_fsync 接受 fd：
+    返还 做 系统调用1 用 SYS_fsync、fd。
+完。
+
+系统调用_ftruncate 接受 fd、length：
+    返还 做 系统调用2 用 SYS_ftruncate、fd、length。
+完。
+
+系统调用_unlink 接受 路径：
+    返还 做 系统调用3 用 SYS_unlinkat、AT_FDCWD、路径、0。
+完。
+
+系统调用_mkdir 接受 路径、模式：
+    返还 做 系统调用3 用 SYS_mkdirat、AT_FDCWD、路径、模式。
+完。
+
+系统调用_access 接受 路径、模式：
+    返还 做 系统调用3 用 SYS_faccessat、AT_FDCWD、路径、模式。
+完。
+
+系统调用_getcwd 接受 buf、size：
+    返还 做 系统调用2 用 SYS_getcwd、buf、size。
+完。
+
+本章 收束。

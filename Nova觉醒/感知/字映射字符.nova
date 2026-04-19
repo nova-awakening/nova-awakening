@@ -1,0 +1,205 @@
+《字映射字符》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+字体_字符到字形 接受 font、codepoint：
+    若 font 等于 0 或者 font 的 cmap偏移 等于 0：
+        返还 0。
+    完。
+    数据 为 font 的 数据。
+    cmap 为 font 的 cmap偏移。
+    子表数 为 做 字体_读u16 用 数据、cmap 加 2。
+    可变 best偏移 为 0。
+    可变 i 为 0。
+    只要 i 小于 子表数：
+        rec偏移 为 cmap 加 4 加 i 乘 8。
+        platformID 为 做 字体_读u16 用 数据、rec偏移。
+        encodingID 为 做 字体_读u16 用 数据、rec偏移 加 2。
+        子表offset 为 做 字体_读u32 用 数据、rec偏移 加 4。
+        若 platformID 等于 3 并且 encodingID 等于 1：
+            best偏移 为 cmap 加 子表offset。
+            跳出。
+        完。
+        若 platformID 等于 0：
+            best偏移 为 cmap 加 子表offset。
+        完。
+        i 为 i 加 1。
+    完。
+    若 best偏移 等于 0：
+        返还 0。
+    完。
+    format 为 做 字体_读u16 用 数据、best偏移。
+    若 format 等于 4：
+        返还 做 字体_cmap_format4 用 数据、best偏移、codepoint。
+    否则若 format 等于 12：
+        返还 做 字体_cmap_format12 用 数据、best偏移、codepoint。
+    完。
+    返还 0。
+完。
+
+字体_cmap_format4 接受 数据、偏移、cp：
+    segCount 为 做 字体_读u16 用 数据、偏移 加 6 除以 2。
+    endCodes 为 偏移 加 14。
+    startCodes 为 endCodes 加 segCount 乘 2 加 2。
+    idDelta 为 startCodes 加 segCount 乘 2。
+    idRangeOffset 为 idDelta 加 segCount 乘 2。
+    可变 lo 为 0。
+    可变 hi 为 segCount 减 1。
+    只要 lo 小于或等于 hi：
+        mid 为 (lo 加 hi) 除以 2。
+        endCode 为 做 字体_读u16 用 数据、endCodes 加 mid 乘 2。
+        startCode 为 做 字体_读u16 用 数据、startCodes 加 mid 乘 2。
+        若 cp 大于 endCode：
+            lo 为 mid 加 1。
+        否则若 cp 小于 startCode：
+            hi 为 mid 减 1。
+        否则：
+            delta 为 做 字体_读i16 用 数据、idDelta 加 mid 乘 2。
+            rangeOff 为 做 字体_读u16 用 数据、idRangeOffset 加 mid 乘 2。
+            若 rangeOff 等于 0：
+                返还 cp 加 delta 位与 0xFFFF。
+            否则：
+                glyphAddr 为 idRangeOffset 加 mid 乘 2 加 rangeOff 加 (cp 减 startCode) 乘 2。
+                glyph 为 做 字体_读u16 用 数据、glyphAddr。
+                若 glyph 不等于 0：
+                    返还 glyph 加 delta 位与 0xFFFF。
+                完。
+                返还 0。
+            完。
+        完。
+    完。
+    返还 0。
+完。
+
+字体_cmap_format12 接受 数据、偏移、cp：
+    nGroups 为 做 字体_读u32 用 数据、偏移 加 12。
+    可变 lo 为 0。
+    可变 hi 为 nGroups 减 1。
+    只要 lo 小于或等于 hi：
+        mid 为 (lo 加 hi) 除以 2。
+        rec 为 偏移 加 16 加 mid 乘 12。
+        startChar 为 做 字体_读u32 用 数据、rec。
+        endChar 为 做 字体_读u32 用 数据、rec 加 4。
+        startGlyph 为 做 字体_读u32 用 数据、rec 加 8。
+        若 cp 大于 endChar：
+            lo 为 mid 加 1。
+        否则若 cp 小于 startChar：
+            hi 为 mid 减 1。
+        否则：
+            返还 startGlyph 加 (cp 减 startChar)。
+        完。
+    完。
+    返还 0。
+完。
+
+字体_获取字形偏移 接受 font、glyphID：
+    若 font 等于 0 或者 font 的 loca偏移 等于 0：
+        返还 0。
+    完。
+    若 font 的 loca格式 等于 0：
+        返还 做 字体_读u16 用 font 的 数据、font 的 loca偏移 加 glyphID 乘 2 乘 2。
+    否则：
+        返还 做 字体_读u32 用 font 的 数据、font 的 loca偏移 加 glyphID 乘 4。
+    完。
+完。
+
+字体_获取字形轮廓 接受 font、glyphID：
+    若 font 等于 0 或者 font 的 glyf偏移 等于 0：
+        返还 0。
+    完。
+    offset 为 做 字体_获取字形偏移 用 font、glyphID。
+    addr 为 font 的 glyf偏移 加 offset。
+    数据 为 font 的 数据。
+    outline 为 做 堆_分配 用 GlyphOutline。
+    轮廓数 为 做 字体_读i16 用 数据、addr。
+    outline 的 xMin 为 做 字体_读i16 用 数据、addr 加 2。
+    outline 的 yMin 为 做 字体_读i16 用 数据、addr 加 4。
+    outline 的 xMax 为 做 字体_读i16 用 数据、addr 加 6。
+    outline 的 yMax 为 做 字体_读i16 用 数据、addr 加 8。
+    若 轮廓数 小于 0：
+        outline 的 是复合 为 真。
+        outline 的 轮廓数 为 0。
+        outline 的 点数 为 0。
+        返还 outline。
+    完。
+    outline 的 是复合 为 假。
+    outline 的 轮廓数 为 轮廓数。
+    可变 hdr_off 为 addr 加 10。
+    可变 最后点idx 为 0。
+    可变 c 为 0。
+    只要 c 小于 轮廓数：
+        endPt 为 做 字体_读u16 用 数据、hdr_off 加 c 乘 2。
+        若 endPt 大于 最后点idx：
+            最后点idx 为 endPt。
+        完。
+        c 为 c 加 1。
+    完。
+    outline 的 点数 为 最后点idx 加 1。
+    instr_off 为 hdr_off 加 轮廓数 乘 2。
+    instr_len 为 做 字体_读u16 用 数据、instr_off。
+    返还 outline。
+完。
+
+GlyphOutline 是 一种 事物，含 轮廓数、点数、xMin、yMin、xMax、yMax、是复合。
+
+字体_读u16 接受 数据、偏移：
+    返还 做 内存_读8 用 数据 加 偏移 左移 8 位或 做 内存_读8 用 数据 加 偏移 加 1。
+完。
+
+字体_读u32 接受 数据、偏移：
+    返还 做 内存_读8 用 数据 加 偏移 左移 24 位或 做 内存_读8 用 数据 加 偏移 加 1 左移 16 位或 做 内存_读8 用 数据 加 偏移 加 2 左移 8 位或 做 内存_读8 用 数据 加 偏移 加 3。
+完。
+
+字形_宽度 接受 outline：
+    若 outline 等于 0：
+        返还 0。
+    完。
+    返还 outline 的 xMax 减 outline 的 xMin。
+完。
+
+字形_高度 接受 outline：
+    若 outline 等于 0：
+        返还 0。
+    完。
+    返还 outline 的 yMax 减 outline 的 yMin。
+完。
+
+可变 cmap_查找总数 为 0。
+
+可变 cmap_命中总数 为 0。
+
+可变 字形_加载总数 为 0。
+
+字体映射_统计 接受 零参：
+    返还 一本字典：查找 对应 cmap_查找总数、命中 对应 cmap_命中总数、字形加载 对应 字形_加载总数。
+完。
+
+字体映射_健康检查 接受 零参：
+    返还 「字体映射健康」。
+完。
+
+字体映射_完整统计 接受 零参：
+    返还 一组：cmap_查找总数、cmap_命中总数、字形_加载总数。
+完。
+
+可变 AI_字映射字符_调用数 为 0。
+
+可变 AI_字映射字符_异常数 为 0。
+
+AI_字映射字符_监控 接受 零参：
+    AI_字映射字符_调用数 为 AI_字映射字符_调用数 加 1。
+    返还 AI_字映射字符_异常数 等于 0。
+完。
+
+AI_字映射字符_健康检查 接受 零参：
+    若 AI_字映射字符_调用数 大于 0 并且 AI_字映射字符_异常数 乘 100 除以 AI_字映射字符_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

@@ -1,0 +1,472 @@
+《网实时钟对等》
+
+引用《..·外联·TCP会话记录》。
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信总线》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·字符串替换》。
+
+对等连接统计 是 一种 事物，含 连接创建次数、连接关闭次数、Offer创建次数、Answer创建次数、setLocal次数、setRemote次数、ICE候选添加次数、ICE候选收集次数、连接成功次数、连接失败次数、数据通道创建次数、addTrack次数、信令状态切换次数、AI连接调用次数、AI连接命中次数、总处理耗时_纳秒、错误总数、重连次数。
+
+AI对等连接状态 是 一种 事物，含 历史连接成功率、历史平均连接时间、历史ICE候选数均值、连续成功计数、连续失败计数、预测连接成功、采样计数器、学习权重。
+
+可变 全局对等连接统计 为 0。
+
+可变 全局对等连接AI 为 0。
+
+可变 全局对等连接已初始化 为 假。
+
+对等连接_初始化全局 接受 零参：
+    若 全局对等连接已初始化 等于 真：
+        返还 错误_已存在。
+    完。
+    全局对等连接统计 为 做 堆_分配_清零 用 144。
+    若 全局对等连接统计 等于 空：
+        返还 错误_内存不足。
+    完。
+    全局对等连接AI 为 做 堆_分配_清零 用 40。
+    若 全局对等连接AI 不等于 空：
+        全局对等连接AI 的 预测连接成功 为 真。
+        全局对等连接AI 的 学习权重 为 128。
+    完。
+    全局对等连接已初始化 为 真。
+    做 打印 用 「[对等连接] 初始化完成」。
+    返还 0。
+完。
+
+对等连接_销毁全局 接受 零参：
+    若 全局对等连接统计 不等于 空：
+        做 堆_释放 用 全局对等连接统计。
+        全局对等连接统计 为 0。
+    完。
+    若 全局对等连接AI 不等于 空：
+        做 堆_释放 用 全局对等连接AI。
+        全局对等连接AI 为 0。
+    完。
+    全局对等连接已初始化 为 假。
+    返还 0。
+完。
+
+RTC_SIGNALING_STABLE 为 0。
+
+RTC_SIGNALING_HAVE_LOCAL_OFFER 为 1。
+
+RTC_SIGNALING_HAVE_REMOTE_OFFER 为 2。
+
+RTC_SIGNALING_HAVE_LOCAL_PRANSWER 为 3。
+
+RTC_SIGNALING_HAVE_REMOTE_PRANSWER 为 4。
+
+RTC_SIGNALING_CLOSED 为 5。
+
+ICE_NEW 为 0。
+
+ICE_CHECKING 为 1。
+
+ICE_CONNECTED 为 2。
+
+ICE_COMPLETED 为 3。
+
+ICE_FAILED 为 4。
+
+ICE_DISCONNECTED 为 5。
+
+ICE_CLOSED 为 6。
+
+ICE_GATHER_NEW 为 0。
+
+ICE_GATHER_GATHERING 为 1。
+
+ICE_GATHER_COMPLETE 为 2。
+
+CONN_NEW 为 0。
+
+CONN_CONNECTING 为 1。
+
+CONN_CONNECTED 为 2。
+
+CONN_DISCONNECTED 为 3。
+
+CONN_FAILED 为 4。
+
+CONN_CLOSED 为 5。
+
+ICE_CAND_HOST 为 0。
+
+ICE_CAND_SRFLX 为 1。
+
+ICE_CAND_PRFLX 为 2。
+
+ICE_CAND_RELAY 为 3。
+
+SDP_OFFER 为 0。
+
+SDP_ANSWER 为 1。
+
+SDP_PRANSWER 为 2。
+
+SDP_ROLLBACK 为 3。
+
+TRACK_LIVE 为 0。
+
+TRACK_ENDED 为 1。
+
+DC_CONNECTING 为 0。
+
+DC_OPEN 为 1。
+
+DC_CLOSING 为 2。
+
+DC_CLOSED 为 3。
+
+RTCIceCandidate 是 一种 事物，含 candidate、sdpMid、sdpMLineIndex、类型、协议、IP、端口、优先级、foundation、组件。
+
+RTCPeerConnection 是 一种 事物，含 信令状态、连接状态、ice状态、ice收集状态、本地描述、本地描述类型、远端描述、远端描述类型、ICE候选列表、ICE候选数、ICE候选容量、远端ICE候选列表、远端ICE候选数、收发器列表、收发器数、数据通道列表、数据通道数量、ICE服务器、ICE服务器数、onicecandidate、onconnectionstatechange、oniceconnectionstatechange、onnegotiationneeded、ondatachannel、ontrack、锁、AI状态。
+
+RTCPeerConnection_创建 接受 配置：
+    pc 为 做 堆_分配 用 RTCPeerConnection。
+    若 pc 等于 空：
+        做 打印 用 「[对等连接] 错误: 分配失败」。
+        返还 空。
+    完。
+    pc 的 信令状态 为 RTC_SIGNALING_STABLE。
+    pc 的 连接状态 为 RTC_CONN_NEW。
+    pc 的 ice状态 为 RTC_ICE_NEW。
+    pc 的 ice收集状态 为 RTC_ICE_GATHERING_NEW。
+    pc 的 本地描述 为 0。
+    pc 的 远端描述 为 0。
+    pc 的 ICE候选容量 为 32。
+    pc 的 ICE候选列表 为 做 堆_分配_清零 用 32 乘 8。
+    pc 的 ICE候选数 为 0。
+    pc 的 远端ICE候选列表 为 做 堆_分配_清零 用 32 乘 8。
+    pc 的 远端ICE候选数 为 0。
+    pc 的 收发器列表 为 做 堆_分配_清零 用 16 乘 8。
+    pc 的 收发器数 为 0。
+    pc 的 数据通道列表 为 做 堆_分配_清零 用 16 乘 8。
+    pc 的 数据通道数量 为 0。
+    pc 的 锁 为 做 渲染_互斥锁创建。
+    pc 的 AI状态 为 0。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 连接创建次数 为 全局对等连接统计 的 连接创建次数 加 1。
+    完。
+    返还 pc。
+完。
+
+RTCPeerConnection_销毁 接受 pc：
+    若 pc 等于 空：
+        返还。
+    完。
+    若 pc 的 ICE候选列表 不等于 空：
+        做 堆_释放 用 pc 的 ICE候选列表。
+    完。
+    若 pc 的 远端ICE候选列表 不等于 空：
+        做 堆_释放 用 pc 的 远端ICE候选列表。
+    完。
+    若 pc 的 收发器列表 不等于 空：
+        做 堆_释放 用 pc 的 收发器列表。
+    完。
+    若 pc 的 数据通道列表 不等于 空：
+        做 堆_释放 用 pc 的 数据通道列表。
+    完。
+    若 pc 的 本地描述 不等于 空：
+        做 堆_释放 用 pc 的 本地描述。
+    完。
+    若 pc 的 远端描述 不等于 空：
+        做 堆_释放 用 pc 的 远端描述。
+    完。
+    做 堆_释放 用 pc。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 连接关闭次数 为 全局对等连接统计 的 连接关闭次数 加 1。
+    完。
+完。
+
+RTCPeerConnection_createOffer 接受 pc：
+    若 pc 等于 空：
+        返还 空。
+    完。
+    若 pc 的 连接状态 等于 RTC_CONN_CLOSED：
+        返还 空。
+    完。
+    可变 sdp 为 「v=0\r\no=- 」。
+    sdp 为 做 字符串拼接 用 sdp、「1234567890 2 IN IP4 0.0.0.0\r\n」。
+    sdp 为 做 字符串拼接 用 sdp、「s=-\r\nt=0 0\r\n」。
+    可变 i 为 0。
+    只要 i 小于 pc 的 收发器数：
+        tc 为 做 内存_读64 用 pc 的 收发器列表 加 i 乘 8。
+        若 tc 不等于 空：
+            sdp 为 做 字符串拼接 用 sdp、「m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n」。
+            sdp 为 做 字符串拼接 用 sdp、「a=rtpmap:111 opus/48000/2\r\n」。
+        完。
+        i 为 i 加 1。
+    完。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 Offer创建次数 为 全局对等连接统计 的 Offer创建次数 加 1。
+    完。
+    返还 sdp。
+完。
+
+RTCPeerConnection_createAnswer 接受 pc：
+    若 pc 等于 空 或者 pc 的 远端描述 等于 空：
+        返还 空。
+    完。
+    可变 sdp 为 「v=0\r\no=- 」。
+    sdp 为 做 字符串拼接 用 sdp、「9876543210 2 IN IP4 0.0.0.0\r\n」。
+    sdp 为 做 字符串拼接 用 sdp、「s=-\r\nt=0 0\r\n」。
+    sdp 为 做 字符串拼接 用 sdp、「m=audio 9 UDP/TLS/RTP/SAVPF 111\r\n」。
+    sdp 为 做 字符串拼接 用 sdp、「a=rtpmap:111 opus/48000/2\r\n」。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 Answer创建次数 为 全局对等连接统计 的 Answer创建次数 加 1。
+    完。
+    返还 sdp。
+完。
+
+RTCPeerConnection_setLocalDescription 接受 pc、sdp、类型：
+    若 pc 等于 空 或者 sdp 等于 空：
+        返还 错误_无效参数。
+    完。
+    pc 的 本地描述 为 sdp。
+    pc 的 本地描述类型 为 类型。
+    若 类型 等于 SDP_OFFER：
+        pc 的 信令状态 为 RTC_SIGNALING_HAVE_LOCAL_OFFER。
+    否则若 类型 等于 SDP_ANSWER：
+        pc 的 信令状态 为 RTC_SIGNALING_STABLE。
+    完。
+    pc 的 ice收集状态 为 RTC_ICE_GATHERING_GATHERING。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 setLocal次数 为 全局对等连接统计 的 setLocal次数 加 1。
+        全局对等连接统计 的 信令状态切换次数 为 全局对等连接统计 的 信令状态切换次数 加 1。
+    完。
+    返还 0。
+完。
+
+RTCPeerConnection_setRemoteDescription 接受 pc、sdp、类型：
+    若 pc 等于 空 或者 sdp 等于 空：
+        返还 错误_无效参数。
+    完。
+    pc 的 远端描述 为 sdp。
+    pc 的 远端描述类型 为 类型。
+    若 类型 等于 SDP_OFFER：
+        pc 的 信令状态 为 RTC_SIGNALING_HAVE_REMOTE_OFFER。
+    否则若 类型 等于 SDP_ANSWER：
+        pc 的 信令状态 为 RTC_SIGNALING_STABLE。
+        pc 的 连接状态 为 RTC_CONN_CONNECTING。
+        pc 的 ice状态 为 RTC_ICE_CHECKING。
+    完。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 setRemote次数 为 全局对等连接统计 的 setRemote次数 加 1。
+        全局对等连接统计 的 信令状态切换次数 为 全局对等连接统计 的 信令状态切换次数 加 1。
+    完。
+    返还 0。
+完。
+
+RTCPeerConnection_addIceCandidate 接受 pc、candidate：
+    若 pc 等于 空 或者 candidate 等于 空：
+        返还 错误_无效参数。
+    完。
+    若 pc 的 远端ICE候选数 大于或等于 32：
+        返还 错误_容量不足。
+    完。
+    做 内存_写64 用 pc 的 远端ICE候选列表 加 pc 的 远端ICE候选数 乘 8、candidate。
+    pc 的 远端ICE候选数 为 pc 的 远端ICE候选数 加 1。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 ICE候选添加次数 为 全局对等连接统计 的 ICE候选添加次数 加 1。
+    完。
+    若 pc 的 ice状态 等于 RTC_ICE_CHECKING：
+        pc 的 ice状态 为 RTC_ICE_CONNECTED。
+        pc 的 连接状态 为 RTC_CONN_CONNECTED。
+        若 全局对等连接统计 不等于 空：
+            全局对等连接统计 的 连接成功次数 为 全局对等连接统计 的 连接成功次数 加 1。
+        完。
+        做 AI对等连接_记录 用 真。
+    完。
+    返还 0。
+完。
+
+RTCPeerConnection_获取信令状态 接受 pc：
+    若 pc 等于 空：
+        返还 RTC_SIGNALING_CLOSED。
+    完。
+    返还 pc 的 信令状态。
+完。
+
+RTCPeerConnection_获取连接状态 接受 pc：
+    若 pc 等于 空：
+        返还 RTC_CONN_CLOSED。
+    完。
+    返还 pc 的 连接状态。
+完。
+
+RTCPeerConnection_获取ICE状态 接受 pc：
+    若 pc 等于 空：
+        返还 RTC_ICE_CLOSED。
+    完。
+    返还 pc 的 ice状态。
+完。
+
+RTCPeerConnection_是否已连接 接受 pc：
+    若 pc 等于 空：
+        返还 假。
+    完。
+    若 pc 的 连接状态 等于 RTC_CONN_CONNECTED：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI对等连接_记录 接受 成功：
+    若 全局对等连接AI 等于 空：
+        返还。
+    完。
+    AI 为 全局对等连接AI。
+    AI 的 采样计数器 为 AI 的 采样计数器 加 1。
+    若 成功 等于 真：
+        AI 的 连续成功计数 为 AI 的 连续成功计数 加 1。
+        AI 的 连续失败计数 为 0。
+        AI 的 历史连接成功率 为 (AI 的 历史连接成功率 乘 15 加 1024) 除以 16。
+    否则：
+        AI 的 连续失败计数 为 AI 的 连续失败计数 加 1。
+        AI 的 连续成功计数 为 0。
+        AI 的 历史连接成功率 为 AI 的 历史连接成功率 乘 15 除以 16。
+    完。
+    若 AI 的 采样计数器 小于 8：
+        返还。
+    完。
+    AI 的 采样计数器 为 0。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 AI连接调用次数 为 全局对等连接统计 的 AI连接调用次数 加 1。
+    完。
+    若 AI 的 历史连接成功率 大于 700 并且 AI 的 连续成功计数 大于 3：
+        AI 的 预测连接成功 为 真。
+    否则若 AI 的 连续失败计数 大于 3：
+        AI 的 预测连接成功 为 假。
+    完。
+    若 AI 的 预测连接成功 等于 真 并且 成功 等于 真：
+        若 全局对等连接统计 不等于 空：
+            全局对等连接统计 的 AI连接命中次数 为 全局对等连接统计 的 AI连接命中次数 加 1。
+        完。
+    完。
+完。
+
+对等连接_打印统计 接受 零参：
+    若 全局对等连接统计 等于 空：
+        做 打印 用 「[对等连接] 统计未初始化」。
+        返还。
+    完。
+    做 打印 用 「┌──────────────────────────────────────┐」。
+    做 打印 用 「│   RTCPeerConnection · 统计报告      │」。
+    做 打印 用 「├──────────────────────────────────────┤」。
+    做 打印 用 做 字符串拼接 用 「│ 连接创建:         」、做 转字符串 用 全局对等连接统计 的 连接创建次数。
+    做 打印 用 做 字符串拼接 用 「│ 连接关闭:         」、做 转字符串 用 全局对等连接统计 的 连接关闭次数。
+    做 打印 用 做 字符串拼接 用 「│ Offer创建:        」、做 转字符串 用 全局对等连接统计 的 Offer创建次数。
+    做 打印 用 做 字符串拼接 用 「│ Answer创建:       」、做 转字符串 用 全局对等连接统计 的 Answer创建次数。
+    做 打印 用 做 字符串拼接 用 「│ setLocal:         」、做 转字符串 用 全局对等连接统计 的 setLocal次数。
+    做 打印 用 做 字符串拼接 用 「│ setRemote:        」、做 转字符串 用 全局对等连接统计 的 setRemote次数。
+    做 打印 用 做 字符串拼接 用 「│ ICE候选添加:      」、做 转字符串 用 全局对等连接统计 的 ICE候选添加次数。
+    做 打印 用 做 字符串拼接 用 「│ 连接成功:         」、做 转字符串 用 全局对等连接统计 的 连接成功次数。
+    做 打印 用 做 字符串拼接 用 「│ 连接失败:         」、做 转字符串 用 全局对等连接统计 的 连接失败次数。
+    做 打印 用 做 字符串拼接 用 「│ 信令切换:         」、做 转字符串 用 全局对等连接统计 的 信令状态切换次数。
+    做 打印 用 做 字符串拼接 用 「│ AI连接调用:       」、做 转字符串 用 全局对等连接统计 的 AI连接调用次数。
+    做 打印 用 做 字符串拼接 用 「│ AI连接命中:       」、做 转字符串 用 全局对等连接统计 的 AI连接命中次数。
+    做 打印 用 做 字符串拼接 用 「│ 总耗时(μs):       」、做 转字符串 用 全局对等连接统计 的 总处理耗时_纳秒 除以 1000。
+    做 打印 用 做 字符串拼接 用 「│ 错误:             」、做 转字符串 用 全局对等连接统计 的 错误总数。
+    做 打印 用 「└──────────────────────────────────────┘」。
+完。
+
+对等连接_导出诊断 接受 零参：
+    若 全局对等连接AI 等于 空：
+        做 打印 用 「[对等连接AI] 未初始化」。
+        返还。
+    完。
+    AI 为 全局对等连接AI。
+    做 打印 用 「[对等连接AI] === 诊断 ===」。
+    做 打印 用 做 字符串拼接 用 「  历史成功率(Q10): 」、做 转字符串 用 AI 的 历史连接成功率。
+    做 打印 用 做 字符串拼接 用 「  连续成功: 」、做 转字符串 用 AI 的 连续成功计数。
+    做 打印 用 做 字符串拼接 用 「  连续失败: 」、做 转字符串 用 AI 的 连续失败计数。
+    做 打印 用 做 字符串拼接 用 「  预测成功: 」、做 转字符串 用 AI 的 预测连接成功。
+完。
+
+对等连接_获取统计 接受 零参：
+    返还 全局对等连接统计。
+完。
+
+对等连接_获取AI状态 接受 零参：
+    返还 全局对等连接AI。
+完。
+
+对等连接_预测成功 接受 零参：
+    若 全局对等连接AI 等于 空：
+        返还 真。
+    完。
+    返还 全局对等连接AI 的 预测连接成功。
+完。
+
+对等连接_是否已初始化 接受 零参：
+    返还 全局对等连接已初始化。
+完。
+
+RTCPeerConnection_获取收发器数 接受 pc：
+    若 pc 等于 空：
+        返还 0。
+    完。
+    返还 pc 的 收发器数。
+完。
+
+RTCPeerConnection_获取数据通道数 接受 pc：
+    若 pc 等于 空：
+        返还 0。
+    完。
+    返还 pc 的 数据通道数量。
+完。
+
+RTCPeerConnection_获取本地候选数 接受 pc：
+    若 pc 等于 空：
+        返还 0。
+    完。
+    返还 pc 的 ICE候选数。
+完。
+
+RTCPeerConnection_获取远端候选数 接受 pc：
+    若 pc 等于 空：
+        返还 0。
+    完。
+    返还 pc 的 远端ICE候选数。
+完。
+
+RTCPeerConnection_获取本地描述 接受 pc：
+    若 pc 等于 空：
+        返还 空。
+    完。
+    返还 pc 的 本地描述。
+完。
+
+RTCPeerConnection_获取远端描述 接受 pc：
+    若 pc 等于 空：
+        返还 空。
+    完。
+    返还 pc 的 远端描述。
+完。
+
+RTCIceCandidate_创建 接受 candidate字符串、sdpMid、sdpMLineIndex：
+    cand 为 做 堆_分配 用 RTCIceCandidate。
+    若 cand 等于 空：
+        返还 空。
+    完。
+    cand 的 candidate 为 candidate字符串。
+    cand 的 sdpMid 为 sdpMid。
+    cand 的 sdpMLineIndex 为 sdpMLineIndex。
+    cand 的 类型 为 ICE_CAND_HOST。
+    cand 的 协议 为 0。
+    cand 的 IP 为 0。
+    cand 的 端口 为 0。
+    cand 的 优先级 为 0。
+    若 全局对等连接统计 不等于 空：
+        全局对等连接统计 的 ICE候选收集次数 为 全局对等连接统计 的 ICE候选收集次数 加 1。
+    完。
+    返还 cand。
+完。
+
+本章 收束。

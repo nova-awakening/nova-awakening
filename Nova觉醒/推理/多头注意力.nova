@@ -1,0 +1,555 @@
+《多头注意力》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·内存物理》。
+
+引用《.·定点Q算术》。
+
+引用《.·张量创建》。
+
+引用《.·分页注意力》。
+
+引用《.·Flash注意力》。
+
+引用《..·中枢·随机失活前向》。
+
+Nova注意力Config 是 一种 事物，含 d_model、n_heads、d_head、seq_len。
+
+Nova注意力Weights 是 一种 事物，含 Wq、Wk、Wv、Wo、bq、bk、bv、bo。
+
+多头Nova注意力 接受 input、output、config、weights：
+    若 input 等于 0 或者 output 等于 0 或者 config 等于 0 或者 weights 等于 0：
+        返还。
+    完。
+    seq 为 config 的 seq_len。
+    dm 为 config 的 d_model。
+    nh 为 config 的 n_heads。
+    dh 为 config 的 d_head。
+    Q 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    K 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    V 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    做 MatMul 用 input、weights 的 Wq、Q、seq、dm、dm。
+    做 MatMul 用 input、weights 的 Wk、K、seq、dm、dm。
+    做 MatMul 用 input、weights 的 Wv、V、seq、dm、dm。
+    若 weights 的 bq 不等于 0：
+        做 VecAdd 用 Q、weights 的 bq、Q。
+    完。
+    若 weights 的 bk 不等于 0：
+        做 VecAdd 用 K、weights 的 bk、K。
+    完。
+    若 weights 的 bv 不等于 0：
+        做 VecAdd 用 V、weights 的 bv、V。
+    完。
+    concat 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    scale 为 做 Q16_rsqrt 用 dh 乘 65536。
+    可变 h 为 0。
+    只要 h 小于 nh：
+        head_off 为 h 乘 dh。
+        scores 为 做 Tensor_创建 用 seq、seq、0、0、2、DTYPE_F32。
+        可变 qi 为 0。
+        只要 qi 小于 seq：
+            可变 ki 为 0。
+            只要 ki 小于 seq：
+                可变 dot 为 0。
+                可变 d 为 0。
+                只要 d 小于 dh：
+                    q_val 为 做 Tensor_读 用 Q、qi 乘 dm 加 head_off 加 d。
+                    k_val 为 做 Tensor_读 用 K、ki 乘 dm 加 head_off 加 d。
+                    dot 为 dot 加 q_val 乘 k_val 除以 65536。
+                    d 为 d 加 1。
+                完。
+                scaled 为 dot 乘 scale 除以 65536。
+                做 Tensor_写 用 scores、qi 乘 seq 加 ki、scaled。
+                ki 为 ki 加 1。
+            完。
+            做 Nova归一化指数 用 scores、qi 乘 seq、seq。
+            qi 为 qi 加 1。
+        完。
+        可变 si 为 0。
+        只要 si 小于 seq：
+            可变 d 为 0。
+            只要 d 小于 dh：
+                可变 val 为 0。
+                可变 ki 为 0。
+                只要 ki 小于 seq：
+                    score 为 做 Tensor_读 用 scores、si 乘 seq 加 ki。
+                    v_val 为 做 Tensor_读 用 V、ki 乘 dm 加 head_off 加 d。
+                    val 为 val 加 score 乘 v_val 除以 65536。
+                    ki 为 ki 加 1。
+                完。
+                做 Tensor_写 用 concat、si 乘 dm 加 head_off 加 d、val。
+                d 为 d 加 1。
+            完。
+            si 为 si 加 1。
+        完。
+        h 为 h 加 1。
+    完。
+    做 MatMul 用 concat、weights 的 Wo、output、seq、dm、dm。
+    若 weights 的 bo 不等于 0：
+        做 VecAdd 用 output、weights 的 bo、output。
+    完。
+完。
+
+NMHA_版本 为 2。
+
+NMHA_AI特征维度 为 10。
+
+NMHA_负无穷 为 负 999999。
+
+MLA_低秩维度 为 32。
+
+MLA_KV节省率 为 875。
+
+可变 NMHA_前向总数 为 0。
+
+可变 NMHA_softmax总数 为 0。
+
+可变 NMHA_掩码总数 为 0。
+
+可变 NMHA_缓存命中数 为 0。
+
+可变 NMHA_AI推理次数 为 0。
+
+可变 NMHA_分页桥接次数 为 0。
+
+可变 NMHA_分页解码次数 为 0。
+
+NMHA_Q16_exp 接受 x：
+    若 x 小于 负 786432：
+        返还 0。
+    完。
+    若 x 大于 655360：
+        返还 2147483647。
+    完。
+    n 为 x 右移 16。
+    f 为 x 位与 0xFFFF。
+    f2 为 f 乘 f 右移 16。
+    f3 为 f2 乘 f 右移 16。
+    f4 为 f3 乘 f 右移 16。
+    exp_f 为 65536 加 f 加 (f2 右移 1) 加 f3 除以 6 加 f4 除以 24。
+    可变 exp_n 为 65536。
+    若 n 大于 0：
+        可变 i 为 0。
+        只要 i 小于 n：
+            exp_n 为 exp_n 乘 178145 右移 16。
+            i 为 i 加 1。
+        完。
+    否则若 n 小于 0：
+        可变 i 为 0。
+        只要 i 小于 负 n：
+            exp_n 为 exp_n 乘 24109 右移 16。
+            i 为 i 加 1。
+        完。
+    完。
+    返还 exp_n 乘 exp_f 右移 16。
+完。
+
+Nova归一化指数_完整 接受 tensor、偏移、长度：
+    可变 最大值 为 NMHA_负无穷。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        v 为 做 Tensor_读 用 tensor、偏移 加 i。
+        若 v 大于 最大值：
+            最大值 为 v。
+        完。
+        i 为 i 加 1。
+    完。
+    可变 总和 为 0。
+    i 为 0。
+    只要 i 小于 长度：
+        v 为 做 Tensor_读 用 tensor、偏移 加 i。
+        exp_v 为 做 NMHA_Q16_exp 用 v 减 最大值。
+        做 Tensor_写 用 tensor、偏移 加 i、exp_v。
+        总和 为 总和 加 exp_v。
+        i 为 i 加 1。
+    完。
+    若 总和 等于 0：
+        总和 为 1。
+    完。
+    i 为 0。
+    只要 i 小于 长度：
+        v 为 做 Tensor_读 用 tensor、偏移 加 i。
+        做 Tensor_写 用 tensor、偏移 加 i、v 乘 65536 除以 总和。
+        i 为 i 加 1。
+    完。
+    NMHA_softmax总数 为 NMHA_softmax总数 加 1。
+完。
+
+NMHA_应用因果掩码 接受 scores、seq：
+    可变 qi 为 0。
+    只要 qi 小于 seq：
+        可变 ki 为 qi 加 1。
+        只要 ki 小于 seq：
+            做 Tensor_写 用 scores、qi 乘 seq 加 ki、NMHA_负无穷。
+            ki 为 ki 加 1。
+        完。
+        qi 为 qi 加 1。
+    完。
+    NMHA_掩码总数 为 NMHA_掩码总数 加 1。
+完。
+
+NMHA_因果多头注意力 接受 input、output、config、weights：
+    若 input 等于 0 或者 output 等于 0 或者 config 等于 0 或者 weights 等于 0：
+        返还。
+    完。
+    seq 为 config 的 seq_len。
+    dm 为 config 的 d_model。
+    nh 为 config 的 n_heads。
+    dh 为 config 的 d_head。
+    Q 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    K 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    V 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    做 MatMul 用 input、weights 的 Wq、Q、seq、dm、dm。
+    做 MatMul 用 input、weights 的 Wk、K、seq、dm、dm。
+    做 MatMul 用 input、weights 的 Wv、V、seq、dm、dm。
+    concat 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    scale 为 做 Q16_rsqrt 用 dh 乘 65536。
+    可变 h 为 0。
+    只要 h 小于 nh：
+        head_off 为 h 乘 dh。
+        scores 为 做 Tensor_创建 用 seq、seq、0、0、2、DTYPE_F32。
+        可变 qi 为 0。
+        只要 qi 小于 seq：
+            可变 ki 为 0。
+            只要 ki 小于 seq：
+                可变 dot 为 0。
+                可变 d 为 0。
+                只要 d 小于 dh：
+                    dot 为 dot 加 做 Tensor_读 用 Q、qi 乘 dm 加 head_off 加 d 乘 做 Tensor_读 用 K、ki 乘 dm 加 head_off 加 d 除以 65536。
+                    d 为 d 加 1。
+                完。
+                做 Tensor_写 用 scores、qi 乘 seq 加 ki、dot 乘 scale 除以 65536。
+                ki 为 ki 加 1。
+            完。
+            qi 为 qi 加 1。
+        完。
+        做 NMHA_应用因果掩码 用 scores、seq。
+        可变 qi2 为 0。
+        只要 qi2 小于 seq：
+            做 Nova归一化指数_完整 用 scores、qi2 乘 seq、seq。
+            qi2 为 qi2 加 1。
+        完。
+        可变 si 为 0。
+        只要 si 小于 seq：
+            可变 d 为 0。
+            只要 d 小于 dh：
+                可变 val 为 0。
+                可变 ki 为 0。
+                只要 ki 小于 seq：
+                    val 为 val 加 做 Tensor_读 用 scores、si 乘 seq 加 ki 乘 做 Tensor_读 用 V、ki 乘 dm 加 head_off 加 d 除以 65536。
+                    ki 为 ki 加 1。
+                完。
+                做 Tensor_写 用 concat、si 乘 dm 加 head_off 加 d、val。
+                d 为 d 加 1。
+            完。
+            si 为 si 加 1。
+        完。
+        h 为 h 加 1。
+    完。
+    做 MatMul 用 concat、weights 的 Wo、output、seq、dm、dm。
+    NMHA_前向总数 为 NMHA_前向总数 加 1。
+完。
+
+NMHA_Q16_sin 接受 theta_q16：
+    two_pi 为 411775。
+    可变 t 为 theta_q16 取余于 two_pi。
+    若 t 小于 0：
+        t 为 t 加 two_pi。
+    完。
+    pi 为 205887。
+    可变 符号 为 1。
+    若 t 大于 pi：
+        t 为 t 减 pi。
+        符号 为 负 1。
+    完。
+    x_pi_x 为 t 乘 (pi 减 t) 右移 16。
+    分子 为 16 乘 x_pi_x。
+    分母 为 5 乘 (pi 乘 pi 右移 16) 减 4 乘 x_pi_x。
+    若 分母 等于 0：
+        返还 0。
+    完。
+    返还 符号 乘 分子 乘 65536 除以 分母。
+完。
+
+NMHA_Q16_cos 接受 theta_q16：
+    half_pi 为 102944。
+    返还 做 NMHA_Q16_sin 用 theta_q16 加 half_pi。
+完。
+
+NMHA_应用RoPE 接受 tensor、seq、dm、位置、base：
+    若 base 等于 0：
+        base 为 10000。
+    完。
+    half_dim 为 dm 除以 2。
+    可变 pos 为 0。
+    只要 pos 小于 seq：
+        可变 i 为 0。
+        只要 i 小于 half_dim：
+            指数 为 2 乘 i 乘 65536 除以 dm。
+            可变 inv_freq 为 65536。
+            可变 step 为 0。
+            只要 step 小于 指数 右移 16：
+                inv_freq 为 inv_freq 乘 65536 除以 (base 乘 65536 右移 16)。
+                step 为 step 加 1。
+            完。
+            theta 为 (位置 加 pos) 乘 inv_freq 右移 16。
+            cos_t 为 做 NMHA_Q16_cos 用 theta。
+            sin_t 为 做 NMHA_Q16_sin 用 theta。
+            idx0 为 pos 乘 dm 加 i。
+            idx1 为 pos 乘 dm 加 i 加 half_dim。
+            x0 为 做 Tensor_读 用 tensor、idx0。
+            x1 为 做 Tensor_读 用 tensor、idx1。
+            做 Tensor_写 用 tensor、idx0、x0 乘 cos_t 减 x1 乘 sin_t 右移 16。
+            做 Tensor_写 用 tensor、idx1、x0 乘 sin_t 加 x1 乘 cos_t 右移 16。
+            i 为 i 加 1。
+        完。
+        pos 为 pos 加 1。
+    完。
+完。
+
+KV缓存 是 一种 事物，含 K缓存、V缓存、当前长度、最大长度、d_model、头数、头维度、分页序列KV、分页分配器、分页层数、分页层索引。
+
+KV缓存_创建 接受 最大序列、d_model：
+    返还 一本字典：K缓存 对应 做 Tensor_创建 用 最大序列、d_model、0、0、2、DTYPE_F32、V缓存 对应 做 Tensor_创建 用 最大序列、d_model、0、0、2、DTYPE_F32、当前长度 对应 0、最大长度 对应 最大序列、d_model 对应 d_model、头数 对应 0、头维度 对应 0、分页序列KV 对应 0、分页分配器 对应 0、分页层数 对应 0、分页层索引 对应 0。
+完。
+
+KV缓存_创建_分页 接受 最大序列、d_model、分配器、层数、层索引、头数、头维度：
+    cache 为 做 KV缓存_创建 用 最大序列、d_model。
+    做 KV缓存_绑定分页 用 cache、分配器、层数、层索引、头数、头维度。
+    返还 cache。
+完。
+
+KV缓存_绑定分页 接受 cache、分配器、层数、层索引、头数、头维度：
+    若 cache 等于 0 或者 分配器 等于 0：
+        返还 负 1。
+    完。
+    cache 的 头数 为 头数。
+    cache 的 头维度 为 头维度。
+    cache 的 分页分配器 为 分配器。
+    cache 的 分页层数 为 层数。
+    cache 的 分页层索引 为 层索引。
+    若 cache 的 分页序列KV 等于 0：
+        cache 的 分页序列KV 为 做 序列KV_创建 用 0、层数。
+    完。
+    返还 0。
+完。
+
+KV缓存_写入分页 接受 cache、new_k、new_v：
+    若 cache 等于 0 或者 cache 的 分页分配器 等于 0 或者 cache 的 分页序列KV 等于 0：
+        返还 0。
+    完。
+    若 cache 的 头数 小于或等于 0 或者 cache 的 头维度 小于或等于 0：
+        返还 0。
+    完。
+    若 做 序列KV_追加令牌 用 cache 的 分页序列KV、cache 的 分页分配器、cache 的 分页层数 小于 0：
+        返还 负 1。
+    完。
+    槽位置 为 cache 的 分页序列KV 的 序列长度 减 1。
+    槽位置 为 槽位置 取余于 KV_BLOCK_大小。
+    可变 h 为 0。
+    只要 h 小于 cache 的 头数：
+        可变 d 为 0。
+        只要 d 小于 cache 的 头维度：
+            idx 为 h 乘 cache 的 头维度 加 d。
+            做 序列KV_写入标量 用 cache 的 分页序列KV、cache 的 分页分配器、cache 的 分页层索引、h、槽位置、d、做 Tensor_读 用 new_k、idx、做 Tensor_读 用 new_v、idx。
+            d 为 d 加 1。
+        完。
+        h 为 h 加 1。
+    完。
+    NMHA_分页桥接次数 为 NMHA_分页桥接次数 加 1。
+    返还 0。
+完。
+
+KV缓存_追加 接受 cache、new_k、new_v、dm：
+    若 cache 的 当前长度 大于或等于 cache 的 最大长度：
+        返还。
+    完。
+    pos 为 cache 的 当前长度。
+    可变 d 为 0。
+    只要 d 小于 dm：
+        做 Tensor_写 用 cache 的 K缓存、pos 乘 dm 加 d、做 Tensor_读 用 new_k、d。
+        做 Tensor_写 用 cache 的 V缓存、pos 乘 dm 加 d、做 Tensor_读 用 new_v、d。
+        d 为 d 加 1。
+    完。
+    cache 的 当前长度 为 cache 的 当前长度 加 1。
+    做 KV缓存_写入分页 用 cache、new_k、new_v。
+    NMHA_缓存命中数 为 NMHA_缓存命中数 加 1。
+完。
+
+NMHA_单步解码 接受 q_vec、cache、config、weights、output：
+    若 cache 不等于 0 并且 cache 的 分页分配器 不等于 0 并且 cache 的 分页序列KV 不等于 0：
+        做 NMHA_单步解码_分页 用 q_vec、cache、config、weights、output。
+        返还。
+    完。
+    dm 为 config 的 d_model。
+    nh 为 config 的 n_heads。
+    dh 为 config 的 d_head。
+    kv_len 为 cache 的 当前长度。
+    scale 为 做 Q16_rsqrt 用 dh 乘 65536。
+    可变 h 为 0。
+    只要 h 小于 nh：
+        head_off 为 h 乘 dh。
+        scores 为 做 Tensor_创建 用 kv_len、1、0、0、1、DTYPE_F32。
+        可变 ki 为 0。
+        只要 ki 小于 kv_len：
+            可变 dot 为 0。
+            可变 d 为 0。
+            只要 d 小于 dh：
+                dot 为 dot 加 做 Tensor_读 用 q_vec、head_off 加 d 乘 做 Tensor_读 用 cache 的 K缓存、ki 乘 dm 加 head_off 加 d 除以 65536。
+                d 为 d 加 1。
+            完。
+            做 Tensor_写 用 scores、ki、dot 乘 scale 除以 65536。
+            ki 为 ki 加 1。
+        完。
+        做 Nova归一化指数_完整 用 scores、0、kv_len。
+        可变 d 为 0。
+        只要 d 小于 dh：
+            可变 val 为 0。
+            可变 ki2 为 0。
+            只要 ki2 小于 kv_len：
+                val 为 val 加 做 Tensor_读 用 scores、ki2 乘 做 Tensor_读 用 cache 的 V缓存、ki2 乘 dm 加 head_off 加 d 除以 65536。
+                ki2 为 ki2 加 1。
+            完。
+            做 Tensor_写 用 output、head_off 加 d、val。
+            d 为 d 加 1。
+        完。
+        h 为 h 加 1。
+    完。
+完。
+
+NMHA_单步解码_分页 接受 q_vec、cache、config、weights、output：
+    若 cache 等于 0 或者 cache 的 分页分配器 等于 0 或者 cache 的 分页序列KV 等于 0：
+        返还。
+    完。
+    nh 为 config 的 n_heads。
+    dh 为 config 的 d_head。
+    scale 为 做 Q16_rsqrt 用 dh 乘 65536。
+    可变 h 为 0。
+    只要 h 小于 nh：
+        head_off 为 h 乘 dh。
+        做 paged_Nova注意力_前向_扁平写入 用 q_vec 的 数据、head_off、dh、cache 的 分页序列KV、cache 的 分页分配器、cache 的 分页层索引、h、scale、output 的 数据、head_off。
+        h 为 h 加 1。
+    完。
+    NMHA_分页解码次数 为 NMHA_分页解码次数 加 1。
+完。
+
+GQA_Config 是 一种 事物，含 d_model、n_q_heads、n_kv_heads、d_head、seq_len。
+
+NMHA_GQA前向 接受 input、output、gqa_config、weights：
+    若 input 等于 0 或者 output 等于 0：
+        返还。
+    完。
+    seq 为 gqa_config 的 seq_len。
+    dm 为 gqa_config 的 d_model。
+    nq 为 gqa_config 的 n_q_heads。
+    nkv 为 gqa_config 的 n_kv_heads。
+    dh 为 gqa_config 的 d_head。
+    分组比 为 nq 除以 nkv。
+    Q 为 做 Tensor_创建 用 seq、nq 乘 dh、0、0、2、DTYPE_F32。
+    K 为 做 Tensor_创建 用 seq、nkv 乘 dh、0、0、2、DTYPE_F32。
+    V 为 做 Tensor_创建 用 seq、nkv 乘 dh、0、0、2、DTYPE_F32。
+    做 MatMul 用 input、weights 的 Wq、Q、seq、dm、nq 乘 dh。
+    做 MatMul 用 input、weights 的 Wk、K、seq、dm、nkv 乘 dh。
+    做 MatMul 用 input、weights 的 Wv、V、seq、dm、nkv 乘 dh。
+    concat 为 做 Tensor_创建 用 seq、dm、0、0、2、DTYPE_F32。
+    scale 为 做 Q16_rsqrt 用 dh 乘 65536。
+    可变 h 为 0。
+    只要 h 小于 nq：
+        kv_h 为 h 除以 分组比。
+        q_off 为 h 乘 dh。
+        kv_off 为 kv_h 乘 dh。
+        scores 为 做 Tensor_创建 用 seq、seq、0、0、2、DTYPE_F32。
+        可变 qi 为 0。
+        只要 qi 小于 seq：
+            可变 ki 为 0。
+            只要 ki 小于 seq：
+                可变 dot 为 0。
+                可变 d 为 0。
+                只要 d 小于 dh：
+                    dot 为 dot 加 做 Tensor_读 用 Q、qi 乘 nq 乘 dh 加 q_off 加 d 乘 做 Tensor_读 用 K、ki 乘 nkv 乘 dh 加 kv_off 加 d 除以 65536。
+                    d 为 d 加 1。
+                完。
+                做 Tensor_写 用 scores、qi 乘 seq 加 ki、dot 乘 scale 除以 65536。
+                ki 为 ki 加 1。
+            完。
+            做 Nova归一化指数_完整 用 scores、qi 乘 seq、seq。
+            qi 为 qi 加 1。
+        完。
+        可变 si 为 0。
+        只要 si 小于 seq：
+            可变 d 为 0。
+            只要 d 小于 dh：
+                可变 val 为 0。
+                可变 ki 为 0。
+                只要 ki 小于 seq：
+                    val 为 val 加 做 Tensor_读 用 scores、si 乘 seq 加 ki 乘 做 Tensor_读 用 V、ki 乘 nkv 乘 dh 加 kv_off 加 d 除以 65536。
+                    ki 为 ki 加 1。
+                完。
+                做 Tensor_写 用 concat、si 乘 dm 加 q_off 加 d、val。
+                d 为 d 加 1。
+            完。
+            si 为 si 加 1。
+        完。
+        h 为 h 加 1。
+    完。
+    做 MatMul 用 concat、weights 的 Wo、output、seq、dm、dm。
+    NMHA_前向总数 为 NMHA_前向总数 加 1。
+完。
+
+NMHA_AI预测注意力模式 接受 零参：
+    特征 为 做 Tensor_创建 用 一组：NMHA_AI特征维度。
+    做 Tensor_写 用 特征、一组：0、NMHA_前向总数。
+    做 Tensor_写 用 特征、一组：1、NMHA_softmax总数。
+    做 Tensor_写 用 特征、一组：2、NMHA_掩码总数。
+    做 Tensor_写 用 特征、一组：3、NMHA_缓存命中数。
+    做 Tensor_写 用 特征、一组：4、0。
+    做 Tensor_写 用 特征、一组：5、0。
+    做 Tensor_写 用 特征、一组：6、0。
+    做 Tensor_写 用 特征、一组：7、0。
+    做 Tensor_写 用 特征、一组：8、0。
+    做 Tensor_写 用 特征、一组：9、0。
+    预测 为 做 AI总线_推理 用 「NMHA注意力预测」、特征。
+    NMHA_AI推理次数 为 NMHA_AI推理次数 加 1。
+    做 Tensor_释放 用 特征。
+    做 Tensor_释放 用 预测。
+完。
+
+NMHA_AI异常检测 接受 零参：
+    特征 为 做 Tensor_创建 用 一组：5。
+    做 Tensor_写 用 特征、一组：0、NMHA_前向总数。
+    做 Tensor_写 用 特征、一组：1、NMHA_softmax总数。
+    做 Tensor_写 用 特征、一组：2、NMHA_掩码总数。
+    做 Tensor_写 用 特征、一组：3、NMHA_缓存命中数。
+    做 Tensor_写 用 特征、一组：4、NMHA_AI推理次数。
+    分数 为 做 AI总线_异常检测 用 「NMHA异常」、特征。
+    做 Tensor_释放 用 特征。
+    返还 分数 大于 750。
+完。
+
+NMHA_获取统计 接受 零参：
+    返还 一本字典：版本 对应 NMHA_版本、前向总数 对应 NMHA_前向总数、softmax总数 对应 NMHA_softmax总数、掩码总数 对应 NMHA_掩码总数、缓存命中 对应 NMHA_缓存命中数、AI推理次数 对应 NMHA_AI推理次数、分页桥接次数 对应 NMHA_分页桥接次数、分页解码次数 对应 NMHA_分页解码次数。
+完。
+
+NMHA_重置统计 接受 零参：
+    NMHA_前向总数 为 0。
+    NMHA_softmax总数 为 0。
+    NMHA_掩码总数 为 0。
+    NMHA_缓存命中数 为 0。
+    NMHA_AI推理次数 为 0。
+    NMHA_分页桥接次数 为 0。
+    NMHA_分页解码次数 为 0。
+完。
+
+多头注意力_缓存链一致性 接受 零参：
+    分页统计 为 做 分页注意_统计。
+    若 NMHA_分页桥接次数 大于 0 并且 分页统计 的 全局PagedKV统计 等于 0：
+        返还 假。
+    完。
+    若 NMHA_分页解码次数 大于 0 并且 分页统计 的 全局PagedKV统计 等于 0：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

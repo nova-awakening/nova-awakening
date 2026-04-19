@@ -1,0 +1,105 @@
+《计算长度零》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+计算长度_auto 接受 零参：
+    l 为 新建 计算长度。
+    l 的 值 为 0。
+    l 的 是auto 为 真。
+    l 的 单位 为 单位_auto。
+    返还 l。
+完。
+
+计算长度_none 接受 零参：
+    l 为 新建 计算长度。
+    l 的 值 为 99999900。
+    l 的 是auto 为 假。
+    l 的 单位 为 单位_px。
+    返还 l。
+完。
+
+计算长度_px 接受 像素值_x100：
+    l 为 新建 计算长度。
+    l 的 值 为 像素值_x100。
+    l 的 是auto 为 假。
+    l 的 单位 为 单位_px。
+    返还 l。
+完。
+
+Computed样式_应用UA默认 接受 style、标签名原子：
+    若 标签名原子 等于 原子_html 或者 标签名原子 等于 原子_body 或者 标签名原子 等于 原子_div 或者 标签名原子 等于 原子_p 或者 标签名原子 等于 原子_h1 或者 标签名原子 等于 原子_h2 或者 标签名原子 等于 原子_h3 或者 标签名原子 等于 原子_ul 或者 标签名原子 等于 原子_ol 或者 标签名原子 等于 原子_li 或者 标签名原子 等于 原子_header 或者 标签名原子 等于 原子_footer 或者 标签名原子 等于 原子_nav 或者 标签名原子 等于 原子_section 或者 标签名原子 等于 原子_article 或者 标签名原子 等于 原子_aside 或者 标签名原子 等于 原子_main 或者 标签名原子 等于 原子_form 或者 标签名原子 等于 原子_hr 或者 标签名原子 等于 原子_canvas：
+        style 的 display 为 Display_block。
+    完。
+    若 标签名原子 等于 原子_h1：
+        style 的 font_size 为 3200。
+        style 的 font_weight 为 700。
+        style 的 margin_top 为 做 计算长度_px 用 2133。
+        style 的 margin_bottom 为 做 计算长度_px 用 2133。
+    完。
+    若 标签名原子 等于 原子_h2：
+        style 的 font_size 为 2400。
+        style 的 font_weight 为 700。
+        style 的 margin_top 为 做 计算长度_px 用 1866。
+        style 的 margin_bottom 为 做 计算长度_px 用 1866。
+    完。
+    若 标签名原子 等于 原子_h3：
+        style 的 font_size 为 1866。
+        style 的 font_weight 为 700。
+        style 的 margin_top 为 做 计算长度_px 用 1600。
+        style 的 margin_bottom 为 做 计算长度_px 用 1600。
+    完。
+    若 标签名原子 等于 原子_p：
+        style 的 margin_top 为 做 计算长度_px 用 1600。
+        style 的 margin_bottom 为 做 计算长度_px 用 1600。
+    完。
+    若 标签名原子 等于 原子_body：
+        style 的 margin_top 为 做 计算长度_px 用 800。
+        style 的 margin_right 为 做 计算长度_px 用 800。
+        style 的 margin_bottom 为 做 计算长度_px 用 800。
+        style 的 margin_left 为 做 计算长度_px 用 800。
+    完。
+    若 标签名原子 等于 原子_a：
+        style 的 color 为 0x0000EEFF。
+        style 的 text_decoration 为 1。
+        style 的 cursor 为 30。
+    完。
+    若 标签名原子 等于 原子_table：
+        style 的 display 为 Display_table。
+    完。
+    若 标签名原子 等于 原子_tr：
+        style 的 display 为 Display_table_row。
+    完。
+    若 标签名原子 等于 原子_td 或者 标签名原子 等于 原子_th：
+        style 的 display 为 Display_table_cell。
+    完。
+    若 标签名原子 等于 原子_head 或者 标签名原子 等于 原子_script 或者 标签名原子 等于 原子_style 或者 标签名原子 等于 原子_meta 或者 标签名原子 等于 原子_link：
+        style 的 display 为 Display_none。
+    完。
+    若 标签名原子 等于 原子_ul 或者 标签名原子 等于 原子_ol：
+        style 的 padding_left 为 做 计算长度_px 用 4000。
+        style 的 margin_top 为 做 计算长度_px 用 1600。
+        style 的 margin_bottom 为 做 计算长度_px 用 1600。
+    完。
+    若 标签名原子 等于 原子_li：
+        style 的 display 为 Display_list_item。
+    完。
+    若 标签名原子 等于 原子_textarea：
+        style 的 display 为 Display_inline_block。
+    完。
+    若 标签名原子 等于 原子_select：
+        style 的 display 为 Display_inline_block。
+    完。
+    若 标签名原子 等于 原子_input：
+        style 的 display 为 Display_inline_block。
+    完。
+    若 标签名原子 等于 原子_button：
+        style 的 display 为 Display_inline_block。
+    完。
+    若 标签名原子 等于 原子_img 或者 标签名原子 等于 原子_video 或者 标签名原子 等于 原子_iframe：
+        style 的 display 为 Display_inline_block。
+    完。
+完。
+
+本章 收束。

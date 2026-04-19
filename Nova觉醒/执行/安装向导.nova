@@ -1,0 +1,189 @@
+《安装向导》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·协议处理》。
+
+步骤_欢迎 为 0。
+
+步骤_语言 为 1。
+
+步骤_磁盘 为 2。
+
+步骤_分区 为 3。
+
+步骤_用户 为 4。
+
+步骤_AI设置 为 5。
+
+步骤_安装 为 6。
+
+步骤_完成 为 7。
+
+安装配置 是 一种 事物，含 语言、时区、键盘布局、目标磁盘、分区方案、EFI分区、根分区、交换分区、用户名、密码哈希、主机名、AI模式、智能_接口密钥、安装进度、当前步骤。
+
+可变 安装 为 新建 安装配置。
+
+屏幕宽 为 1920。
+
+屏幕高 为 1080。
+
+安装向导_启动 接受 零参：
+    安装 的 语言 为 「zh_CN」。
+    安装 的 时区 为 「Asia/Shanghai」。
+    安装 的 键盘布局 为 「us」。
+    安装 的 分区方案 为 0。
+    安装 的 AI模式 为 0。
+    安装 的 主机名 为 「nova-desktop」。
+    安装 的 目标磁盘 为 「(未选择)」。
+    安装 的 用户名 为 「(未创建)」。
+    安装 的 密码哈希 为 「」。
+    安装 的 智能_接口密钥 为 「」。
+    安装 的 当前步骤 为 步骤_欢迎。
+    安装 的 安装进度 为 0。
+完。
+
+安装向导_获取当前步骤名 接受 零参：
+    若 安装 的 当前步骤 等于 步骤_欢迎：
+        返还 「欢迎」。
+    完。
+    若 安装 的 当前步骤 等于 步骤_语言：
+        返还 「语言」。
+    完。
+    若 安装 的 当前步骤 等于 步骤_磁盘：
+        返还 「磁盘」。
+    完。
+    若 安装 的 当前步骤 等于 步骤_分区：
+        返还 「分区」。
+    完。
+    若 安装 的 当前步骤 等于 步骤_用户：
+        返还 「用户」。
+    完。
+    若 安装 的 当前步骤 等于 步骤_AI设置：
+        返还 「AI设置」。
+    完。
+    若 安装 的 当前步骤 等于 步骤_安装：
+        返还 「安装中」。
+    完。
+    若 安装 的 当前步骤 等于 步骤_完成：
+        返还 「完成」。
+    完。
+    返还 「未知」。
+完。
+
+安装向导_下一步 接受 零参：
+    若 安装 的 当前步骤 小于 步骤_完成：
+        安装 的 当前步骤 为 安装 的 当前步骤 加 1。
+    完。
+完。
+
+安装向导_上一步 接受 零参：
+    若 安装 的 当前步骤 大于 步骤_欢迎：
+        安装 的 当前步骤 为 安装 的 当前步骤 减 1。
+    完。
+完。
+
+安装向导_生成步骤进度NML 接受 零参：
+    步骤名列表 为 一组：「欢迎」、「语言」、「磁盘」、「分区」、「用户」、「AI设置」、「安装」、「完成」。
+    可变 html 为 「<div class='setup-progress'>」。
+    可变 i 为 0。
+    只要 i 小于 8：
+        可变 cls 为 「setup-step」。
+        若 i 小于 安装 的 当前步骤：
+            cls 为 cls 加 「 done」。
+        否则若 i 等于 安装 的 当前步骤：
+            cls 为 cls 加 「 active」。
+        完。
+        html 为 html 加 「<span class='」 加 cls 加 「'>」 加 步骤名列表 的 第 i 项 加 「</span>」。
+        i 为 i 加 1。
+    完。
+    html 为 html 加 「</div>」。
+    返还 html。
+完。
+
+安装向导_生成当前步骤内容NML 接受 零参：
+    步骤 为 安装 的 当前步骤。
+    可变 html 为 「」。
+    若 步骤 等于 步骤_欢迎：
+        html 为 「<h2>欢迎使用 NovaOS</h2><p>系统即模型 · 模型即浏览器 · 浏览器即桌面</p><p>接下来的步骤将引导你完成 NovaOS 安装，包括磁盘分区、用户创建和 AI 初始化。</p>」。
+    否则若 步骤 等于 步骤_语言：
+        html 为 「<h2>语言与区域</h2><p>当前语言: 」 加 做 浏览器网络_转义HTML 用 安装 的 语言 加 「</p><p>时区: 」 加 做 浏览器网络_转义HTML 用 安装 的 时区 加 「</p><p>键盘布局: 」 加 做 浏览器网络_转义HTML 用 安装 的 键盘布局 加 「</p>」。
+    否则若 步骤 等于 步骤_磁盘：
+        html 为 「<h2>选择目标磁盘</h2><p>当前目标: 」 加 做 浏览器网络_转义HTML 用 安装 的 目标磁盘 加 「</p><p>将在此磁盘上创建 EFI + 根 + 交换分区。</p>」。
+    否则若 步骤 等于 步骤_分区：
+        可变 分区模式 为 「自动」。
+        若 安装 的 分区方案 不等于 0：
+            分区模式 为 「手动」。
+        完。
+        html 为 「<h2>分区方案</h2><p>模式: 」 加 分区模式 加 「</p><p>EFI: 512MB · 根分区: 剩余 · 交换: 4GB</p>」。
+    否则若 步骤 等于 步骤_用户：
+        html 为 「<h2>创建用户</h2><p>用户名: 」 加 做 浏览器网络_转义HTML 用 安装 的 用户名 加 「</p><p>主机名: 」 加 做 浏览器网络_转义HTML 用 安装 的 主机名 加 「</p>」。
+    否则若 步骤 等于 步骤_AI设置：
+        可变 模式名 为 「云端优先」。
+        若 安装 的 AI模式 等于 1：
+            模式名 为 「本地优先」。
+        完。
+        若 安装 的 AI模式 等于 2：
+            模式名 为 「混合」。
+        完。
+        可变 密钥状态 为 「未设置(可选)」。
+        若 做 字符串长度 用 安装 的 智能_接口密钥 大于 0：
+            密钥状态 为 「已设置」。
+        完。
+        html 为 「<h2>AI 初始化</h2><p>推理模式: 」 加 模式名 加 「</p><p>云端 接口 密钥: 」 加 密钥状态 加 「</p>」。
+    否则若 步骤 等于 步骤_安装：
+        html 为 「<h2>正在安装</h2><div class='setup-bar'><span style='width:」 加 做 整数转字符串 用 安装 的 安装进度 加 「%'></span></div><p>进度: 」 加 做 整数转字符串 用 安装 的 安装进度 加 「%</p>」。
+    否则若 步骤 等于 步骤_完成：
+        html 为 「<h2>安装完成</h2><p>NovaOS 已就绪。重启后将进入 browser-终端 桌面。</p>」。
+    完。
+    返还 html。
+完。
+
+安装向导_生成页面NML 接受 零参：
+    可变 html 为 「<!DOCTYPE html><html><head><meta charset='UTF-8'><title>NovaOS Setup</title>」。
+    html 为 html 加 「<style>」 加 做 安装向导_生成页面CSS 加 「</style></head>」。
+    html 为 html 加 「<body class='setup-body'>」。
+    html 为 html 加 「<header class='setup-header'><span class='setup-brand'>NovaOS Setup</span>」 加 做 安装向导_生成步骤进度NML 加 「</header>」。
+    html 为 html 加 「<main class='setup-main'><div class='setup-card'>」 加 做 安装向导_生成当前步骤内容NML 加 「</div></main>」。
+    若 安装 的 当前步骤 不等于 步骤_安装：
+        html 为 html 加 「<footer class='setup-footer'>」。
+        若 安装 的 当前步骤 大于 步骤_欢迎：
+            html 为 html 加 「<button class='setup-btn'>上一步</button>」。
+        完。
+        若 安装 的 当前步骤 小于 步骤_完成：
+            html 为 html 加 「<button class='setup-btn primary'>下一步</button>」。
+        完。
+        html 为 html 加 「</footer>」。
+    完。
+    html 为 html 加 「</body></html>」。
+    返还 html。
+完。
+
+安装向导_生成页面CSS 接受 零参：
+    可变 css 为 「*{margin:0;padding:0;box-sizing:border-box;}」。
+    css 为 css 加 「body.setup-body{background:#060811;color:#e0e4f0;font-family:'Nova Sans',system-ui,sans-serif;min-height:100vh;display:flex;flex-direction:column;}」。
+    css 为 css 加 「.setup-header{padding:18px 28px;display:flex;align-items:center;gap:24px;background:rgba(9,11,19,0.82);backdrop-filter:blur(20px);border-bottom:1px solid rgba(255,255,255,0.06);}」。
+    css 为 css 加 「.setup-brand{font-size:16px;font-weight:700;color:#8b9cff;letter-spacing:0.12em;text-transform:uppercase;}」。
+    css 为 css 加 「.setup-progress{display:flex;gap:6px;flex-wrap:wrap;}」。
+    css 为 css 加 「.setup-step{padding:6px 12px;border-radius:999px;font-size:11px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);color:#8888aa;}」。
+    css 为 css 加 「.setup-step.active{background:rgba(124,58,237,0.22);border-color:rgba(124,58,237,0.36);color:#ffffff;}」。
+    css 为 css 加 「.setup-step.done{background:rgba(34,197,94,0.14);border-color:rgba(34,197,94,0.22);color:#a7f3d0;}」。
+    css 为 css 加 「.setup-main{flex:1;display:flex;align-items:center;justify-content:center;padding:32px;}」。
+    css 为 css 加 「.setup-card{max-width:720px;width:100%;padding:36px 40px;border-radius:28px;background:rgba(11,14,24,0.78);border:1px solid rgba(255,255,255,0.07);box-shadow:0 24px 64px rgba(0,0,0,0.32);backdrop-filter:blur(20px);}」。
+    css 为 css 加 「.setup-card h2{font-size:28px;color:#fbfbff;margin-bottom:16px;}」。
+    css 为 css 加 「.setup-card p{font-size:14px;line-height:1.7;color:#b8bfd3;margin-bottom:10px;}」。
+    css 为 css 加 「.setup-bar{height:10px;border-radius:999px;background:rgba(255,255,255,0.08);overflow:hidden;margin:14px 0;}」。
+    css 为 css 加 「.setup-bar span{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,#7c3aed,#3b82f6,#22c55e);}」。
+    css 为 css 加 「.setup-footer{padding:18px 28px;display:flex;justify-content:flex-end;gap:12px;background:rgba(9,11,19,0.7);border-top:1px solid rgba(255,255,255,0.06);}」。
+    css 为 css 加 「.setup-btn{padding:10px 22px;border-radius:14px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:#d5daec;font-size:13px;cursor:pointer;}」。
+    css 为 css 加 「.setup-btn.primary{background:linear-gradient(135deg,#7c3aed,#2563eb);color:#ffffff;border-color:rgba(124,58,237,0.36);box-shadow:0 8px 20px rgba(76,29,149,0.3);}」。
+    返还 css。
+完。
+
+本章 收束。

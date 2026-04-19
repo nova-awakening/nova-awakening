@@ -1,0 +1,61 @@
+《域名常量》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+域名_PORT 为 53。
+
+DOH_PORT 为 443。
+
+域名_A 为 1。
+
+域名_NS 为 2。
+
+域名_CNAME 为 5。
+
+域名_SOA 为 6。
+
+域名_MX 为 15。
+
+域名_TXT 为 16。
+
+域名_AAAA 为 28。
+
+域名_SRV 为 33。
+
+域名_HTTPS 为 65。
+
+RCODE_OK 为 0。
+
+RCODE_FORMAT 为 1。
+
+RCODE_SERVFAIL 为 2。
+
+RCODE_NXDOMAIN 为 3。
+
+RCODE_NOTIMP 为 4。
+
+RCODE_REFUSED 为 5。
+
+域名_CACHE_MAX 为 4096。
+
+域名_CACHE_NEG_TTL 为 60。
+
+域名_TIMEOUT_MS 为 5000。
+
+域名_MAX_RETRIES 为 3。
+
+域名Header 是 一种 事物，含 id、flags、qdcount、ancount、nscount、arcount。
+
+域名Question 是 一种 事物，含 名称、类型、类。
+
+域名Record 是 一种 事物，含 名称、类型、类、TTL、数据长度、ipv4、ipv6、cname、下一个。
+
+域名缓存Entry 是 一种 事物，含 域名、域名哈希、记录类型、记录、过期时间、插入时间、原始TTL、是负缓存、下一个。
+
+域名Resolver 是 一种 事物，含 服务器、服务器数、doh_url、启用doh、缓存桶、缓存数、查询总数、缓存命中、缓存未命中、下一个ID、udp_fd。
+
+可变 全局域名 为 0。
+
+本章 收束。

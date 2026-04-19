@@ -1,0 +1,185 @@
+《NVMe_IO队列》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《.·NVMe驱动辅助》。
+
+引用《.·管理命令》。
+
+引用《.·E1000收发初始化》。
+
+引用《..·中枢·APIC任务优先级》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·中断处理》。
+
+NVMe_创建IO队列 接受 ctl：
+    深度 为 256。
+    若 深度 大于 ctl 的 最大队列深度：
+        深度 为 ctl 的 最大队列深度。
+    完。
+    cq_addr 为 做 直传_分配_对齐 用 深度 乘 16、4096。
+    做 内存填零 用 cq_addr、深度 乘 16。
+    cq_cmd 为 新建 NVMe_SQE。
+    cq_cmd 的 操作码 为 NVME_ADM_CREATE_CQ。
+    cq_cmd 的 命令ID 为 做 NVMe_分配命令ID 用 ctl。
+    cq_cmd 的 PRP1 为 cq_addr。
+    cq_cmd 的 CDW10 为 深度 减 1 左移 16 位或 1。
+    cq_cmd 的 CDW11 为 0x01。
+    做 NVMe_提交管理命令 用 ctl、cq_cmd。
+    sq_addr 为 做 直传_分配_对齐 用 深度 乘 64、4096。
+    做 内存填零 用 sq_addr、深度 乘 64。
+    sq_cmd 为 新建 NVMe_SQE。
+    sq_cmd 的 操作码 为 NVME_ADM_CREATE_SQ。
+    sq_cmd 的 命令ID 为 做 NVMe_分配命令ID 用 ctl。
+    sq_cmd 的 PRP1 为 sq_addr。
+    sq_cmd 的 CDW10 为 深度 减 1 左移 16 位或 1。
+    sq_cmd 的 CDW11 为 1 左移 16 位或 0x01。
+    做 NVMe_提交管理命令 用 ctl、sq_cmd。
+    ioq 为 新建 NVMe_队列。
+    ioq 的 ID 为 1。
+    ioq 的 深度 为 深度。
+    ioq 的 SQ地址 为 sq_addr。
+    ioq 的 CQ地址 为 cq_addr。
+    ioq 的 SQ尾指针 为 0。
+    ioq 的 CQ头指针 为 0。
+    ioq 的 Phase位 为 1。
+    ioq 的 SQ门铃 为 ctl 的 MMIO基址 加 0x1000 加 2 乘 ctl 的 门铃步长。
+    ioq 的 CQ门铃 为 ctl 的 MMIO基址 加 0x1000 加 3 乘 ctl 的 门铃步长。
+    ioq 的 下一个命令ID 为 0。
+    做 追加 用 ctl 的 IO队列、ioq。
+    做 内核信息 用 「NVMe: IO队列创建 深度=」 加 做 整数转字符串 用 深度。
+完。
+
+NVMe_读 接受 ctl、nsid、LBA、块数、缓冲：
+    若 做 计数 用 ctl 的 IO队列 等于 0：
+        返还 错误_未初始化。
+    完。
+    q 为 ctl 的 IO队列 的 第 0 项。
+    sqe 为 新建 NVMe_SQE。
+    sqe 的 操作码 为 NVME_IO_READ。
+    sqe 的 命令ID 为 做 NVMe_分配IO命令ID 用 q。
+    sqe 的 NSID 为 nsid。
+    sqe 的 PRP1 为 缓冲。
+    传输字节 为 块数 乘 512。
+    若 传输字节 小于或等于 4096：
+        sqe 的 PRP2 为 0。
+    否则若 传输字节 小于或等于 8192：
+        sqe 的 PRP2 为 缓冲 加 4096。
+    否则：
+        页数 为 (传输字节 减 4096 加 4095) 除以 4096。
+        prp_list 为 做 直传_分配_对齐 用 (页数 加 1) 乘 8、4096。
+        可变 pi 为 0。
+        只要 pi 小于 页数：
+            做 内存写64 用 prp_list 加 pi 乘 8、缓冲 加 4096 加 pi 乘 4096。
+            pi 为 pi 加 1。
+        完。
+        sqe 的 PRP2 为 prp_list。
+    完。
+    sqe 的 CDW10 为 LBA 位与 0xFFFFFFFF。
+    sqe 的 CDW11 为 LBA 右移 32 位与 0xFFFFFFFF。
+    sqe 的 CDW12 为 块数 减 1 位与 0xFFFF。
+    尾 为 q 的 SQ尾指针。
+    地址 为 q 的 SQ地址 加 尾 乘 64。
+    做 内存写32 用 地址 加 0、sqe 的 操作码 位或 sqe 的 命令ID 左移 16。
+    做 内存写32 用 地址 加 4、sqe 的 NSID。
+    做 内存写64 用 地址 加 24、sqe 的 PRP1。
+    做 内存写64 用 地址 加 32、sqe 的 PRP2。
+    做 内存写32 用 地址 加 40、sqe 的 CDW10。
+    做 内存写32 用 地址 加 44、sqe 的 CDW11。
+    做 内存写32 用 地址 加 48、sqe 的 CDW12。
+    q 的 SQ尾指针 为 (尾 加 1) 取余于 q 的 深度。
+    做 MMIO写32 用 q 的 SQ门铃、q 的 SQ尾指针。
+    结果 为 做 NVMe_等待完成 用 ctl、q、sqe 的 命令ID。
+    若 结果 大于或等于 0：
+        NVMe_读总数 为 NVMe_读总数 加 块数。
+    完。
+    返还 结果。
+完。
+
+NVMe_写 接受 ctl、nsid、LBA、块数、数据：
+    若 做 计数 用 ctl 的 IO队列 等于 0：
+        返还 错误_未初始化。
+    完。
+    q 为 ctl 的 IO队列 的 第 0 项。
+    sqe 为 新建 NVMe_SQE。
+    sqe 的 操作码 为 NVME_IO_WRITE。
+    sqe 的 命令ID 为 做 NVMe_分配IO命令ID 用 q。
+    sqe 的 NSID 为 nsid。
+    sqe 的 PRP1 为 数据。
+    写字节 为 块数 乘 512。
+    若 写字节 小于或等于 4096：
+        sqe 的 PRP2 为 0。
+    否则若 写字节 小于或等于 8192：
+        sqe 的 PRP2 为 数据 加 4096。
+    否则：
+        页数 为 (写字节 减 4096 加 4095) 除以 4096。
+        prp_list 为 做 直传_分配_对齐 用 (页数 加 1) 乘 8、4096。
+        可变 pi 为 0。
+        只要 pi 小于 页数：
+            做 内存写64 用 prp_list 加 pi 乘 8、数据 加 4096 加 pi 乘 4096。
+            pi 为 pi 加 1。
+        完。
+        sqe 的 PRP2 为 prp_list。
+    完。
+    sqe 的 CDW10 为 LBA 位与 0xFFFFFFFF。
+    sqe 的 CDW11 为 LBA 右移 32 位与 0xFFFFFFFF。
+    sqe 的 CDW12 为 块数 减 1 位与 0xFFFF。
+    尾 为 q 的 SQ尾指针。
+    地址 为 q 的 SQ地址 加 尾 乘 64。
+    做 内存写32 用 地址 加 0、sqe 的 操作码 位或 sqe 的 命令ID 左移 16。
+    做 内存写32 用 地址 加 4、sqe 的 NSID。
+    做 内存写64 用 地址 加 24、sqe 的 PRP1。
+    做 内存写64 用 地址 加 32、sqe 的 PRP2。
+    做 内存写32 用 地址 加 40、sqe 的 CDW10。
+    做 内存写32 用 地址 加 44、sqe 的 CDW11。
+    做 内存写32 用 地址 加 48、sqe 的 CDW12。
+    q 的 SQ尾指针 为 (尾 加 1) 取余于 q 的 深度。
+    做 MMIO写32 用 q 的 SQ门铃、q 的 SQ尾指针。
+    结果 为 做 NVMe_等待完成 用 ctl、q、sqe 的 命令ID。
+    若 结果 大于或等于 0：
+        NVMe_写总数 为 NVMe_写总数 加 块数。
+    完。
+    返还 结果。
+完。
+
+NVMe_刷新 接受 ctl、nsid：
+    若 做 计数 用 ctl 的 IO队列 等于 0：
+        返还。
+    完。
+    q 为 ctl 的 IO队列 的 第 0 项。
+    sqe 为 新建 NVMe_SQE。
+    sqe 的 操作码 为 NVME_IO_FLUSH。
+    sqe 的 命令ID 为 做 NVMe_分配IO命令ID 用 q。
+    sqe 的 NSID 为 nsid。
+    尾 为 q 的 SQ尾指针。
+    地址 为 q 的 SQ地址 加 尾 乘 64。
+    做 内存写32 用 地址 加 0、sqe 的 操作码 位或 sqe 的 命令ID 左移 16。
+    做 内存写32 用 地址 加 4、sqe 的 NSID。
+    q 的 SQ尾指针 为 (尾 加 1) 取余于 q 的 深度。
+    做 MMIO写32 用 q 的 SQ门铃、q 的 SQ尾指针。
+    做 NVMe_等待完成 用 ctl、q、sqe 的 命令ID。
+完。
+
+可变 AI_创建输入队_调用数 为 0。
+
+可变 AI_创建输入队_异常数 为 0。
+
+AI_创建输入队_监控 接受 零参：
+    AI_创建输入队_调用数 为 AI_创建输入队_调用数 加 1。
+    返还 AI_创建输入队_异常数 等于 0。
+完。
+
+AI_创建输入队_健康检查 接受 零参：
+    若 AI_创建输入队_调用数 大于 0 并且 AI_创建输入队_异常数 乘 100 除以 AI_创建输入队_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

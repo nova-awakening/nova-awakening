@@ -1,0 +1,183 @@
+《工线》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·文档事件》。
+
+引用《.·通道》。
+
+引用《..·中枢·辅助存根》。
+
+Shared工线 是 一种 事物，含 名称、脚本URL、状态、端口、全局作用域、连接端口、连接数、onerror。
+
+可变 Shared工线_列表 为 0。
+
+可变 Shared工线_数量 为 0。
+
+Shared工线_创建 接受 url、名称：
+    existing 为 做 Shared工线_查找 用 url、名称。
+    若 existing 不等于 0：
+        返还 做 Shared工线_新连接 用 existing。
+    完。
+    sw 为 做 堆_分配 用 Shared工线。
+    sw 的 脚本URL 为 做 字符串_复制 用 url。
+    sw 的 名称 为 若 名称 不等于 0 则 做 字符串_复制 用 名称 否则 「」。
+    sw 的 状态 为 WORKER_STATE_CREATED。
+    sw 的 连接数 为 0。
+    sw 的 onerror 为 0。
+    mc 为 做 MessageChannel_创建。
+    sw 的 端口 为 mc 的 port1。
+    sw 的 全局作用域 为 做 工线_创建全局作用域 用 WORKER_SHARED、sw 的 名称、0。
+    sw 的 状态 为 WORKER_STATE_RUNNING。
+    sw 的 连接端口 的 第 0 项 为 mc 的 port2。
+    sw 的 连接数 为 1。
+    返还 sw。
+完。
+
+Shared工线_查找 接受 url、名称：
+    可变 i 为 0。
+    只要 i 小于 全局工线数：
+        w 为 全局工线表 的 第 i 项。
+        若 w 的 状态 不等于 工线状态_已终止 并且 做 字符串等于 用 w 的 url、url：
+            若 名称 等于 0 或者 做 字符串等于 用 w 的 名称、名称：
+                返还 w。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Shared工线_新连接 接受 sw：
+    若 sw 等于 0 或者 sw 的 连接数 大于或等于 32：
+        返还 sw。
+    完。
+    mc 为 做 MessageChannel_创建。
+    sw 的 端口 为 mc 的 port1。
+    sw 的 连接端口 的 第 sw 的 连接数 项 为 mc 的 port2。
+    sw 的 连接数 为 sw 的 连接数 加 1。
+    返还 sw。
+完。
+
+Shared数组Buffer 是 一种 事物，含 数据、大小、允许。
+
+Shared数组Buffer_创建 接受 大小：
+    sab 为 做 堆_分配 用 Shared数组Buffer。
+    sab 的 大小 为 大小。
+    sab 的 数据 为 做 堆_分配 用 大小。
+    做 内存_填充 用 sab 的 数据、0、大小。
+    sab 的 允许 为 真。
+    返还 sab。
+完。
+
+Atomics_load 接受 sab、index：
+    若 sab 等于 0：
+        返还 0。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    返还 做 内存_读32 用 addr。
+完。
+
+Atomics_store 接受 sab、index、value：
+    若 sab 等于 0：
+        返还。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    做 内存_写32 用 addr、value。
+完。
+
+Atomics_add 接受 sab、index、value：
+    若 sab 等于 0：
+        返还 0。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    旧值 为 做 内存_读32 用 addr。
+    做 内存_写32 用 addr、旧值 加 value。
+    返还 旧值。
+完。
+
+Atomics_sub 接受 sab、index、value：
+    返还 做 Atomics_add 用 sab、index、负 value。
+完。
+
+Atomics_and 接受 sab、index、value：
+    若 sab 等于 0：
+        返还 0。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    旧值 为 做 内存_读32 用 addr。
+    做 内存_写32 用 addr、旧值 位与 value。
+    返还 旧值。
+完。
+
+Atomics_or 接受 sab、index、value：
+    若 sab 等于 0：
+        返还 0。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    旧值 为 做 内存_读32 用 addr。
+    做 内存_写32 用 addr、旧值 位或 value。
+    返还 旧值。
+完。
+
+Atomics_xor 接受 sab、index、value：
+    若 sab 等于 0：
+        返还 0。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    旧值 为 做 内存_读32 用 addr。
+    做 内存_写32 用 addr、旧值 位异或 value。
+    返还 旧值。
+完。
+
+Atomics_exchange 接受 sab、index、value：
+    若 sab 等于 0：
+        返还 0。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    旧值 为 做 内存_读32 用 addr。
+    做 内存_写32 用 addr、value。
+    返还 旧值。
+完。
+
+Atomics_compareExchange 接受 sab、index、expected、replacement：
+    若 sab 等于 0：
+        返还 0。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    当前值 为 做 内存_读32 用 addr。
+    若 当前值 等于 expected：
+        做 内存_写32 用 addr、replacement。
+    完。
+    返还 当前值。
+完。
+
+Atomics_wait 接受 sab、index、value、timeout：
+    若 sab 等于 0：
+        返还 「not-equal」。
+    完。
+    addr 为 sab 的 数据 加 index 乘 4。
+    当前值 为 做 内存_读32 用 addr。
+    若 当前值 不等于 value：
+        返还 「not-equal」。
+    完。
+    若 timeout 大于 0：
+        返还 「timed-out」。
+    完。
+    返还 「ok」。
+完。
+
+Atomics_notify 接受 sab、index、count：
+    若 sab 等于 0：
+        返还 0。
+    完。
+    返还 0。
+完。
+
+本章 收束。

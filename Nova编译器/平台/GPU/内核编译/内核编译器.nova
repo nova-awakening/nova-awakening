@@ -1,0 +1,180 @@
+《内核编译器》
+
+引用《..·核心·设备管理》。
+
+引用《..·..·..·标准库·基础》。
+
+内核_未编译 为 0。
+
+内核_编译中 为 1。
+
+内核_就绪 为 2。
+
+内核_错误 为 3。
+
+GPU内核_创建 接受 名称、源码：
+    返还 一组：名称、源码、0、内核_未编译、「」、一组：（空）、0、一组：（空）、GPU_厂商_未知。
+完。
+
+GPU内核_名称 接受 k：
+    返还 k 的 第 0 项。
+完。
+
+GPU内核_状态 接受 k：
+    返还 k 的 第 4 项。
+完。
+
+GPU内核_错误 接受 k：
+    返还 k 的 第 5 项。
+完。
+
+GPU内核_就绪 接受 k：
+    返还 k 的 第 4 项 等于 内核_就绪。
+完。
+
+GPU内核_编译_NVIDIA 接受 内核、编译选项：
+    nvrtc_lib 为 做 GPU_加载CUDA候选 用 一组：「nvrtc64_120_0.dll」、「nvrtc64_121_0.dll」、「nvrtc64_122_0.dll」、「libnvrtc.so.12」、「libnvrtc.so.11」、「libnvrtc.so」。
+    若 nvrtc_lib 等于 0：
+        内核 的 第 4 项 为 内核_错误。
+        内核 的 第 5 项 为 「无法加载nvrtc库」。
+        返还 假。
+    完。
+    内核 的 第 4 项 为 内核_编译中。
+    内核 的 第 10 项 为 GPU_厂商_NVIDIA。
+    prog 为 做 外部调用 用 nvrtc_lib、「nvrtcCreateProgram」、内核 的 第 1 项、内核 的 第 0 项、0、0、0。
+    若 prog 等于 0：
+        内核 的 第 4 项 为 内核_错误。
+        内核 的 第 5 项 为 「创建程序失败」。
+        返还 假。
+    完。
+    可变 选项列 为 一组：（空）。
+    做 追加 用 选项列、「--gpu-architecture=compute_70」。
+    做 追加 用 选项列、「-default-device」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 编译选项：
+        做 追加 用 选项列、编译选项 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    编译结果 为 做 外部调用 用 nvrtc_lib、「nvrtcCompileProgram」、prog、做 计数 用 选项列、选项列、0、0。
+    若 编译结果 不等于 0：
+        内核 的 第 5 项 为 做 外部调用字符串 用 nvrtc_lib、「nvrtcGetProgramLog」、prog、0。
+        内核 的 第 4 项 为 内核_错误。
+        返还 假。
+    完。
+    ptx 为 做 外部调用字符串 用 nvrtc_lib、「nvrtcGetPTX」、prog、0。
+    内核 的 第 2 项 为 做 外部调用 用 cuda_lib、「cuModuleLoadDataEx」、ptx、0、0、0、0。
+    内核 的 第 3 项 为 做 外部调用 用 cuda_lib、「cuModuleGetFunction」、内核 的 第 2 项、内核 的 第 0 项、0、0、0。
+    内核 的 第 8 项 为 做 外部调用 用 cuda_lib、「cuFuncGetAttribute」、4、内核 的 第 3 项、0、0、0。
+    内核 的 第 7 项 为 做 外部调用 用 cuda_lib、「cuFuncGetAttribute」、1、内核 的 第 3 项、0、0、0。
+    内核 的 第 4 项 为 内核_就绪。
+    做 外部调用 用 nvrtc_lib、「nvrtcDestroyProgram」、prog、0、0、0、0。
+    返还 真。
+完。
+
+GPU内核_编译_AMD 接受 内核、编译选项：
+    hiprtc_lib 为 做 GPU_加载ROCm候选 用 一组：「hiprtc.dll」、「libhiprtc.so」。
+    若 hiprtc_lib 等于 0：
+        内核 的 第 4 项 为 内核_错误。
+        内核 的 第 5 项 为 「无法加载hiprtc库」。
+        返还 假。
+    完。
+    内核 的 第 4 项 为 内核_编译中。
+    内核 的 第 10 项 为 GPU_厂商_AMD。
+    prog 为 做 外部调用 用 hiprtc_lib、「hiprtcCreateProgram」、内核 的 第 1 项、内核 的 第 0 项、0、0、0。
+    可变 选项列 为 一组：（空）。
+    做 追加 用 选项列、「--gpu-architecture=gfx908」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 编译选项：
+        做 追加 用 选项列、编译选项 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    编译结果 为 做 外部调用 用 hiprtc_lib、「hiprtcCompileProgram」、prog、做 计数 用 选项列、选项列、0、0。
+    若 编译结果 不等于 0：
+        内核 的 第 5 项 为 做 外部调用字符串 用 hiprtc_lib、「hiprtcGetProgramLog」、prog、0。
+        内核 的 第 4 项 为 内核_错误。
+        返还 假。
+    完。
+    代码 为 做 外部调用字符串 用 hiprtc_lib、「hiprtcGetCode」、prog、0。
+    内核 的 第 2 项 为 做 外部调用 用 hip_lib、「hipModuleLoadData」、代码、0、0、0、0。
+    内核 的 第 3 项 为 做 外部调用 用 hip_lib、「hipModuleGetFunction」、内核 的 第 2 项、内核 的 第 0 项、0、0、0。
+    内核 的 第 4 项 为 内核_就绪。
+    做 外部调用 用 hiprtc_lib、「hiprtcDestroyProgram」、prog、0、0、0、0。
+    返还 真。
+完。
+
+GPU内核_编译 接受 内核、gpu管理器、编译选项：
+    dev 为 做 GPU管理器_当前设备 用 gpu管理器。
+    若 dev 等于 空：
+        内核 的 第 4 项 为 内核_错误。
+        内核 的 第 5 项 为 「无可用GPU设备」。
+        返还 假。
+    完。
+    若 厂商 等于 GPU_厂商_NVIDIA：
+        返还 做 GPU内核_编译_NVIDIA 用 内核、编译选项。
+    完。
+    若 厂商 等于 GPU_厂商_AMD：
+        返还 做 GPU内核_编译_AMD 用 内核、编译选项。
+    完。
+    内核 的 第 4 项 为 内核_错误。
+    内核 的 第 5 项 为 「不支持的GPU厂商」。
+    返还 假。
+完。
+
+GPU内核_启动 接受 内核、grid、block、参数列、共享内存、流：
+    若 非 做 GPU内核_就绪 用 内核：
+        做 打印 用 做 字符串拼接 用 「错误: 内核未就绪 - 」、做 GPU内核_名称 用 内核。
+        返还 假。
+    完。
+    若 内核 的 第 10 项 等于 GPU_厂商_NVIDIA：
+        返还 做 外部调用 用 cuda_lib、「cuLaunchKernel」、内核 的 第 3 项、grid 的 第 0 项、grid 的 第 1 项、grid 的 第 2 项、block 的 第 0 项、block 的 第 1 项、block 的 第 2 项、共享内存、流、参数列 等于 0。
+    完。
+    若 内核 的 第 10 项 等于 GPU_厂商_AMD：
+        返还 做 外部调用 用 hip_lib、「hipModuleLaunchKernel」、内核 的 第 3 项、grid 的 第 0 项、grid 的 第 1 项、grid 的 第 2 项、block 的 第 0 项、block 的 第 1 项、block 的 第 2 项、共享内存、流、参数列 等于 0。
+    完。
+    返还 假。
+完。
+
+GPU同步 接受 gpu管理器：
+    dev 为 做 GPU管理器_当前设备 用 gpu管理器。
+    若 厂商 等于 GPU_厂商_NVIDIA：
+        返还 做 外部调用 用 cuda_lib、「cuCtxSynchronize」、0、0、0、0、0 等于 0。
+    完。
+    若 厂商 等于 GPU_厂商_AMD：
+        返还 做 外部调用 用 hip_lib、「hipDeviceSynchronize」、0、0、0、0、0 等于 0。
+    完。
+    返还 假。
+完。
+
+GPU流_创建 接受 gpu管理器：
+    dev 为 做 GPU管理器_当前设备 用 gpu管理器。
+    若 厂商 等于 GPU_厂商_NVIDIA：
+        返还 做 外部调用 用 cuda_lib、「cuStreamCreate」、0、0、0、0、0。
+    完。
+    若 厂商 等于 GPU_厂商_AMD：
+        返还 做 外部调用 用 hip_lib、「hipStreamCreate」、0、0、0、0、0。
+    完。
+    返还 0。
+完。
+
+GPU流_同步 接受 gpu管理器、流：
+    dev 为 做 GPU管理器_当前设备 用 gpu管理器。
+    若 厂商 等于 GPU_厂商_NVIDIA：
+        返还 做 外部调用 用 cuda_lib、「cuStreamSynchronize」、流、0、0、0、0 等于 0。
+    完。
+    若 厂商 等于 GPU_厂商_AMD：
+        返还 做 外部调用 用 hip_lib、「hipStreamSynchronize」、流、0、0、0、0 等于 0。
+    完。
+    返还 假。
+完。
+
+GPU流_销毁 接受 gpu管理器、流：
+    dev 为 做 GPU管理器_当前设备 用 gpu管理器。
+    若 厂商 等于 GPU_厂商_NVIDIA：
+        做 外部调用 用 cuda_lib、「cuStreamDestroy_v2」、流、0、0、0、0。
+    完。
+    若 厂商 等于 GPU_厂商_AMD：
+        做 外部调用 用 hip_lib、「hipStreamDestroy」、流、0、0、0、0。
+    完。
+完。
+
+本章 收束。

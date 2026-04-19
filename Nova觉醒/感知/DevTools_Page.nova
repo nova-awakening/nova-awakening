@@ -1,0 +1,85 @@
+《DevTools_Page》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·文档观察》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内容可见性》。
+
+DevTools_Page处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「Page.enable」：
+        session 的 page启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Page.reload」：
+    否则若 做 字符串_相等 用 方法、「Page.navigate」：
+        url 为 做 DevTools_解析参数_str 用 msg 的 参数、「url」。
+    否则若 做 字符串_相等 用 方法、「Page.captureScreenshot」：
+    否则若 做 字符串_相等 用 方法、「Page.printToPDF」：
+    否则若 做 字符串_相等 用 方法、「Page.getFrameTree」：
+    否则若 做 字符串_相等 用 方法、「Page.setDocumentContent」：
+    完。
+完。
+
+NetworkEntry 是 一种 事物，含 requestId、url、method、状态码、请求时间、响应时间、完成时间、请求大小、响应大小、mimeType、请求头、响应头、响应体、响应体大小、下一个。
+
+可变 网络日志头 为 0。
+
+可变 网络日志数 为 0。
+
+DevTools_Network处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「Network.enable」：
+        session 的 network启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Network.disable」：
+        session 的 network启用 为 假。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Network.getResponseBody」：
+        requestId 为 做 DevTools_解析参数_str 用 msg 的 参数、「requestId」。
+    否则若 做 字符串_相等 用 方法、「Network.set缓存Disabled」：
+    否则若 做 字符串_相等 用 方法、「Network.setRequestInterception」：
+    否则若 做 字符串_相等 用 方法、「Network.emulateNetworkConditions」：
+        离线 为 做 DevTools_解析参数_bool 用 msg 的 参数、「offline」。
+        延迟 为 做 DevTools_解析参数_int 用 msg 的 参数、「latency」。
+        下载 为 做 DevTools_解析参数_int 用 msg 的 参数、「downloadThroughput」。
+        上传 为 做 DevTools_解析参数_int 用 msg 的 参数、「uploadThroughput」。
+    否则若 做 字符串_相等 用 方法、「Network.setCookie」：
+    否则若 做 字符串_相等 用 方法、「Network.getCookies」：
+    否则若 做 字符串_相等 用 方法、「Network.clearBrowserCookies」：
+    完。
+完。
+
+DevTools_Network_记录请求 接受 url、method：
+    若 全局DevTools 等于 0：
+        返还。
+    完。
+    entry 为 做 堆_分配 用 NetworkEntry。
+    entry 的 url 为 url。
+    entry 的 method 为 method。
+    entry 的 请求时间 为 做 平台_获取高精度时间。
+    entry 的 下一个 为 网络日志头。
+    网络日志头 为 entry。
+    网络日志数 为 网络日志数 加 1。
+完。
+
+DevTools_Network_记录响应 接受 entry、状态码、mimeType：
+    若 entry 等于 0：
+        返还。
+    完。
+    entry 的 状态码 为 状态码。
+    entry 的 mimeType 为 mimeType。
+    entry 的 响应时间 为 做 平台_获取高精度时间。
+完。
+
+本章 收束。

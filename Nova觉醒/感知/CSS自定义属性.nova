@@ -1,0 +1,100 @@
+《CSS自定义属性》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·执行·底层内存操》。
+
+CSSVariableData 是 一种 事物，含 名称、名称哈希、原始值、原始长度、计算值、计算长度、已计算、含var引用、无效。
+
+CustomPropertyMap 是 一种 事物，含 桶、桶数、属性数、头。
+
+CustomPropertyMap_创建 接受 零参：
+    map 为 做 堆_分配 用 CustomPropertyMap。
+    map 的 桶数 为 64。
+    map 的 桶 为 做 堆_分配 用 64 乘 8。
+    做 内存_清零 用 map 的 桶、64 乘 8。
+    map 的 属性数 为 0。
+    map 的 头 为 0。
+    返还 map。
+完。
+
+CustomProperty_哈希 接受 名称：
+    若 名称 等于 0：
+        返还 0。
+    完。
+    可变 h 为 5381。
+    len 为 做 字节长度 用 名称。
+    可变 i 为 0。
+    只要 i 小于 len：
+        h 为 (h 左移 5) 加 h 加 做 字节取 用 名称、i。
+        i 为 i 加 1。
+    完。
+    返还 h 位与 0xFFFFFFFF。
+完。
+
+CustomPropertyMap_设置 接受 map、名称、值、值长度：
+    若 map 等于 0 或者 名称 等于 0：
+        返还。
+    完。
+    hash 为 做 CustomProperty_哈希 用 名称。
+    bucket 为 hash 取余于 map 的 桶数。
+    可变 entry 为 做 内存_读64 用 map 的 桶 加 bucket 乘 8。
+    只要 entry 不等于 0：
+        若 entry 的 名称哈希 等于 hash 并且 做 字符串_相等 用 entry 的 名称、名称：
+            entry 的 原始值 为 值。
+            entry 的 原始长度 为 值长度。
+            entry 的 已计算 为 假。
+            entry 的 无效 为 假。
+            entry 的 含var引用 为 做 CustomProperty_检查var引用 用 值、值长度。
+            返还。
+        完。
+        entry 为 entry 的 下一个。
+    完。
+    data 为 做 堆_分配 用 CSSVariableData。
+    data 的 名称 为 名称。
+    data 的 名称哈希 为 hash。
+    data 的 原始值 为 值。
+    data 的 原始长度 为 值长度。
+    data 的 计算值 为 0。
+    data 的 计算长度 为 0。
+    data 的 已计算 为 假。
+    data 的 无效 为 假。
+    data 的 含var引用 为 做 CustomProperty_检查var引用 用 值、值长度。
+    做 内存_写64 用 map 的 桶 加 bucket 乘 8、data。
+    map 的 属性数 为 map 的 属性数 加 1。
+完。
+
+CustomPropertyMap_获取 接受 map、名称：
+    若 map 等于 0 或者 名称 等于 0：
+        返还 0。
+    完。
+    hash 为 做 CustomProperty_哈希 用 名称。
+    bucket 为 hash 取余于 map 的 桶数。
+    entry 为 做 内存_读64 用 map 的 桶 加 bucket 乘 8。
+    若 entry 不等于 0 并且 entry 的 名称哈希 等于 hash：
+        返还 entry。
+    完。
+    返还 0。
+完。
+
+CustomProperty_检查var引用 接受 值、长度：
+    若 值 等于 0 或者 长度 小于 5：
+        返还 假。
+    完。
+    可变 i 为 0。
+    只要 i 加 3 小于 长度：
+        若 做 字节取 用 值、i 等于 0x76 并且 做 字节取 用 值、i 加 1 等于 0x61 并且 做 字节取 用 值、i 加 2 等于 0x72 并且 做 字节取 用 值、i 加 3 等于 0x28：
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+本章 收束。

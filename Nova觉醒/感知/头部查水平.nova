@@ -1,0 +1,168 @@
+《头部查水平》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·文字绘制最》。
+
+引用《.·真字体字体》。
+
+TrueType_解析head 接受 font：
+    若 font 的 head_偏移 等于 0：
+        返还。
+    完。
+    d 为 font 的 数据 加 font 的 head_偏移。
+    font 的 标志 为 做 读16 用 d、16。
+    font 的 upem 为 做 读16 用 d、18。
+    font 的 loca格式 为 做 读16 用 d、50。
+完。
+
+TrueType_解析hhea 接受 font：
+    若 font 的 hhea_偏移 等于 0：
+        返还。
+    完。
+    d 为 font 的 数据 加 font 的 hhea_偏移。
+    font 的 上升 为 做 读i16 用 d、4。
+    font 的 下降 为 做 读i16 用 d、6。
+    font 的 行距 为 做 读i16 用 d、8。
+    font 的 最大宽度 为 做 读16 用 d、10。
+    font 的 水平度量数 为 做 读16 用 d、34。
+完。
+
+TrueType_解析maxp 接受 font：
+    若 font 的 maxp_偏移 等于 0：
+        返还。
+    完。
+    d 为 font 的 数据 加 font 的 maxp_偏移。
+    font 的 字形总数 为 做 读16 用 d、4。
+完。
+
+TrueType_解析cmap 接受 font：
+    若 font 的 cmap_偏移 等于 0：
+        返还。
+    完。
+    d 为 font 的 数据 加 font 的 cmap_偏移。
+    子表数 为 做 读16 用 d、2。
+    可变 最佳偏移 为 0。
+    可变 最佳优先级 为 0。
+    可变 i 为 0。
+    只要 i 小于 子表数：
+        rec 为 4 加 i 乘 8。
+        platformID 为 做 读16 用 d、rec。
+        encodingID 为 做 读16 用 d、rec 加 2。
+        offset 为 做 读32 用 d、rec 加 4。
+        优先级 为 0。
+        若 platformID 等于 3 并且 encodingID 等于 10：
+            优先级 为 4。
+        否则若 platformID 等于 3 并且 encodingID 等于 1：
+            优先级 为 3。
+        否则若 platformID 等于 0 并且 encodingID 等于 4：
+            优先级 为 2。
+        否则若 platformID 等于 0 并且 encodingID 等于 3：
+            优先级 为 1。
+        完。
+        若 优先级 大于 最佳优先级：
+            最佳优先级 为 优先级。
+            最佳偏移 为 offset。
+        完。
+        i 为 i 加 1。
+    完。
+    若 最佳偏移 等于 0：
+        返还。
+    完。
+    font 的 cmap子表偏移 为 font 的 cmap_偏移 加 最佳偏移。
+    font 的 cmap子表格式 为 做 读16 用 font 的 数据、font 的 cmap子表偏移。
+完。
+
+TrueType_查找字形 接受 font、码点：
+    若 font 的 cmap子表偏移 等于 0：
+        返还 0。
+    完。
+    d 为 font 的 数据 加 font 的 cmap子表偏移。
+    格式 为 font 的 cmap子表格式。
+    若 格式 等于 4：
+        返还 做 cmap_格式4_查找 用 d、码点。
+    否则若 格式 等于 12：
+        返还 做 cmap_格式12_查找 用 d、码点。
+    完。
+    返还 0。
+完。
+
+cmap_格式4_查找 接受 d、码点：
+    若 码点 大于 0xFFFF：
+        返还 0。
+    完。
+    segCount 为 做 读16 用 d、6 除以 2。
+    endCodes 为 14。
+    startCodes 为 endCodes 加 segCount 乘 2 加 2。
+    idDeltas 为 startCodes 加 segCount 乘 2。
+    idRangeOffsets 为 idDeltas 加 segCount 乘 2。
+    可变 lo 为 0。
+    可变 hi 为 segCount 减 1。
+    只要 lo 小于或等于 hi：
+        mid 为 (lo 加 hi) 除以 2。
+        endCode 为 做 读16 用 d、endCodes 加 mid 乘 2。
+        startCode 为 做 读16 用 d、startCodes 加 mid 乘 2。
+        若 码点 大于 endCode：
+            lo 为 mid 加 1。
+        否则若 码点 小于 startCode：
+            hi 为 mid 减 1。
+        否则：
+            idRangeOffset 为 做 读16 用 d、idRangeOffsets 加 mid 乘 2。
+            idDelta 为 做 读i16 用 d、idDeltas 加 mid 乘 2。
+            若 idRangeOffset 等于 0：
+                返还 码点 加 idDelta 位与 0xFFFF。
+            否则：
+                glyphOffset 为 idRangeOffsets 加 mid 乘 2 加 idRangeOffset 加 (码点 减 startCode) 乘 2。
+                glyphID 为 做 读16 用 d、glyphOffset。
+                若 glyphID 不等于 0：
+                    返还 glyphID 加 idDelta 位与 0xFFFF。
+                完。
+                返还 0。
+            完。
+        完。
+    完。
+    返还 0。
+完。
+
+cmap_格式12_查找 接受 d、码点：
+    numGroups 为 做 读32 用 d、12。
+    groups 为 16。
+    可变 lo 为 0。
+    可变 hi 为 numGroups 减 1。
+    只要 lo 小于或等于 hi：
+        mid 为 (lo 加 hi) 除以 2。
+        g 为 groups 加 mid 乘 12。
+        startChar 为 做 读32 用 d、g。
+        endChar 为 做 读32 用 d、g 加 4。
+        若 码点 大于 endChar：
+            lo 为 mid 加 1。
+        否则若 码点 小于 startChar：
+            hi 为 mid 减 1。
+        否则：
+            startGlyph 为 做 读32 用 d、g 加 8。
+            返还 startGlyph 加 (码点 减 startChar)。
+        完。
+    完。
+    返还 0。
+完。
+
+可变 AI_头部查水平_热点函数 为 一组：（空）。
+
+AI_头部查水平_JIT候选 接受 函数名、调用次数：
+    若 调用次数 大于 100：
+        做 追加 用 AI_头部查水平_热点函数、函数名。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_头部查水平_内联建议 接受 函数体大小、调用次数：
+    若 函数体大小 小于 30 并且 调用次数 大于 50：
+        返还 「内联」。
+    完。
+    返还 「不内联」。
+完。
+
+本章 收束。

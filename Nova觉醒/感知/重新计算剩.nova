@@ -1,0 +1,100 @@
+《重新计算剩》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·样式值解析》。
+
+可变 当前pos 为 0。
+
+可变 间距 为 0。
+
+可变 起始偏移 为 0。
+
+可变 使用空间 为 0。
+
+子 为 layout 的 第一子。
+
+只要 子 不等于 0：
+    若 子 的 样式 不等于 0 并且 子 的 样式 的 display 不等于 0：
+        若 是水平：
+            使用空间 为 使用空间 加 子 的 宽度 加 子 的 margin_left 加 子 的 margin_right 加 子 的 padding_left 加 子 的 padding_right 加 子 的 border_left 加 子 的 border_right。
+        否则：
+            使用空间 为 使用空间 加 子 的 高度 加 子 的 margin_top 加 子 的 margin_bottom 加 子 的 padding_top 加 子 的 padding_bottom 加 子 的 border_top 加 子 的 border_bottom。
+        完。
+    完。
+    子 为 子 的 后一兄弟布局。
+完。
+
+flex剩余 为 主轴大小 减 使用空间。
+
+若 flex剩余 小于 0：
+    flex剩余 为 0。
+完。
+
+若 style 的 justify_content 等于 对齐_居中：
+    起始偏移 为 flex剩余 除以 2。
+否则若 style 的 justify_content 等于 对齐_末尾：
+    起始偏移 为 flex剩余。
+否则若 style 的 justify_content 等于 对齐_两端 并且 项数量 大于 1：
+    间距 为 flex剩余 除以 (项数量 减 1)。
+否则若 style 的 justify_content 等于 对齐_环绕 并且 项数量 大于 0：
+    间距 为 flex剩余 除以 项数量。
+    起始偏移 为 间距 除以 2。
+否则若 style 的 justify_content 等于 对齐_均匀 并且 项数量 大于 0：
+    间距 为 flex剩余 除以 (项数量 加 1)。
+    起始偏移 为 间距。
+完。
+
+当前pos 为 起始偏移。
+
+子 为 layout 的 第一子。
+
+可变 最大交叉 为 0。
+
+只要 子 不等于 0：
+    若 子 的 样式 等于 0 或者 子 的 样式 的 display 等于 0：
+        子 为 子 的 后一兄弟布局。
+        继续。
+    完。
+    做 布局块级Flow_布局 用 子。
+    若 是水平：
+        子 的 x 为 当前pos 加 子 的 margin_left 加 layout 的 padding_left 加 layout 的 border_left。
+        当前pos 为 当前pos 加 子 的 宽度 加 子 的 margin_left 加 子 的 margin_right 加 子 的 padding_left 加 子 的 padding_right 加 子 的 border_left 加 子 的 border_right 加 间距。
+        子交叉高 为 子 的 高度 加 子 的 padding_top 加 子 的 padding_bottom 加 子 的 border_top 加 子 的 border_bottom 加 子 的 margin_top 加 子 的 margin_bottom。
+        若 style 的 align_items 等于 对齐_居中：
+            子 的 y 为 (交叉轴大小 减 子交叉高) 除以 2 加 子 的 margin_top 加 layout 的 padding_top 加 layout 的 border_top。
+        否则若 style 的 align_items 等于 对齐_末尾：
+            子 的 y 为 交叉轴大小 减 子交叉高 加 子 的 margin_top 加 layout 的 padding_top 加 layout 的 border_top。
+        否则若 style 的 align_items 等于 对齐_拉伸：
+            子 的 y 为 子 的 margin_top 加 layout 的 padding_top 加 layout 的 border_top。
+            若 子 的 样式 的 height 等于 负 1：
+                子 的 高度 为 交叉轴大小 减 子 的 margin_top 减 子 的 margin_bottom 减 子 的 padding_top 减 子 的 padding_bottom 减 子 的 border_top 减 子 的 border_bottom。
+                若 子 的 高度 小于 0：
+                    子 的 高度 为 0。
+                完。
+            完。
+        否则：
+            子 的 y 为 子 的 margin_top 加 layout 的 padding_top 加 layout 的 border_top。
+        完。
+        若 子交叉高 大于 最大交叉：
+            最大交叉 为 子交叉高。
+        完。
+    否则：
+        子 的 y 为 当前pos 加 子 的 margin_top 加 layout 的 padding_top 加 layout 的 border_top。
+        当前pos 为 当前pos 加 子 的 高度 加 子 的 margin_top 加 子 的 margin_bottom 加 子 的 padding_top 加 子 的 padding_bottom 加 子 的 border_top 加 子 的 border_bottom 加 间距。
+        子 的 x 为 子 的 margin_left 加 layout 的 padding_left 加 layout 的 border_left。
+    完。
+    子 为 子 的 后一兄弟布局。
+完。
+
+若 非 layout 的 高度已确定：
+    若 是水平：
+        layout 的 高度 为 最大交叉。
+    否则：
+        layout 的 高度 为 当前pos。
+    完。
+完。
+
+本章 收束。

@@ -1,0 +1,221 @@
+《QUIC传输协议》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·中枢·哈希整数》。
+
+引用《..·中枢·主循环》。
+
+引用《..·推理·总线调度》。
+
+引用《..·中枢·张量数学引擎》。
+
+引用《..·中枢·环形缓冲》。
+
+QUIC_VERSION_1 为 0x00000001。
+
+QUIC_VERSION_2 为 0x6B3343CF。
+
+QUIC_最大数据报 为 1350。
+
+QUIC_初始窗口 为 14720。
+
+QUIC_最小窗口 为 2 乘 1350。
+
+QUIC_最大流ID 为 0x3FFFFFFFFFFFFFFF。
+
+QUIC_空闲超时 为 30000。
+
+QUIC_PKT_INITIAL 为 0。
+
+QUIC_PKT_0Nova往返时间 为 1。
+
+QUIC_PKT_HANDSHAKE 为 2。
+
+QUIC_PKT_RETRY 为 3。
+
+QUIC_PKT_1Nova往返时间 为 4。
+
+QUIC_FRAME_PADDING 为 0x00。
+
+QUIC_FRAME_PING 为 0x01。
+
+QUIC_FRAME_ACK 为 0x02。
+
+QUIC_FRAME_CRYPTO 为 0x06。
+
+QUIC_FRAME_NEW_令牌 为 0x07。
+
+QUIC_FRAME_STREAM 为 0x08。
+
+QUIC_FRAME_MAX_DATA 为 0x10。
+
+QUIC_FRAME_MAX_STREAM 为 0x12。
+
+QUIC_FRAME_CONN_CLOSE 为 0x1C。
+
+QUIC_FRAME_HANDSHAKE_DONE 为 0x1E。
+
+QUIC_FRAME_NEW_CONN_ID 为 0x18。
+
+QUIC_FRAME_PATH_CHALLENGE 为 0x1A。
+
+QUIC_FRAME_PATH_RESPONSE 为 0x1B。
+
+流状态_空闲 为 0。
+
+流状态_打开 为 1。
+
+流状态_半关闭 为 2。
+
+流状态_关闭 为 3。
+
+QUIC连接 是 一种 事物，含 本地CID、远程CID、版本、安全状态、加密级别、已握手完成、可以0Nova往返时间、PSK、早期数据、流表、下一个本地双向流、下一个本地单向流、拥塞窗口、慢启动阈值、在途字节、Nova往返时间平滑、Nova往返时间变化、Nova往返时间最小、拥塞算法、最大已确认、丢包超时、PTO计数、最大数据_本地、最大数据_远程、已发送数据、已接收数据、本地地址、远程地址、路径MTU、AI拥塞预测。
+
+QUIC_连接_创建 接受 远程地址、远程端口：
+    可变 conn 为 新建 QUIC连接。
+    conn 的 本地CID 为 做 加密_随机64。
+    conn 的 远程CID 为 0。
+    conn 的 版本 为 QUIC_VERSION_1。
+    conn 的 已握手完成 为 假。
+    conn 的 安全状态 为 做 安全13_客户端_创建。
+    conn 的 拥塞算法 为 2。
+    conn 的 拥塞窗口 为 QUIC_初始窗口。
+    conn 的 慢启动阈值 为 0xFFFFFFFF。
+    conn 的 Nova往返时间平滑 为 333000。
+    conn 的 Nova往返时间变化 为 166000。
+    conn 的 流表 为 做 哈希表_创建 用 64。
+    conn 的 下一个本地双向流 为 0。
+    conn 的 下一个本地单向流 为 2。
+    conn 的 最大数据_本地 为 1048576。
+    conn 的 最大数据_远程 为 1048576。
+    conn 的 AI拥塞预测 为 做 智能_拥塞预测器_创建。
+    返还 conn。
+完。
+
+QUIC_连接_0Nova往返时间 接受 conn、PSK、早期数据：
+    若 PSK 等于 空：
+        返还 做 QUIC_握手_发送Initial 用 conn。
+    完。
+    conn 的 PSK 为 PSK。
+    conn 的 可以0Nova往返时间 为 真。
+    初始包 为 做 QUIC_构造包 用 conn、QUIC_PKT_INITIAL。
+    CH 为 做 安全13_生成ClientHello_PSK 用 conn 的 安全状态、PSK。
+    做 QUIC_包_添加帧 用 初始包、QUIC_FRAME_CRYPTO、CH。
+    做 QUIC_发送包 用 conn、初始包。
+    若 早期数据 不等于 空：
+        密钥_0Nova往返时间 为 做 安全13_导出0Nova往返时间密钥 用 conn 的 安全状态、PSK。
+        零Nova往返时间包 为 做 QUIC_构造包 用 conn、QUIC_PKT_0Nova往返时间。
+        做 QUIC_包_添加帧 用 零Nova往返时间包、QUIC_FRAME_STREAM、早期数据。
+        做 QUIC_加密发送 用 conn、零Nova往返时间包、密钥_0Nova往返时间。
+    完。
+    返还 0。
+完。
+
+QUIC流 是 一种 事物，含 流ID、状态、发送偏移、接收偏移、发送缓冲、接收缓冲、最大数据、FIN已发送、FIN已接收。
+
+QUIC_创建流 接受 conn：
+    流ID 为 conn 的 下一个本地双向流。
+    conn 的 下一个本地双向流 为 conn 的 下一个本地双向流 加 4。
+    可变 流 为 新建 QUIC流。
+    流 的 流ID 为 流ID。
+    流 的 状态 为 流状态_打开。
+    流 的 发送偏移 为 0。
+    流 的 接收偏移 为 0。
+    流 的 发送缓冲 为 做 环形缓冲_创建 用 65536。
+    流 的 接收缓冲 为 做 有序缓冲_创建。
+    流 的 最大数据 为 262144。
+    做 哈希表_插入 用 conn 的 流表、流ID、流。
+    返还 流ID。
+完。
+
+QUIC_流_发送 接受 conn、流ID、数据、长度：
+    流 为 做 哈希表_查找 用 conn 的 流表、流ID。
+    若 流 等于 空：
+        返还 错误_流不存在。
+    完。
+    若 流 的 发送偏移 加 长度 大于 流 的 最大数据：
+        返还 错误_流控阻塞。
+    完。
+    若 conn 的 已发送数据 加 长度 大于 conn 的 最大数据_远程：
+        返还 错误_连接流控阻塞。
+    完。
+    做 环形缓冲_写入 用 流 的 发送缓冲、数据、长度。
+    流 的 发送偏移 为 流 的 发送偏移 加 长度。
+    conn 的 已发送数据 为 conn 的 已发送数据 加 长度。
+    做 QUIC_刷新发送 用 conn。
+    返还 长度。
+完。
+
+QUIC_处理STREAM帧 接受 conn、流ID、偏移、数据、长度、FIN：
+    流 为 做 哈希表_查找 用 conn 的 流表、流ID。
+    若 流 等于 空：
+        流 为 做 QUIC_接受流 用 conn、流ID。
+    完。
+    做 有序缓冲_插入 用 流 的 接收缓冲、偏移、数据、长度。
+    若 FIN：
+        流 的 FIN已接收 为 真。
+    完。
+    只要 做 有序缓冲_可读 用 流 的 接收缓冲、流 的 接收偏移：
+        块 为 做 有序缓冲_读取 用 流 的 接收缓冲、流 的 接收偏移。
+        做 流_回调_数据到达 用 流ID、块 的 数据、块 的 长度。
+        流 的 接收偏移 为 流 的 接收偏移 加 块 的 长度。
+    完。
+    conn 的 已接收数据 为 conn 的 已接收数据 加 长度。
+完。
+
+QUIC_Nova带宽v2_更新 接受 conn、已确认字节、Nova往返时间样本：
+    若 Nova往返时间样本 小于 conn 的 Nova往返时间最小 或者 conn 的 Nova往返时间最小 等于 0：
+        conn 的 Nova往返时间最小 为 Nova往返时间样本。
+    完。
+    conn 的 Nova往返时间平滑 为 conn 的 Nova往返时间平滑 乘 7 除以 8 加 Nova往返时间样本 除以 8。
+    差 为 做 绝对值 用 Nova往返时间样本 减 conn 的 Nova往返时间平滑。
+    conn 的 Nova往返时间变化 为 conn 的 Nova往返时间变化 乘 3 除以 4 加 差 除以 4。
+    当前带宽 为 已确认字节 乘 1000000 除以 Nova往返时间样本。
+    BDP 为 当前带宽 乘 conn 的 Nova往返时间最小 除以 1000000。
+    conn 的 拥塞窗口 为 做 最大值 用 BDP 乘 2、QUIC_最小窗口。
+    AI预测 为 做 智能_拥塞预测器_评估 用 conn 的 AI拥塞预测、当前带宽、Nova往返时间样本、conn 的 在途字节。
+    若 AI预测 的 即将拥塞：
+        conn 的 拥塞窗口 为 conn 的 拥塞窗口 乘 AI预测 的 建议缩减比 除以 100。
+    完。
+    conn 的 在途字节 为 conn 的 在途字节 减 已确认字节。
+完。
+
+QUIC_处理路径迁移 接受 conn、新源地址：
+    若 新源地址 等于 conn 的 远程地址：
+        返还。
+    完。
+    挑战 为 做 加密_随机64。
+    包 为 做 QUIC_构造包 用 conn、QUIC_PKT_1Nova往返时间。
+    做 QUIC_包_添加帧 用 包、QUIC_FRAME_PATH_CHALLENGE、挑战。
+    做 QUIC_发送到 用 conn、包、新源地址。
+    conn 的 远程地址 为 新源地址。
+    conn 的 拥塞窗口 为 QUIC_初始窗口。
+    conn 的 Nova往返时间平滑 为 333000。
+    conn 的 Nova往返时间最小 为 0。
+完。
+
+HTTP3_发送请求 接受 conn、方法、路径、头部、体：
+    流ID 为 做 QUIC_创建流 用 conn。
+    编码头 为 做 QPACK_编码 用 头部。
+    可变 帧 为 一组：（空）。
+    做 追加 用 帧、一组：0x01、编码头。
+    若 体 不等于 空 并且 做 计数 用 体 大于 0：
+        做 追加 用 帧、一组：0x00、体。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 帧：
+        类型 为 帧 的 第 i 项 的 第 0 项。
+        数据 为 帧 的 第 i 项 的 第 1 项。
+        长度 为 做 计数 用 数据。
+        帧头 为 做 QUIC变长编码 用 类型 加 做 QUIC变长编码 用 长度。
+        做 QUIC_流_发送 用 conn、流ID、帧头 加 数据、做 计数 用 帧头 加 长度。
+        i 为 i 加 1。
+    完。
+    做 QUIC_流_FIN 用 conn、流ID。
+    返还 流ID。
+完。
+
+本章 收束。

@@ -1,0 +1,814 @@
+《画布上下文》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·执行·命令写入》。
+
+画布2DContext 是 一种 事物，含 宽、高、像素缓冲、缓冲大小、图处上下文、纹理ID、状态、路径命令、路径大小、路径容量、路径x、路径y、路径起点x、路径起点y、脏x、有脏区域。
+
+画布2D_创建 接受 宽、高、gpu_ctx：
+    ctx 为 做 堆_分配 用 画布2DContext。
+    ctx 的 宽 为 宽。
+    ctx 的 高 为 高。
+    ctx 的 缓冲大小 为 宽 乘 高 乘 4。
+    ctx 的 像素缓冲 为 做 堆_分配_数组 用 ctx 的 缓冲大小。
+    做 内存_填零 用 ctx 的 像素缓冲、ctx 的 缓冲大小。
+    ctx 的 图处上下文 为 gpu_ctx。
+    若 gpu_ctx 不等于 0：
+        ctx 的 纹理ID 为 做 图处_创建纹理 用 gpu_ctx、宽、高、纹理格式_RGBA8。
+    完。
+    ctx 的 状态 为 做 画布2D_创建状态。
+    ctx 的 路径容量 为 4096。
+    ctx 的 路径命令 为 做 堆_分配_数组 用 ctx 的 路径容量。
+    ctx 的 路径大小 为 0。
+    返还 ctx。
+完。
+
+画布2D_创建状态 接受 零参：
+    s 为 做 堆_分配 用 画布State。
+    s 的 a 为 1024。
+    s 的 b 为 0。
+    s 的 c 为 0。
+    s 的 d 为 1024。
+    s 的 e 为 0。
+    s 的 f 为 0。
+    s 的 填充颜色R 为 0。
+    s 的 填充颜色G 为 0。
+    s 的 填充颜色B 为 0。
+    s 的 填充颜色A 为 255。
+    s 的 描边颜色R 为 0。
+    s 的 描边颜色G 为 0。
+    s 的 描边颜色B 为 0。
+    s 的 描边颜色A 为 255。
+    s 的 线宽 为 1024。
+    s 的 线帽 为 LineCap_Butt。
+    s 的 线连接 为 LineJoin_Miter。
+    s 的 斜切限制 为 10240。
+    s 的 全局透明度 为 255。
+    s 的 合成模式 为 Composite_SourceOver。
+    s 的 字号 为 10。
+    s 的 文字对齐 为 TextAlign_Start。
+    s 的 文字基线 为 TextBaseline_Alphabetic。
+    s 的 阴影颜色A 为 0。
+    s 的 上一状态 为 0。
+    返还 s。
+完。
+
+画布2D_save 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    新状态 为 做 堆_分配 用 画布State。
+    做 内存_复制 用 新状态、ctx 的 状态、做 大小为 用 画布State。
+    新状态 的 上一状态 为 ctx 的 状态。
+    ctx 的 状态 为 新状态。
+完。
+
+画布2D_restore 接受 ctx：
+    若 ctx 等于 0 或者 ctx 的 状态 等于 0：
+        返还。
+    完。
+    旧 为 ctx 的 状态。
+    上一个 为 旧 的 上一状态。
+    若 上一个 不等于 0：
+        ctx 的 状态 为 上一个。
+        做 堆_释放 用 旧。
+    完。
+完。
+
+NC2D_路径_MOVE 为 0。
+
+NC2D_路径_LINE 为 1。
+
+NC2D_路径_QUAD 为 2。
+
+NC2D_路径_CUBIC 为 3。
+
+NC2D_路径_ARC 为 4。
+
+NC2D_路径_CLOSE 为 5。
+
+NC2D_路径确保容量 接受 ctx、需要：
+    若 ctx 的 路径大小 加 需要 大于 ctx 的 路径容量：
+        新容量 为 ctx 的 路径容量 乘 2。
+        只要 新容量 小于 ctx 的 路径大小 加 需要：
+            新容量 为 新容量 乘 2。
+        完。
+        新缓 为 做 堆_分配_数组 用 新容量。
+        做 内存_复制 用 新缓、ctx 的 路径命令、ctx 的 路径大小。
+        做 堆_释放 用 ctx 的 路径命令。
+        ctx 的 路径命令 为 新缓。
+        ctx 的 路径容量 为 新容量。
+    完。
+完。
+
+画布2D_beginPath 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    ctx 的 路径大小 为 0。
+    ctx 的 路径x 为 0。
+    ctx 的 路径y 为 0。
+    ctx 的 路径起点x 为 0。
+    ctx 的 路径起点y 为 0。
+完。
+
+画布2D_moveTo 接受 ctx、x、y：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 NC2D_路径确保容量 用 ctx、3。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 项 为 NC2D_路径_MOVE。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 1 项 为 x。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 2 项 为 y。
+    ctx 的 路径大小 为 ctx 的 路径大小 加 3。
+    ctx 的 路径x 为 x。
+    ctx 的 路径y 为 y。
+    ctx 的 路径起点x 为 x。
+    ctx 的 路径起点y 为 y。
+完。
+
+画布2D_lineTo 接受 ctx、x、y：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 NC2D_路径确保容量 用 ctx、3。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 项 为 NC2D_路径_LINE。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 1 项 为 x。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 2 项 为 y。
+    ctx 的 路径大小 为 ctx 的 路径大小 加 3。
+    ctx 的 路径x 为 x。
+    ctx 的 路径y 为 y。
+完。
+
+画布2D_quadraticCurveTo 接受 ctx、cpx、cpy、x、y：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 NC2D_路径确保容量 用 ctx、5。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 项 为 NC2D_路径_QUAD。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 1 项 为 cpx。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 2 项 为 cpy。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 3 项 为 x。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 4 项 为 y。
+    ctx 的 路径大小 为 ctx 的 路径大小 加 5。
+    ctx 的 路径x 为 x。
+    ctx 的 路径y 为 y。
+完。
+
+画布2D_bezierCurveTo 接受 ctx、cp1x、cp1y、cp2x、cp2y、x、y：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 NC2D_路径确保容量 用 ctx、7。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 项 为 NC2D_路径_CUBIC。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 1 项 为 cp1x。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 2 项 为 cp1y。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 3 项 为 cp2x。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 4 项 为 cp2y。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 5 项 为 x。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 加 6 项 为 y。
+    ctx 的 路径大小 为 ctx 的 路径大小 加 7。
+    ctx 的 路径x 为 x。
+    ctx 的 路径y 为 y。
+完。
+
+画布2D_closePath 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 NC2D_路径确保容量 用 ctx、1。
+    ctx 的 路径命令 的 第 ctx 的 路径大小 项 为 NC2D_路径_CLOSE。
+    ctx 的 路径大小 为 ctx 的 路径大小 加 1。
+    ctx 的 路径x 为 ctx 的 路径起点x。
+    ctx 的 路径y 为 ctx 的 路径起点y。
+完。
+
+NC2D_圆弧最大段 为 16。
+
+NC2D_定点正弦 接受 angle_q10：
+    x 为 angle_q10。
+    x3 为 x 乘 x 除以 1024 乘 x 除以 1024。
+    返还 x 减 x3 除以 6。
+完。
+
+NC2D_定点余弦 接受 angle_q10：
+    x2 为 angle_q10 乘 angle_q10 除以 1024。
+    x4 为 x2 乘 x2 除以 1024。
+    返还 1024 减 x2 除以 2 加 x4 除以 24。
+完。
+
+画布2D_arc 接受 ctx、cx、cy、半径、起始角、结束角、逆时针：
+    若 ctx 等于 0 或者 半径 小于或等于 0：
+        返还。
+    完。
+    弧度差 为 结束角 减 起始角。
+    若 逆时针 等于 真 并且 弧度差 大于 0：
+        弧度差 为 弧度差 减 6434。
+    完。
+    若 逆时针 等于 假 并且 弧度差 小于 0：
+        弧度差 为 弧度差 加 6434。
+    完。
+    段数 为 8。
+    若 弧度差 小于 0：
+        弧度差 为 0 减 弧度差。
+    完。
+    若 弧度差 大于 3217：
+        段数 为 16。
+    完。
+    步长 为 (结束角 减 起始角) 除以 段数。
+    可变 当前角 为 起始角。
+    可变 i 为 0。
+    只要 i 小于或等于 段数：
+        px 为 cx 加 半径 乘 做 NC2D_定点余弦 用 当前角 除以 1024。
+        py 为 cy 加 半径 乘 做 NC2D_定点正弦 用 当前角 除以 1024。
+        若 i 等于 0 并且 ctx 的 路径大小 等于 0：
+            做 画布2D_moveTo 用 ctx、px、py。
+        否则：
+            做 画布2D_lineTo 用 ctx、px、py。
+        完。
+        当前角 为 当前角 加 步长。
+        i 为 i 加 1。
+    完。
+完。
+
+画布2D_rotate 接受 ctx、angle_q10：
+    若 ctx 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 状态。
+    cos_v 为 做 NC2D_定点余弦 用 angle_q10。
+    sin_v 为 做 NC2D_定点正弦 用 angle_q10。
+    na 为 (s 的 a 乘 cos_v 加 s 的 c 乘 sin_v) 除以 1024。
+    nb 为 (s 的 b 乘 cos_v 加 s 的 d 乘 sin_v) 除以 1024。
+    nc 为 (s 的 c 乘 cos_v 减 s 的 a 乘 sin_v) 除以 1024。
+    nd 为 (s 的 d 乘 cos_v 减 s 的 b 乘 sin_v) 除以 1024。
+    s 的 a 为 na。
+    s 的 b 为 nb。
+    s 的 c 为 nc。
+    s 的 d 为 nd。
+完。
+
+NC2D_变换点 接受 s、x、y、出_x、出_y：
+    出_x 的 第 0 项 为 (s 的 a 乘 x 加 s 的 c 乘 y) 除以 1024 加 s 的 e。
+    出_y 的 第 0 项 为 (s 的 b 乘 x 加 s 的 d 乘 y) 除以 1024 加 s 的 f。
+完。
+
+NC2D_最大边数 为 2048。
+
+NC2D_边 是 一种 事物，含 y_min 为 0、y_max 为 0、x_current 为 0、dx_per_y 为 0、绕组方向 为 0。
+
+可变 NC2D_边表 为 0。
+
+可变 NC2D_边数 为 0。
+
+NC2D_填充初始化 接受 零参：
+    NC2D_边表 为 做 堆_分配_数组 用 做 大小为 用 NC2D_边 乘 NC2D_最大边数。
+    NC2D_边数 为 0。
+完。
+
+NC2D_添加边 接受 y0、x0、y1、x1：
+    若 NC2D_边数 大于或等于 NC2D_最大边数：
+        返还。
+    完。
+    若 y0 等于 y1：
+        返还。
+    完。
+    idx 为 NC2D_边数。
+    若 y0 小于 y1：
+        NC2D_边表 的 第 idx 项 的 y_min 为 y0。
+        NC2D_边表 的 第 idx 项 的 y_max 为 y1。
+        NC2D_边表 的 第 idx 项 的 x_current 为 x0 乘 1024。
+        NC2D_边表 的 第 idx 项 的 dx_per_y 为 (x1 减 x0) 乘 1024 除以 (y1 减 y0)。
+        NC2D_边表 的 第 idx 项 的 绕组方向 为 1。
+    否则：
+        NC2D_边表 的 第 idx 项 的 y_min 为 y1。
+        NC2D_边表 的 第 idx 项 的 y_max 为 y0。
+        NC2D_边表 的 第 idx 项 的 x_current 为 x1 乘 1024。
+        NC2D_边表 的 第 idx 项 的 dx_per_y 为 (x0 减 x1) 乘 1024 除以 (y0 减 y1)。
+        NC2D_边表 的 第 idx 项 的 绕组方向 为 负 1。
+    完。
+    NC2D_边数 为 NC2D_边数 加 1。
+完。
+
+NC2D_扫描线填充 接受 ctx、fillR、fillG、fillB、fillA：
+    若 NC2D_边数 等于 0：
+        返还。
+    完。
+    可变 y_min_all 为 NC2D_边表 的 第 0 项 的 y_min。
+    可变 y_max_all 为 NC2D_边表 的 第 0 项 的 y_max。
+    可变 k 为 1。
+    只要 k 小于 NC2D_边数：
+        若 NC2D_边表 的 第 k 项 的 y_min 小于 y_min_all：
+            y_min_all 为 NC2D_边表 的 第 k 项 的 y_min。
+        完。
+        若 NC2D_边表 的 第 k 项 的 y_max 大于 y_max_all：
+            y_max_all 为 NC2D_边表 的 第 k 项 的 y_max。
+        完。
+        k 为 k 加 1。
+    完。
+    可变 y 为 y_min_all。
+    只要 y 小于 y_max_all 并且 y 小于 ctx 的 高：
+        可变 交点数 为 0。
+        交点数组 为 做 堆_分配_数组 用 64。
+        可变 e 为 0。
+        只要 e 小于 NC2D_边数：
+            若 y 大于或等于 NC2D_边表 的 第 e 项 的 y_min 并且 y 小于 NC2D_边表 的 第 e 项 的 y_max：
+                交点数组 的 第 交点数 项 为 NC2D_边表 的 第 e 项 的 x_current 除以 1024。
+                交点数 为 交点数 加 1。
+                NC2D_边表 的 第 e 项 的 x_current 为 NC2D_边表 的 第 e 项 的 x_current 加 NC2D_边表 的 第 e 项 的 dx_per_y。
+            完。
+            e 为 e 加 1。
+        完。
+        可变 si 为 1。
+        只要 si 小于 交点数：
+            tmp 为 交点数组 的 第 si 项。
+            可变 sj 为 si 减 1。
+            只要 sj 大于或等于 0 并且 交点数组 的 第 sj 项 大于 tmp：
+                交点数组 的 第 sj 加 1 项 为 交点数组 的 第 sj 项。
+                sj 为 sj 减 1。
+            完。
+            交点数组 的 第 sj 加 1 项 为 tmp。
+            si 为 si 加 1。
+        完。
+        可变 p 为 0。
+        只要 p 加 1 小于 交点数：
+            x0 为 交点数组 的 第 p 项。
+            x1 为 交点数组 的 第 p 加 1 项。
+            若 x0 小于 0：
+                x0 为 0。
+            完。
+            若 x1 大于 ctx 的 宽：
+                x1 为 ctx 的 宽。
+            完。
+            可变 px 为 x0。
+            只要 px 小于 x1：
+                做 NC2D_像素混合 用 ctx、px、y、fillR、fillG、fillB、fillA。
+                px 为 px 加 1。
+            完。
+            p 为 p 加 2。
+        完。
+        做 堆_释放 用 交点数组。
+        y 为 y 加 1。
+    完。
+完。
+
+NC2D_BLEND_SRC_OVER 为 0。
+
+NC2D_BLEND_LIGHTER 为 1。
+
+NC2D_BLEND_MULTIPLY 为 2。
+
+NC2D_BLEND_SCREEN 为 3。
+
+NC2D_像素混合 接受 ctx、x、y、srcR、srcG、srcB、srcA：
+    若 x 小于 0 或者 x 大于或等于 ctx 的 宽 或者 y 小于 0 或者 y 大于或等于 ctx 的 高：
+        返还。
+    完。
+    offset 为 (y 乘 ctx 的 宽 加 x) 乘 4。
+    dstR 为 ctx 的 像素缓冲 的 第 offset 项。
+    dstG 为 ctx 的 像素缓冲 的 第 offset 加 1 项。
+    dstB 为 ctx 的 像素缓冲 的 第 offset 加 2 项。
+    dstA 为 ctx 的 像素缓冲 的 第 offset 加 3 项。
+    ga 为 ctx 的 状态 的 全局透明度。
+    sa 为 srcA 乘 ga 除以 255。
+    inv_sa 为 255 减 sa。
+    ctx 的 像素缓冲 的 第 offset 项 为 (srcR 乘 sa 加 dstR 乘 inv_sa) 除以 255。
+    ctx 的 像素缓冲 的 第 offset 加 1 项 为 (srcG 乘 sa 加 dstG 乘 inv_sa) 除以 255。
+    ctx 的 像素缓冲 的 第 offset 加 2 项 为 (srcB 乘 sa 加 dstB 乘 inv_sa) 除以 255。
+    ctx 的 像素缓冲 的 第 offset 加 3 项 为 sa 加 dstA 乘 inv_sa 除以 255。
+完。
+
+NC2D_像素混合_高级 接受 ctx、x、y、srcR、srcG、srcB、srcA、模式：
+    若 x 小于 0 或者 x 大于或等于 ctx 的 宽 或者 y 小于 0 或者 y 大于或等于 ctx 的 高：
+        返还。
+    完。
+    offset 为 (y 乘 ctx 的 宽 加 x) 乘 4。
+    dR 为 ctx 的 像素缓冲 的 第 offset 项。
+    dG 为 ctx 的 像素缓冲 的 第 offset 加 1 项。
+    dB 为 ctx 的 像素缓冲 的 第 offset 加 2 项。
+    可变 outR 为 0。
+    可变 outG 为 0。
+    可变 outB 为 0。
+    若 模式 等于 NC2D_BLEND_LIGHTER：
+        outR 为 dR 加 srcR。
+        若 outR 大于 255：
+            outR 为 255。
+        完。
+        outG 为 dG 加 srcG。
+        若 outG 大于 255：
+            outG 为 255。
+        完。
+        outB 为 dB 加 srcB。
+        若 outB 大于 255：
+            outB 为 255。
+        完。
+    否则若 模式 等于 NC2D_BLEND_MULTIPLY：
+        outR 为 dR 乘 srcR 除以 255。
+        outG 为 dG 乘 srcG 除以 255。
+        outB 为 dB 乘 srcB 除以 255。
+    否则若 模式 等于 NC2D_BLEND_SCREEN：
+        outR 为 255 减 (255 减 dR) 乘 (255 减 srcR) 除以 255。
+        outG 为 255 减 (255 减 dG) 乘 (255 减 srcG) 除以 255。
+        outB 为 255 减 (255 减 dB) 乘 (255 减 srcB) 除以 255。
+    否则：
+        做 NC2D_像素混合 用 ctx、x、y、srcR、srcG、srcB、srcA。
+        返还。
+    完。
+    ctx 的 像素缓冲 的 第 offset 项 为 outR。
+    ctx 的 像素缓冲 的 第 offset 加 1 项 为 outG。
+    ctx 的 像素缓冲 的 第 offset 加 2 项 为 outB。
+    ctx 的 像素缓冲 的 第 offset 加 3 项 为 srcA。
+完。
+
+画布2D_fill 接受 ctx：
+    若 ctx 等于 0 或者 ctx 的 路径大小 等于 0：
+        返还。
+    完。
+    做 NC2D_填充初始化。
+    可变 i 为 0。
+    可变 当前x 为 0。
+    可变 当前y 为 0。
+    只要 i 小于 ctx 的 路径大小：
+        cmd 为 ctx 的 路径命令 的 第 i 项。
+        若 cmd 等于 NC2D_路径_MOVE：
+            当前x 为 ctx 的 路径命令 的 第 i 加 1 项。
+            当前y 为 ctx 的 路径命令 的 第 i 加 2 项。
+            i 为 i 加 3。
+        否则若 cmd 等于 NC2D_路径_LINE：
+            nx 为 ctx 的 路径命令 的 第 i 加 1 项。
+            ny 为 ctx 的 路径命令 的 第 i 加 2 项。
+            做 NC2D_添加边 用 当前y、当前x、ny、nx。
+            当前x 为 nx。
+            当前y 为 ny。
+            i 为 i 加 3。
+        否则若 cmd 等于 NC2D_路径_CLOSE：
+            i 为 i 加 1。
+        否则：
+            i 为 i 加 1。
+        完。
+    完。
+    s 为 ctx 的 状态。
+    做 NC2D_扫描线填充 用 ctx、s 的 填充颜色R、s 的 填充颜色G、s 的 填充颜色B、s 的 填充颜色A。
+完。
+
+画布2D_stroke 接受 ctx：
+    若 ctx 等于 0 或者 ctx 的 路径大小 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 状态。
+    线宽 为 s 的 线宽 除以 1024。
+    若 线宽 小于 1：
+        线宽 为 1。
+    完。
+    可变 i 为 0。
+    可变 当前x 为 0。
+    可变 当前y 为 0。
+    只要 i 小于 ctx 的 路径大小：
+        cmd 为 ctx 的 路径命令 的 第 i 项。
+        若 cmd 等于 NC2D_路径_MOVE：
+            当前x 为 ctx 的 路径命令 的 第 i 加 1 项。
+            当前y 为 ctx 的 路径命令 的 第 i 加 2 项。
+            i 为 i 加 3。
+        否则若 cmd 等于 NC2D_路径_LINE：
+            nx 为 ctx 的 路径命令 的 第 i 加 1 项。
+            ny 为 ctx 的 路径命令 的 第 i 加 2 项。
+            做 NC2D_画线段 用 ctx、当前x、当前y、nx、ny、线宽、s 的 描边颜色R、s 的 描边颜色G、s 的 描边颜色B、s 的 描边颜色A。
+            当前x 为 nx。
+            当前y 为 ny。
+            i 为 i 加 3。
+        否则：
+            i 为 i 加 1。
+        完。
+    完。
+完。
+
+NC2D_画线段 接受 ctx、x0、y0、x1、y1、线宽、r、g、b、a：
+    dx 为 x1 减 x0。
+    dy 为 y1 减 y0。
+    若 dx 小于 0：
+        dx 为 0 减 dx。
+    完。
+    若 dy 小于 0：
+        dy 为 0 减 dy。
+    完。
+    sx 为 1。
+    sy 为 1。
+    若 x0 大于 x1：
+        sx 为 负 1。
+    完。
+    若 y0 大于 y1：
+        sy 为 负 1。
+    完。
+    可变 err 为 dx 减 dy。
+    可变 cx 为 x0。
+    可变 cy 为 y0。
+    half 为 线宽 除以 2。
+    只要 真：
+        可变 wy 为 0 减 half。
+        只要 wy 小于或等于 half：
+            可变 wx 为 0 减 half。
+            只要 wx 小于或等于 half：
+                做 NC2D_像素混合 用 ctx、cx 加 wx、cy 加 wy、r、g、b、a。
+                wx 为 wx 加 1。
+            完。
+            wy 为 wy 加 1。
+        完。
+        若 cx 等于 x1 并且 cy 等于 y1：
+            断开。
+        完。
+        e2 为 err 乘 2。
+        若 e2 大于 0 减 dy：
+            err 为 err 减 dy。
+            cx 为 cx 加 sx。
+        完。
+        若 e2 小于 dx：
+            err 为 err 加 dx。
+            cy 为 cy 加 sy。
+        完。
+    完。
+完。
+
+NC2D_最大色标 为 16。
+
+NC2D_色标 是 一种 事物，含 位置 为 0、R 为 0、G 为 0、B 为 0、A 为 255。
+
+NC2D_渐变 是 一种 事物，含 类型 为 0、x0 为 0、y0 为 0、x1 为 0、y1 为 0、r0 为 0、r1 为 0、色标数 为 0、色标表 为 0。
+
+NC2D_创建线性渐变 接受 x0、y0、x1、y1：
+    grad 为 做 堆_分配 用 NC2D_渐变。
+    grad 的 类型 为 0。
+    grad 的 x0 为 x0。
+    grad 的 y0 为 y0。
+    grad 的 x1 为 x1。
+    grad 的 y1 为 y1。
+    grad 的 色标数 为 0。
+    grad 的 色标表 为 做 堆_分配_数组 用 做 大小为 用 NC2D_色标 乘 NC2D_最大色标。
+    返还 grad。
+完。
+
+NC2D_创建径向渐变 接受 x0、y0、r0、x1、y1、r1：
+    grad 为 做 堆_分配 用 NC2D_渐变。
+    grad 的 类型 为 1。
+    grad 的 x0 为 x0。
+    grad 的 y0 为 y0。
+    grad 的 r0 为 r0。
+    grad 的 x1 为 x1。
+    grad 的 y1 为 y1。
+    grad 的 r1 为 r1。
+    grad 的 色标数 为 0。
+    grad 的 色标表 为 做 堆_分配_数组 用 做 大小为 用 NC2D_色标 乘 NC2D_最大色标。
+    返还 grad。
+完。
+
+NC2D_渐变添加色标 接受 grad、位置、r、g、b、a：
+    若 grad 的 色标数 大于或等于 NC2D_最大色标：
+        返还。
+    完。
+    idx 为 grad 的 色标数。
+    grad 的 色标表 的 第 idx 项 的 位置 为 位置。
+    grad 的 色标表 的 第 idx 项 的 R 为 r。
+    grad 的 色标表 的 第 idx 项 的 G 为 g。
+    grad 的 色标表 的 第 idx 项 的 B 为 b。
+    grad 的 色标表 的 第 idx 项 的 A 为 a。
+    grad 的 色标数 为 grad 的 色标数 加 1。
+完。
+
+NC2D_渐变采样 接受 grad、t_q10：
+    若 grad 的 色标数 等于 0：
+        返还 0。
+    完。
+    若 t_q10 小于或等于 grad 的 色标表 的 第 0 项 的 位置：
+        返还 grad 的 色标表 的 第 0 项 的 A 乘 16777216 加 grad 的 色标表 的 第 0 项 的 R 乘 65536 加 grad 的 色标表 的 第 0 项 的 G 乘 256 加 grad 的 色标表 的 第 0 项 的 B。
+    完。
+    可变 i 为 0。
+    只要 i 小于 grad 的 色标数 减 1：
+        s0 为 grad 的 色标表 的 第 i 项。
+        s1 为 grad 的 色标表 的 第 i 加 1 项。
+        若 t_q10 大于或等于 s0 的 位置 并且 t_q10 小于或等于 s1 的 位置：
+            range 为 s1 的 位置 减 s0 的 位置。
+            若 range 等于 0：
+                range 为 1。
+            完。
+            frac 为 (t_q10 减 s0 的 位置) 乘 1024 除以 range。
+            inv 为 1024 减 frac。
+            rr 为 (s0 的 R 乘 inv 加 s1 的 R 乘 frac) 除以 1024。
+            gg 为 (s0 的 G 乘 inv 加 s1 的 G 乘 frac) 除以 1024。
+            bb 为 (s0 的 B 乘 inv 加 s1 的 B 乘 frac) 除以 1024。
+            aa 为 (s0 的 A 乘 inv 加 s1 的 A 乘 frac) 除以 1024。
+            返还 aa 乘 16777216 加 rr 乘 65536 加 gg 乘 256 加 bb。
+        完。
+        i 为 i 加 1。
+    完。
+    last 为 grad 的 色标表 的 第 grad 的 色标数 减 1 项。
+    返还 last 的 A 乘 16777216 加 last 的 R 乘 65536 加 last 的 G 乘 256 加 last 的 B。
+完。
+
+NC2D_像素数据 是 一种 事物，含 宽 为 0、高 为 0、数据 为 0。
+
+画布2D_getImageData 接受 ctx、sx、sy、sw、sh：
+    img 为 做 堆_分配 用 NC2D_像素数据。
+    img 的 宽 为 sw。
+    img 的 高 为 sh。
+    img 的 数据 为 做 堆_分配_数组 用 sw 乘 sh 乘 4。
+    可变 dy 为 0。
+    只要 dy 小于 sh：
+        src_y 为 sy 加 dy。
+        若 src_y 大于或等于 0 并且 src_y 小于 ctx 的 高：
+            可变 dx 为 0。
+            只要 dx 小于 sw：
+                src_x 为 sx 加 dx。
+                若 src_x 大于或等于 0 并且 src_x 小于 ctx 的 宽：
+                    s_off 为 (src_y 乘 ctx 的 宽 加 src_x) 乘 4。
+                    d_off 为 (dy 乘 sw 加 dx) 乘 4。
+                    img 的 数据 的 第 d_off 项 为 ctx 的 像素缓冲 的 第 s_off 项。
+                    img 的 数据 的 第 d_off 加 1 项 为 ctx 的 像素缓冲 的 第 s_off 加 1 项。
+                    img 的 数据 的 第 d_off 加 2 项 为 ctx 的 像素缓冲 的 第 s_off 加 2 项。
+                    img 的 数据 的 第 d_off 加 3 项 为 ctx 的 像素缓冲 的 第 s_off 加 3 项。
+                完。
+                dx 为 dx 加 1。
+            完。
+        完。
+        dy 为 dy 加 1。
+    完。
+    返还 img。
+完。
+
+画布2D_putImageData 接受 ctx、img、dx、dy：
+    若 ctx 等于 0 或者 img 等于 0：
+        返还。
+    完。
+    可变 iy 为 0。
+    只要 iy 小于 img 的 高：
+        ty 为 dy 加 iy。
+        若 ty 大于或等于 0 并且 ty 小于 ctx 的 高：
+            可变 ix 为 0。
+            只要 ix 小于 img 的 宽：
+                tx 为 dx 加 ix。
+                若 tx 大于或等于 0 并且 tx 小于 ctx 的 宽：
+                    s_off 为 (iy 乘 img 的 宽 加 ix) 乘 4。
+                    d_off 为 (ty 乘 ctx 的 宽 加 tx) 乘 4。
+                    ctx 的 像素缓冲 的 第 d_off 项 为 img 的 数据 的 第 s_off 项。
+                    ctx 的 像素缓冲 的 第 d_off 加 1 项 为 img 的 数据 的 第 s_off 加 1 项。
+                    ctx 的 像素缓冲 的 第 d_off 加 2 项 为 img 的 数据 的 第 s_off 加 2 项。
+                    ctx 的 像素缓冲 的 第 d_off 加 3 项 为 img 的 数据 的 第 s_off 加 3 项。
+                完。
+                ix 为 ix 加 1。
+            完。
+        完。
+        iy 为 iy 加 1。
+    完。
+    ctx 的 有脏区域 为 真。
+完。
+
+画布2D_fillRect 接受 ctx、x、y、w、h：
+    若 ctx 等于 0 或者 w 小于或等于 0 或者 h 小于或等于 0：
+        返还。
+    完。
+    s 为 ctx 的 状态。
+    可变 py 为 y。
+    只要 py 小于 y 加 h 并且 py 小于 ctx 的 高：
+        若 py 大于或等于 0：
+            可变 px 为 x。
+            只要 px 小于 x 加 w 并且 px 小于 ctx 的 宽：
+                若 px 大于或等于 0：
+                    做 NC2D_像素混合 用 ctx、px、py、s 的 填充颜色R、s 的 填充颜色G、s 的 填充颜色B、s 的 填充颜色A。
+                完。
+                px 为 px 加 1。
+            完。
+        完。
+        py 为 py 加 1。
+    完。
+完。
+
+画布2D_strokeRect 接受 ctx、x、y、w、h：
+    若 ctx 等于 0 或者 w 小于或等于 0 或者 h 小于或等于 0：
+        返还。
+    完。
+    s 为 ctx 的 状态。
+    lw 为 s 的 线宽 除以 1024。
+    若 lw 小于 1：
+        lw 为 1。
+    完。
+    做 画布2D_fillRect_内部 用 ctx、x、y、w、lw、s 的 描边颜色R、s 的 描边颜色G、s 的 描边颜色B、s 的 描边颜色A。
+    做 画布2D_fillRect_内部 用 ctx、x、y 加 h 减 lw、w、lw、s 的 描边颜色R、s 的 描边颜色G、s 的 描边颜色B、s 的 描边颜色A。
+    做 画布2D_fillRect_内部 用 ctx、x、y 加 lw、lw、h 减 lw 乘 2、s 的 描边颜色R、s 的 描边颜色G、s 的 描边颜色B、s 的 描边颜色A。
+    做 画布2D_fillRect_内部 用 ctx、x 加 w 减 lw、y 加 lw、lw、h 减 lw 乘 2、s 的 描边颜色R、s 的 描边颜色G、s 的 描边颜色B、s 的 描边颜色A。
+完。
+
+画布2D_fillRect_内部 接受 ctx、x、y、w、h、r、g、b、a：
+    可变 py 为 y。
+    只要 py 小于 y 加 h 并且 py 小于 ctx 的 高：
+        若 py 大于或等于 0：
+            可变 px 为 x。
+            只要 px 小于 x 加 w 并且 px 小于 ctx 的 宽：
+                若 px 大于或等于 0：
+                    做 NC2D_像素混合 用 ctx、px、py、r、g、b、a。
+                完。
+                px 为 px 加 1。
+            完。
+        完。
+        py 为 py 加 1。
+    完。
+完。
+
+画布2D_clearRect 接受 ctx、x、y、w、h：
+    若 ctx 等于 0：
+        返还。
+    完。
+    可变 py 为 y。
+    只要 py 小于 y 加 h 并且 py 小于 ctx 的 高：
+        若 py 大于或等于 0：
+            可变 px 为 x。
+            只要 px 小于 x 加 w 并且 px 小于 ctx 的 宽：
+                若 px 大于或等于 0：
+                    off 为 (py 乘 ctx 的 宽 加 px) 乘 4。
+                    ctx 的 像素缓冲 的 第 off 项 为 0。
+                    ctx 的 像素缓冲 的 第 off 加 1 项 为 0。
+                    ctx 的 像素缓冲 的 第 off 加 2 项 为 0。
+                    ctx 的 像素缓冲 的 第 off 加 3 项 为 0。
+                完。
+                px 为 px 加 1。
+            完。
+        完。
+        py 为 py 加 1。
+    完。
+完。
+
+可变 NC2D_总绨制次数 为 0。
+
+可变 NC2D_总像素数 为 0。
+
+可变 NC2D_GPU切换次 为 0。
+
+NC2D_AI绨制预测 接受 ctx：
+    tensor 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 tensor、0、ctx 的 宽。
+    做 Tensor_写 用 tensor、1、ctx 的 高。
+    做 Tensor_写 用 tensor、2、ctx 的 路径大小。
+    可变 深度 为 0。
+    可变 st 为 ctx 的 状态。
+    只要 st 不等于 0：
+        深度 为 深度 加 1。
+        st 为 st 的 上一状态。
+    完。
+    做 Tensor_写 用 tensor、3、深度。
+    做 Tensor_写 用 tensor、4、NC2D_总像素数。
+    做 Tensor_写 用 tensor、5、ctx 的 图处上下文 不等于 0。
+    结果 为 做 AI总线_推理 用 tensor、「NC2D_绨制策略」。
+    做 Tensor_释放 用 tensor。
+    若 结果 大于 512 并且 ctx 的 图处上下文 不等于 0：
+        NC2D_GPU切换次 为 NC2D_GPU切换次 加 1。
+        返还 1。
+    完。
+    返还 0。
+完。
+
+NC2D_AI异常检测 接受 ctx：
+    tensor 为 做 Tensor_创建 用 4。
+    做 Tensor_写 用 tensor、0、NC2D_总绨制次数。
+    做 Tensor_写 用 tensor、1、NC2D_总像素数。
+    做 Tensor_写 用 tensor、2、NC2D_GPU切换次。
+    做 Tensor_写 用 tensor、3、NC2D_边数。
+    异常 为 做 AI总线_异常检测 用 tensor、「NC2D_渲染异常」。
+    做 Tensor_释放 用 tensor。
+    返还 异常。
+完。
+
+画布2D_销毁 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    可变 st 为 ctx 的 状态。
+    只要 st 不等于 0：
+        prev 为 st 的 上一状态。
+        做 堆_释放 用 st。
+        st 为 prev。
+    完。
+    若 ctx 的 像素缓冲 不等于 0：
+        做 堆_释放 用 ctx 的 像素缓冲。
+    完。
+    若 ctx 的 图处上下文 不等于 0 并且 ctx 的 纹理ID 不等于 0：
+        做 图处_删除纹理 用 ctx 的 图处上下文、ctx 的 纹理ID。
+    完。
+    若 ctx 的 路径命令 不等于 0：
+        做 堆_释放 用 ctx 的 路径命令。
+    完。
+    做 堆_释放 用 ctx。
+完。
+
+NC2D_获取统计 接受 零参：
+    返还 NC2D_总绨制次数 乘 65536 加 NC2D_总像素数。
+完。
+
+NC2D_重置统计 接受 零参：
+    NC2D_总绨制次数 为 0。
+    NC2D_总像素数 为 0。
+    NC2D_GPU切换次 为 0。
+完。
+
+本章 收束。

@@ -1,0 +1,109 @@
+《弹性布局算》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·创建销毁》。
+
+引用《.·绝对位置计》。
+
+引用《.·核心布局算》。
+
+布局弹性_布局 接受 lo：
+    s 为 lo 的 样式。
+    若 s 等于 0：
+        返还。
+    完。
+    是行 为 s 的 flex_direction 等于 弹性Dir_row 或者 s 的 flex_direction 等于 弹性Dir_row_reverse。
+    可用主轴 为 lo 的 内容宽。
+    若 非 是行：
+        可用主轴 为 lo 的 内容高。
+    完。
+    可变 项目数 为 0。
+    可变 总主轴尺寸 为 0。
+    可变 子 为 lo 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 不等于 0 并且 子 的 样式 的 display 不等于 Display_none：
+            做 布局Object_布局 用 子。
+            若 是行：
+                总主轴尺寸 为 总主轴尺寸 加 做 布局Object_外边距盒宽 用 子。
+            否则：
+                总主轴尺寸 为 总主轴尺寸 加 做 布局Object_外边距盒高 用 子。
+            完。
+            项目数 为 项目数 加 1。
+        完。
+        子 为 子 的 后兄。
+    完。
+    可变 剩余空间 为 可用主轴 减 总主轴尺寸。
+    若 剩余空间 小于 0：
+        剩余空间 为 0。
+    完。
+    可变 起始偏移 为 0。
+    可变 项目间距 为 0。
+    若 项目数 大于 0：
+        若 s 的 justify_content 等于 JC_center：
+            起始偏移 为 剩余空间 除以 2。
+        否则若 s 的 justify_content 等于 JC_flex_end：
+            起始偏移 为 剩余空间。
+        否则若 s 的 justify_content 等于 JC_space_between 并且 项目数 大于 1：
+            项目间距 为 剩余空间 除以 (项目数 减 1)。
+        否则若 s 的 justify_content 等于 JC_space_around 并且 项目数 大于 0：
+            项目间距 为 剩余空间 除以 项目数。
+            起始偏移 为 项目间距 除以 2。
+        否则若 s 的 justify_content 等于 JC_space_evenly 并且 项目数 大于 0：
+            项目间距 为 剩余空间 除以 (项目数 加 1)。
+            起始偏移 为 项目间距。
+        完。
+    完。
+    若 s 的 gap 大于 0 并且 项目数 大于 1：
+        项目间距 为 s 的 gap。
+    完。
+    可变 主轴位置 为 起始偏移 加 s 的 padding_left 的 值 加 s 的 border_left_width。
+    可变 最大交叉 为 0。
+    子 为 lo 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 等于 0 或者 子 的 样式 的 display 等于 Display_none：
+            子 为 子 的 后兄。
+            继续。
+        完。
+        子样式 为 子 的 样式。
+        若 是行：
+            子 的 x 为 主轴位置 加 子样式 的 margin_left 的 值。
+            子高 为 做 布局Object_边框盒高 用 子。
+            若 s 的 align_items 等于 JC_center：
+                子 的 y 为 s 的 padding_top 的 值 加 s 的 border_top_width 加 (lo 的 内容高 减 子高) 除以 2。
+            否则若 s 的 align_items 等于 JC_flex_end：
+                子 的 y 为 lo 的 内容高 减 子高 减 s 的 padding_bottom 的 值 减 s 的 border_bottom_width。
+            否则：
+                子 的 y 为 s 的 padding_top 的 值 加 s 的 border_top_width 加 子样式 的 margin_top 的 值。
+                若 s 的 align_items 等于 JC_stretch 并且 子样式 的 height 的 是auto：
+                    子 的 内容高 为 lo 的 内容高 减 s 的 padding_top 的 值 减 s 的 padding_bottom 的 值 减 s 的 border_top_width 减 s 的 border_bottom_width 减 子样式 的 margin_top 的 值 减 子样式 的 margin_bottom 的 值。
+                完。
+            完。
+            主轴位置 为 主轴位置 加 做 布局Object_外边距盒宽 用 子 加 项目间距。
+            若 子高 大于 最大交叉：
+                最大交叉 为 子高。
+            完。
+        否则：
+            子 的 y 为 主轴位置 加 子样式 的 margin_top 的 值。
+            子 的 x 为 s 的 padding_left 的 值 加 s 的 border_left_width 加 子样式 的 margin_left 的 值。
+            主轴位置 为 主轴位置 加 做 布局Object_外边距盒高 用 子 加 项目间距。
+            子宽 为 做 布局Object_边框盒宽 用 子。
+            若 子宽 大于 最大交叉：
+                最大交叉 为 子宽。
+            完。
+        完。
+        子 为 子 的 后兄。
+    完。
+    若 s 的 height 的 是auto：
+        若 是行：
+            lo 的 内容高 为 最大交叉 加 s 的 padding_top 的 值 加 s 的 padding_bottom 的 值 加 s 的 border_top_width 加 s 的 border_bottom_width。
+        否则：
+            lo 的 内容高 为 主轴位置 加 s 的 padding_top 的 值 加 s 的 padding_bottom 的 值。
+        完。
+    完。
+    做 布局Object_计算绝对位置 用 lo。
+完。
+
+本章 收束。

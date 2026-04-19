@@ -1,0 +1,136 @@
+《通道》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·辅助存根》。
+
+BroadcastChannel 是 一种 事物，含 名称、onmessage、onmessageerror、已关闭、下一个。
+
+可变 BC_链表头 为 0。
+
+BroadcastChannel_创建 接受 名称：
+    bc 为 做 堆_分配 用 BroadcastChannel。
+    bc 的 名称 为 做 字符串_复制 用 名称。
+    bc 的 onmessage 为 0。
+    bc 的 onmessageerror 为 0。
+    bc 的 已关闭 为 假。
+    bc 的 下一个 为 BC_链表头。
+    BC_链表头 为 bc。
+    返还 bc。
+完。
+
+BroadcastChannel_postMessage 接受 bc、数据：
+    若 bc 等于 0 或者 bc 的 已关闭：
+        返还。
+    完。
+    可变 other 为 BC_链表头。
+    只要 other 不等于 0：
+        若 other 不等于 bc 并且 非 other 的 已关闭 并且 做 字符串_相等 用 other 的 名称、bc 的 名称：
+            若 other 的 onmessage 不等于 0：
+            完。
+        完。
+        other 为 other 的 下一个。
+    完。
+完。
+
+BroadcastChannel_close 接受 bc：
+    若 bc 等于 0：
+        返还。
+    完。
+    bc 的 已关闭 为 真。
+完。
+
+Dedicated工线 是 一种 事物，含 名称、脚本URL、脚本类型、状态、外部端口、内部端口、onmessage、onmessageerror、onerror、全局作用域、Nova运行时实例。
+
+工线GlobalScope 是 一种 事物，含 类型、名称、位置、导入脚本、导入数、定时器头、定时器ID、self、端口。
+
+工线_创建 接受 url、名称、脚本类型：
+    w 为 做 堆_分配 用 Dedicated工线。
+    w 的 脚本URL 为 做 字符串_复制 用 url。
+    w 的 名称 为 若 名称 不等于 0 则 做 字符串_复制 用 名称 否则 「」。
+    w 的 脚本类型 为 脚本类型。
+    w 的 状态 为 WORKER_STATE_CREATED。
+    mc 为 做 MessageChannel_创建。
+    w 的 外部端口 为 mc 的 port1。
+    w 的 内部端口 为 mc 的 port2。
+    w 的 onmessage 为 0。
+    w 的 onmessageerror 为 0。
+    w 的 onerror 为 0。
+    w 的 全局作用域 为 做 工线_创建全局作用域 用 WORKER_DEDICATED、w 的 名称、w 的 内部端口。
+    w 的 Nova运行时实例 为 0。
+    做 工线_启动 用 w。
+    返还 w。
+完。
+
+工线_创建全局作用域 接受 类型、名称、端口：
+    gs 为 做 堆_分配 用 工线GlobalScope。
+    gs 的 类型 为 类型。
+    gs 的 名称 为 名称。
+    gs 的 位置 为 0。
+    gs 的 导入数 为 0。
+    gs 的 定时器头 为 0。
+    gs 的 定时器ID 为 0。
+    gs 的 self 为 gs。
+    gs 的 端口 为 端口。
+    返还 gs。
+完。
+
+工线_启动 接受 w：
+    若 w 等于 0：
+        返还。
+    完。
+    w 的 状态 为 WORKER_STATE_RUNNING。
+    做 MessagePort_start 用 w 的 内部端口。
+完。
+
+工线_postMessage 接受 w、数据、transferList、transferCount：
+    若 w 等于 0 或者 w 的 状态 不等于 WORKER_STATE_RUNNING：
+        返还。
+    完。
+    做 MessagePort_postMessage 用 w 的 外部端口、数据、transferList、transferCount。
+完。
+
+工线_terminate 接受 w：
+    若 w 等于 0：
+        返还。
+    完。
+    w 的 状态 为 WORKER_STATE_TERMINATED。
+    做 MessagePort_close 用 w 的 外部端口。
+    做 MessagePort_close 用 w 的 内部端口。
+完。
+
+工线Scope_postMessage 接受 gs、数据、transferList、transferCount：
+    若 gs 等于 0 或者 gs 的 端口 等于 0：
+        返还。
+    完。
+    做 MessagePort_postMessage 用 gs 的 端口、数据、transferList、transferCount。
+完。
+
+工线Scope_importScripts 接受 gs、urls、数量：
+    若 gs 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 数量 并且 gs 的 导入数 小于 32：
+        url 为 做 内存_读64 用 urls 加 i 乘 8。
+        若 url 不等于 0：
+            gs 的 导入脚本 的 第 gs 的 导入数 项 为 url。
+            gs 的 导入数 为 gs 的 导入数 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+工线Scope_close 接受 gs：
+    若 gs 等于 0：
+        返还。
+    完。
+完。
+
+本章 收束。

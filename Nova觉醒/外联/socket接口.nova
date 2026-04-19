@@ -1,0 +1,186 @@
+《socket接口》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+SS_FREE 为 0。
+
+SS_UNCONNECTED 为 1。
+
+SS_CONNECTING 为 2。
+
+SS_CONNECTED 为 3。
+
+SS_DISCONNECTING 为 4。
+
+SHUT_RD 为 0。
+
+SHUT_WR 为 1。
+
+SHUT_RDWR 为 2。
+
+socket 是 一种 事物，含 状态、类型、flags、file、sock、ops。
+
+sock 是 一种 事物，含 sk_family、sk_type、sk_protocol、sk_state、sk_saddr、sk_sport、sk_daddr、sk_Nova直接偏好优化rt、sk_receive_queue、sk_write_queue、sk_backlog、sk_err、sk_refcnt。
+
+可变 socket_表 为 一组：（空）。
+
+可变 socket_总数 为 0。
+
+socket_创建 接受 域、类型、协议：
+    s 为 新建 socket。
+    s 的 状态 为 SS_UNCONNECTED。
+    s 的 类型 为 类型。
+    s 的 flags 为 0。
+    s 的 file 为 0。
+    s 的 ops 为 0。
+    sk 为 新建 sock。
+    sk 的 sk_family 为 域。
+    sk 的 sk_type 为 类型。
+    sk 的 sk_protocol 为 协议。
+    sk 的 sk_state 为 0。
+    sk 的 sk_saddr 为 0。
+    sk 的 sk_sport 为 0。
+    sk 的 sk_daddr 为 0。
+    sk 的 sk_Nova直接偏好优化rt 为 0。
+    sk 的 sk_receive_queue 为 0。
+    sk 的 sk_write_queue 为 0。
+    sk 的 sk_backlog 为 0。
+    sk 的 sk_err 为 0。
+    sk 的 sk_refcnt 为 1。
+    s 的 sock 为 sk。
+    做 追加 用 socket_表、s。
+    socket_总数 为 socket_总数 加 1。
+    返还 s。
+完。
+
+socket_绑定 接受 s、地址、端口：
+    若 s 等于 空：
+        返还 错误_无效参数。
+    完。
+    sk 为 s 的 sock。
+    sk 的 sk_saddr 为 地址。
+    sk 的 sk_sport 为 端口。
+    返还 成功。
+完。
+
+socket_监听 接受 s、队列长度：
+    若 s 等于 空：
+        返还 错误_无效参数。
+    完。
+    若 s 的 类型 不等于 SOCK_STREAM：
+        返还 错误_不支持操作。
+    完。
+    sk 为 s 的 sock。
+    sk 的 sk_backlog 为 队列长度。
+    若 sk 的 sk_backlog 大于 128：
+        sk 的 sk_backlog 为 128。
+    完。
+    s 的 状态 为 SS_UNCONNECTED。
+    返还 成功。
+完。
+
+socket_连接 接受 s、地址、端口：
+    若 s 等于 空：
+        返还 错误_无效参数。
+    完。
+    sk 为 s 的 sock。
+    sk 的 sk_daddr 为 地址。
+    sk 的 sk_Nova直接偏好优化rt 为 端口。
+    s 的 状态 为 SS_CONNECTING。
+    若 s 的 类型 等于 SOCK_DGRAM：
+        s 的 状态 为 SS_CONNECTED。
+    完。
+    返还 成功。
+完。
+
+socket_接受 接受 s：
+    若 s 等于 空：
+        返还 空。
+    完。
+    若 s 的 类型 不等于 SOCK_STREAM：
+        返还 空。
+    完。
+    新s 为 做 socket_创建 用 s 的 sock 的 sk_family、SOCK_STREAM、s 的 sock 的 sk_protocol。
+    新s 的 状态 为 SS_CONNECTED。
+    返还 新s。
+完。
+
+socket_发送 接受 s、数据、长度、标志：
+    若 s 等于 空：
+        返还 错误_无效参数。
+    完。
+    若 s 的 状态 不等于 SS_CONNECTED 并且 s 的 类型 等于 SOCK_STREAM：
+        返还 错误_未连接。
+    完。
+    返还 长度。
+完。
+
+socket_接收 接受 s、缓冲、长度、标志：
+    若 s 等于 空：
+        返还 错误_无效参数。
+    完。
+    返还 0。
+完。
+
+socket_关闭 接受 s、方式：
+    若 s 等于 空：
+        返还 错误_无效参数。
+    完。
+    s 的 状态 为 SS_DISCONNECTING。
+    返还 成功。
+完。
+
+socket_释放 接受 s：
+    若 s 等于 空：
+        返还。
+    完。
+    s 的 状态 为 SS_FREE。
+    socket_总数 为 socket_总数 减 1。
+完。
+
+socket_状态名 接受 状态：
+    若 状态 等于 SS_FREE：
+        返还 「FREE」。
+    完。
+    若 状态 等于 SS_UNCONNECTED：
+        返还 「UNCONNECTED」。
+    完。
+    若 状态 等于 SS_CONNECTING：
+        返还 「CONNECTING」。
+    完。
+    若 状态 等于 SS_CONNECTED：
+        返还 「CONNECTED」。
+    完。
+    若 状态 等于 SS_DISCONNECTING：
+        返还 「DISCONNECTING」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+socket_类型名 接受 类型：
+    若 类型 等于 SOCK_STREAM：
+        返还 「STREAM」。
+    完。
+    若 类型 等于 SOCK_DGRAM：
+        返还 「DGRAM」。
+    完。
+    若 类型 等于 SOCK_RAW：
+        返还 「RAW」。
+    完。
+    若 类型 等于 SOCK_SEQPACKET：
+        返还 「SEQPACKET」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+socket_统计 接受 零参：
+    返还 一组：socket_总数、做 计数 用 socket_表。
+完。
+
+socket_完整统计 接受 零参：
+    返还 一组：socket_总数、做 计数 用 socket_表。
+完。
+
+本章 收束。

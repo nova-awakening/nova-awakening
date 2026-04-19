@@ -1,0 +1,935 @@
+《标记实体添加》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·中枢·恐慌》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·执行·底层内存操》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·内存初始化》。
+
+实体表_最大容量 为 2500。
+
+实体条目大小 为 24。
+
+哈希表_桶数 为 4096。
+
+前缀树_节点大小 为 40。
+
+前缀树_最大节点 为 16384。
+
+解析缓存_大小 为 256。
+
+实体标志_单码点 为 0x01。
+
+实体标志_双码点 为 0x02。
+
+实体标志_危险字符 为 0x04。
+
+实体标志_数学符号 为 0x08。
+
+实体标志_希腊字母 为 0x10。
+
+实体标志_箭头符号 为 0x20。
+
+实体标志_货币符号 为 0x40。
+
+实体标志_技术符号 为 0x80。
+
+可变 实体表 为 0。
+
+可变 实体表大小 为 0。
+
+可变 哈希表 为 0。
+
+可变 前缀树根 为 0。
+
+可变 前缀树节点池 为 0。
+
+可变 前缀树已用节点 为 0。
+
+可变 解析缓存 为 0。
+
+可变 AI特征向量 为 0。
+
+可变 统计_命名查找次数 为 0。
+
+可变 统计_命名查找命中 为 0。
+
+可变 统计_数字解码次数 为 0。
+
+可变 统计_数字解码失败 为 0。
+
+可变 统计_缓存命中 为 0。
+
+可变 统计_哈希碰撞 为 0。
+
+可变 统计_前缀树遍历步数 为 0。
+
+可变 统计_AI纠错次数 为 0。
+
+实体系统_初始化 接受 零参：
+    实体表 为 做 堆_分配 用 实体表_最大容量 乘 实体条目大小。
+    若 实体表 等于 0：
+        做 内核恐慌 用 「实体表内存分配失败」。
+    完。
+    做 内存_清零 用 实体表、实体表_最大容量 乘 实体条目大小。
+    实体表大小 为 0。
+    哈希表 为 做 堆_分配 用 哈希表_桶数 乘 8。
+    若 哈希表 等于 0：
+        做 内核恐慌 用 「哈希表内存分配失败」。
+    完。
+    可变 i 为 0。
+    只要 i 小于 哈希表_桶数：
+        做 内存_写32 用 哈希表 加 i 乘 8、0xFFFFFFFF。
+        做 内存_写32 用 哈希表 加 i 乘 8 加 4、0。
+        i 为 i 加 1。
+    完。
+    前缀树节点池 为 做 堆_分配 用 前缀树_最大节点 乘 前缀树_节点大小。
+    若 前缀树节点池 等于 0：
+        做 内核恐慌 用 「前缀树内存分配失败」。
+    完。
+    做 内存_清零 用 前缀树节点池、前缀树_最大节点 乘 前缀树_节点大小。
+    前缀树根 为 做 前缀树_分配节点 用 0、负 1。
+    前缀树已用节点 为 1。
+    解析缓存 为 做 堆_分配 用 解析缓存_大小 乘 16。
+    若 解析缓存 不等于 0：
+        做 内存_清零 用 解析缓存、解析缓存_大小 乘 16。
+    完。
+    AI特征向量 为 做 Tensor_创建 用 128。
+    若 AI特征向量 不等于 0：
+        做 Tensor_清零 用 AI特征向量、128。
+    完。
+    做 实体表_注册全部。
+    做 内核日志 用 「实体解析引擎初始化完成: 注册实体=」、实体表大小、「 前缀树节点=」、前缀树已用节点。
+完。
+
+实体名_哈希 接受 名称、长度：
+    可变 h 为 2166136261。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        c 为 做 字节取 用 名称、i。
+        h 为 h 位异或 c。
+        h 为 h 乘 16777619。
+        h 为 h 位异或 c 乘 (i 加 1) 乘 31 位与 0xFFFF。
+        i 为 i 加 1。
+    完。
+    返还 (h 位异或 h 右移 16) 位与 哈希表_桶数 减 1。
+完。
+
+哈希_二次探测 接受 主哈希、探测次数：
+    偏移 为 探测次数 乘 (探测次数 加 1) 除以 2。
+    返还 主哈希 加 偏移 位与 哈希表_桶数 减 1。
+完。
+
+前缀树_分配节点 接受 字符、实体索引：
+    若 前缀树已用节点 大于或等于 前缀树_最大节点：
+        返还 0。
+    完。
+    节点 为 前缀树节点池 加 前缀树已用节点 乘 前缀树_节点大小。
+    做 内存_写64 用 节点、0。
+    做 内存_写64 用 节点 加 8、0。
+    做 内存_写32 用 节点 加 16、字符。
+    做 内存_写32 用 节点 加 20、实体索引。
+    做 内存_写32 用 节点 加 24、0。
+    做 内存_写32 用 节点 加 28、0。
+    做 内存_写64 用 节点 加 32、0。
+    前缀树已用节点 为 前缀树已用节点 加 1。
+    返还 节点。
+完。
+
+前缀树_插入 接受 名称、长度、实体索引：
+    可变 当前 为 前缀树根。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        c 为 做 字节取 用 名称、i。
+        可变 子 为 做 内存_读64 用 当前。
+        可变 找到 为 0。
+        只要 子 不等于 0：
+            若 做 内存_读32 用 子 加 16 等于 c：
+                找到 为 子。
+                跳出。
+            完。
+            子 为 做 内存_读64 用 子 加 8。
+        完。
+        若 找到 等于 0：
+            新节点 为 做 前缀树_分配节点 用 c、负 1。
+            若 新节点 等于 0：
+                返还。
+            完。
+            做 内存_写32 用 新节点 加 28、i 加 1。
+            旧头 为 做 内存_读64 用 当前。
+            做 内存_写64 用 新节点 加 8、旧头。
+            做 内存_写64 用 当前、新节点。
+            找到 为 新节点。
+        完。
+        当前 为 找到。
+        i 为 i 加 1。
+    完。
+    做 内存_写32 用 当前 加 20、实体索引。
+    做 内存_写32 用 当前 加 24、1。
+完。
+
+前缀树_流式查找 接受 节点、字符：
+    统计_前缀树遍历步数 为 统计_前缀树遍历步数 加 1。
+    若 节点 等于 0：
+        返还 0。
+    完。
+    可变 子 为 做 内存_读64 用 节点。
+    只要 子 不等于 0：
+        若 做 内存_读32 用 子 加 16 等于 字符：
+            旧计 为 做 内存_读64 用 子 加 32。
+            做 内存_写64 用 子 加 32、旧计 加 1。
+            返还 子。
+        完。
+        子 为 做 内存_读64 用 子 加 8。
+    完。
+    返还 0。
+完。
+
+前缀树_是实体 接受 节点：
+    若 节点 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 节点 加 24 不等于 0。
+完。
+
+前缀树_获取实体索引 接受 节点：
+    若 节点 等于 0：
+        返还 负 1。
+    完。
+    返还 做 内存_读32 用 节点 加 20。
+完。
+
+HTMLEntity_添加 接受 名称、码点1、码点2：
+    若 实体表大小 大于或等于 实体表_最大容量：
+        返还。
+    完。
+    索引 为 实体表大小。
+    偏移 为 实体表 加 索引 乘 实体条目大小。
+    名称副本 为 做 字符串_复制 用 名称。
+    名长 为 做 字符串_长度 用 名称。
+    做 内存_写64 用 偏移、名称副本。
+    做 内存_写32 用 偏移 加 8、名长。
+    做 内存_写32 用 偏移 加 12、码点1。
+    做 内存_写32 用 偏移 加 16、码点2。
+    标志 为 做 实体_计算标志 用 码点1、码点2。
+    做 内存_写32 用 偏移 加 20、标志。
+    实体表大小 为 实体表大小 加 1。
+    做 实体_插入哈希 用 名称副本、名长、索引。
+    做 前缀树_插入 用 名称副本、名长、索引。
+完。
+
+HTMLEntity_添加_带标志 接受 名称、码点1、码点2、标志：
+    若 实体表大小 大于或等于 实体表_最大容量：
+        返还。
+    完。
+    索引 为 实体表大小。
+    偏移 为 实体表 加 索引 乘 实体条目大小。
+    名称副本 为 做 字符串_复制 用 名称。
+    名长 为 做 字符串_长度 用 名称。
+    做 内存_写64 用 偏移、名称副本。
+    做 内存_写32 用 偏移 加 8、名长。
+    做 内存_写32 用 偏移 加 12、码点1。
+    做 内存_写32 用 偏移 加 16、码点2。
+    做 内存_写32 用 偏移 加 20、标志。
+    实体表大小 为 实体表大小 加 1。
+    做 实体_插入哈希 用 名称副本、名长、索引。
+    做 前缀树_插入 用 名称副本、名长、索引。
+完。
+
+实体_计算标志 接受 码点1、码点2：
+    可变 f 为 实体标志_单码点。
+    若 码点2 不等于 0：
+        f 为 实体标志_双码点。
+    完。
+    若 码点1 等于 0x3C 或者 码点1 等于 0x3E 或者 码点1 等于 0x26 或者 码点1 等于 0x22 或者 码点1 等于 0x27：
+        f 为 f 位或 实体标志_危险字符。
+    完。
+    若 码点1 大于或等于 0x0391 并且 码点1 小于或等于 0x03C9：
+        f 为 f 位或 实体标志_希腊字母。
+    完。
+    若 码点1 大于或等于 0x2190 并且 码点1 小于或等于 0x21FF：
+        f 为 f 位或 实体标志_箭头符号。
+    完。
+    若 码点1 大于或等于 0x2200 并且 码点1 小于或等于 0x22FF：
+        f 为 f 位或 实体标志_数学符号。
+    完。
+    若 码点1 大于或等于 0x20A0 并且 码点1 小于或等于 0x20CF：
+        f 为 f 位或 实体标志_货币符号。
+    完。
+    返还 f。
+完。
+
+实体_插入哈希 接受 名称、长度、索引：
+    主哈希 为 做 实体名_哈希 用 名称、长度。
+    可变 探测 为 0。
+    只要 探测 小于 64：
+        桶号 为 做 哈希_二次探测 用 主哈希、探测。
+        已存 为 做 内存_读32 用 哈希表 加 桶号 乘 8。
+        若 已存 等于 0xFFFFFFFF：
+            做 内存_写32 用 哈希表 加 桶号 乘 8、索引。
+            返还。
+        完。
+        统计_哈希碰撞 为 统计_哈希碰撞 加 1。
+        探测 为 探测 加 1。
+    完。
+完。
+
+实体_哈希查找 接受 名称、长度：
+    统计_命名查找次数 为 统计_命名查找次数 加 1。
+    缓存结果 为 做 解析缓存_查找 用 名称、长度。
+    若 缓存结果 大于或等于 0：
+        统计_缓存命中 为 统计_缓存命中 加 1。
+        统计_命名查找命中 为 统计_命名查找命中 加 1。
+        返还 缓存结果。
+    完。
+    主哈希 为 做 实体名_哈希 用 名称、长度。
+    可变 探测 为 0。
+    只要 探测 小于 64：
+        桶号 为 做 哈希_二次探测 用 主哈希、探测。
+        已存索引 为 做 内存_读32 用 哈希表 加 桶号 乘 8。
+        若 已存索引 等于 0xFFFFFFFF：
+            返还 负 1。
+        完。
+        条目 为 实体表 加 已存索引 乘 实体条目大小。
+        条目名 为 做 内存_读64 用 条目。
+        条目名长 为 做 内存_读32 用 条目 加 8。
+        若 条目名长 等于 长度 并且 做 字符串_比较_定长 用 名称、条目名、长度 等于 0：
+            统计_命名查找命中 为 统计_命名查找命中 加 1。
+            做 解析缓存_插入 用 名称、长度、已存索引。
+            返还 已存索引。
+        完。
+        探测 为 探测 加 1。
+    完。
+    返还 负 1。
+完。
+
+实体_获取码点 接受 索引、码点输出：
+    若 索引 小于 0 或者 索引 大于或等于 实体表大小：
+        返还 0。
+    完。
+    条目 为 实体表 加 索引 乘 实体条目大小。
+    cp1 为 做 内存_读32 用 条目 加 12。
+    cp2 为 做 内存_读32 用 条目 加 16。
+    做 内存_写32 用 码点输出、cp1。
+    做 内存_写32 用 码点输出 加 4、cp2。
+    若 cp2 不等于 0：
+        返还 2。
+    完。
+    返还 1。
+完。
+
+数字实体_解码 接受 数据、起始、结束、码点输出：
+    统计_数字解码次数 为 统计_数字解码次数 加 1。
+    若 起始 大于或等于 结束：
+        统计_数字解码失败 为 统计_数字解码失败 加 1。
+        返还 0。
+    完。
+    可变 pos 为 起始。
+    可变 是十六进制 为 假。
+    若 pos 小于 结束：
+        c 为 做 字节取 用 数据、pos。
+        若 c 等于 0x78 或者 c 等于 0x58：
+            是十六进制 为 真。
+            pos 为 pos 加 1。
+        完。
+    完。
+    可变 码点 为 0。
+    可变 位数 为 0。
+    最大位数 为 8。
+    若 是十六进制：
+        只要 pos 小于 结束 并且 位数 小于 最大位数：
+            c 为 做 字节取 用 数据、pos。
+            可变 d 为 负 1。
+            若 c 大于或等于 0x30 并且 c 小于或等于 0x39：
+                d 为 c 减 0x30。
+            否则若 c 大于或等于 0x41 并且 c 小于或等于 0x46：
+                d 为 c 减 0x41 加 10。
+            否则若 c 大于或等于 0x61 并且 c 小于或等于 0x66：
+                d 为 c 减 0x61 加 10。
+            否则：
+                跳出。
+            完。
+            码点 为 码点 乘 16 加 d。
+            位数 为 位数 加 1。
+            pos 为 pos 加 1。
+        完。
+    否则：
+        只要 pos 小于 结束 并且 位数 小于 最大位数：
+            c 为 做 字节取 用 数据、pos。
+            若 c 小于 0x30 或者 c 大于 0x39：
+                跳出。
+            完。
+            码点 为 码点 乘 10 加 (c 减 0x30)。
+            位数 为 位数 加 1。
+            pos 为 pos 加 1。
+        完。
+    完。
+    若 位数 等于 0：
+        统计_数字解码失败 为 统计_数字解码失败 加 1。
+        返还 0。
+    完。
+    若 非 做 码点_是合法Unicode 用 码点：
+        统计_数字解码失败 为 统计_数字解码失败 加 1。
+        码点 为 0xFFFD。
+    完。
+    码点 为 做 数字实体_安全替换 用 码点。
+    做 内存_写32 用 码点输出、码点。
+    做 内存_写32 用 码点输出 加 4、0。
+    返还 pos。
+完。
+
+数字实体_安全替换 接受 码点：
+    若 码点 等于 0x00：
+        返还 0xFFFD。
+    完。
+    若 码点 等于 0x80：
+        返还 0x20AC。
+    完。
+    若 码点 等于 0x82：
+        返还 0x201A。
+    完。
+    若 码点 等于 0x83：
+        返还 0x0192。
+    完。
+    若 码点 等于 0x84：
+        返还 0x201E。
+    完。
+    若 码点 等于 0x85：
+        返还 0x2026。
+    完。
+    若 码点 等于 0x86：
+        返还 0x2020。
+    完。
+    若 码点 等于 0x87：
+        返还 0x2021。
+    完。
+    若 码点 等于 0x88：
+        返还 0x02C6。
+    完。
+    若 码点 等于 0x89：
+        返还 0x2030。
+    完。
+    若 码点 等于 0x8A：
+        返还 0x0160。
+    完。
+    若 码点 等于 0x8B：
+        返还 0x2039。
+    完。
+    若 码点 等于 0x8C：
+        返还 0x0152。
+    完。
+    若 码点 等于 0x8E：
+        返还 0x017D。
+    完。
+    若 码点 等于 0x91：
+        返还 0x2018。
+    完。
+    若 码点 等于 0x92：
+        返还 0x2019。
+    完。
+    若 码点 等于 0x93：
+        返还 0x201C。
+    完。
+    若 码点 等于 0x94：
+        返还 0x201D。
+    完。
+    若 码点 等于 0x95：
+        返还 0x2022。
+    完。
+    若 码点 等于 0x96：
+        返还 0x2013。
+    完。
+    若 码点 等于 0x97：
+        返还 0x2014。
+    完。
+    若 码点 等于 0x98：
+        返还 0x02DC。
+    完。
+    若 码点 等于 0x99：
+        返还 0x2122。
+    完。
+    若 码点 等于 0x9A：
+        返还 0x0161。
+    完。
+    若 码点 等于 0x9B：
+        返还 0x203A。
+    完。
+    若 码点 等于 0x9C：
+        返还 0x0153。
+    完。
+    若 码点 等于 0x9E：
+        返还 0x017E。
+    完。
+    若 码点 等于 0x9F：
+        返还 0x0178。
+    完。
+    若 码点 大于或等于 0xFDD0 并且 码点 小于或等于 0xFDEF：
+        返还 0xFFFD。
+    完。
+    若 码点 位与 0xFFFE 等于 0xFFFE：
+        返还 0xFFFD。
+    完。
+    若 码点 大于或等于 0xD800 并且 码点 小于或等于 0xDFFF：
+        返还 0xFFFD。
+    完。
+    返还 码点。
+完。
+
+码点_是合法Unicode 接受 码点：
+    若 码点 大于 0x10FFFF：
+        返还 假。
+    完。
+    若 码点 大于或等于 0xD800 并且 码点 小于或等于 0xDFFF：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+解析缓存_查找 接受 名称、长度：
+    若 解析缓存 等于 0：
+        返还 负 1。
+    完。
+    哈希 为 做 实体名_哈希 用 名称、长度。
+    槽位 为 哈希 位与 解析缓存_大小 减 1。
+    基址 为 解析缓存 加 槽位 乘 16。
+    缓存哈希 为 做 内存_读32 用 基址。
+    缓存索引 为 做 内存_读32 用 基址 加 4。
+    若 缓存哈希 等于 哈希 并且 缓存索引 不等于 0xFFFFFFFF：
+        条目 为 实体表 加 缓存索引 乘 实体条目大小。
+        条目名 为 做 内存_读64 用 条目。
+        条目名长 为 做 内存_读32 用 条目 加 8。
+        若 条目名长 等于 长度 并且 做 字符串_比较_定长 用 名称、条目名、长度 等于 0：
+            做 内存_写64 用 基址 加 8、做 当前时间_毫秒。
+            返还 缓存索引。
+        完。
+    完。
+    返还 负 1。
+完。
+
+解析缓存_插入 接受 名称、长度、索引：
+    若 解析缓存 等于 0：
+        返还。
+    完。
+    哈希 为 做 实体名_哈希 用 名称、长度。
+    槽位 为 哈希 位与 解析缓存_大小 减 1。
+    基址 为 解析缓存 加 槽位 乘 16。
+    做 内存_写32 用 基址、哈希。
+    做 内存_写32 用 基址 加 4、索引。
+    做 内存_写64 用 基址 加 8、做 当前时间_毫秒。
+完。
+
+码点_到UTF8 接受 码点、输出、最大字节：
+    若 码点 小于或等于 0x7F：
+        若 最大字节 小于 1：
+            返还 0。
+        完。
+        做 字节写 用 输出、0、码点。
+        返还 1。
+    完。
+    若 码点 小于或等于 0x7FF：
+        若 最大字节 小于 2：
+            返还 0。
+        完。
+        做 字节写 用 输出、0、0xC0 位或 码点 右移 6。
+        做 字节写 用 输出、1、0x80 位或 码点 位与 0x3F。
+        返还 2。
+    完。
+    若 码点 小于或等于 0xFFFF：
+        若 最大字节 小于 3：
+            返还 0。
+        完。
+        做 字节写 用 输出、0、0xE0 位或 码点 右移 12。
+        做 字节写 用 输出、1、0x80 位或 码点 右移 6 位与 0x3F。
+        做 字节写 用 输出、2、0x80 位或 码点 位与 0x3F。
+        返还 3。
+    完。
+    若 码点 小于或等于 0x10FFFF：
+        若 最大字节 小于 4：
+            返还 0。
+        完。
+        做 字节写 用 输出、0、0xF0 位或 码点 右移 18。
+        做 字节写 用 输出、1、0x80 位或 码点 右移 12 位与 0x3F。
+        做 字节写 用 输出、2、0x80 位或 码点 右移 6 位与 0x3F。
+        做 字节写 用 输出、3、0x80 位或 码点 位与 0x3F。
+        返还 4。
+    完。
+    返还 0。
+完。
+
+实体表_注册全部 接受 零参：
+    做 HTMLEntity_添加_带标志 用 「amp」、0x26、0、实体标志_单码点 位或 实体标志_危险字符。
+    做 HTMLEntity_添加_带标志 用 「lt」、0x3C、0、实体标志_单码点 位或 实体标志_危险字符。
+    做 HTMLEntity_添加_带标志 用 「gt」、0x3E、0、实体标志_单码点 位或 实体标志_危险字符。
+    做 HTMLEntity_添加_带标志 用 「quot」、0x22、0、实体标志_单码点 位或 实体标志_危险字符。
+    做 HTMLEntity_添加_带标志 用 「apos」、0x27、0、实体标志_单码点 位或 实体标志_危险字符。
+    做 HTMLEntity_添加 用 「Agrave」、0xC0、0。
+    做 HTMLEntity_添加 用 「Aacute」、0xC1、0。
+    做 HTMLEntity_添加 用 「Acirc」、0xC2、0。
+    做 HTMLEntity_添加 用 「Atilde」、0xC3、0。
+    做 HTMLEntity_添加 用 「Auml」、0xC4、0。
+    做 HTMLEntity_添加 用 「Aring」、0xC5、0。
+    做 HTMLEntity_添加 用 「AElig」、0xC6、0。
+    做 HTMLEntity_添加 用 「Ccedil」、0xC7、0。
+    做 HTMLEntity_添加 用 「Egrave」、0xC8、0。
+    做 HTMLEntity_添加 用 「Eacute」、0xC9、0。
+    做 HTMLEntity_添加 用 「Ecirc」、0xCA、0。
+    做 HTMLEntity_添加 用 「Euml」、0xCB、0。
+    做 HTMLEntity_添加 用 「Igrave」、0xCC、0。
+    做 HTMLEntity_添加 用 「Iacute」、0xCD、0。
+    做 HTMLEntity_添加 用 「Icirc」、0xCE、0。
+    做 HTMLEntity_添加 用 「Iuml」、0xCF、0。
+    做 HTMLEntity_添加 用 「ETH」、0xD0、0。
+    做 HTMLEntity_添加 用 「Ntilde」、0xD1、0。
+    做 HTMLEntity_添加 用 「Ograve」、0xD2、0。
+    做 HTMLEntity_添加 用 「Oacute」、0xD3、0。
+    做 HTMLEntity_添加 用 「Ocirc」、0xD4、0。
+    做 HTMLEntity_添加 用 「Otilde」、0xD5、0。
+    做 HTMLEntity_添加 用 「Ouml」、0xD6、0。
+    做 HTMLEntity_添加 用 「times」、0xD7、0。
+    做 HTMLEntity_添加 用 「Oslash」、0xD8、0。
+    做 HTMLEntity_添加 用 「Ugrave」、0xD9、0。
+    做 HTMLEntity_添加 用 「Uacute」、0xDA、0。
+    做 HTMLEntity_添加 用 「Ucirc」、0xDB、0。
+    做 HTMLEntity_添加 用 「Uuml」、0xDC、0。
+    做 HTMLEntity_添加 用 「Yacute」、0xDD、0。
+    做 HTMLEntity_添加 用 「THORN」、0xDE、0。
+    做 HTMLEntity_添加 用 「szlig」、0xDF、0。
+    做 HTMLEntity_添加 用 「agrave」、0xE0、0。
+    做 HTMLEntity_添加 用 「aacute」、0xE1、0。
+    做 HTMLEntity_添加 用 「acirc」、0xE2、0。
+    做 HTMLEntity_添加 用 「atilde」、0xE3、0。
+    做 HTMLEntity_添加 用 「auml」、0xE4、0。
+    做 HTMLEntity_添加 用 「aring」、0xE5、0。
+    做 HTMLEntity_添加 用 「aelig」、0xE6、0。
+    做 HTMLEntity_添加 用 「ccedil」、0xE7、0。
+    做 HTMLEntity_添加 用 「egrave」、0xE8、0。
+    做 HTMLEntity_添加 用 「eacute」、0xE9、0。
+    做 HTMLEntity_添加 用 「ecirc」、0xEA、0。
+    做 HTMLEntity_添加 用 「euml」、0xEB、0。
+    做 HTMLEntity_添加 用 「igrave」、0xEC、0。
+    做 HTMLEntity_添加 用 「iacute」、0xED、0。
+    做 HTMLEntity_添加 用 「icirc」、0xEE、0。
+    做 HTMLEntity_添加 用 「iuml」、0xEF、0。
+    做 HTMLEntity_添加 用 「eth」、0xF0、0。
+    做 HTMLEntity_添加 用 「ntilde」、0xF1、0。
+    做 HTMLEntity_添加 用 「ograve」、0xF2、0。
+    做 HTMLEntity_添加 用 「oacute」、0xF3、0。
+    做 HTMLEntity_添加 用 「ocirc」、0xF4、0。
+    做 HTMLEntity_添加 用 「otilde」、0xF5、0。
+    做 HTMLEntity_添加 用 「ouml」、0xF6、0。
+    做 HTMLEntity_添加 用 「divide」、0xF7、0。
+    做 HTMLEntity_添加 用 「oslash」、0xF8、0。
+    做 HTMLEntity_添加 用 「ugrave」、0xF9、0。
+    做 HTMLEntity_添加 用 「uacute」、0xFA、0。
+    做 HTMLEntity_添加 用 「ucirc」、0xFB、0。
+    做 HTMLEntity_添加 用 「uuml」、0xFC、0。
+    做 HTMLEntity_添加 用 「yacute」、0xFD、0。
+    做 HTMLEntity_添加 用 「thorn」、0xFE、0。
+    做 HTMLEntity_添加 用 「yuml」、0xFF、0。
+    做 HTMLEntity_添加 用 「Alpha」、0x0391、0。
+    做 HTMLEntity_添加 用 「Beta」、0x0392、0。
+    做 HTMLEntity_添加 用 「Gamma」、0x0393、0。
+    做 HTMLEntity_添加 用 「Delta」、0x0394、0。
+    做 HTMLEntity_添加 用 「Epsilon」、0x0395、0。
+    做 HTMLEntity_添加 用 「Zeta」、0x0396、0。
+    做 HTMLEntity_添加 用 「Eta」、0x0397、0。
+    做 HTMLEntity_添加 用 「Theta」、0x0398、0。
+    做 HTMLEntity_添加 用 「Iota」、0x0399、0。
+    做 HTMLEntity_添加 用 「Kappa」、0x039A、0。
+    做 HTMLEntity_添加 用 「Lambda」、0x039B、0。
+    做 HTMLEntity_添加 用 「Mu」、0x039C、0。
+    做 HTMLEntity_添加 用 「Nu」、0x039D、0。
+    做 HTMLEntity_添加 用 「Xi」、0x039E、0。
+    做 HTMLEntity_添加 用 「Omicron」、0x039F、0。
+    做 HTMLEntity_添加 用 「Pi」、0x03A0、0。
+    做 HTMLEntity_添加 用 「Rho」、0x03A1、0。
+    做 HTMLEntity_添加 用 「Sigma」、0x03A3、0。
+    做 HTMLEntity_添加 用 「Tau」、0x03A4、0。
+    做 HTMLEntity_添加 用 「Upsilon」、0x03A5、0。
+    做 HTMLEntity_添加 用 「Phi」、0x03A6、0。
+    做 HTMLEntity_添加 用 「Chi」、0x03A7、0。
+    做 HTMLEntity_添加 用 「Psi」、0x03A8、0。
+    做 HTMLEntity_添加 用 「Omega」、0x03A9、0。
+    做 HTMLEntity_添加 用 「alpha」、0x03B1、0。
+    做 HTMLEntity_添加 用 「beta」、0x03B2、0。
+    做 HTMLEntity_添加 用 「gamma」、0x03B3、0。
+    做 HTMLEntity_添加 用 「delta」、0x03B4、0。
+    做 HTMLEntity_添加 用 「epsilon」、0x03B5、0。
+    做 HTMLEntity_添加 用 「zeta」、0x03B6、0。
+    做 HTMLEntity_添加 用 「eta」、0x03B7、0。
+    做 HTMLEntity_添加 用 「theta」、0x03B8、0。
+    做 HTMLEntity_添加 用 「iota」、0x03B9、0。
+    做 HTMLEntity_添加 用 「kappa」、0x03BA、0。
+    做 HTMLEntity_添加 用 「lambda」、0x03BB、0。
+    做 HTMLEntity_添加 用 「mu」、0x03BC、0。
+    做 HTMLEntity_添加 用 「nu」、0x03BD、0。
+    做 HTMLEntity_添加 用 「xi」、0x03BE、0。
+    做 HTMLEntity_添加 用 「omicron」、0x03BF、0。
+    做 HTMLEntity_添加 用 「pi」、0x03C0、0。
+    做 HTMLEntity_添加 用 「rho」、0x03C1、0。
+    做 HTMLEntity_添加 用 「sigmaf」、0x03C2、0。
+    做 HTMLEntity_添加 用 「sigma」、0x03C3、0。
+    做 HTMLEntity_添加 用 「tau」、0x03C4、0。
+    做 HTMLEntity_添加 用 「upsilon」、0x03C5、0。
+    做 HTMLEntity_添加 用 「phi」、0x03C6、0。
+    做 HTMLEntity_添加 用 「chi」、0x03C7、0。
+    做 HTMLEntity_添加 用 「psi」、0x03C8、0。
+    做 HTMLEntity_添加 用 「omega」、0x03C9、0。
+    做 HTMLEntity_添加 用 「thetasym」、0x03D1、0。
+    做 HTMLEntity_添加 用 「upsih」、0x03D2、0。
+    做 HTMLEntity_添加 用 「piv」、0x03D6、0。
+    做 HTMLEntity_添加 用 「nbsp」、0xA0、0。
+    做 HTMLEntity_添加 用 「iexcl」、0xA1、0。
+    做 HTMLEntity_添加 用 「cent」、0xA2、0。
+    做 HTMLEntity_添加 用 「pound」、0xA3、0。
+    做 HTMLEntity_添加 用 「curren」、0xA4、0。
+    做 HTMLEntity_添加 用 「yen」、0xA5、0。
+    做 HTMLEntity_添加 用 「brvbar」、0xA6、0。
+    做 HTMLEntity_添加 用 「sect」、0xA7、0。
+    做 HTMLEntity_添加 用 「uml」、0xA8、0。
+    做 HTMLEntity_添加 用 「copy」、0xA9、0。
+    做 HTMLEntity_添加 用 「ordf」、0xAA、0。
+    做 HTMLEntity_添加 用 「laquo」、0xAB、0。
+    做 HTMLEntity_添加 用 「not」、0xAC、0。
+    做 HTMLEntity_添加 用 「shy」、0xAD、0。
+    做 HTMLEntity_添加 用 「reg」、0xAE、0。
+    做 HTMLEntity_添加 用 「macr」、0xAF、0。
+    做 HTMLEntity_添加 用 「deg」、0xB0、0。
+    做 HTMLEntity_添加 用 「plusmn」、0xB1、0。
+    做 HTMLEntity_添加 用 「sup2」、0xB2、0。
+    做 HTMLEntity_添加 用 「sup3」、0xB3、0。
+    做 HTMLEntity_添加 用 「acute」、0xB4、0。
+    做 HTMLEntity_添加 用 「micro」、0xB5、0。
+    做 HTMLEntity_添加 用 「para」、0xB6、0。
+    做 HTMLEntity_添加 用 「middot」、0xB7、0。
+    做 HTMLEntity_添加 用 「cedil」、0xB8、0。
+    做 HTMLEntity_添加 用 「sup1」、0xB9、0。
+    做 HTMLEntity_添加 用 「ordm」、0xBA、0。
+    做 HTMLEntity_添加 用 「raquo」、0xBB、0。
+    做 HTMLEntity_添加 用 「frac14」、0xBC、0。
+    做 HTMLEntity_添加 用 「frac12」、0xBD、0。
+    做 HTMLEntity_添加 用 「frac34」、0xBE、0。
+    做 HTMLEntity_添加 用 「iquest」、0xBF、0。
+    做 HTMLEntity_添加 用 「ndash」、0x2013、0。
+    做 HTMLEntity_添加 用 「mdash」、0x2014、0。
+    做 HTMLEntity_添加 用 「lsquo」、0x2018、0。
+    做 HTMLEntity_添加 用 「rsquo」、0x2019、0。
+    做 HTMLEntity_添加 用 「sbquo」、0x201A、0。
+    做 HTMLEntity_添加 用 「ldquo」、0x201C、0。
+    做 HTMLEntity_添加 用 「rdquo」、0x201D、0。
+    做 HTMLEntity_添加 用 「bdquo」、0x201E、0。
+    做 HTMLEntity_添加 用 「dagger」、0x2020、0。
+    做 HTMLEntity_添加 用 「Dagger」、0x2021、0。
+    做 HTMLEntity_添加 用 「bull」、0x2022、0。
+    做 HTMLEntity_添加 用 「hellip」、0x2026、0。
+    做 HTMLEntity_添加 用 「permil」、0x2030、0。
+    做 HTMLEntity_添加 用 「prime」、0x2032、0。
+    做 HTMLEntity_添加 用 「Prime」、0x2033、0。
+    做 HTMLEntity_添加 用 「lsaquo」、0x2039、0。
+    做 HTMLEntity_添加 用 「rsaquo」、0x203A、0。
+    做 HTMLEntity_添加 用 「oline」、0x203E、0。
+    做 HTMLEntity_添加 用 「frasl」、0x2044、0。
+    做 HTMLEntity_添加 用 「euro」、0x20AC、0。
+    做 HTMLEntity_添加 用 「ensp」、0x2002、0。
+    做 HTMLEntity_添加 用 「emsp」、0x2003、0。
+    做 HTMLEntity_添加 用 「thinsp」、0x2009、0。
+    做 HTMLEntity_添加 用 「zwnj」、0x200C、0。
+    做 HTMLEntity_添加 用 「zwj」、0x200D、0。
+    做 HTMLEntity_添加 用 「lrm」、0x200E、0。
+    做 HTMLEntity_添加 用 「rlm」、0x200F、0。
+    做 HTMLEntity_添加 用 「forall」、0x2200、0。
+    做 HTMLEntity_添加 用 「part」、0x2202、0。
+    做 HTMLEntity_添加 用 「exist」、0x2203、0。
+    做 HTMLEntity_添加 用 「empty」、0x2205、0。
+    做 HTMLEntity_添加 用 「nabla」、0x2207、0。
+    做 HTMLEntity_添加 用 「isin」、0x2208、0。
+    做 HTMLEntity_添加 用 「notin」、0x2209、0。
+    做 HTMLEntity_添加 用 「ni」、0x220B、0。
+    做 HTMLEntity_添加 用 「prod」、0x220F、0。
+    做 HTMLEntity_添加 用 「sum」、0x2211、0。
+    做 HTMLEntity_添加 用 「minus」、0x2212、0。
+    做 HTMLEntity_添加 用 「lowast」、0x2217、0。
+    做 HTMLEntity_添加 用 「radic」、0x221A、0。
+    做 HTMLEntity_添加 用 「prop」、0x221D、0。
+    做 HTMLEntity_添加 用 「infin」、0x221E、0。
+    做 HTMLEntity_添加 用 「ang」、0x2220、0。
+    做 HTMLEntity_添加 用 「and」、0x2227、0。
+    做 HTMLEntity_添加 用 「or」、0x2228、0。
+    做 HTMLEntity_添加 用 「cap」、0x2229、0。
+    做 HTMLEntity_添加 用 「cup」、0x222A、0。
+    做 HTMLEntity_添加 用 「int」、0x222B、0。
+    做 HTMLEntity_添加 用 「there4」、0x2234、0。
+    做 HTMLEntity_添加 用 「sim」、0x223C、0。
+    做 HTMLEntity_添加 用 「cong」、0x2245、0。
+    做 HTMLEntity_添加 用 「asymp」、0x2248、0。
+    做 HTMLEntity_添加 用 「ne」、0x2260、0。
+    做 HTMLEntity_添加 用 「equiv」、0x2261、0。
+    做 HTMLEntity_添加 用 「le」、0x2264、0。
+    做 HTMLEntity_添加 用 「ge」、0x2265、0。
+    做 HTMLEntity_添加 用 「sub」、0x2282、0。
+    做 HTMLEntity_添加 用 「sup」、0x2283、0。
+    做 HTMLEntity_添加 用 「nsub」、0x2284、0。
+    做 HTMLEntity_添加 用 「sube」、0x2286、0。
+    做 HTMLEntity_添加 用 「supe」、0x2287、0。
+    做 HTMLEntity_添加 用 「oplus」、0x2295、0。
+    做 HTMLEntity_添加 用 「otimes」、0x2297、0。
+    做 HTMLEntity_添加 用 「perp」、0x22A5、0。
+    做 HTMLEntity_添加 用 「sdot」、0x22C5、0。
+    做 HTMLEntity_添加 用 「lceil」、0x2308、0。
+    做 HTMLEntity_添加 用 「rceil」、0x2309、0。
+    做 HTMLEntity_添加 用 「lfloor」、0x230A、0。
+    做 HTMLEntity_添加 用 「rfloor」、0x230B、0。
+    做 HTMLEntity_添加 用 「lang」、0x27E8、0。
+    做 HTMLEntity_添加 用 「rang」、0x27E9、0。
+    做 HTMLEntity_添加 用 「larr」、0x2190、0。
+    做 HTMLEntity_添加 用 「uarr」、0x2191、0。
+    做 HTMLEntity_添加 用 「rarr」、0x2192、0。
+    做 HTMLEntity_添加 用 「darr」、0x2193、0。
+    做 HTMLEntity_添加 用 「harr」、0x2194、0。
+    做 HTMLEntity_添加 用 「crarr」、0x21B5、0。
+    做 HTMLEntity_添加 用 「lArr」、0x21D0、0。
+    做 HTMLEntity_添加 用 「uArr」、0x21D1、0。
+    做 HTMLEntity_添加 用 「rArr」、0x21D2、0。
+    做 HTMLEntity_添加 用 「dArr」、0x21D3、0。
+    做 HTMLEntity_添加 用 「hArr」、0x21D4、0。
+    做 HTMLEntity_添加 用 「loz」、0x25CA、0。
+    做 HTMLEntity_添加 用 「spades」、0x2660、0。
+    做 HTMLEntity_添加 用 「clubs」、0x2663、0。
+    做 HTMLEntity_添加 用 「hearts」、0x2665、0。
+    做 HTMLEntity_添加 用 「diams」、0x2666、0。
+    做 HTMLEntity_添加 用 「trade」、0x2122、0。
+    做 HTMLEntity_添加 用 「weierp」、0x2118、0。
+    做 HTMLEntity_添加 用 「image」、0x2111、0。
+    做 HTMLEntity_添加 用 「real」、0x211C、0。
+    做 HTMLEntity_添加 用 「alefsym」、0x2135、0。
+    做 HTMLEntity_添加 用 「OElig」、0x0152、0。
+    做 HTMLEntity_添加 用 「oelig」、0x0153、0。
+    做 HTMLEntity_添加 用 「Scaron」、0x0160、0。
+    做 HTMLEntity_添加 用 「scaron」、0x0161、0。
+    做 HTMLEntity_添加 用 「Yuml」、0x0178、0。
+    做 HTMLEntity_添加 用 「circ」、0x02C6、0。
+    做 HTMLEntity_添加 用 「tilde」、0x02DC、0。
+    做 HTMLEntity_添加 用 「fnof」、0x0192、0。
+    做 HTMLEntity_添加 用 「fjlig」、0x66、0x6A。
+    做 HTMLEntity_添加 用 「nGt」、0x226B、0x20D2。
+    做 HTMLEntity_添加 用 「nLt」、0x226A、0x20D2。
+    做 HTMLEntity_添加 用 「ThickSpace」、0x205F、0x200A。
+完。
+
+AI_实体纠错 接受 名称、长度：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 负 1。
+    完。
+    若 AI特征向量 等于 0：
+        返还 负 1。
+    完。
+    可变 i 为 0。
+    只要 i 小于 128：
+        做 Tensor_写 用 AI特征向量、i、0。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 长度：
+        c 为 做 字节取 用 名称、i。
+        槽 为 c 位与 0x3F。
+        旧值 为 做 Tensor_读 用 AI特征向量、槽。
+        做 Tensor_写 用 AI特征向量、槽、旧值 加 Q_ONE。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 长度 减 1：
+        c1 为 做 字节取 用 名称、i。
+        c2 为 做 字节取 用 名称、i 加 1。
+        槽 为 64 加 (c1 乘 31 加 c2 位与 0x3F)。
+        旧值 为 做 Tensor_读 用 AI特征向量、槽。
+        做 Tensor_写 用 AI特征向量、槽、旧值 加 Q_ONE。
+        i 为 i 加 1。
+    完。
+    可变 最佳索引 为 负 1。
+    可变 最佳分数 为 0x7FFFFFFF。
+    可变 j 为 0。
+    只要 j 小于 实体表大小 并且 j 小于 300：
+        条目 为 实体表 加 j 乘 实体条目大小。
+        条目名 为 做 内存_读64 用 条目。
+        条目名长 为 做 内存_读32 用 条目 加 8。
+        长度差 为 条目名长 减 长度。
+        若 长度差 小于 0：
+            长度差 为 0 减 长度差。
+        完。
+        若 长度差 大于 3：
+            j 为 j 加 1。
+            继续。
+        完。
+        dist 为 做 字符串_哈明距离 用 名称、长度、条目名、条目名长。
+        若 dist 小于 最佳分数：
+            最佳分数 为 dist。
+            最佳索引 为 j。
+        完。
+        j 为 j 加 1。
+    完。
+    若 最佳分数 小于或等于 2 并且 最佳索引 大于或等于 0：
+        统计_AI纠错次数 为 统计_AI纠错次数 加 1。
+        返还 最佳索引。
+    完。
+    返还 负 1。
+完。
+
+字符串_哈明距离 接受 s1、len1、s2、len2：
+    最小长 为 len1。
+    若 len2 小于 最小长：
+        最小长 为 len2。
+    完。
+    可变 差异 为 0。
+    可变 i 为 0。
+    只要 i 小于 最小长：
+        若 做 字节取 用 s1、i 不等于 做 字节取 用 s2、i：
+            差异 为 差异 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    长度差 为 len1 减 len2。
+    若 长度差 小于 0：
+        长度差 为 0 减 长度差。
+    完。
+    返还 差异 加 长度差。
+完。
+
+实体系统_完整统计 接受 零参：
+    返还 一组：实体表大小、前缀树已用节点、统计_命名查找次数、统计_命名查找命中、统计_数字解码次数、统计_数字解码失败、统计_缓存命中、统计_哈希碰撞、统计_前缀树遍历步数、统计_AI纠错次数。
+完。
+
+实体系统_缓存命中率 接受 零参：
+    若 统计_命名查找次数 等于 0：
+        返还 0。
+    完。
+    返还 统计_缓存命中 乘 10000 除以 统计_命名查找次数。
+完。
+
+实体系统_打印诊断 接受 零参：
+    做 内核日志 用 「═══ HTML实体解析引擎诊断 ═══」。
+    做 内核日志 用 「已注册实体: 」、实体表大小。
+    做 内核日志 用 「前缀树节点: 」、前缀树已用节点、「/」、前缀树_最大节点。
+    做 内核日志 用 「命名查找: 」、统计_命名查找命中、「/」、统计_命名查找次数。
+    做 内核日志 用 「数字解码: 成功=」、统计_数字解码次数 减 统计_数字解码失败、「 失败=」、统计_数字解码失败。
+    做 内核日志 用 「缓存命中: 」、统计_缓存命中。
+    做 内核日志 用 「哈希碰撞: 」、统计_哈希碰撞。
+    做 内核日志 用 「AI纠错次数: 」、统计_AI纠错次数。
+    做 内核日志 用 「缓存命中率: 」、做 实体系统_缓存命中率、「/10000」。
+完。
+
+本章 收束。

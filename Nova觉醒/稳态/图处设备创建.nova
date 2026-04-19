@@ -1,0 +1,126 @@
+《图处设备创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·图处枚举》。
+
+引用《.·图处能力探测》。
+
+图处_创建设备 接受 总线、设备号、功能号、厂商ID、设备ID、子类：
+    gpu 为 新建 图处设备。
+    gpu 的 PCI总线 为 总线。
+    gpu 的 PCI设备 为 设备号。
+    gpu 的 PCI功能 为 功能号。
+    gpu 的 厂商ID 为 厂商ID。
+    gpu 的 设备ID 为 设备ID。
+    gpu 的 类代码 为 PCI_CLASS_显示。
+    gpu 的 子类代码 为 子类。
+    gpu 的 已初始化 为 假。
+    子系统 为 做 PCI_配置读32 用 总线、设备号、功能号、0x2C。
+    gpu 的 子系统厂商ID 为 子系统 位与 0xFFFF。
+    gpu 的 子系统设备ID 为 子系统 右移 16 位与 0xFFFF。
+    修订 为 做 PCI_配置读32 用 总线、设备号、功能号、0x08。
+    gpu 的 修订版本 为 修订 位与 0xFF。
+    gpu 的 BAR0_地址 为 做 PCI_读BAR 用 总线、设备号、功能号、0。
+    gpu 的 BAR0_大小 为 做 PCI_BAR大小 用 总线、设备号、功能号、0。
+    gpu 的 BAR1_地址 为 做 PCI_读BAR 用 总线、设备号、功能号、1。
+    gpu 的 BAR1_大小 为 做 PCI_BAR大小 用 总线、设备号、功能号、1。
+    gpu 的 BAR2_地址 为 做 PCI_读BAR 用 总线、设备号、功能号、2。
+    gpu 的 BAR2_大小 为 做 PCI_BAR大小 用 总线、设备号、功能号、2。
+    做 图处_识别厂商 用 gpu。
+    做 图处_探测能力 用 gpu。
+    返还 gpu。
+完。
+
+图处_识别厂商 接受 gpu：
+    若 gpu 的 厂商ID 等于 图处_VENDOR_NVIDIA：
+        gpu 的 厂商名 为 「NVIDIA」。
+        gpu 的 驱动类型 为 「nova-nv」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_COMPUTE 位或 图处_CAP_DISPLAY。
+        做 图处_识别NVIDIA型号 用 gpu。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_AMD：
+        gpu 的 厂商名 为 「AMD」。
+        gpu 的 驱动类型 为 「nova-amd」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_COMPUTE 位或 图处_CAP_DISPLAY。
+        做 图处_识别AMD型号 用 gpu。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_INTEL：
+        gpu 的 厂商名 为 「Intel」。
+        gpu 的 驱动类型 为 「nova-intel」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_DISPLAY。
+        做 图处_识别Intel型号 用 gpu。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_VIRTIO：
+        gpu 的 厂商名 为 「VirtIO」。
+        gpu 的 驱动类型 为 「virtio-gpu」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_DISPLAY。
+        gpu 的 型号名 为 「VirtIO 图处」。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_QEMU：
+        gpu 的 厂商名 为 「QEMU」。
+        gpu 的 驱动类型 为 「bochs-drm」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_DISPLAY。
+        gpu 的 型号名 为 「QEMU stdvga (Bochs)」。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_VMWARE：
+        gpu 的 厂商名 为 「VMware」。
+        gpu 的 驱动类型 为 「vmwgfx」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_DISPLAY。
+        gpu 的 型号名 为 「VMware S显基」。
+    否则：
+        gpu 的 厂商名 为 「Unknown(0x」 加 做 整数转十六进制 用 gpu 的 厂商ID 加 「)」。
+        gpu 的 驱动类型 为 「generic-fb」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_DISPLAY。
+        gpu 的 型号名 为 「Generic 图处」。
+    完。
+完。
+
+图处_识别NVIDIA型号 接受 gpu：
+    did 为 gpu 的 设备ID。
+    若 did 大于或等于 0x2680 并且 did 小于或等于 0x27FF：
+        gpu 的 型号名 为 「GeForce RTX 40系列」。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_智能_ACCEL 位或 图处_CAP_RAY_TRACE 位或 图处_CAP_VULKAN。
+        gpu 的 计算单元数 为 128。
+    否则若 did 大于或等于 0x2200 并且 did 小于或等于 0x24FF：
+        gpu 的 型号名 为 「GeForce RTX 30系列」。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_智能_ACCEL 位或 图处_CAP_RAY_TRACE 位或 图处_CAP_VULKAN。
+        gpu 的 计算单元数 为 84。
+    否则若 did 大于或等于 0x20B0 并且 did 小于或等于 0x20FF：
+        gpu 的 型号名 为 「NVIDIA Data Center 图处」。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_智能_ACCEL 位或 图处_CAP_VULKAN。
+        gpu 的 计算单元数 为 108。
+    否则：
+        gpu 的 型号名 为 「NVIDIA 图处(0x」 加 做 整数转十六进制 用 did 加 「)」。
+        gpu 的 计算单元数 为 0。
+    完。
+完。
+
+图处_识别AMD型号 接受 gpu：
+    did 为 gpu 的 设备ID。
+    若 did 大于或等于 0x744C 并且 did 小于或等于 0x747F：
+        gpu 的 型号名 为 「Radeon RX 7000系列」。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_智能_ACCEL 位或 图处_CAP_RAY_TRACE 位或 图处_CAP_VULKAN。
+        gpu 的 计算单元数 为 96。
+    否则若 did 大于或等于 0x73A0 并且 did 小于或等于 0x73FF：
+        gpu 的 型号名 为 「Radeon RX 6000系列」。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_RAY_TRACE 位或 图处_CAP_VULKAN。
+        gpu 的 计算单元数 为 80。
+    否则：
+        gpu 的 型号名 为 「AMD 图处(0x」 加 做 整数转十六进制 用 did 加 「)」。
+        gpu 的 计算单元数 为 0。
+    完。
+完。
+
+图处_识别Intel型号 接受 gpu：
+    did 为 gpu 的 设备ID。
+    若 did 大于或等于 0x56A0 并且 did 小于或等于 0x56FF：
+        gpu 的 型号名 为 「Intel Arc」。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_COMPUTE 位或 图处_CAP_RAY_TRACE 位或 图处_CAP_VULKAN。
+        gpu 的 计算单元数 为 32。
+    否则：
+        gpu 的 型号名 为 「Intel集成显卡(0x」 加 做 整数转十六进制 用 did 加 「)」。
+        gpu 的 计算单元数 为 0。
+    完。
+完。
+
+本章 收束。

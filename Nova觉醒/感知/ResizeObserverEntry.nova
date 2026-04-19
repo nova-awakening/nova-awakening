@@ -1,0 +1,189 @@
+《ResizeObserverEntry》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+ResizeObserverEntry 是 一种 事物，含 target、contentRect_x、contentRect_y、contentRect_w、contentRect_h、borderBoxSize_inlineSize、borderBoxSize_blockSize、contentBoxSize_inlineSize、contentBoxSize_blockSize、devicePixelContentBox_inlineSize、devicePixelContentBox_blockSize。
+
+ResizeObserverTarget 是 一种 事物，含 元素、上次宽、上次高、盒模型。
+
+ResizeObserver 是 一种 事物，含 回调、目标、目标数。
+
+ResizeObserver_创建 接受 回调：
+    ro 为 做 堆_分配 用 ResizeObserver。
+    ro 的 回调 为 回调。
+    ro 的 目标数 为 0。
+    返还 ro。
+完。
+
+ResizeObserver_observe 接受 ro、元素、盒模型：
+    若 ro 等于 0 或者 元素 等于 0 或者 ro 的 目标数 大于或等于 64：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 ro 的 目标数：
+        若 ro 的 目标 的 第 i 项 的 元素 等于 元素：
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    ro 的 目标 的 第 ro 的 目标数 项 的 元素 为 元素。
+    ro 的 目标 的 第 ro 的 目标数 项 的 上次宽 为 负 1。
+    ro 的 目标 的 第 ro 的 目标数 项 的 上次高 为 负 1。
+    ro 的 目标 的 第 ro 的 目标数 项 的 盒模型 为 盒模型。
+    ro 的 目标数 为 ro 的 目标数 加 1。
+完。
+
+ResizeObserver_unobserve 接受 ro、元素：
+    若 ro 等于 0 或者 元素 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 ro 的 目标数：
+        若 ro 的 目标 的 第 i 项 的 元素 等于 元素：
+            ro 的 目标 的 第 i 项 为 ro 的 目标 的 第 ro 的 目标数 减 1 项。
+            ro 的 目标数 为 ro 的 目标数 减 1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+ResizeObserver_disconnect 接受 ro：
+    若 ro 等于 0：
+        返还。
+    完。
+    ro 的 目标数 为 0。
+完。
+
+ResizeObserver_检查 接受 ro：
+    若 ro 等于 0 或者 ro 的 目标数 等于 0：
+        返还。
+    完。
+    可变 有变化 为 假。
+    可变 i 为 0。
+    只要 i 小于 ro 的 目标数：
+        el 为 ro 的 目标 的 第 i 项 的 元素。
+        若 el 等于 0：
+            i 为 i 加 1。
+            继续。
+        完。
+        当前宽 为 0。
+        当前高 为 0。
+        若 当前宽 不等于 ro 的 目标 的 第 i 项 的 上次宽 或者 当前高 不等于 ro 的 目标 的 第 i 项 的 上次高：
+            有变化 为 真。
+            ro 的 目标 的 第 i 项 的 上次宽 为 当前宽。
+            ro 的 目标 的 第 i 项 的 上次高 为 当前高。
+        完。
+        i 为 i 加 1。
+    完。
+    若 有变化 并且 ro 的 回调 不等于 0：
+    完。
+完。
+
+MUT_CHILD_LIST 为 1。
+
+MUT_ATTRIBUTES 为 2。
+
+MUT_CHARACTER_DATA 为 4。
+
+MUT_SUBTREE 为 8。
+
+MUT_ATTRIBUTE_OLD_VALUE 为 16。
+
+MUT_CHARACTER_DATA_OLD_VALUE 为 32。
+
+MutationRecord 是 一种 事物，含 类型、target、added节点s、removed节点s、previousSibling、nextSibling、attributeName、attributeNamespace、oldValue、下一个。
+
+MutationObserverRegistration 是 一种 事物，含 目标、选项、属性过滤、属性过滤数。
+
+MutationObserver 是 一种 事物，含 回调、注册、注册数、队列头、队列尾、队列大小。
+
+MutationObserver_创建 接受 回调：
+    mo 为 做 堆_分配 用 MutationObserver。
+    mo 的 回调 为 回调。
+    mo 的 注册数 为 0。
+    mo 的 队列头 为 0。
+    mo 的 队列尾 为 0。
+    mo 的 队列大小 为 0。
+    返还 mo。
+完。
+
+MutationObserver_observe 接受 mo、target、选项：
+    若 mo 等于 0 或者 target 等于 0 或者 mo 的 注册数 大于或等于 32：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 mo 的 注册数：
+        若 mo 的 注册 的 第 i 项 的 目标 等于 target：
+            mo 的 注册 的 第 i 项 的 选项 为 选项。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    mo 的 注册 的 第 mo 的 注册数 项 的 目标 为 target。
+    mo 的 注册 的 第 mo 的 注册数 项 的 选项 为 选项。
+    mo 的 注册 的 第 mo 的 注册数 项 的 属性过滤 为 0。
+    mo 的 注册 的 第 mo 的 注册数 项 的 属性过滤数 为 0。
+    mo 的 注册数 为 mo 的 注册数 加 1。
+完。
+
+MutationObserver_disconnect 接受 mo：
+    若 mo 等于 0：
+        返还。
+    完。
+    mo 的 注册数 为 0。
+    mo 的 队列头 为 0。
+    mo 的 队列尾 为 0。
+    mo 的 队列大小 为 0。
+完。
+
+MutationObserver_takeRecords 接受 mo：
+    若 mo 等于 0：
+        返还 0。
+    完。
+    头 为 mo 的 队列头。
+    mo 的 队列头 为 0。
+    mo 的 队列尾 为 0。
+    mo 的 队列大小 为 0。
+    返还 头。
+完。
+
+MutationObserver_通知childList 接受 target、added、removed、prev、next：
+    可变 i 为 0。
+    只要 i 小于 全局_MO列表_数量：
+        mo 为 做 内存_读64 用 全局_MO列表 加 i 乘 8。
+        若 mo 不等于 0 并且 做 MO_观察了目标 用 mo、target、MUT_CHILDLIST：
+            record 为 做 堆_分配 用 MutationRecord。
+            record 的 类型 为 「childList」。
+            record 的 目标 为 target。
+            record 的 添加节点 为 added。
+            record 的 删除节点 为 removed。
+            record 的 前兄弟 为 prev。
+            record 的 后兄弟 为 next。
+            做 MO_入队记录 用 mo、record。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+MutationObserver_通知attribute 接受 target、属性名、旧值：
+    可变 i 为 0。
+    只要 i 小于 全局_MO列表_数量：
+        mo 为 做 内存_读64 用 全局_MO列表 加 i 乘 8。
+        若 mo 不等于 0 并且 做 MO_观察了目标 用 mo、target、MUT_ATTRIBUTES：
+            record 为 做 堆_分配 用 MutationRecord。
+            record 的 类型 为 「attributes」。
+            record 的 目标 为 target。
+            record 的 属性名 为 属性名。
+            若 mo 的 记录旧值：
+                record 的 旧值 为 旧值。
+            完。
+            做 MO_入队记录 用 mo、record。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

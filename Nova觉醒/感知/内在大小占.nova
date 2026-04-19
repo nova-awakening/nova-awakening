@@ -1,0 +1,361 @@
+《内在大小占》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·沙箱隔离进》。
+
+ContainIntrinsicSize 是 一种 事物，含 宽、高、宽_auto、高_auto、上次渲染宽、上次渲染高。
+
+ContainIntrinsicSize_解析 接受 值字符串：
+    cis 为 新建 ContainIntrinsicSize。
+    cis 的 宽 为 负 1。
+    cis 的 高 为 负 1。
+    cis 的 宽_auto 为 假。
+    cis 的 高_auto 为 假。
+    cis 的 上次渲染宽 为 负 1。
+    cis 的 上次渲染高 为 负 1。
+    若 值字符串 等于 0 或者 做 字符串_相等 用 值字符串、「none」：
+        返还 cis。
+    完。
+    若 做 字符串_开头匹配 用 值字符串、「auto」：
+        cis 的 宽_auto 为 真。
+        cis 的 高_auto 为 真。
+    完。
+    返还 cis。
+完。
+
+ContainIntrinsicSize_获取宽 接受 cis：
+    若 cis 的 宽_auto 并且 cis 的 上次渲染宽 大于 0：
+        返还 cis 的 上次渲染宽。
+    完。
+    返还 cis 的 宽。
+完。
+
+ContainIntrinsicSize_获取高 接受 cis：
+    若 cis 的 高_auto 并且 cis 的 上次渲染高 大于 0：
+        返还 cis 的 上次渲染高。
+    完。
+    返还 cis 的 高。
+完。
+
+LOCK_STATE_UNLOCKED 为 0。
+
+LOCK_STATE_LOCKED 为 1。
+
+LOCK_STATE_COMMIT_PENDING 为 2。
+
+DisplayLockContext 是 一种 事物，含 元素、锁状态、content_visibility、在视口中、上次检查时间、intrinsic_size、跳过渲染次数、子树需要布局、子树需要绘制。
+
+DisplayLock_创建 接受 元素、cv值：
+    dl 为 做 堆_分配 用 DisplayLockContext。
+    dl 的 元素 为 元素。
+    dl 的 content_visibility 为 cv值。
+    dl 的 在视口中 为 假。
+    dl 的 上次检查时间 为 0。
+    dl 的 跳过渲染次数 为 0。
+    dl 的 子树需要布局 为 真。
+    dl 的 子树需要绘制 为 真。
+    若 cv值 等于 CV_HIDDEN：
+        dl 的 锁状态 为 LOCK_STATE_LOCKED。
+    否则若 cv值 等于 CV_AUTO：
+        dl 的 锁状态 为 LOCK_STATE_LOCKED。
+    否则：
+        dl 的 锁状态 为 LOCK_STATE_UNLOCKED。
+    完。
+    返还 dl。
+完。
+
+DisplayLock_更新视口状态 接受 dl、在视口中：
+    若 dl 等于 0：
+        返还。
+    完。
+    若 dl 的 content_visibility 不等于 CV_AUTO：
+        返还。
+    完。
+    之前 为 dl 的 在视口中。
+    dl 的 在视口中 为 在视口中。
+    若 非 之前 并且 在视口中：
+        dl 的 锁状态 为 LOCK_STATE_COMMIT_PENDING。
+        dl 的 子树需要布局 为 真。
+        dl 的 子树需要绘制 为 真。
+    否则若 之前 并且 非 在视口中：
+        做 DisplayLock_保存渲染大小 用 dl。
+        dl 的 锁状态 为 LOCK_STATE_LOCKED。
+        dl 的 跳过渲染次数 为 dl 的 跳过渲染次数 加 1。
+    完。
+完。
+
+DisplayLock_保存渲染大小 接受 dl：
+    若 dl 等于 0 或者 dl 的 intrinsic_size 等于 0：
+        返还。
+    完。
+    若 dl 的 元素 不等于 0：
+        布局 为 dl 的 元素 的 布局对象。
+        若 布局 不等于 0：
+            dl 的 intrinsic_size 的 上次渲染宽 为 布局 的 宽。
+            dl 的 intrinsic_size 的 上次渲染高 为 布局 的 高。
+        完。
+    完。
+完。
+
+DisplayLock_应该跳过布局 接受 dl：
+    若 dl 等于 0：
+        返还 假。
+    完。
+    返还 dl 的 锁状态 等于 LOCK_STATE_LOCKED。
+完。
+
+DisplayLock_应该跳过绘制 接受 dl：
+    若 dl 等于 0：
+        返还 假。
+    完。
+    返还 dl 的 锁状态 等于 LOCK_STATE_LOCKED。
+完。
+
+DisplayLock_commit 接受 dl：
+    若 dl 等于 0：
+        返还。
+    完。
+    若 dl 的 锁状态 等于 LOCK_STATE_COMMIT_PENDING：
+        dl 的 锁状态 为 LOCK_STATE_UNLOCKED。
+    完。
+完。
+
+CONTAIN_NONE 为 0。
+
+CONTAIN_LAYOUT 为 1。
+
+CONTAIN_PAINT 为 2。
+
+CONTAIN_SIZE 为 4。
+
+CONTAIN_STYLE 为 8。
+
+CONTAIN_STRICT 为 CONTAIN_LAYOUT 位或 CONTAIN_PAINT 位或 CONTAIN_SIZE 位或 CONTAIN_STYLE。
+
+CONTAIN_CONTENT 为 CONTAIN_LAYOUT 位或 CONTAIN_PAINT 位或 CONTAIN_STYLE。
+
+CV_VISIBLE 为 0。
+
+CV_HIDDEN 为 1。
+
+CV_AUTO 为 2。
+
+Contain_解析 接受 值字符串：
+    若 值字符串 等于 0 或者 做 字符串_相等 用 值字符串、「none」：
+        返还 CONTAIN_NONE。
+    完。
+    若 做 字符串_相等 用 值字符串、「strict」：
+        返还 CONTAIN_STRICT。
+    完。
+    若 做 字符串_相等 用 值字符串、「content」：
+        返还 CONTAIN_CONTENT。
+    完。
+    可变 结果 为 0。
+    若 做 字符串_包含 用 值字符串、「layout」：
+        结果 为 结果 位或 CONTAIN_LAYOUT。
+    完。
+    若 做 字符串_包含 用 值字符串、「paint」：
+        结果 为 结果 位或 CONTAIN_PAINT。
+    完。
+    若 做 字符串_包含 用 值字符串、「size」：
+        结果 为 结果 位或 CONTAIN_SIZE。
+    完。
+    若 做 字符串_包含 用 值字符串、「style」：
+        结果 为 结果 位或 CONTAIN_STYLE。
+    完。
+    返还 结果。
+完。
+
+Contain_名称 接受 contain：
+    若 contain 等于 CONTAIN_NONE：
+        返还 「none」。
+    完。
+    若 contain 等于 CONTAIN_STRICT：
+        返还 「strict」。
+    完。
+    若 contain 等于 CONTAIN_CONTENT：
+        返还 「content」。
+    完。
+    可变 s 为 「」。
+    若 contain 位与 CONTAIN_LAYOUT：
+        s 为 s 加 「layout 」。
+    完。
+    若 contain 位与 CONTAIN_PAINT：
+        s 为 s 加 「paint 」。
+    完。
+    若 contain 位与 CONTAIN_SIZE：
+        s 为 s 加 「size 」。
+    完。
+    若 contain 位与 CONTAIN_STYLE：
+        s 为 s 加 「style 」。
+    完。
+    返还 s。
+完。
+
+Contain_有布局 接受 contain：
+    返还 contain 位与 CONTAIN_LAYOUT 不等于 0。
+完。
+
+Contain_有绘制 接受 contain：
+    返还 contain 位与 CONTAIN_PAINT 不等于 0。
+完。
+
+Contain_有大小 接受 contain：
+    返还 contain 位与 CONTAIN_SIZE 不等于 0。
+完。
+
+Contain_有样式 接受 contain：
+    返还 contain 位与 CONTAIN_STYLE 不等于 0。
+完。
+
+DisplayLock_获取锁状态名 接受 dl：
+    若 dl 等于 0：
+        返还 「null」。
+    完。
+    若 dl 的 锁状态 等于 LOCK_STATE_UNLOCKED：
+        返还 「unlocked」。
+    完。
+    若 dl 的 锁状态 等于 LOCK_STATE_LOCKED：
+        返还 「locked」。
+    完。
+    若 dl 的 锁状态 等于 LOCK_STATE_COMMIT_PENDING：
+        返还 「commit_pending」。
+    完。
+    返还 「unknown」。
+完。
+
+DisplayLock_强制解锁 接受 dl：
+    若 dl 等于 0：
+        返还。
+    完。
+    dl 的 锁状态 为 LOCK_STATE_UNLOCKED。
+    dl 的 子树需要布局 为 真。
+    dl 的 子树需要绘制 为 真。
+完。
+
+DisplayLock_强制锁定 接受 dl：
+    若 dl 等于 0：
+        返还。
+    完。
+    做 DisplayLock_保存渲染大小 用 dl。
+    dl 的 锁状态 为 LOCK_STATE_LOCKED。
+完。
+
+DisplayLock_是锁定 接受 dl：
+    若 dl 等于 0：
+        返还 假。
+    完。
+    返还 dl 的 锁状态 等于 LOCK_STATE_LOCKED。
+完。
+
+DisplayLock_是解锁 接受 dl：
+    若 dl 等于 0：
+        返还 真。
+    完。
+    返还 dl 的 锁状态 等于 LOCK_STATE_UNLOCKED。
+完。
+
+DisplayLock_诊断 接受 dl：
+    若 dl 等于 0：
+        返还 「DisplayLock为空」。
+    完。
+    返还 一本字典：锁状态 对应 做 DisplayLock_获取锁状态名 用 dl、CV 对应 dl 的 content_visibility、在视口 对应 dl 的 在视口中、跳过次数 对应 dl 的 跳过渲染次数、需要布局 对应 dl 的 子树需要布局、需要绘制 对应 dl 的 子树需要绘制。
+完。
+
+ContainerQuery 是 一种 事物，含 容器名、条件类型、条件值、规则列表、规则数。
+
+CQ_MIN_WIDTH 为 0。
+
+CQ_MAX_WIDTH 为 1。
+
+CQ_MIN_HEIGHT 为 2。
+
+CQ_MAX_HEIGHT 为 3。
+
+ContainerQuery_创建 接受 容器名、条件类型、条件值：
+    cq 为 新建 ContainerQuery。
+    cq 的 容器名 为 容器名。
+    cq 的 条件类型 为 条件类型。
+    cq 的 条件值 为 条件值。
+    cq 的 规则列表 为 一组：（空）。
+    cq 的 规则数 为 0。
+    返还 cq。
+完。
+
+ContainerQuery_匹配 接受 cq、容器宽、容器高：
+    若 cq 等于 0：
+        返还 假。
+    完。
+    若 cq 的 条件类型 等于 CQ_MIN_WIDTH：
+        返还 容器宽 大于或等于 cq 的 条件值。
+    完。
+    若 cq 的 条件类型 等于 CQ_MAX_WIDTH：
+        返还 容器宽 小于或等于 cq 的 条件值。
+    完。
+    若 cq 的 条件类型 等于 CQ_MIN_HEIGHT：
+        返还 容器高 大于或等于 cq 的 条件值。
+    完。
+    若 cq 的 条件类型 等于 CQ_MAX_HEIGHT：
+        返还 容器高 小于或等于 cq 的 条件值。
+    完。
+    返还 假。
+完。
+
+CQ_条件名 接受 类型：
+    若 类型 等于 CQ_MIN_WIDTH：
+        返还 「min-width」。
+    完。
+    若 类型 等于 CQ_MAX_WIDTH：
+        返还 「max-width」。
+    完。
+    若 类型 等于 CQ_MIN_HEIGHT：
+        返还 「min-height」。
+    完。
+    若 类型 等于 CQ_MAX_HEIGHT：
+        返还 「max-height」。
+    完。
+    返还 「unknown」。
+完。
+
+可变 容器_锁定总数 为 0。
+
+可变 容器_解锁总数 为 0。
+
+可变 容器_跳过渲染总数 为 0。
+
+可变 容器_查询匹配数 为 0。
+
+容器_统计 接受 零参：
+    返还 一本字典：锁定 对应 容器_锁定总数、解锁 对应 容器_解锁总数、跳过渲染 对应 容器_跳过渲染总数、查询匹配 对应 容器_查询匹配数。
+完。
+
+容器_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 容器_跳过渲染总数 大于 容器_锁定总数 乘 100 并且 容器_锁定总数 大于 10：
+        做 追加 用 问题、「渲染跳过过于频繁」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「容器子系统健康」。
+    完。
+    返还 问题。
+完。
+
+容器_重置统计 接受 零参：
+    容器_锁定总数 为 0。
+    容器_解锁总数 为 0。
+    容器_跳过渲染总数 为 0。
+    容器_查询匹配数 为 0。
+完。
+
+容器_完整统计 接受 零参：
+    返还 一组：容器_锁定总数、容器_解锁总数、容器_跳过渲染总数、容器_查询匹配数。
+完。
+
+本章 收束。

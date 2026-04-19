@@ -1,0 +1,116 @@
+《文本接口》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《.·像素混合》。
+
+引用《.·图像数据像》。
+
+TextMetrics 是 一种 事物，含 width、actualBoundingBoxLeft、actualBoundingBoxRight、fontBoundingBoxAscent、fontBoundingBoxDescent、actualBoundingBoxAscent、actualBoundingBoxDescent、emHeightAscent、emHeightDescent、alphabeticBaseline、hangingBaseline、ideographicBaseline。
+
+Ctx2D_fillText 接受 ctx、文本、x、y、maxWidth：
+    若 ctx 等于 0 或者 文本 等于 0：
+        返还。
+    完。
+完。
+
+Ctx2D_strokeText 接受 ctx、文本、x、y、maxWidth：
+    若 ctx 等于 0 或者 文本 等于 0：
+        返还。
+    完。
+完。
+
+Ctx2D_measureText 接受 ctx、文本：
+    若 ctx 等于 0 或者 文本 等于 0：
+        返还 0。
+    完。
+    m 为 做 堆_分配 用 TextMetrics。
+    m 的 width 为 0。
+    返还 m。
+完。
+
+Ctx2D_draw图像_3 接受 ctx、image、dx、dy：
+    若 ctx 等于 0 或者 image 等于 0：
+        返还。
+    完。
+    做 Ctx2D_draw图像_9 用 ctx、image、0、0、image 的 宽度、image 的 高度、dx、dy、image 的 宽度、image 的 高度。
+完。
+
+Ctx2D_draw图像_5 接受 ctx、image、dx、dy、dw、dh：
+    若 ctx 等于 0 或者 image 等于 0：
+        返还。
+    完。
+    做 Ctx2D_draw图像_9 用 ctx、image、0、0、image 的 宽度、image 的 高度、dx、dy、dw、dh。
+完。
+
+Ctx2D_draw图像_9 接受 ctx、image、sx、sy、sw、sh、dx、dy、dw、dh：
+    若 ctx 等于 0 或者 image 等于 0 或者 sw 等于 0 或者 sh 等于 0 或者 dw 等于 0 或者 dh 等于 0：
+        返还。
+    完。
+    可变 py 为 0。
+    只要 py 小于 dh：
+        sry 为 sy 加 py 乘 sh 除以 dh。
+        若 dy 加 py 大于或等于 0 并且 dy 加 py 小于 ctx 的 画布高：
+            可变 px 为 0。
+            只要 px 小于 dw：
+                srx 为 sx 加 px 乘 sw 除以 dw。
+                若 dx 加 px 大于或等于 0 并且 dx 加 px 小于 ctx 的 画布宽：
+                完。
+                px 为 px 加 1。
+            完。
+        完。
+        py 为 py 加 1。
+    完。
+    做 Ctx2D_标记脏区 用 ctx、dx、dy、dw、dh。
+完。
+
+Ctx2D_get图像Data 接受 ctx、sx、sy、sw、sh：
+    若 ctx 等于 0 或者 sw 小于或等于 0 或者 sh 小于或等于 0：
+        返还 0。
+    完。
+    id 为 做 图像Data_创建 用 sw、sh。
+    可变 y 为 0。
+    只要 y 小于 sh：
+        可变 x 为 0。
+        只要 x 小于 sw：
+            srcX 为 sx 加 x。
+            srcY 为 sy 加 y。
+            若 srcX 大于或等于 0 并且 srcX 小于 ctx 的 画布宽 并且 srcY 大于或等于 0 并且 srcY 小于 ctx 的 画布高：
+                偏移 为 (srcY 乘 ctx 的 画布宽 加 srcX) 乘 4。
+                dst偏移 为 (y 乘 sw 加 x) 乘 4。
+                做 内存_复制 用 id 的 数据 加 dst偏移、ctx 的 像素缓冲 加 偏移、4。
+            完。
+            x 为 x 加 1。
+        完。
+        y 为 y 加 1。
+    完。
+    返还 id。
+完。
+
+Ctx2D_put图像Data 接受 ctx、imageData、dx、dy：
+    若 ctx 等于 0 或者 imageData 等于 0：
+        返还。
+    完。
+    可变 y 为 0。
+    只要 y 小于 imageData 的 高度：
+        可变 x 为 0。
+        只要 x 小于 imageData 的 宽度：
+            dstX 为 dx 加 x。
+            dstY 为 dy 加 y。
+            若 dstX 大于或等于 0 并且 dstX 小于 ctx 的 画布宽 并且 dstY 大于或等于 0 并且 dstY 小于 ctx 的 画布高：
+                src偏移 为 (y 乘 imageData 的 宽度 加 x) 乘 4。
+                dst偏移 为 (dstY 乘 ctx 的 画布宽 加 dstX) 乘 4。
+                做 内存_复制 用 ctx 的 像素缓冲 加 dst偏移、imageData 的 数据 加 src偏移、4。
+            完。
+            x 为 x 加 1。
+        完。
+        y 为 y 加 1。
+    完。
+    做 Ctx2D_标记脏区 用 ctx、dx、dy、imageData 的 宽度、imageData 的 高度。
+完。
+
+本章 收束。

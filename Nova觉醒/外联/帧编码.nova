@@ -1,0 +1,116 @@
+《帧编码》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·中枢·辅助有符号读》。
+
+H2_FRAME_DATA 为 0x00。
+
+H2_FRAME_HEADERS 为 0x01。
+
+H2_FRAME_PRIORITY 为 0x02。
+
+H2_FRAME_RST_STREAM 为 0x03。
+
+H2_FRAME_SETTINGS 为 0x04。
+
+H2_FRAME_PUSH_PROMISE 为 0x05。
+
+H2_FRAME_PING 为 0x06。
+
+H2_FRAME_GOAWAY 为 0x07。
+
+H2_FRAME_WINDOW_UPDATE 为 0x08。
+
+H2_FRAME_CONTINUATION 为 0x09。
+
+H2_FLAG_END_STREAM 为 0x01。
+
+H2_FLAG_END_HEADERS 为 0x04。
+
+H2_FLAG_PADDED 为 0x08。
+
+H2_FLAG_PRIORITY 为 0x20。
+
+H2_FLAG_ACK 为 0x01。
+
+H2_STREAM_IDLE 为 0。
+
+H2_STREAM_OPEN 为 1。
+
+H2_STREAM_RESERVED_L 为 2。
+
+H2_STREAM_RESERVED_R 为 3。
+
+H2_STREAM_HALF_CLOSED_L 为 4。
+
+H2_STREAM_HALF_CLOSED_R 为 5。
+
+H2_STREAM_CLOSED 为 6。
+
+H2_NO_ERROR 为 0x00。
+
+H2_PROTOCOL_ERROR 为 0x01。
+
+H2_INTERNAL_ERROR 为 0x02。
+
+H2_FLOW_CONTROL_ERROR 为 0x03。
+
+H2_SETTINGS_TIMEOUT 为 0x04。
+
+H2_STREAM_CLOSED_ERR 为 0x05。
+
+H2_FRAME_SIZE_ERROR 为 0x06。
+
+H2_REFUSED_STREAM 为 0x07。
+
+H2_CANCEL 为 0x08。
+
+H2_COMPRESSION_ERROR 为 0x09。
+
+H2_CONNECT_ERROR 为 0x0A。
+
+H2_ENHANCE_YOUR_CALM 为 0x0B。
+
+H2_INADEQUATE_SECURITY 为 0x0C。
+
+H2Frame 是 一种 事物，含 长度、类型、标志、流ID、有效载荷。
+
+H2Frame_编码 接受 帧、输出缓冲：
+    若 帧 等于 0 或者 输出缓冲 等于 0：
+        返还 0。
+    完。
+    做 内存_写8 用 输出缓冲、帧 的 长度 右移 16 位与 0xFF。
+    做 内存_写8 用 输出缓冲 加 1、帧 的 长度 右移 8 位与 0xFF。
+    做 内存_写8 用 输出缓冲 加 2、帧 的 长度 位与 0xFF。
+    做 内存_写8 用 输出缓冲 加 3、帧 的 类型。
+    做 内存_写8 用 输出缓冲 加 4、帧 的 标志。
+    做 内存_写32_大端 用 输出缓冲 加 5、帧 的 流ID 位与 0x7FFFFFFF。
+    若 帧 的 有效载荷 不等于 0 并且 帧 的 长度 大于 0：
+        做 内存_复制 用 输出缓冲 加 9、帧 的 有效载荷、帧 的 长度。
+    完。
+    返还 9 加 帧 的 长度。
+完。
+
+H2Frame_解码 接受 数据、数据长度：
+    若 数据 等于 0 或者 数据长度 小于 9：
+        返还 0。
+    完。
+    帧 为 做 堆_分配 用 H2Frame。
+    帧 的 长度 为 做 内存_读8 用 数据 左移 16 位或 做 内存_读8 用 数据 加 1 左移 8 位或 做 内存_读8 用 数据 加 2。
+    帧 的 类型 为 做 内存_读8 用 数据 加 3。
+    帧 的 标志 为 做 内存_读8 用 数据 加 4。
+    帧 的 流ID 为 做 内存_读32_大端 用 数据 加 5 位与 0x7FFFFFFF。
+    若 帧 的 长度 大于 0 并且 数据长度 大于或等于 9 加 帧 的 长度：
+        帧 的 有效载荷 为 数据 加 9。
+    否则：
+        帧 的 有效载荷 为 0。
+    完。
+    返还 帧。
+完。
+
+本章 收束。

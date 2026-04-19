@@ -1,0 +1,214 @@
+《proc_stat统计》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·中枢·时钟中枢》。
+
+引用《..·中枢·每处理器》。
+
+引用《..·中枢·中断请求管理》。
+
+引用《..·中枢·整数转字符串》。
+
+外部。
+
+获取总内存KB。
+
+外部。
+
+获取空闲内存KB。
+
+外部。
+
+获取缓冲区KB。
+
+外部。
+
+获取缓存KB。
+
+外部。
+
+获取交换总量KB。
+
+外部。
+
+获取交换空闲KB。
+
+可变 cpu_user 为 0。
+
+可变 cpu_nice 为 0。
+
+可变 cpu_system 为 0。
+
+可变 cpu_idle 为 0。
+
+可变 cpu_iowait 为 0。
+
+可变 cpu_irq 为 0。
+
+可变 cpu_softirq 为 0。
+
+可变 cpu_steal 为 0。
+
+可变 stat_上下文切换 为 0。
+
+可变 stat_进程创建 为 0。
+
+可变 stat_运行进程 为 0。
+
+可变 stat_阻塞进程 为 0。
+
+可变 stat_启动时间 为 0。
+
+stat_记录用户态 接受 零参：
+    cpu_user 为 cpu_user 加 1。
+完。
+
+stat_记录nice 接受 零参：
+    cpu_nice 为 cpu_nice 加 1。
+完。
+
+stat_记录内核态 接受 零参：
+    cpu_system 为 cpu_system 加 1。
+完。
+
+stat_记录空闲 接受 零参：
+    cpu_idle 为 cpu_idle 加 1。
+完。
+
+stat_记录iowait 接受 零参：
+    cpu_iowait 为 cpu_iowait 加 1。
+完。
+
+stat_记录硬中断 接受 零参：
+    cpu_irq 为 cpu_irq 加 1。
+完。
+
+stat_记录软中断 接受 零参：
+    cpu_softirq 为 cpu_softirq 加 1。
+完。
+
+stat_记录上下文切换 接受 零参：
+    stat_上下文切换 为 stat_上下文切换 加 1。
+完。
+
+stat_记录进程创建 接受 零参：
+    stat_进程创建 为 stat_进程创建 加 1。
+完。
+
+proc_stat_读取 接受 零参：
+    可变 输出 为 「」。
+    输出 为 输出 加 「cpu  」 加 做 整数转字符串 用 cpu_user 加 「 」 加 做 整数转字符串 用 cpu_nice 加 「 」 加 做 整数转字符串 用 cpu_system 加 「 」 加 做 整数转字符串 用 cpu_idle 加 「 」 加 做 整数转字符串 用 cpu_iowait 加 「 」 加 做 整数转字符串 用 cpu_irq 加 「 」 加 做 整数转字符串 用 cpu_softirq 加 「 」 加 做 整数转字符串 用 cpu_steal 加 「\n」。
+    可变 cpu 为 0。
+    只要 cpu 小于 做 获取CPU数量：
+        输出 为 输出 加 「cpu」 加 做 整数转字符串 用 cpu 加 「 」 加 做 整数转字符串 用 cpu_user 加 「 」 加 做 整数转字符串 用 cpu_nice 加 「 」 加 做 整数转字符串 用 cpu_system 加 「 」 加 做 整数转字符串 用 cpu_idle 加 「 」 加 做 整数转字符串 用 cpu_iowait 加 「 」 加 做 整数转字符串 用 cpu_irq 加 「 」 加 做 整数转字符串 用 cpu_softirq 加 「 」 加 做 整数转字符串 用 cpu_steal 加 「\n」。
+        cpu 为 cpu 加 1。
+    完。
+    总中断 为 做 IRQ_获取总计数。
+    输出 为 输出 加 「intr 」 加 做 整数转字符串 用 总中断 加 「\n」。
+    输出 为 输出 加 「ctxt 」 加 做 整数转字符串 用 stat_上下文切换 加 「\n」。
+    输出 为 输出 加 「btime 」 加 做 整数转字符串 用 stat_启动时间 加 「\n」。
+    输出 为 输出 加 「processes 」 加 做 整数转字符串 用 stat_进程创建 加 「\n」。
+    输出 为 输出 加 「procs_running 」 加 做 整数转字符串 用 stat_运行进程 加 「\n」。
+    输出 为 输出 加 「procs_blocked 」 加 做 整数转字符串 用 stat_阻塞进程 加 「\n」。
+    输出 为 输出 加 「softirq 0 0 0 0 0 0 0 0 0 0 0\n」。
+    返还 输出。
+完。
+
+proc_uptime_读取 接受 零参：
+    运行秒 为 做 读取秒。
+    空闲秒 为 cpu_idle 除以 100。
+    返还 做 整数转字符串 用 运行秒 加 「.」 加 「00」 加 「 」 加 做 整数转字符串 用 空闲秒 加 「.」 加 「00」 加 「\n」。
+完。
+
+proc_Nova负载均值_读取 接受 零参：
+    la 为 做 获取Nova负载均值。
+    la1 为 la 的 第 0 项 除以 100。
+    la1f 为 la 的 第 0 项 取余于 100。
+    la5 为 la 的 第 1 项 除以 100。
+    la5f 为 la 的 第 1 项 取余于 100。
+    la15 为 la 的 第 2 项 除以 100。
+    la15f 为 la 的 第 2 项 取余于 100。
+    返还 做 整数转字符串 用 la1 加 「.」 加 做 字符串左填充 用 做 整数转字符串 用 la1f、2、「0」 加 「 」 加 做 整数转字符串 用 la5 加 「.」 加 做 字符串左填充 用 做 整数转字符串 用 la5f、2、「0」 加 「 」 加 做 整数转字符串 用 la15 加 「.」 加 做 字符串左填充 用 做 整数转字符串 用 la15f、2、「0」 加 「 」 加 做 整数转字符串 用 stat_运行进程 加 「/」 加 做 整数转字符串 用 stat_进程创建 加 「 」 加 做 整数转字符串 用 stat_进程创建 加 「\n」。
+完。
+
+proc_meminfo_读取 接受 零参：
+    总内存 为 做 获取总内存KB。
+    空闲 为 做 获取空闲内存KB。
+    可变 输出 为 「」。
+    输出 为 输出 加 「MemTotal:       」 加 做 整数转字符串 用 总内存 加 「 kB\n」。
+    输出 为 输出 加 「MemFree:        」 加 做 整数转字符串 用 空闲 加 「 kB\n」。
+    输出 为 输出 加 「MemAvailable:   」 加 做 整数转字符串 用 空闲 加 做 获取缓存KB 加 「 kB\n」。
+    输出 为 输出 加 「Buffers:        」 加 做 整数转字符串 用 做 获取缓冲区KB 加 「 kB\n」。
+    输出 为 输出 加 「缓存d:         」 加 做 整数转字符串 用 做 获取缓存KB 加 「 kB\n」。
+    输出 为 输出 加 「SwapTotal:      」 加 做 整数转字符串 用 做 获取交换总量KB 加 「 kB\n」。
+    输出 为 输出 加 「SwapFree:       」 加 做 整数转字符串 用 做 获取交换空闲KB 加 「 kB\n」。
+    返还 输出。
+完。
+
+proc_version_读取 接受 零参：
+    返还 「NovaOS version 1.0.0 (nova@novaos) (龙编译器 1.0) #1 SMP\n」。
+完。
+
+cpu利用率 接受 零参：
+    总时间 为 cpu_user 加 cpu_nice 加 cpu_system 加 cpu_idle 加 cpu_iowait 加 cpu_irq 加 cpu_softirq 加 cpu_steal。
+    若 总时间 等于 0：
+        返还 0。
+    完。
+    忙时间 为 总时间 减 cpu_idle 减 cpu_iowait。
+    返还 忙时间 乘 100 除以 总时间。
+完。
+
+cpu用户利用率 接受 零参：
+    总时间 为 cpu_user 加 cpu_nice 加 cpu_system 加 cpu_idle 加 cpu_iowait 加 cpu_irq 加 cpu_softirq。
+    若 总时间 等于 0：
+        返还 0。
+    完。
+    返还 (cpu_user 加 cpu_nice) 乘 100 除以 总时间。
+完。
+
+cpu内核利用率 接受 零参：
+    总时间 为 cpu_user 加 cpu_nice 加 cpu_system 加 cpu_idle 加 cpu_iowait 加 cpu_irq 加 cpu_softirq。
+    若 总时间 等于 0：
+        返还 0。
+    完。
+    返还 cpu_system 乘 100 除以 总时间。
+完。
+
+proc_stat_初始化 接受 零参：
+    stat_启动时间 为 做 读取秒。
+    stat_运行进程 为 1。
+    做 内核信息 用 「proc/stat: CPU统计+内存信息+负载+版本 就绪」。
+完。
+
+proc_stat_完整统计 接受 零参：
+    返还 一组：cpu_user、cpu_system、cpu_idle、cpu_iowait、cpu_irq、cpu_softirq、做 cpu用户利用率、做 cpu内核利用率、stat_运行进程。
+完。
+
+可变 AI_记忆乙甲_风暴阈值 为 10000。
+
+可变 AI_记忆乙甲_预测IRQ 为 0。
+
+AI_记忆乙甲_风暴检测 接受 触发频率：
+    若 触发频率 大于 AI_记忆乙甲_风暴阈值：
+        AI_记忆乙甲_风暴阈值 为 AI_记忆乙甲_风暴阈值 乘 3 除以 2。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_记忆乙甲_自适应合并 接受 当前延迟：
+    若 当前延迟 小于 100：
+        返还 16。
+    完。
+    若 当前延迟 小于 500：
+        返还 8。
+    完。
+    返还 1。
+完。
+
+本章 收束。

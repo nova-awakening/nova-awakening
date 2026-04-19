@@ -1,0 +1,128 @@
+《WebCrypto签名验证》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+SubtleCrypto_sign 接受 算法、key、数据、长度：
+    若 key 等于 0 或者 数据 等于 0 或者 非 (key 的 usages 位与 KEY_USAGE_SIGN)：
+        返还 0。
+    完。
+    若 算法 等于 ALGO_HMAC：
+        签名 为 做 堆_分配 用 32。
+        返还 签名。
+    否则若 算法 等于 ALGO_ECDSA：
+        签名 为 做 堆_分配 用 64。
+        返还 签名。
+    否则若 算法 等于 ALGO_RSA_PSS：
+        签名 为 做 堆_分配 用 key 的 密钥长度 除以 8。
+        返还 签名。
+    完。
+    返还 0。
+完。
+
+SubtleCrypto_verify 接受 算法、key、签名、签名长度、数据、数据长度：
+    若 key 等于 0 或者 签名 等于 0 或者 数据 等于 0：
+        返还 假。
+    完。
+    若 非 (key 的 usages 位与 KEY_USAGE_VERIFY)：
+        返还 假。
+    完。
+    expected 为 做 SubtleCrypto_sign 用 算法、key、数据、数据长度。
+    若 expected 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_比较 用 签名、expected 的 数据、签名长度 等于 0。
+完。
+
+SubtleCrypto_deriveBits 接受 算法、key、长度、salt、saltLen、iterations：
+    若 key 等于 0：
+        返还 0。
+    完。
+    若 算法 等于 ALGO_PBKDF2：
+        输出 为 做 堆_分配 用 长度 除以 8。
+        返还 输出。
+    否则若 算法 等于 ALGO_HKDF：
+        输出 为 做 堆_分配 用 长度 除以 8。
+        返还 输出。
+    完。
+    返还 0。
+完。
+
+PERM_GRANTED 为 0。
+
+PERM_DENIED 为 1。
+
+PERM_PROMPT 为 2。
+
+PERM_NAME_GEOLOCATION 为 0。
+
+PERM_NAME_NOTIFICATIONS 为 1。
+
+PERM_NAME_CAMERA 为 2。
+
+PERM_NAME_MICROPHONE 为 3。
+
+PERM_NAME_CLIPBOARD_READ 为 4。
+
+PERM_NAME_CLIPBOARD_WRITE 为 5。
+
+PERM_NAME_PUSH 为 6。
+
+PERM_NAME_MIDI 为 7。
+
+PERM_NAME_STORAGE_ACCESS 为 8。
+
+PERM_NAME_SCREEN_WAKE_LOCK 为 9。
+
+PermissionStatus 是 一种 事物，含 名称、状态、onchange。
+
+PermissionStore 是 一种 事物，含 权限、权限数、源。
+
+可变 全局权限存储 为 0。
+
+Permissions_获取存储 接受 零参：
+    若 全局权限存储 等于 0：
+        全局权限存储 为 做 堆_分配 用 PermissionStore。
+        全局权限存储 的 权限数 为 0。
+        全局权限存储 的 源 为 0。
+    完。
+    返还 全局权限存储。
+完。
+
+Permissions_query 接受 名称：
+    store 为 做 Permissions_获取存储。
+    可变 i 为 0。
+    只要 i 小于 store 的 权限数：
+        若 store 的 权限 的 第 i 项 的 名称 等于 名称：
+            返还 store 的 权限 的 第 i 项 的 状态。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 PERM_PROMPT。
+完。
+
+Permissions_设置 接受 名称、状态：
+    store 为 做 Permissions_获取存储。
+    可变 i 为 0。
+    只要 i 小于 store 的 权限数：
+        若 store 的 权限 的 第 i 项 的 名称 等于 名称：
+            旧状态 为 store 的 权限 的 第 i 项 的 状态。
+            store 的 权限 的 第 i 项 的 状态 为 状态。
+            若 旧状态 不等于 状态 并且 store 的 权限 的 第 i 项 的 onchange 不等于 0：
+            完。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 store 的 权限数 小于 32：
+        store 的 权限 的 第 store 的 权限数 项 的 名称 为 名称。
+        store 的 权限 的 第 store 的 权限数 项 的 状态 为 状态。
+        store 的 权限 的 第 store 的 权限数 项 的 onchange 为 0。
+        store 的 权限数 为 store 的 权限数 加 1。
+    完。
+完。
+
+本章 收束。

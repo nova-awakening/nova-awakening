@@ -1,0 +1,371 @@
+《图处枚举》
+
+引用《..·中枢·日志中枢》。
+
+引用《..·推理·总线调度》。
+
+引用《..·中枢·整数转字符串》。
+
+PCI_CLASS_显示 为 0x03。
+
+PCI_SUBCLASS_显基 为 0x00。
+
+PCI_SUBCLASS_3D 为 0x02。
+
+图处_VENDOR_NVIDIA 为 0x10DE。
+
+图处_VENDOR_AMD 为 0x1002。
+
+图处_VENDOR_INTEL 为 0x8086。
+
+图处_VENDOR_VIRTIO 为 0x1AF4。
+
+图处_VENDOR_VMWARE 为 0x15AD。
+
+图处_VENDOR_QEMU 为 0x1234。
+
+图处_VENDOR_GOOGLE 为 0x1AE0。
+
+图处_CAP_2D 为 1 左移 0。
+
+图处_CAP_3D 为 1 左移 1。
+
+图处_CAP_COMPUTE 为 1 左移 2。
+
+图处_CAP_VIDEO_DECODE 为 1 左移 3。
+
+图处_CAP_VIDEO_ENCODE 为 1 左移 4。
+
+图处_CAP_智能_ACCEL 为 1 左移 5。
+
+图处_CAP_DISPLAY 为 1 左移 6。
+
+图处_CAP_VULKAN 为 1 左移 7。
+
+图处_CAP_RAY_TRACE 为 1 左移 8。
+
+图处设备 是 一种 事物，含 PCI总线、PCI设备、PCI功能、厂商ID、设备ID、子系统厂商ID、子系统设备ID、修订版本、类代码、子类代码、BAR0_地址、BAR0_大小、BAR1_地址、BAR1_大小、BAR2_地址、BAR2_大小、厂商名、型号名、驱动类型、能力、显存大小_MB、计算单元数、最大时钟_MHz、已初始化、命令队列地址、中断号。
+
+最大图处数 为 8。
+
+可变 图处列表 为 一组：（空）。
+
+可变 主图处 为 空。
+
+可变 计算图处 为 空。
+
+图处_枚举 接受 零参：
+    做 内核信息 用 「图处枚举: 扫描PCI总线...」。
+    图处列表 为 一组：（空）。
+    可变 总线 为 0。
+    只要 总线 小于 256：
+        可变 设备号 为 0。
+        只要 设备号 小于 32：
+            可变 功能号 为 0。
+            只要 功能号 小于 8：
+                厂商设备 为 做 PCI_配置读32 用 总线、设备号、功能号、0x00。
+                厂商ID 为 厂商设备 位与 0xFFFF。
+                设备ID 为 厂商设备 右移 16 位与 0xFFFF。
+                若 厂商ID 等于 0xFFFF 或者 厂商ID 等于 0：
+                    功能号 为 功能号 加 1。
+                    继续。
+                完。
+                类信息 为 做 PCI_配置读32 用 总线、设备号、功能号、0x08。
+                类代码 为 类信息 右移 24 位与 0xFF。
+                子类 为 类信息 右移 16 位与 0xFF。
+                若 类代码 等于 PCI_CLASS_显示：
+                    gpu 为 做 图处_创建设备 用 总线、设备号、功能号、厂商ID、设备ID、子类。
+                    若 gpu 不等于 空：
+                        做 追加 用 图处列表、gpu。
+                        做 图处_打印信息 用 gpu。
+                    完。
+                完。
+                功能号 为 功能号 加 1。
+            完。
+            设备号 为 设备号 加 1。
+        完。
+        总线 为 总线 加 1。
+    完。
+    做 图处_选择主设备。
+    做 内核信息 用 「图处枚举: 发现 」 加 做 整数转字符串 用 做 计数 用 图处列表 加 「 个图处设备」。
+完。
+
+图处_创建设备 接受 总线、设备号、功能号、厂商ID、设备ID、子类：
+    gpu 为 新建 图处设备。
+    gpu 的 PCI总线 为 总线。
+    gpu 的 PCI设备 为 设备号。
+    gpu 的 PCI功能 为 功能号。
+    gpu 的 厂商ID 为 厂商ID。
+    gpu 的 设备ID 为 设备ID。
+    gpu 的 类代码 为 PCI_CLASS_显示。
+    gpu 的 子类代码 为 子类。
+    gpu 的 已初始化 为 假。
+    gpu 的 命令队列地址 为 0。
+    gpu 的 中断号 为 0。
+    子系统 为 做 PCI_配置读32 用 总线、设备号、功能号、0x2C。
+    gpu 的 子系统厂商ID 为 子系统 位与 0xFFFF。
+    gpu 的 子系统设备ID 为 子系统 右移 16 位与 0xFFFF。
+    gpu 的 修订版本 为 做 PCI_配置读32 用 总线、设备号、功能号、0x08 位与 0xFF。
+    gpu 的 BAR0_地址 为 做 PCI_读BAR 用 总线、设备号、功能号、0。
+    gpu 的 BAR0_大小 为 做 PCI_BAR大小 用 总线、设备号、功能号、0。
+    gpu 的 BAR1_地址 为 做 PCI_读BAR 用 总线、设备号、功能号、1。
+    gpu 的 BAR1_大小 为 做 PCI_BAR大小 用 总线、设备号、功能号、1。
+    gpu 的 BAR2_地址 为 做 PCI_读BAR 用 总线、设备号、功能号、2。
+    gpu 的 BAR2_大小 为 做 PCI_BAR大小 用 总线、设备号、功能号、2。
+    做 图处_识别 用 gpu。
+    返还 gpu。
+完。
+
+图处_识别 接受 gpu：
+    若 gpu 的 厂商ID 等于 图处_VENDOR_NVIDIA：
+        gpu 的 厂商名 为 「NVIDIA」。
+        gpu 的 驱动类型 为 「nvidia」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_COMPUTE 位或 图处_CAP_VULKAN 位或 图处_CAP_VIDEO_DECODE 位或 图处_CAP_VIDEO_ENCODE 位或 图处_CAP_DISPLAY。
+        做 图处_识别_NVIDIA 用 gpu。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_AMD：
+        gpu 的 厂商名 为 「AMD」。
+        gpu 的 驱动类型 为 「amdgpu」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_COMPUTE 位或 图处_CAP_VULKAN 位或 图处_CAP_VIDEO_DECODE 位或 图处_CAP_DISPLAY。
+        做 图处_识别_AMD 用 gpu。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_INTEL：
+        gpu 的 厂商名 为 「Intel」。
+        gpu 的 驱动类型 为 「i915」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_VULKAN 位或 图处_CAP_VIDEO_DECODE 位或 图处_CAP_DISPLAY。
+        做 图处_识别_Intel 用 gpu。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_VIRTIO：
+        gpu 的 厂商名 为 「VirtIO」。
+        gpu 的 驱动类型 为 「virtio-gpu」。
+        gpu 的 型号名 为 「VirtIO GPU」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_DISPLAY。
+        gpu 的 显存大小_MB 为 256。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_VMWARE：
+        gpu 的 厂商名 为 「VMware」。
+        gpu 的 驱动类型 为 「vmwgfx」。
+        gpu 的 型号名 为 「VMware SVGA」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_DISPLAY。
+        gpu 的 显存大小_MB 为 128。
+    否则若 gpu 的 厂商ID 等于 图处_VENDOR_QEMU：
+        gpu 的 厂商名 为 「QEMU」。
+        gpu 的 驱动类型 为 「bochs-drm」。
+        gpu 的 型号名 为 「QEMU Standard VGA」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_DISPLAY。
+        gpu 的 显存大小_MB 为 16。
+    否则：
+        gpu 的 厂商名 为 「未知(0x」 加 做 十六进制 用 gpu 的 厂商ID 加 「)」。
+        gpu 的 驱动类型 为 「generic」。
+        gpu 的 型号名 为 「未知图处」。
+        gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_DISPLAY。
+    完。
+完。
+
+图处_识别_NVIDIA 接受 gpu：
+    did 为 gpu 的 设备ID。
+    若 did 大于或等于 0x2200 并且 did 小于或等于 0x22FF：
+        gpu 的 型号名 为 「RTX 4090/4080」。
+        gpu 的 显存大小_MB 为 16384。
+        gpu 的 计算单元数 为 128。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_RAY_TRACE 位或 图处_CAP_智能_ACCEL。
+    否则若 did 大于或等于 0x2500 并且 did 小于或等于 0x25FF：
+        gpu 的 型号名 为 「RTX 3090/3080」。
+        gpu 的 显存大小_MB 为 12288。
+        gpu 的 计算单元数 为 82。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_RAY_TRACE 位或 图处_CAP_智能_ACCEL。
+    否则若 did 大于或等于 0x1E00 并且 did 小于或等于 0x1EFF：
+        gpu 的 型号名 为 「RTX 2080 Ti」。
+        gpu 的 显存大小_MB 为 11264。
+        gpu 的 计算单元数 为 68。
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_RAY_TRACE。
+    否则若 did 大于或等于 0x1B00 并且 did 小于或等于 0x1BFF：
+        gpu 的 型号名 为 「GTX 1080 Ti」。
+        gpu 的 显存大小_MB 为 11264。
+        gpu 的 计算单元数 为 28。
+    否则：
+        gpu 的 型号名 为 「NVIDIA GPU(0x」 加 做 十六进制 用 did 加 「)」。
+        gpu 的 显存大小_MB 为 4096。
+        gpu 的 计算单元数 为 16。
+    完。
+完。
+
+图处_识别_AMD 接受 gpu：
+    gpu 的 型号名 为 「AMD GPU(0x」 加 做 十六进制 用 gpu 的 设备ID 加 「)」。
+    gpu 的 显存大小_MB 为 4096。
+    gpu 的 计算单元数 为 32。
+完。
+
+图处_识别_Intel 接受 gpu：
+    gpu 的 型号名 为 「Intel GPU(0x」 加 做 十六进制 用 gpu 的 设备ID 加 「)」。
+    gpu 的 显存大小_MB 为 0。
+    gpu 的 计算单元数 为 32。
+完。
+
+图处_选择主设备 接受 零参：
+    主图处 为 空。
+    计算图处 为 空。
+    可变 最大显存 为 0。
+    可变 最大计算 为 0。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 图处列表：
+        gpu 为 图处列表 的 第 i 项。
+        若 gpu 的 能力 位与 图处_CAP_DISPLAY：
+            若 gpu 的 显存大小_MB 大于 最大显存：
+                最大显存 为 gpu 的 显存大小_MB。
+                主图处 为 gpu。
+            完。
+        完。
+        若 gpu 的 能力 位与 图处_CAP_COMPUTE：
+            若 gpu 的 计算单元数 大于 最大计算：
+                最大计算 为 gpu 的 计算单元数。
+                计算图处 为 gpu。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    若 主图处 等于 空 并且 做 计数 用 图处列表 大于 0：
+        主图处 为 图处列表 的 第 0 项。
+    完。
+    若 计算图处 等于 空：
+        计算图处 为 主图处。
+    完。
+完。
+
+图处_获取主设备 接受 零参：
+    返还 主图处。
+完。
+
+图处_获取计算设备 接受 零参：
+    返还 计算图处。
+完。
+
+图处_设备数 接受 零参：
+    返还 做 计数 用 图处列表。
+完。
+
+图处_获取设备 接受 索引：
+    若 索引 小于 0 或者 索引 大于或等于 做 计数 用 图处列表：
+        返还 空。
+    完。
+    返还 图处列表 的 第 索引 项。
+完。
+
+PCI_配置读32 接受 总线、设备、功能、偏移：
+    地址 为 0x80000000 位或 总线 左移 16 位或 设备 左移 11 位或 功能 左移 8 位或 偏移 位与 0xFC。
+    做 端口_写32 用 0xCF8、地址。
+    返还 做 端口_读32 用 0xCFC。
+完。
+
+PCI_读BAR 接受 总线、设备、功能、BAR号：
+    偏移 为 0x10 加 BAR号 乘 4。
+    值 为 做 PCI_配置读32 用 总线、设备、功能、偏移。
+    返还 值 位与 0xFFFFFFF0。
+完。
+
+PCI_BAR大小 接受 总线、设备、功能、BAR号：
+    偏移 为 0x10 加 BAR号 乘 4。
+    原始 为 做 PCI_配置读32 用 总线、设备、功能、偏移。
+    做 PCI_配置写32 用 总线、设备、功能、偏移、0xFFFFFFFF。
+    掩码 为 做 PCI_配置读32 用 总线、设备、功能、偏移。
+    做 PCI_配置写32 用 总线、设备、功能、偏移、原始。
+    返还 按位取反 (掩码 位与 0xFFFFFFF0) 加 1。
+完。
+
+PCI_配置写32 接受 总线、设备、功能、偏移、值：
+    地址 为 0x80000000 位或 总线 左移 16 位或 设备 左移 11 位或 功能 左移 8 位或 偏移 位与 0xFC。
+    做 端口_写32 用 0xCF8、地址。
+    做 端口_写32 用 0xCFC、值。
+完。
+
+图处_打印信息 接受 gpu：
+    若 gpu 等于 空：
+        返还。
+    完。
+    做 内核信息 用 「  图处: 」 加 gpu 的 厂商名 加 「 」 加 gpu 的 型号名。
+    做 内核信息 用 「    PCI: 」 加 做 整数转字符串 用 gpu 的 PCI总线 加 「:」 加 做 整数转字符串 用 gpu 的 PCI设备 加 「.」 加 做 整数转字符串 用 gpu 的 PCI功能。
+    做 内核信息 用 「    ID: 」 加 做 十六进制 用 gpu 的 厂商ID 加 「:」 加 做 十六进制 用 gpu 的 设备ID。
+    做 内核信息 用 「    驱动: 」 加 gpu 的 驱动类型 加 「 显存: 」 加 做 整数转字符串 用 gpu 的 显存大小_MB 加 「MB」。
+    做 内核信息 用 「    BAR0: 」 加 做 十六进制 用 gpu 的 BAR0_地址 加 「 (」 加 做 整数转字符串 用 gpu 的 BAR0_大小 除以 1024 除以 1024 加 「MB)」。
+    做 内核信息 用 「    能力: 」 加 做 图处_能力字符串 用 gpu 的 能力。
+完。
+
+图处_能力字符串 接受 能力：
+    可变 s 为 「」。
+    若 能力 位与 图处_CAP_2D：
+        s 为 s 加 「2D 」。
+    完。
+    若 能力 位与 图处_CAP_3D：
+        s 为 s 加 「3D 」。
+    完。
+    若 能力 位与 图处_CAP_COMPUTE：
+        s 为 s 加 「Compute 」。
+    完。
+    若 能力 位与 图处_CAP_VULKAN：
+        s 为 s 加 「Vulkan 」。
+    完。
+    若 能力 位与 图处_CAP_VIDEO_DECODE：
+        s 为 s 加 「VideoDec 」。
+    完。
+    若 能力 位与 图处_CAP_VIDEO_ENCODE：
+        s 为 s 加 「VideoEnc 」。
+    完。
+    若 能力 位与 图处_CAP_DISPLAY：
+        s 为 s 加 「Display 」。
+    完。
+    若 能力 位与 图处_CAP_RAY_TRACE：
+        s 为 s 加 「RayTrace 」。
+    完。
+    若 能力 位与 图处_CAP_智能_ACCEL：
+        s 为 s 加 「AI 」。
+    完。
+    返还 s。
+完。
+
+图处_厂商名称 接受 厂商ID：
+    若 厂商ID 等于 图处_VENDOR_NVIDIA：
+        返还 「NVIDIA」。
+    完。
+    若 厂商ID 等于 图处_VENDOR_AMD：
+        返还 「AMD」。
+    完。
+    若 厂商ID 等于 图处_VENDOR_INTEL：
+        返还 「Intel」。
+    完。
+    若 厂商ID 等于 图处_VENDOR_VIRTIO：
+        返还 「VirtIO」。
+    完。
+    若 厂商ID 等于 图处_VENDOR_VMWARE：
+        返还 「VMware」。
+    完。
+    若 厂商ID 等于 图处_VENDOR_QEMU：
+        返还 「QEMU」。
+    完。
+    返还 「未知」。
+完。
+
+图处枚举_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 做 计数 用 图处列表 等于 0：
+        做 追加 用 问题、「未发现图处设备」。
+    完。
+    若 主图处 等于 空：
+        做 追加 用 问题、「无主显示图处」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「图处枚举健康」。
+    完。
+    返还 问题。
+完。
+
+图处枚举_统计 接受 零参：
+    返还 一本字典：设备数 对应 做 计数 用 图处列表、有主图处 对应 主图处 不等于 空、有计算图处 对应 计算图处 不等于 空、总显存MB 对应 做 图处_总显存MB。
+完。
+
+图处_总显存MB 接受 零参：
+    可变 总 为 0。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 图处列表：
+        总 为 总 加 图处列表 的 第 i 项 的 显存大小_MB。
+        i 为 i 加 1。
+    完。
+    返还 总。
+完。
+
+本章 收束。

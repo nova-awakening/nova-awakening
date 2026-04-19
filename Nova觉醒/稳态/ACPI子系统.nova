@@ -1,0 +1,102 @@
+《ACPI子系统》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《.·ACPI电源管理》。
+
+引用《..·执行·Windows打印接口》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·引导·端口IO》。
+
+引用《.·散热管理》。
+
+引用《.·中断处理》。
+
+引用《..·中枢·整数转字符串》。
+
+可变 ACPI_RSDP地址 为 0。
+
+可变 ACPI_XSDT地址 为 0。
+
+可变 ACPI_表列表 为 一组：（空）。
+
+可变 ACPI_CPU列表 为 一组：（空）。
+
+可变 ACPI_IO接口C列表 为 一组：（空）。
+
+可变 ACPI_FADT 为 空。
+
+可变 ACPI_散热列表 为 一组：（空）。
+
+可变 ACPI_已初始化 为 假。
+
+ACPI_初始化 接受 零参：
+    做 内核信息 用 「ACPI: 初始化...」。
+    ACPI_RSDP地址 为 做 ACPI_查找RSDP。
+    若 ACPI_RSDP地址 等于 0：
+        做 内核警告 用 「ACPI: 未找到RSDP」。
+        返还。
+    完。
+    版本 为 做 内存读8 用 ACPI_RSDP地址 加 15。
+    rsdt_addr 为 做 内存读32 用 ACPI_RSDP地址 加 16。
+    可变 xsdt_addr 为 0。
+    若 版本 大于或等于 2：
+        xsdt_addr 为 做 内存读64 用 ACPI_RSDP地址 加 24。
+    完。
+    oem 为 做 读取固定字符串 用 ACPI_RSDP地址 加 9、6。
+    做 内核信息 用 「ACPI: RSDP版本=」 加 做 整数转字符串 用 版本 加 「 OEM=」 加 oem。
+    若 xsdt_addr 不等于 0：
+        ACPI_XSDT地址 为 xsdt_addr。
+        做 ACPI_解析XSDT 用 xsdt_addr。
+    否则：
+        做 ACPI_解析RSDT 用 rsdt_addr。
+    完。
+    做 ACPI_解析MADT。
+    做 ACPI_解析FADT。
+    做 ACPI_解析HPET。
+    做 ACPI_解析MCFG。
+    若 ACPI_FADT 不等于 空 并且 ACPI_FADT 的 SMI命令端口 不等于 0：
+        做 端口写8 用 ACPI_FADT 的 SMI命令端口、ACPI_FADT 的 ACPI使能值。
+        做 延迟_ms 用 100。
+        做 内核信息 用 「ACPI: ACPI模式已使能」。
+    完。
+    做 ACPI_散热_初始化。
+    ACPI_已初始化 为 真。
+    做 内核信息 用 「ACPI: 初始化完成 CPU=」 加 做 整数转字符串 用 做 计数 用 ACPI_CPU列表 加 「 IO接口C=」 加 做 整数转字符串 用 做 计数 用 ACPI_IO接口C列表 加 「 表=」 加 做 整数转字符串 用 做 计数 用 ACPI_表列表。
+完。
+
+ACPI_查找RSDP 接受 零参：
+    ebda_seg 为 做 内存读16 用 0x40E。
+    ebda 为 ebda_seg 左移 4。
+    结果 为 做 ACPI_扫描RSDP 用 ebda、ebda 加 1024。
+    若 结果 不等于 0：
+        返还 结果。
+    完。
+    返还 做 ACPI_扫描RSDP 用 0xE0000、0x100000。
+完。
+
+ACPI_扫描RSDP 接受 起始、结束：
+    可变 addr 为 起始。
+    只要 addr 小于 结束：
+        若 做 内存读8 用 addr 等于 0x52 并且 做 内存读8 用 addr 加 1 等于 0x53 并且 做 内存读8 用 addr 加 2 等于 0x44 并且 做 内存读8 用 addr 加 3 等于 0x20 并且 做 内存读8 用 addr 加 4 等于 0x50 并且 做 内存读8 用 addr 加 5 等于 0x54 并且 做 内存读8 用 addr 加 6 等于 0x52 并且 做 内存读8 用 addr 加 7 等于 0x20：
+            可变 sum 为 0。
+            可变 i 为 0。
+            只要 i 小于 20：
+                sum 为 sum 加 做 内存读8 用 addr 加 i。
+                i 为 i 加 1。
+            完。
+            若 sum 位与 0xFF 等于 0：
+                做 内核信息 用 「ACPI: RSDP @ 」 加 做 整数转十六进制 用 addr。
+                返还 addr。
+            完。
+        完。
+        addr 为 addr 加 16。
+    完。
+    返还 0。
+完。
+
+本章 收束。

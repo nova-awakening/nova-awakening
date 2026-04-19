@@ -1,0 +1,156 @@
+《统一码解码》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·字体度量和塑形》。
+
+引用《.·内核直连层》。
+
+引用《.·扩展归档逻辑》。
+
+引用《..·推理·权重持久》。
+
+引用《..·中枢·内存初始化》。
+
+UTF8_解码 接受 str、pos、len：
+    若 pos 大于或等于 len：
+        返还 0。
+    完。
+    b0 为 做 内存_读8 用 str 加 pos。
+    若 b0 小于 0x80：
+        返还 b0。
+    完。
+    若 b0 小于 0xC0：
+        返还 0xFFFD。
+    完。
+    若 b0 小于 0xE0：
+        若 pos 加 1 大于或等于 len：
+            返还 0xFFFD。
+        完。
+        b1 为 做 内存_读8 用 str 加 pos 加 1。
+        返还 (b0 位与 0x1F) 左移 6 位或 b1 位与 0x3F。
+    完。
+    若 b0 小于 0xF0：
+        若 pos 加 2 大于或等于 len：
+            返还 0xFFFD。
+        完。
+        b1 为 做 内存_读8 用 str 加 pos 加 1。
+        b2 为 做 内存_读8 用 str 加 pos 加 2。
+        返还 (b0 位与 0x0F) 左移 12 位或 (b1 位与 0x3F) 左移 6 位或 b2 位与 0x3F。
+    完。
+    若 b0 小于 0xF8：
+        若 pos 加 3 大于或等于 len：
+            返还 0xFFFD。
+        完。
+        b1 为 做 内存_读8 用 str 加 pos 加 1。
+        b2 为 做 内存_读8 用 str 加 pos 加 2。
+        b3 为 做 内存_读8 用 str 加 pos 加 3。
+        返还 (b0 位与 0x07) 左移 18 位或 (b1 位与 0x3F) 左移 12 位或 (b2 位与 0x3F) 左移 6 位或 b3 位与 0x3F。
+    完。
+    返还 0xFFFD。
+完。
+
+UTF8_字节数 接受 str、pos：
+    b 为 做 内存_读8 用 str 加 pos。
+    若 b 小于 0x80：
+        返还 1。
+    完。
+    若 b 小于 0xC0：
+        返还 1。
+    完。
+    若 b 小于 0xE0：
+        返还 2。
+    完。
+    若 b 小于 0xF0：
+        返还 3。
+    完。
+    若 b 小于 0xF8：
+        返还 4。
+    完。
+    返还 1。
+完。
+
+可变 全局_默认字体 为 0。
+
+字体引擎_初始化 接受 零参：
+    字体路径列表 为 一组：「/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf」、「/usr/share/fonts/TTF/DejaVuSans.ttf」、「/usr/share/fonts/noto/NotoSansCJK-Regular.ttc」、「/usr/share/fonts/truetype/noto/NotoSans-Regular.ttf」、0。
+    可变 i 为 0。
+    只要 字体路径列表 的 第 i 项 不等于 0：
+        大小指针 为 做 堆_分配 用 8。
+        数据 为 做 文件_读取 用 字体路径列表 的 第 i 项、大小指针。
+        大小 为 做 内存_读64 用 大小指针。
+        做 堆_释放 用 大小指针。
+        若 数据 不等于 0 并且 大小 大于 12：
+            font 为 做 FreeType_创建字体 用 数据、大小。
+            若 font 不等于 0：
+                全局_默认字体 为 font。
+                返还。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+字体_渲染文本 接受 文本、文本长度、像素大小、颜色、目标缓冲、目标宽度、目标x、目标y：
+    font 为 全局_默认字体。
+    若 font 等于 0：
+        返还。
+    完。
+    shaped 为 做 堆_分配 用 256 乘 16。
+    count 为 做 TrueType_塑形 用 font、文本、文本长度、像素大小、shaped、256。
+    可变 i 为 0。
+    只要 i 小于 count：
+        sg 为 shaped 加 i 乘 16。
+        gid 为 做 内存_读16 用 sg。
+        x_off 为 做 内存_读32 用 sg 加 4 除以 64。
+        bmp 为 做 TrueType_获取缓存位图 用 font、gid、像素大小。
+        若 bmp 不等于 0 并且 bmp 的 像素 不等于 0：
+            dst_x 为 目标x 加 x_off 加 bmp 的 左偏。
+            dst_y 为 目标y 减 bmp 的 上偏。
+            做 字体_合成位图 用 bmp、颜色、目标缓冲、目标宽度、dst_x、dst_y。
+        完。
+        i 为 i 加 1。
+    完。
+    做 堆_释放 用 shaped。
+完。
+
+字体_合成位图 接受 bmp、颜色、目标、目标宽度、dx、dy：
+    r 为 颜色 右移 16 位与 0xFF。
+    g 为 颜色 右移 8 位与 0xFF。
+    b 为 颜色 位与 0xFF。
+    可变 y 为 0。
+    只要 y 小于 bmp 的 高度：
+        py 为 dy 加 y。
+        若 py 大于或等于 0：
+            可变 x 为 0。
+            只要 x 小于 bmp 的 宽度：
+                px 为 dx 加 x。
+                若 px 大于或等于 0 并且 px 小于 目标宽度：
+                    alpha 为 做 内存_读8 用 bmp 的 像素 加 y 乘 bmp 的 步幅 加 x。
+                    若 alpha 大于 0：
+                        dst_ptr 为 目标 加 (py 乘 目标宽度 加 px) 乘 4。
+                        若 alpha 大于或等于 255：
+                            做 内存_写8 用 dst_ptr、r。
+                            做 内存_写8 用 dst_ptr 加 1、g。
+                            做 内存_写8 用 dst_ptr 加 2、b。
+                            做 内存_写8 用 dst_ptr 加 3、255。
+                        否则：
+                            inv 为 255 减 alpha。
+                            做 内存_写8 用 dst_ptr、(r 乘 alpha 加 做 内存_读8 用 dst_ptr 乘 inv) 除以 255。
+                            做 内存_写8 用 dst_ptr 加 1、(g 乘 alpha 加 做 内存_读8 用 dst_ptr 加 1 乘 inv) 除以 255。
+                            做 内存_写8 用 dst_ptr 加 2、(b 乘 alpha 加 做 内存_读8 用 dst_ptr 加 2 乘 inv) 除以 255。
+                            a_dst 为 做 内存_读8 用 dst_ptr 加 3。
+                            做 内存_写8 用 dst_ptr 加 3、alpha 加 a_dst 乘 inv 除以 255。
+                        完。
+                    完。
+                完。
+                x 为 x 加 1。
+            完。
+        完。
+        y 为 y 加 1。
+    完。
+完。
+
+本章 收束。

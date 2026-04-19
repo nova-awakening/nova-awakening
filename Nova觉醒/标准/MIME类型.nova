@@ -1,0 +1,168 @@
+《MIME类型》
+
+引用《.·类型》。
+
+引用《..·中枢·整数转字符串》。
+
+MIME条目 是 一种 事物，含 扩展名、类型、描述、默认程序、图标。
+
+可变 _MIME表 为 一组：（空）。
+
+可变 _MIME已初始化 为 假。
+
+MIME_初始化 接受 零参：
+    若 _MIME已初始化：
+        返还。
+    完。
+    _MIME表 为 一组：（空）。
+    做 MIME_注册 用 「nova」、「text/x-nova」、「Nova源码」、「龙文」、「」。
+    做 MIME_注册 用 「txt」、「text/plain」、「纯文本」、「龙文」、「」。
+    做 MIME_注册 用 「md」、「text/markdown」、「Markdown文档」、「龙文」、「」。
+    做 MIME_注册 用 「json」、「application/json」、「JSON数据」、「龙文」、「」。
+    做 MIME_注册 用 「xml」、「application/xml」、「XML文档」、「龙文」、「」。
+    做 MIME_注册 用 「csv」、「text/csv」、「逗号分隔值」、「龙文」、「」。
+    做 MIME_注册 用 「conf」、「text/x-config」、「配置文件」、「龙文」、「」。
+    做 MIME_注册 用 「cfg」、「text/x-config」、「配置文件」、「龙文」、「」。
+    做 MIME_注册 用 「log」、「text/x-log」、「日志文件」、「龙文」、「」。
+    做 MIME_注册 用 「sh」、「text/x-shellscript」、「Shell脚本」、「龙文」、「」。
+    做 MIME_注册 用 「png」、「image/png」、「PNG图像」、「图片查看」、「」。
+    做 MIME_注册 用 「jpg」、「image/jpeg」、「JPEG图像」、「图片查看」、「」。
+    做 MIME_注册 用 「jpeg」、「image/jpeg」、「JPEG图像」、「图片查看」、「」。
+    做 MIME_注册 用 「gif」、「image/gif」、「GIF动画」、「图片查看」、「」。
+    做 MIME_注册 用 「bmp」、「image/bmp」、「BMP位图」、「图片查看」、「」。
+    做 MIME_注册 用 「svg」、「image/svg+xml」、「SVG矢量图」、「图片查看」、「」。
+    做 MIME_注册 用 「ico」、「image/x-icon」、「图标」、「图片查看」、「」。
+    做 MIME_注册 用 「mp3」、「audio/mpeg」、「MP3音频」、「音乐播放」、「」。
+    做 MIME_注册 用 「wav」、「audio/wav」、「WAV音频」、「音乐播放」、「」。
+    做 MIME_注册 用 「ogg」、「audio/ogg」、「OGG音频」、「音乐播放」、「」。
+    做 MIME_注册 用 「mp4」、「video/mp4」、「MP4视频」、「视频播放」、「」。
+    做 MIME_注册 用 「avi」、「video/x-msvideo」、「AVI视频」、「视频播放」、「」。
+    做 MIME_注册 用 「mkv」、「video/x-matroska」、「MKV视频」、「视频播放」、「」。
+    做 MIME_注册 用 「napp」、「application/x-nova-app」、「Nova应用Bundle」、「Bundle加载器」、「」。
+    做 MIME_注册 用 「nsvc」、「application/x-nova-svc」、「Nova服务Bundle」、「Bundle加载器」、「」。
+    做 MIME_注册 用 「nsys」、「application/x-nova-sys」、「Nova系统Bundle」、「Bundle加载器」、「」。
+    做 MIME_注册 用 「elf」、「application/x-elf」、「ELF可执行」、「」、「」。
+    做 MIME_注册 用 「zip」、「application/zip」、「ZIP压缩包」、「归档管理」、「」。
+    做 MIME_注册 用 「tar」、「application/x-tar」、「TAR归档」、「归档管理」、「」。
+    做 MIME_注册 用 「gz」、「application/gzip」、「GZIP压缩」、「归档管理」、「」。
+    做 MIME_注册 用 「ttf」、「font/ttf」、「TrueType字体」、「」、「」。
+    做 MIME_注册 用 「otf」、「font/otf」、「OpenType字体」、「」、「」。
+    做 MIME_注册 用 「woff」、「font/woff」、「Web字体」、「」、「」。
+    _MIME已初始化 为 真。
+完。
+
+MIME_按扩展名 接受 扩展名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _MIME表：
+        若 _MIME表 的 第 i 项 的 扩展名 等于 扩展名：
+            返还 _MIME表 的 第 i 项 的 类型。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 「application/octet-stream」。
+完。
+
+MIME_按文件名 接受 文件名：
+    可变 点位 为 负 1。
+    可变 i 为 做 字串_长度 用 文件名 减 1。
+    只要 i 大于或等于 0：
+        若 做 字串_取 用 文件名、i 等于 46：
+            点位 为 i。
+            i 为 负 1。
+        完。
+        i 为 i 减 1。
+    完。
+    若 点位 小于 0：
+        返还 「application/octet-stream」。
+    完。
+    扩展 为 做 字串_子串 用 文件名、点位 加 1、做 字串_长度 用 文件名。
+    返还 做 MIME_按扩展名 用 扩展。
+完。
+
+MIME_描述 接受 扩展名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _MIME表：
+        若 _MIME表 的 第 i 项 的 扩展名 等于 扩展名：
+            返还 _MIME表 的 第 i 项 的 描述。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 「未知文件类型」。
+完。
+
+MIME_默认程序 接受 扩展名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _MIME表：
+        若 _MIME表 的 第 i 项 的 扩展名 等于 扩展名：
+            返还 _MIME表 的 第 i 项 的 默认程序。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 「」。
+完。
+
+MIME_查找条目 接受 扩展名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _MIME表：
+        若 _MIME表 的 第 i 项 的 扩展名 等于 扩展名：
+            返还 _MIME表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+MIME_设默认程序 接受 扩展名、程序：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _MIME表：
+        若 _MIME表 的 第 i 项 的 扩展名 等于 扩展名：
+            _MIME表 的 第 i 项 的 默认程序 为 程序。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+MIME_注册 接受 扩展名、类型、描述、默认程序、图标：
+    条目 为 新建 MIME条目。
+    条目 的 扩展名 为 扩展名。
+    条目 的 类型 为 类型。
+    条目 的 描述 为 描述。
+    条目 的 默认程序 为 默认程序。
+    条目 的 图标 为 图标。
+    做 追加 用 _MIME表、条目。
+完。
+
+MIME_注销 接受 扩展名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _MIME表：
+        若 _MIME表 的 第 i 项 的 扩展名 等于 扩展名：
+            做 列表_移除 用 _MIME表、i。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+MIME_总数 接受 零参：
+    返还 做 计数 用 _MIME表。
+完。
+
+MIME_报告 接受 零参：
+    可变 r 为 「═══ MIME类型注册表 ═══\n」。
+    r 为 r 加 「已注册: 」 加 做 整数转字符串 用 做 计数 用 _MIME表 加 「 种\n」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _MIME表：
+        r 为 r 加 「  .」 加 _MIME表 的 第 i 项 的 扩展名 加 「 → 」 加 _MIME表 的 第 i 项 的 类型。
+        若 _MIME表 的 第 i 项 的 默认程序 不等于 「」：
+            r 为 r 加 「 [」 加 _MIME表 的 第 i 项 的 默认程序 加 「]」。
+        完。
+        r 为 r 加 「\n」。
+        i 为 i 加 1。
+    完。
+    返还 r。
+完。
+
+本章 收束。

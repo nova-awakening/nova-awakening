@@ -1,0 +1,154 @@
+《关键帧动画》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·正弦创建》。
+
+Keyframe 是 一种 事物，含 offset、easing、composite、属性、值、属性数。
+
+KeyframeEffect 是 一种 事物，含 target、pseudo元素、keyframes、帧数、duration、delay、endDelay、iterations、iterationStart、direction、fill、easing、composite。
+
+KeyframeEffect_创建 接受 target、keyframes、帧数、duration：
+    kfe 为 做 堆_分配 用 KeyframeEffect。
+    kfe 的 target 为 target。
+    kfe 的 pseudo元素 为 0。
+    kfe 的 keyframes 为 keyframes。
+    kfe 的 帧数 为 帧数。
+    kfe 的 duration 为 duration。
+    kfe 的 delay 为 0。
+    kfe 的 endDelay 为 0。
+    kfe 的 iterations 为 1024。
+    kfe 的 iterationStart 为 0。
+    kfe 的 direction 为 DIR_NORMAL。
+    kfe 的 fill 为 FILL_AUTO。
+    kfe 的 easing 为 做 Easing_创建 用 EASING_LINEAR。
+    kfe 的 composite 为 COMPOSITE_REPLACE。
+    返还 kfe。
+完。
+
+KeyframeEffect_计算 接受 kfe、localTime：
+    若 kfe 等于 0 或者 kfe 的 帧数 小于 2：
+        返还。
+    完。
+    activeDuration 为 kfe 的 duration 乘 kfe 的 iterations 除以 1024。
+    若 activeDuration 小于或等于 0：
+        返还。
+    完。
+    可变 进度 为 0。
+    若 localTime 小于 kfe 的 delay：
+        若 kfe 的 fill 等于 FILL_BACKWARDS 或者 kfe 的 fill 等于 FILL_BOTH：
+            进度 为 kfe 的 iterationStart。
+        否则：
+            返还。
+        完。
+    否则若 localTime 大于或等于 kfe 的 delay 加 activeDuration：
+        若 kfe 的 fill 等于 FILL_FORWARDS 或者 kfe 的 fill 等于 FILL_BOTH：
+            进度 为 1024。
+        否则：
+            返还。
+        完。
+    否则：
+        activeTime 为 localTime 减 kfe 的 delay。
+        迭代进度 为 activeTime 乘 1024 除以 kfe 的 duration 取余于 1024。
+        若 kfe 的 direction 等于 DIR_REVERSE：
+            迭代进度 为 1024 减 迭代进度。
+        否则若 kfe 的 direction 等于 DIR_ALTERNATE：
+            当前迭代 为 activeTime 除以 kfe 的 duration。
+            若 当前迭代 取余于 2 等于 1：
+                迭代进度 为 1024 减 迭代进度。
+            完。
+        否则若 kfe 的 direction 等于 DIR_ALTERNATE_REVERSE：
+            当前迭代 为 activeTime 除以 kfe 的 duration。
+            若 当前迭代 取余于 2 等于 0：
+                迭代进度 为 1024 减 迭代进度。
+            完。
+        完。
+        进度 为 迭代进度。
+    完。
+    若 kfe 的 easing 不等于 0：
+        进度 为 做 Easing_计算 用 kfe 的 easing、进度。
+    完。
+    做 KeyframeEffect_插值 用 kfe、进度。
+完。
+
+KeyframeEffect_插值 接受 kfe、进度：
+    若 kfe 等于 0 或者 kfe 的 帧数 小于 2：
+        返还。
+    完。
+    可变 前帧idx 为 0。
+    可变 后帧idx 为 1。
+    可变 i 为 0。
+    只要 i 小于 kfe 的 帧数 减 1：
+        当前帧 为 kfe 的 keyframes 加 i 乘 做 大小of 用 Keyframe。
+        下一帧 为 kfe 的 keyframes 加 (i 加 1) 乘 做 大小of 用 Keyframe。
+        当前offset 为 当前帧 的 offset。
+        下一offset 为 下一帧 的 offset。
+        若 当前offset 小于 0：
+            当前offset 为 i 乘 1024 除以 (kfe 的 帧数 减 1)。
+        完。
+        若 下一offset 小于 0：
+            下一offset 为 (i 加 1) 乘 1024 除以 (kfe 的 帧数 减 1)。
+        完。
+        若 进度 大于或等于 当前offset 并且 进度 小于或等于 下一offset：
+            前帧idx 为 i。
+            后帧idx 为 i 加 1。
+            跳出。
+        完。
+        i 为 i 加 1。
+    完。
+    前帧 为 kfe 的 keyframes 加 前帧idx 乘 做 大小of 用 Keyframe。
+    后帧 为 kfe 的 keyframes 加 后帧idx 乘 做 大小of 用 Keyframe。
+    前offset 为 前帧 的 offset。
+    后offset 为 后帧 的 offset。
+    若 前offset 小于 0：
+        前offset 为 前帧idx 乘 1024 除以 (kfe 的 帧数 减 1)。
+    完。
+    若 后offset 小于 0：
+        后offset 为 后帧idx 乘 1024 除以 (kfe 的 帧数 减 1)。
+    完。
+    可变 局部t 为 0。
+    若 后offset 大于 前offset：
+        局部t 为 (进度 减 前offset) 乘 1024 除以 (后offset 减 前offset)。
+    完。
+    若 前帧 的 easing 不等于 0：
+        局部t 为 做 Easing_计算 用 前帧 的 easing、局部t。
+    完。
+    可变 p 为 0。
+    只要 p 小于 前帧 的 属性数：
+        propId 为 前帧 的 属性 的 第 p 项。
+        从值 为 前帧 的 值 的 第 p 项。
+        可变 到值 为 从值。
+        可变 j 为 0。
+        只要 j 小于 后帧 的 属性数：
+            若 后帧 的 属性 的 第 j 项 等于 propId：
+                到值 为 后帧 的 值 的 第 j 项。
+                跳出。
+            完。
+            j 为 j 加 1。
+        完。
+        插值 为 从值 加 (到值 减 从值) 乘 局部t 除以 1024。
+        若 kfe 的 target 不等于 0：
+        完。
+        p 为 p 加 1。
+    完。
+完。
+
+可变 AI_感知乙乙_调用数 为 0。
+
+可变 AI_感知乙乙_异常数 为 0。
+
+AI_感知乙乙_监控 接受 零参：
+    AI_感知乙乙_调用数 为 AI_感知乙乙_调用数 加 1。
+    返还 AI_感知乙乙_异常数 等于 0。
+完。
+
+AI_感知乙乙_健康检查 接受 零参：
+    若 AI_感知乙乙_调用数 大于 0 并且 AI_感知乙乙_异常数 乘 100 除以 AI_感知乙乙_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

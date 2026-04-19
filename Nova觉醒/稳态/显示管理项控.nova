@@ -1,0 +1,473 @@
+《显示管理项控》
+
+引用《..·中枢·日志中枢》。
+
+引用《..·中枢·整数转字符串》。
+
+DRM_Nova设备控制_VERSION 为 0x00。
+
+DRM_Nova设备控制_GET_CAP 为 0x0C。
+
+DRM_Nova设备控制_SET_MASTER 为 0x1E。
+
+DRM_Nova设备控制_DROP_MASTER 为 0x1F。
+
+DRM_Nova设备控制_MODE_GETRESOURCES 为 0xA0。
+
+DRM_Nova设备控制_MODE_GETCRTC 为 0xA1。
+
+DRM_Nova设备控制_MODE_SETCRTC 为 0xA2。
+
+DRM_Nova设备控制_MODE_GETENCODER 为 0xA6。
+
+DRM_Nova设备控制_MODE_GETCONNECTOR 为 0xA7。
+
+DRM_Nova设备控制_MODE_GETPROPERTY 为 0xAA。
+
+DRM_Nova设备控制_MODE_GETFB 为 0xAD。
+
+DRM_Nova设备控制_MODE_ADDFB 为 0xAE。
+
+DRM_Nova设备控制_MODE_ADDFB2 为 0xB8。
+
+DRM_Nova设备控制_MODE_RMFB 为 0xAF。
+
+DRM_Nova设备控制_MODE_PAGE_FLIP 为 0xB0。
+
+DRM_Nova设备控制_MODE_CREATE_DUMB 为 0xB2。
+
+DRM_Nova设备控制_MODE_MAP_DUMB 为 0xB3。
+
+DRM_Nova设备控制_MODE_DESTROY_DUMB 为 0xB4。
+
+DRM_Nova设备控制_MODE_ATOMIC 为 0xBC。
+
+DRM_Nova设备控制_PRIME_HANDLE_TO_FD 为 0x2D。
+
+DRM_Nova设备控制_PRIME_FD_TO_HANDLE 为 0x2E。
+
+DRM_CAP_DUMB_BUFFER 为 0x01。
+
+DRM_CAP_PRIME 为 0x05。
+
+DRM_CAP_TIMESTAMP_MONOTONIC 为 0x06。
+
+DRM_CAP_ATOMIC 为 0x10。
+
+DRM_CAP_ADDFB2_MODIFIERS 为 0x12。
+
+DRM_MODE_CONNECTED 为 1。
+
+DRM_MODE_DISCONNECTED 为 2。
+
+DRM_MODE_UNKNOWNCONNECTION 为 3。
+
+DRM_MODE_CONNECTOR_显基 为 1。
+
+DRM_MODE_CONNECTOR_DVII 为 2。
+
+DRM_MODE_CONNECTOR_DVID 为 3。
+
+DRM_MODE_CONNECTOR_HDMIA 为 11。
+
+DRM_MODE_CONNECTOR_HDMIB 为 12。
+
+DRM_MODE_CONNECTOR_DisplayPort 为 14。
+
+DRM_MODE_CONNECTOR_eDP 为 15。
+
+DRM_FORMAT_XRGB8888 为 0x34325258。
+
+DRM_FORMAT_ARGB8888 为 0x34325241。
+
+DRM_FORMAT_RGB565 为 0x36314752。
+
+DRM设备 是 一种 事物，含 名称、驱动名、CRTC列表、编码器列表、连接器列表、帧缓冲列表、GEM对象列表、下一个对象ID、支持原子、支持PRIME、VRAM大小。
+
+DRM_CRTC 是 一种 事物，含 ID、X、Y、当前FB、模式、已启用、伽马大小。
+
+DRM连接器 是 一种 事物，含 ID、类型、状态、编码器ID、模式列表、EDID、物理宽mm、物理高mm。
+
+DRM编码器 是 一种 事物，含 ID、类型、CRTC_ID、可用CRTC位图。
+
+DRM显示模式 是 一种 事物，含 时钟、水平显示、水平同步起、水平同步止、水平总、垂直显示、垂直同步起、垂直同步止、垂直总、刷新率、标志、类型、名称。
+
+DRM帧缓冲 是 一种 事物，含 ID、宽、高、跨距、像素格式、GEM句柄、偏移。
+
+GEM对象 是 一种 事物，含 句柄、大小、物理地址、映射地址、引用计数。
+
+可变 全局DRM设备 为 0。
+
+DRM_初始化 接受 驱动名：
+    全局DRM设备 为 新建 DRM设备。
+    全局DRM设备 的 名称 为 「card0」。
+    全局DRM设备 的 驱动名 为 驱动名。
+    全局DRM设备 的 CRTC列表 为 一组：（空）。
+    全局DRM设备 的 编码器列表 为 一组：（空）。
+    全局DRM设备 的 连接器列表 为 一组：（空）。
+    全局DRM设备 的 帧缓冲列表 为 一组：（空）。
+    全局DRM设备 的 GEM对象列表 为 一组：（空）。
+    全局DRM设备 的 下一个对象ID 为 1。
+    全局DRM设备 的 支持原子 为 真。
+    全局DRM设备 的 支持PRIME 为 真。
+    全局DRM设备 的 VRAM大小 为 256 乘 1024 乘 1024。
+    做 内核信息 用 「DRM: 初始化 驱动=」 加 驱动名 加 「 VRAM=」 加 做 整数转字符串 用 全局DRM设备 的 VRAM大小 除以 1024 除以 1024 加 「MB」。
+    返还 0。
+完。
+
+DRM_分配ID 接受 零参：
+    若 全局DRM设备 等于 0：
+        返还 0。
+    完。
+    id 为 全局DRM设备 的 下一个对象ID。
+    全局DRM设备 的 下一个对象ID 为 全局DRM设备 的 下一个对象ID 加 1。
+    返还 id。
+完。
+
+DRM_添加CRTC 接受 零参：
+    若 全局DRM设备 等于 0：
+        返还 0。
+    完。
+    crtc 为 新建 DRM_CRTC。
+    crtc 的 ID 为 做 DRM_分配ID。
+    crtc 的 X 为 0。
+    crtc 的 Y 为 0。
+    crtc 的 当前FB 为 0。
+    crtc 的 已启用 为 假。
+    crtc 的 伽马大小 为 256。
+    做 追加 用 全局DRM设备 的 CRTC列表、crtc。
+    返还 crtc 的 ID。
+完。
+
+DRM_获取CRTC 接受 id：
+    若 全局DRM设备 等于 0：
+        返还 空。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 全局DRM设备 的 CRTC列表：
+        若 全局DRM设备 的 CRTC列表 的 第 i 项 的 ID 等于 id：
+            返还 全局DRM设备 的 CRTC列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+DRM_设置CRTC 接受 crtc_id、fb_id、x、y：
+    crtc 为 做 DRM_获取CRTC 用 crtc_id。
+    若 crtc 等于 空：
+        返还 负 1。
+    完。
+    crtc 的 当前FB 为 fb_id。
+    crtc 的 X 为 x。
+    crtc 的 Y 为 y。
+    crtc 的 已启用 为 真。
+    返还 0。
+完。
+
+DRM_添加连接器 接受 类型：
+    若 全局DRM设备 等于 0：
+        返还 0。
+    完。
+    conn 为 新建 DRM连接器。
+    conn 的 ID 为 做 DRM_分配ID。
+    conn 的 类型 为 类型。
+    conn 的 状态 为 DRM_MODE_DISCONNECTED。
+    conn 的 编码器ID 为 0。
+    conn 的 模式列表 为 一组：（空）。
+    conn 的 EDID 为 0。
+    conn 的 物理宽mm 为 0。
+    conn 的 物理高mm 为 0。
+    做 追加 用 全局DRM设备 的 连接器列表、conn。
+    返还 conn 的 ID。
+完。
+
+DRM_获取连接器 接受 id：
+    若 全局DRM设备 等于 0：
+        返还 空。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 全局DRM设备 的 连接器列表：
+        若 全局DRM设备 的 连接器列表 的 第 i 项 的 ID 等于 id：
+            返还 全局DRM设备 的 连接器列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+DRM_连接器类型名 接受 类型：
+    若 类型 等于 DRM_MODE_CONNECTOR_显基：
+        返还 「VGA」。
+    完。
+    若 类型 等于 DRM_MODE_CONNECTOR_DVII：
+        返还 「DVI-I」。
+    完。
+    若 类型 等于 DRM_MODE_CONNECTOR_DVID：
+        返还 「DVI-D」。
+    完。
+    若 类型 等于 DRM_MODE_CONNECTOR_HDMIA：
+        返还 「HDMI-A」。
+    完。
+    若 类型 等于 DRM_MODE_CONNECTOR_HDMIB：
+        返还 「HDMI-B」。
+    完。
+    若 类型 等于 DRM_MODE_CONNECTOR_DisplayPort：
+        返还 「DP」。
+    完。
+    若 类型 等于 DRM_MODE_CONNECTOR_eDP：
+        返还 「eDP」。
+    完。
+    返还 「Unknown」。
+完。
+
+DRM_连接状态名 接受 状态：
+    若 状态 等于 DRM_MODE_CONNECTED：
+        返还 「connected」。
+    完。
+    若 状态 等于 DRM_MODE_DISCONNECTED：
+        返还 「disconnected」。
+    完。
+    返还 「unknown」。
+完。
+
+DRM_连接器_添加模式 接受 conn、模式：
+    若 conn 等于 空：
+        返还。
+    完。
+    做 追加 用 conn 的 模式列表、模式。
+完。
+
+DRM_连接器_最佳模式 接受 conn：
+    若 conn 等于 空 或者 做 计数 用 conn 的 模式列表 等于 0：
+        返还 空。
+    完。
+    可变 最佳 为 conn 的 模式列表 的 第 0 项。
+    可变 i 为 1。
+    只要 i 小于 做 计数 用 conn 的 模式列表：
+        m 为 conn 的 模式列表 的 第 i 项。
+        若 m 的 水平显示 乘 m 的 垂直显示 大于 最佳 的 水平显示 乘 最佳 的 垂直显示：
+            最佳 为 m。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 最佳。
+完。
+
+DRM_创建帧缓冲 接受 宽、高、格式：
+    若 全局DRM设备 等于 0：
+        返还 0。
+    完。
+    fb 为 新建 DRM帧缓冲。
+    fb 的 ID 为 做 DRM_分配ID。
+    fb 的 宽 为 宽。
+    fb 的 高 为 高。
+    fb 的 像素格式 为 格式。
+    bpp 为 4。
+    若 格式 等于 DRM_FORMAT_RGB565：
+        bpp 为 2。
+    完。
+    fb 的 跨距 为 宽 乘 bpp。
+    fb 的 GEM句柄 为 0。
+    fb 的 偏移 为 0。
+    做 追加 用 全局DRM设备 的 帧缓冲列表、fb。
+    返还 fb 的 ID。
+完。
+
+DRM_删除帧缓冲 接受 fb_id：
+    若 全局DRM设备 等于 0：
+        返还。
+    完。
+    可变 新列表 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 全局DRM设备 的 帧缓冲列表：
+        若 全局DRM设备 的 帧缓冲列表 的 第 i 项 的 ID 不等于 fb_id：
+            做 追加 用 新列表、全局DRM设备 的 帧缓冲列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    全局DRM设备 的 帧缓冲列表 为 新列表。
+完。
+
+DRM_获取帧缓冲 接受 id：
+    若 全局DRM设备 等于 0：
+        返还 空。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 全局DRM设备 的 帧缓冲列表：
+        若 全局DRM设备 的 帧缓冲列表 的 第 i 项 的 ID 等于 id：
+            返还 全局DRM设备 的 帧缓冲列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+DRM_GEM_创建 接受 大小：
+    若 全局DRM设备 等于 0：
+        返还 0。
+    完。
+    gem 为 新建 GEM对象。
+    gem 的 句柄 为 做 DRM_分配ID。
+    gem 的 大小 为 大小。
+    gem 的 物理地址 为 0。
+    gem 的 映射地址 为 0。
+    gem 的 引用计数 为 1。
+    做 追加 用 全局DRM设备 的 GEM对象列表、gem。
+    返还 gem 的 句柄。
+完。
+
+DRM_GEM_获取 接受 句柄：
+    若 全局DRM设备 等于 0：
+        返还 空。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 全局DRM设备 的 GEM对象列表：
+        若 全局DRM设备 的 GEM对象列表 的 第 i 项 的 句柄 等于 句柄：
+            返还 全局DRM设备 的 GEM对象列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+DRM_GEM_引用 接受 gem：
+    若 gem 等于 空：
+        返还。
+    完。
+    gem 的 引用计数 为 gem 的 引用计数 加 1。
+完。
+
+DRM_GEM_释放 接受 gem：
+    若 gem 等于 空：
+        返还。
+    完。
+    gem 的 引用计数 为 gem 的 引用计数 减 1。
+完。
+
+可变 DRM_翻转总数 为 0。
+
+可变 DRM_翻转丢帧数 为 0。
+
+DRM_页面翻转 接受 crtc_id、fb_id：
+    crtc 为 做 DRM_获取CRTC 用 crtc_id。
+    若 crtc 等于 空：
+        返还 负 1。
+    完。
+    crtc 的 当前FB 为 fb_id。
+    DRM_翻转总数 为 DRM_翻转总数 加 1。
+    返还 0。
+完。
+
+DRM_Nova设备控制 接受 命令、参数：
+    若 命令 等于 DRM_Nova设备控制_VERSION：
+        返还 做 DRM_获取版本 用 参数。
+    完。
+    若 命令 等于 DRM_Nova设备控制_GET_CAP：
+        返还 做 DRM_获取能力 用 参数。
+    完。
+    若 命令 等于 DRM_Nova设备控制_MODE_GETRESOURCES：
+        返还 做 DRM_获取资源 用 参数。
+    完。
+    若 命令 等于 DRM_Nova设备控制_MODE_ADDFB：
+        返还 0。
+    完。
+    若 命令 等于 DRM_Nova设备控制_MODE_RMFB：
+        返还 0。
+    完。
+    若 命令 等于 DRM_Nova设备控制_MODE_PAGE_FLIP：
+        返还 0。
+    完。
+    若 命令 等于 DRM_Nova设备控制_MODE_CREATE_DUMB：
+        返还 做 DRM_创建Dumb缓冲 用 参数。
+    完。
+    返还 负 1。
+完。
+
+DRM_获取版本 接受 参数：
+    返还 一组：1、0、0。
+    返还 0。
+完。
+
+DRM_获取能力 接受 参数：
+    返还 0x0F。
+    返还 0。
+完。
+
+DRM_获取资源 接受 参数：
+    若 全局DRM设备 等于 0：
+        返还 负 1。
+    完。
+    返还 0。
+完。
+
+DRM_创建Dumb缓冲 接受 参数：
+    返还 做 堆_分配 用 宽 乘 高 乘 4。
+    返还 0。
+完。
+
+DRM_统计 接受 零参：
+    若 全局DRM设备 等于 0：
+        返还 空。
+    完。
+    返还 一本字典：驱动 对应 全局DRM设备 的 驱动名、CRTC数 对应 做 计数 用 全局DRM设备 的 CRTC列表、连接器数 对应 做 计数 用 全局DRM设备 的 连接器列表、编码器数 对应 做 计数 用 全局DRM设备 的 编码器列表、帧缓冲数 对应 做 计数 用 全局DRM设备 的 帧缓冲列表、GEM对象数 对应 做 计数 用 全局DRM设备 的 GEM对象列表、VRAM_MB 对应 全局DRM设备 的 VRAM大小 除以 1024 除以 1024、翻转总数 对应 DRM_翻转总数、丢帧 对应 DRM_翻转丢帧数。
+完。
+
+DRM_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 全局DRM设备 等于 0：
+        做 追加 用 问题、「DRM设备未初始化」。
+        返还 问题。
+    完。
+    若 做 计数 用 全局DRM设备 的 连接器列表 等于 0：
+        做 追加 用 问题、「无显示连接器」。
+    完。
+    若 DRM_翻转丢帧数 大于 DRM_翻转总数 除以 10 并且 DRM_翻转总数 大于 100：
+        做 追加 用 问题、「DRM丢帧率过高」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「DRM/KMS健康」。
+    完。
+    返还 问题。
+完。
+
+DRM_重置统计 接受 零参：
+    DRM_翻转总数 为 0。
+    DRM_翻转丢帧数 为 0。
+完。
+
+DRM_完整统计 接受 零参：
+    返还 一组：DRM_翻转总数、DRM_翻转丢帧数、做 计数 用 全局DRM设备 的 帧缓冲列表、做 计数 用 全局DRM设备 的 GEM对象列表。
+完。
+
+DRM_像素格式名 接受 格式：
+    若 格式 等于 DRM_FORMAT_XRGB8888：
+        返还 「XRGB8888」。
+    完。
+    若 格式 等于 DRM_FORMAT_ARGB8888：
+        返还 「ARGB8888」。
+    完。
+    若 格式 等于 DRM_FORMAT_RGB565：
+        返还 「RGB565」。
+    完。
+    返还 「Unknown(0x」 加 做 十六进制 用 格式 加 「)」。
+完。
+
+可变 AI_显示管理项_运行指标 为 0。
+
+可变 AI_显示管理项_异常指标 为 0。
+
+AI_显示管理项_自诊断 接受 零参：
+    AI_显示管理项_运行指标 为 DRM_翻转总数。
+    返还 AI_显示管理项_运行指标。
+完。
+
+AI_显示管理项_优化建议 接受 零参：
+    指标 为 做 AI_显示管理项_自诊断。
+    若 AI_显示管理项_运行指标 大于 10000：
+        返还 「显示管理项控负载较高」。
+    完。
+    返还 「显示管理项控状态正常」。
+完。
+
+本章 收束。

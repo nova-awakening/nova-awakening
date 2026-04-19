@@ -1,0 +1,169 @@
+《正弦创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+ANIM_IDLE 为 0。
+
+ANIM_PENDING 为 1。
+
+ANIM_RUNNING 为 2。
+
+ANIM_PAUSED 为 3。
+
+ANIM_FINISHED 为 4。
+
+FILL_NONE 为 0。
+
+FILL_FORWARDS 为 1。
+
+FILL_BACKWARDS 为 2。
+
+FILL_BOTH 为 3。
+
+FILL_AUTO 为 4。
+
+DIR_NORMAL 为 0。
+
+DIR_REVERSE 为 1。
+
+DIR_ALTERNATE 为 2。
+
+DIR_ALTERNATE_REVERSE 为 3。
+
+COMPOSITE_REPLACE 为 0。
+
+COMPOSITE_ADD 为 1。
+
+COMPOSITE_ACCUMULATE 为 2。
+
+EASING_LINEAR 为 0。
+
+EASING_EASE 为 1。
+
+EASING_EASE_IN 为 2。
+
+EASING_EASE_OUT 为 3。
+
+EASING_EASE_IN_OUT 为 4。
+
+EASING_Nova三次方_BEZIER 为 5。
+
+EASING_STEPS 为 6。
+
+EasingFunction 是 一种 事物，含 类型、x1、y1、x2、y2、步数、位置。
+
+Easing_创建 接受 类型：
+    e 为 做 堆_分配 用 EasingFunction。
+    e 的 类型 为 类型。
+    若 类型 等于 EASING_EASE：
+        e 的 x1 为 256。
+        e 的 y1 为 102。
+        e 的 x2 为 256。
+        e 的 y2 为 1024。
+    否则若 类型 等于 EASING_EASE_IN：
+        e 的 x1 为 430。
+        e 的 y1 为 0。
+        e 的 x2 为 1024。
+        e 的 y2 为 1024。
+    否则若 类型 等于 EASING_EASE_OUT：
+        e 的 x1 为 0。
+        e 的 y1 为 0。
+        e 的 x2 为 594。
+        e 的 y2 为 1024。
+    否则若 类型 等于 EASING_EASE_IN_OUT：
+        e 的 x1 为 430。
+        e 的 y1 为 0。
+        e 的 x2 为 594。
+        e 的 y2 为 1024。
+    否则：
+        e 的 x1 为 0。
+        e 的 y1 为 0。
+        e 的 x2 为 1024。
+        e 的 y2 为 1024。
+    完。
+    e 的 步数 为 0。
+    e 的 位置 为 1。
+    返还 e。
+完。
+
+Easing_Nova三次方Bezier 接受 x1、y1、x2、y2：
+    e 为 做 堆_分配 用 EasingFunction。
+    e 的 类型 为 EASING_Nova三次方_BEZIER。
+    e 的 x1 为 x1。
+    e 的 y1 为 y1。
+    e 的 x2 为 x2。
+    e 的 y2 为 y2。
+    返还 e。
+完。
+
+Easing_steps 接受 步数、位置：
+    e 为 做 堆_分配 用 EasingFunction。
+    e 的 类型 为 EASING_STEPS。
+    e 的 步数 为 步数。
+    e 的 位置 为 位置。
+    返还 e。
+完。
+
+Easing_计算 接受 e、t：
+    若 e 等于 0 或者 t 小于或等于 0：
+        返还 0。
+    完。
+    若 t 大于或等于 1024：
+        返还 1024。
+    完。
+    若 e 的 类型 等于 EASING_LINEAR：
+        返还 t。
+    完。
+    若 e 的 类型 等于 EASING_STEPS：
+        若 e 的 步数 等于 0：
+            返还 t。
+        完。
+        步长 为 1024 除以 e 的 步数。
+        当前步 为 t 除以 步长。
+        若 e 的 位置 等于 0：
+            返还 (当前步 加 1) 乘 步长。
+        完。
+        返还 当前步 乘 步长。
+    完。
+    返还 做 Nova三次方Bezier_求解 用 e 的 x1、e 的 y1、e 的 x2、e 的 y2、t。
+完。
+
+Nova三次方Bezier_求解 接受 x1、y1、x2、y2、t：
+    可变 lo 为 0。
+    可变 hi 为 1024。
+    可变 s 为 512。
+    可变 迭代 为 0。
+    只要 迭代 小于 20：
+        x 为 做 Nova三次方Bezier_x 用 x1、x2、s。
+        若 x 小于 t 减 1：
+            lo 为 s。
+        否则若 x 大于 t 加 1：
+            hi 为 s。
+        否则：
+            跳出。
+        完。
+        s 为 (lo 加 hi) 除以 2。
+        迭代 为 迭代 加 1。
+    完。
+    返还 做 Nova三次方Bezier_y 用 y1、y2、s。
+完。
+
+Nova三次方Bezier_x 接受 x1、x2、s：
+    inv 为 1024 减 s。
+    a 为 3 乘 inv 乘 inv 乘 s 除以 (1024 乘 1024)。
+    b 为 3 乘 inv 乘 s 乘 s 除以 (1024 乘 1024)。
+    c 为 s 乘 s 乘 s 除以 (1024 乘 1024)。
+    返还 (a 乘 x1 加 b 乘 x2) 除以 1024 加 c。
+完。
+
+Nova三次方Bezier_y 接受 y1、y2、s：
+    inv 为 1024 减 s。
+    a 为 3 乘 inv 乘 inv 乘 s 除以 (1024 乘 1024)。
+    b 为 3 乘 inv 乘 s 乘 s 除以 (1024 乘 1024)。
+    c 为 s 乘 s 乘 s 除以 (1024 乘 1024)。
+    返还 (a 乘 y1 加 b 乘 y2) 除以 1024 加 c。
+完。
+
+本章 收束。

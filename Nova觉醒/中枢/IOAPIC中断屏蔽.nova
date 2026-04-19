@@ -1,0 +1,479 @@
+《IOAPIC中断屏蔽》
+
+NIRC_版本 为 「3.0.0-NIRC」。
+
+NIRC_最大中断向量 为 256。
+
+NIRC_NMI向量 为 2。
+
+NIRC_AI阈值 为 0.72。
+
+可变 NIRC_屏蔽总数 为 0。
+
+可变 NIRC_取消屏蔽数 为 0。
+
+可变 NIRC_中断触发数 为 0。
+
+可变 NIRC_中断处理数 为 0。
+
+可变 NIRC_EOI数 为 0。
+
+可变 NIRC_AI推理次数 为 0。
+
+可变 NIRC_串行化次数 为 0。
+
+NIRC_IDT条目 是 一种 事物，含 向量号 为 0、处理器 为 0、类型 为 0、DPL 为 0、段选择 为 0、已启用 为 假、触发次数 为 0、最后触发 为 0。
+
+可变 IDT表 为 0。
+
+可变 IDT大小 为 0。
+
+NIRC_IDT初始化 接受 零参：
+    IDT大小 为 NIRC_最大中断向量。
+    IDT表 为 做 分配内存 用 做 大小 用 NIRC_IDT条目 乘 IDT大小。
+    可变 i 为 0。
+    只要 i 小于 IDT大小：
+        IDT表 的 第 i 项 的 向量号 为 i。
+        IDT表 的 第 i 项 的 处理器 为 0。
+        IDT表 的 第 i 项 的 类型 为 0。
+        IDT表 的 第 i 项 的 DPL 为 0。
+        IDT表 的 第 i 项 的 段选择 为 0x08。
+        IDT表 的 第 i 项 的 已启用 为 假。
+        IDT表 的 第 i 项 的 触发次数 为 0。
+        IDT表 的 第 i 项 的 最后触发 为 0。
+        i 为 i 加 1。
+    完。
+    做 内核信息 用 「[NIRC] IDT初始化完成 向量数=」 加 IDT大小 加 「\n」。
+完。
+
+NIRC_注册中断 接受 向量、处理器、类型、DPL：
+    若 向量 大于或等于 IDT大小：
+        返还。
+    完。
+    IDT表 的 第 向量 项 的 处理器 为 处理器。
+    IDT表 的 第 向量 项 的 类型 为 类型。
+    IDT表 的 第 向量 项 的 DPL 为 DPL。
+    IDT表 的 第 向量 项 的 已启用 为 真。
+完。
+
+NIRC_分发中断 接受 向量：
+    NIRC_中断触发数 为 NIRC_中断触发数 加 1。
+    若 向量 大于或等于 IDT大小：
+        返还。
+    完。
+    条目 为 IDT表 的 第 向量 项。
+    若 非 条目 的 已启用 或者 条目 的 处理器 等于 0：
+        返还。
+    完。
+    条目 的 触发次数 为 条目 的 触发次数 加 1。
+    条目 的 最后触发 为 做 当前时间_秒。
+    NIRC_中断处理数 为 NIRC_中断处理数 加 1。
+    做 条目 的 处理器 用 向量。
+完。
+
+APIC_基址 为 0xFEE00000。
+
+APIC_ID寄存器 为 0x20。
+
+APIC_版本寄存器 为 0x30。
+
+APIC_TPR 为 0x80。
+
+APIC_EOI 为 0xB0。
+
+APIC_伪向量 为 0xF0。
+
+APIC_ICR低 为 0x300。
+
+APIC_ICR高 为 0x310。
+
+NIRC_APIC读 接受 偏移：
+    返还 做 内存_读32 用 APIC_基址 加 偏移。
+完。
+
+NIRC_APIC写 接受 偏移、值：
+    做 内存_冉32 用 APIC_基址 加 偏移、值。
+完。
+
+NIRC_发送EOI 接受 零参：
+    NIRC_EOI数 为 NIRC_EOI数 加 1。
+    做 NIRC_APIC写 用 APIC_EOI、0。
+完。
+
+NIRC_获取APIC_ID 接受 零参：
+    返还 做 NIRC_APIC读 用 APIC_ID寄存器 右移 24 位与 0xFF。
+完。
+
+NIRC_设置优先级 接受 优先级：
+    做 NIRC_APIC写 用 APIC_TPR、优先级 位与 0xFF。
+完。
+
+NIRC_启用APIC 接受 零参：
+    伪向量 为 做 NIRC_APIC读 用 APIC_伪向量。
+    做 NIRC_APIC写 用 APIC_伪向量、伪向量 位或 0x100。
+    做 内核信息 用 「[NIRC] APIC已启用\n」。
+完。
+
+可变 NIRC_全局屏蔽深度 为 0。
+
+可变 NIRC_保存的标志 为 0。
+
+NIRC_屏蔽全系中断 接受 零参：
+    NIRC_屏蔽总数 为 NIRC_屏蔽总数 加 1。
+    若 NIRC_全局屏蔽深度 等于 0：
+        NIRC_保存的标志 为 做 CPU_保存并屏蔽中断。
+    完。
+    NIRC_全局屏蔽深度 为 NIRC_全局屏蔽深度 加 1。
+完。
+
+NIRC_恢复全系中断 接受 零参：
+    NIRC_取消屏蔽数 为 NIRC_取消屏蔽数 加 1。
+    若 NIRC_全局屏蔽深度 小于或等于 0：
+        返还。
+    完。
+    NIRC_全局屏蔽深度 为 NIRC_全局屏蔽深度 减 1。
+    若 NIRC_全局屏蔽深度 等于 0：
+        做 CPU_恢复中断标志 用 NIRC_保存的标志。
+    完。
+完。
+
+NIRC_是否已屏蔽 接受 零参：
+    返还 NIRC_全局屏蔽深度 大于 0。
+完。
+
+NIRC_发送IPI 接受 目标CPU、向量：
+    NIRC_串行化次数 为 NIRC_串行化次数 加 1。
+    做 NIRC_APIC写 用 APIC_ICR高、(目标CPU 位与 0xFF) 左移 24。
+    做 NIRC_APIC写 用 APIC_ICR低、向量 位与 0xFF。
+完。
+
+NIRC_广播IPI 接受 向量：
+    NIRC_串行化次数 为 NIRC_串行化次数 加 1。
+    做 NIRC_APIC写 用 APIC_ICR高、0。
+    做 NIRC_APIC写 用 APIC_ICR低、向量 位与 0xFF 位或 0x000C0000。
+完。
+
+NIRC_发送INIT_IPI 接受 目标CPU：
+    做 NIRC_APIC写 用 APIC_ICR高、(目标CPU 位与 0xFF) 左移 24。
+    做 NIRC_APIC写 用 APIC_ICR低、0x00004500。
+完。
+
+NIRC_发送STARTUP_IPI 接受 目标CPU、启动地址：
+    做 NIRC_APIC写 用 APIC_ICR高、(目标CPU 位与 0xFF) 左移 24。
+    做 NIRC_APIC写 用 APIC_ICR低、0x00004600 位或 启动地址 右移 12。
+完。
+
+NIRC_AI预测中断负载 接受 零参：
+    NIRC_AI推理次数 为 NIRC_AI推理次数 加 1。
+    tensor 为 做 Tensor_创建 用 5。
+    做 Tensor_写 用 tensor、0、NIRC_中断触发数。
+    做 Tensor_写 用 tensor、1、NIRC_中断处理数。
+    做 Tensor_写 用 tensor、2、NIRC_屏蔽总数。
+    做 Tensor_写 用 tensor、3、NIRC_EOI数。
+    做 Tensor_写 用 tensor、4、NIRC_串行化次数。
+    推理 为 做 AI总线_推理 用 全局AI总线、「nirc_load」、tensor。
+    负载 为 做 Tensor_读 用 推理、0。
+    做 Tensor_释放 用 tensor。
+    做 Tensor_释放 用 推理。
+    返还 负载。
+完。
+
+NIRC_AI异常检测 接受 零参：
+    tensor 为 做 Tensor_创建 用 4。
+    做 Tensor_写 用 tensor、0、NIRC_中断触发数。
+    做 Tensor_写 用 tensor、1、NIRC_屏蔽总数。
+    做 Tensor_写 用 tensor、2、NIRC_取消屏蔽数。
+    做 Tensor_写 用 tensor、3、NIRC_串行化次数。
+    异常 为 做 AI总线_异常检测 用 全局AI总线、「nirc_anomaly」、tensor。
+    分 为 做 Tensor_读 用 异常、0。
+    做 Tensor_释放 用 tensor。
+    做 Tensor_释放 用 异常。
+    若 分 大于 0.85：
+        做 内核信息 用 「[NIRC] AI异常: 中断负载异常 score=」 加 分 加 「\n」。
+    完。
+完。
+
+NIRC_AI智能亲和 接受 向量：
+    负载 为 做 NIRC_AI预测中断负载。
+    若 负载 大于或等于 NIRC_AI阈值：
+        当前 为 做 NIRC_获取APIC_ID。
+        目标 为 (当前 加 1) 取余于 8。
+        做 IO接口C_设置IRQ亲和 用 向量、目标。
+    完。
+完。
+
+NIRC_初始化 接受 零参：
+    做 NIRC_IDT初始化。
+    做 NIRC_启用APIC。
+    NIRC_屏蔽总数 为 0。
+    NIRC_取消屏蔽数 为 0。
+    NIRC_中断触发数 为 0。
+    NIRC_中断处理数 为 0。
+    NIRC_EOI数 为 0。
+    NIRC_AI推理次数 为 0。
+    NIRC_串行化次数 为 0。
+    NIRC_全局屏蔽深度 为 0。
+    做 内核信息 用 「[NIRC] 中断路由控制器 v」 加 NIRC_版本 加 「 已初始化\n」。
+完。
+
+NIRC_诊断报告 接受 零参：
+    做 内核信息 用 「[NIRC] === 中断路由控制诊断 ===」。
+    做 内核信息 用 「  屏蔽=」 加 NIRC_屏蔽总数 加 「 取消屏蔽=」 加 NIRC_取消屏蔽数。
+    做 内核信息 用 「  触发=」 加 NIRC_中断触发数 加 「 处理=」 加 NIRC_中断处理数。
+    做 内核信息 用 「  EOI=」 加 NIRC_EOI数 加 「 IPI=」 加 NIRC_串行化次数。
+    做 内核信息 用 「  AI推理=」 加 NIRC_AI推理次数 加 「 屏蔽深度=」 加 NIRC_全局屏蔽深度。
+完。
+
+NIRC_重置统计 接受 零参：
+    NIRC_屏蔽总数 为 0。
+    NIRC_取消屏蔽数 为 0。
+    NIRC_中断触发数 为 0。
+    NIRC_中断处理数 为 0。
+    NIRC_EOI数 为 0。
+    NIRC_AI推理次数 为 0。
+    NIRC_串行化次数 为 0。
+完。
+
+NIRC_最大软中断 为 10。
+
+可变 NIRC_软中断待处理 为 0。
+
+NIRC_软中断条目 是 一种 事物，含 处理器 为 0、数据 为 0、已启用 为 假、触发次数 为 0。
+
+可变 软中断表 为 0。
+
+NIRC_软中断初始化 接受 零参：
+    软中断表 为 做 分配内存 用 做 大小 用 NIRC_软中断条目 乘 NIRC_最大软中断。
+    可变 i 为 0。
+    只要 i 小于 NIRC_最大软中断：
+        软中断表 的 第 i 项 的 处理器 为 0。
+        软中断表 的 第 i 项 的 数据 为 0。
+        软中断表 的 第 i 项 的 已启用 为 假。
+        软中断表 的 第 i 项 的 触发次数 为 0。
+        i 为 i 加 1。
+    完。
+    NIRC_软中断待处理 为 0。
+完。
+
+NIRC_注册软中断 接受 索引、处理器：
+    若 索引 大于或等于 NIRC_最大软中断：
+        返还。
+    完。
+    软中断表 的 第 索引 项 的 处理器 为 处理器。
+    软中断表 的 第 索引 项 的 已启用 为 真。
+完。
+
+NIRC_触发软中断 接受 索引：
+    若 索引 大于或等于 NIRC_最大软中断：
+        返还。
+    完。
+    NIRC_软中断待处理 为 NIRC_软中断待处理 位或 1 左移 索引。
+完。
+
+NIRC_处理软中断 接受 零参：
+    可变 待处理 为 NIRC_软中断待处理。
+    NIRC_软中断待处理 为 0。
+    可变 i 为 0。
+    只要 i 小于 NIRC_最大软中断：
+        若 待处理 位与 1 左移 i：
+            若 软中断表 的 第 i 项 的 已启用 并且 软中断表 的 第 i 项 的 处理器 不等于 0：
+                做 软中断表 的 第 i 项 的 处理器 用 软中断表 的 第 i 项 的 数据。
+                软中断表 的 第 i 项 的 触发次数 为 软中断表 的 第 i 项 的 触发次数 加 1。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NIRC_风暴阈值 为 10000。
+
+NIRC_风暴窗口_ms 为 1000。
+
+可变 NIRC_窗口触发数 为 0。
+
+可变 NIRC_窗口开始时间 为 0。
+
+NIRC_检查中断风暴 接受 向量：
+    现在 为 做 当前时间_秒。
+    若 现在 减 NIRC_窗口开始时间 大于 NIRC_风暴窗口_ms：
+        NIRC_窗口触发数 为 0。
+        NIRC_窗口开始时间 为 现在。
+    完。
+    NIRC_窗口触发数 为 NIRC_窗口触发数 加 1。
+    若 NIRC_窗口触发数 大于 NIRC_风暴阈值：
+        做 内核信息 用 「[NIRC] 中断风暴检测: 向量=」 加 向量 加 「 屏蔽\n」。
+        GSI 为 做 IO接口C_IRQ到GSI 用 向量。
+        做 IO接口C_屏蔽GSI 用 GSI。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+NIRC_中断入口 接受 向量：
+    若 做 NIRC_检查中断风暴 用 向量：
+        返还。
+    完。
+    做 NIRC_分发中断 用 向量。
+    做 NIRC_发送EOI。
+    做 NIRC_处理软中断。
+完。
+
+NIRC_MSI条目 是 一种 事物，含 设备ID 为 0、向量基址 为 0、向量数 为 0、目标CPU 为 0、已启用 为 假。
+
+NIRC_最大MSI 为 64。
+
+可变 MSI表 为 0。
+
+可变 MSI数 为 0。
+
+NIRC_MSI初始化 接受 零参：
+    MSI表 为 做 分配内存 用 做 大小 用 NIRC_MSI条目 乘 NIRC_最大MSI。
+    MSI数 为 0。
+    可变 i 为 0。
+    只要 i 小于 NIRC_最大MSI：
+        MSI表 的 第 i 项 的 设备ID 为 0。
+        MSI表 的 第 i 项 的 向量基址 为 0。
+        MSI表 的 第 i 项 的 向量数 为 0。
+        MSI表 的 第 i 项 的 目标CPU 为 0。
+        MSI表 的 第 i 项 的 已启用 为 假。
+        i 为 i 加 1。
+    完。
+完。
+
+NIRC_分配MSI向量 接受 设备ID、数量：
+    若 MSI数 大于或等于 NIRC_最大MSI：
+        返还 负 1。
+    完。
+    idx 为 MSI数。
+    MSI数 为 MSI数 加 1。
+    MSI表 的 第 idx 项 的 设备ID 为 设备ID。
+    MSI表 的 第 idx 项 的 向量基址 为 48 加 idx 乘 数量。
+    MSI表 的 第 idx 项 的 向量数 为 数量。
+    MSI表 的 第 idx 项 的 目标CPU 为 做 NIRC_获取APIC_ID。
+    MSI表 的 第 idx 项 的 已启用 为 真。
+    返还 MSI表 的 第 idx 项 的 向量基址。
+完。
+
+NIRC_启用MSI 接受 设备ID：
+    可变 i 为 0。
+    只要 i 小于 MSI数：
+        若 MSI表 的 第 i 项 的 设备ID 等于 设备ID：
+            MSI表 的 第 i 项 的 已启用 为 真。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+NIRC_禁用MSI 接受 设备ID：
+    可变 i 为 0。
+    只要 i 小于 MSI数：
+        若 MSI表 的 第 i 项 的 设备ID 等于 设备ID：
+            MSI表 的 第 i 项 的 已启用 为 假。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·内存初始化》。
+
+引用《.·哈希函数》。
+
+引用《.·IOAPIC寄存器读》。
+
+引用《.·墙钟设置》。
+
+IO接口C_屏蔽GSI 接受 GSI号：
+    若 GSI号 大于或等于 最大GSI：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 IO接口C数量：
+        信息 为 IO接口C列表 的 第 i 项。
+        若 GSI号 大于或等于 信息 的 GSI起始 并且 GSI号 小于或等于 信息 的 GSI结束：
+            条目号 为 GSI号 减 信息 的 GSI起始。
+            值 为 做 IO接口C_读重定向 用 信息 的 基址、条目号。
+            做 IO接口C_写重定向 用 信息 的 基址、条目号、值 位或 IO接口C_屏蔽。
+            GSI路由表 的 第 GSI号 项 的 已屏蔽 为 真。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+IO接口C_取消屏蔽GSI 接受 GSI号：
+    若 GSI号 大于或等于 最大GSI：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 IO接口C数量：
+        信息 为 IO接口C列表 的 第 i 项。
+        若 GSI号 大于或等于 信息 的 GSI起始 并且 GSI号 小于或等于 信息 的 GSI结束：
+            条目号 为 GSI号 减 信息 的 GSI起始。
+            值 为 做 IO接口C_读重定向 用 信息 的 基址、条目号。
+            做 IO接口C_写重定向 用 信息 的 基址、条目号、值 位与 按位取反 IO接口C_屏蔽。
+            GSI路由表 的 第 GSI号 项 的 已屏蔽 为 假。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+IRQ覆盖 是 一种 事物，含 源IRQ、目标GSI、触发模式、极性。
+
+可变 IRQ覆盖表 为 做 数组 用 IRQ覆盖、16。
+
+可变 IRQ覆盖数 为 0。
+
+IO接口C_添加IRQ覆盖 接受 源IRQ、目标GSI、触发模式、极性：
+    若 IRQ覆盖数 大于或等于 16：
+        返还。
+    完。
+    IRQ覆盖表 的 第 IRQ覆盖数 项 的 源IRQ 为 源IRQ。
+    IRQ覆盖表 的 第 IRQ覆盖数 项 的 目标GSI 为 目标GSI。
+    IRQ覆盖表 的 第 IRQ覆盖数 项 的 触发模式 为 触发模式。
+    IRQ覆盖表 的 第 IRQ覆盖数 项 的 极性 为 极性。
+    IRQ覆盖数 为 IRQ覆盖数 加 1。
+完。
+
+IO接口C_IRQ到GSI 接受 IRQ号：
+    可变 i 为 0。
+    只要 i 小于 IRQ覆盖数：
+        若 IRQ覆盖表 的 第 i 项 的 源IRQ 等于 IRQ号：
+            返还 IRQ覆盖表 的 第 i 项 的 目标GSI。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 IRQ号。
+完。
+
+IO接口C_设置IRQ亲和 接受 GSI号、目标CPU：
+    若 GSI号 大于或等于 最大GSI 或者 非 GSI路由表 的 第 GSI号 项 的 已配置：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 IO接口C数量：
+        信息 为 IO接口C列表 的 第 i 项。
+        若 GSI号 大于或等于 信息 的 GSI起始 并且 GSI号 小于或等于 信息 的 GSI结束：
+            条目号 为 GSI号 减 信息 的 GSI起始。
+            当前 为 做 IO接口C_读重定向 用 信息 的 基址、条目号。
+            低32 为 当前 位与 0xFFFFFFFF。
+            高32 为 (目标CPU 位与 0xFF) 左移 24。
+            做 IO接口C_写重定向 用 信息 的 基址、条目号、低32 位或 高32 左移 32。
+            GSI路由表 的 第 GSI号 项 的 目标CPU 为 目标CPU。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

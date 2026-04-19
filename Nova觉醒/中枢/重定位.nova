@@ -1,0 +1,525 @@
+《重定位》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《..·引导·端口IO》。
+
+引用《.·内核打印》。
+
+引用《.·整数转字符串》。
+
+执行重定位 接受 obj：
+    若 obj 的 RELA表 不等于 0 并且 obj 的 RELA大小 大于 0：
+        做 处理RELA 用 obj、obj 的 RELA表、obj 的 RELA大小。
+    完。
+    若 obj 的 JMPREL表 不等于 0 并且 obj 的 JMPREL大小 大于 0：
+        做 处理RELA 用 obj、obj 的 JMPREL表、obj 的 JMPREL大小。
+    完。
+完。
+
+处理RELA 接受 obj、rela_addr、rela_size：
+    条目数 为 rela_size 除以 24。
+    可变 i 为 0。
+    只要 i 小于 条目数：
+        r 为 rela_addr 加 i 乘 24。
+        r_offset 为 做 内存读64 用 r。
+        r_info 为 做 内存读64 用 r 加 8。
+        r_addend 为 做 内存读64 用 r 加 16。
+        类型 为 r_info 位与 0xFFFFFFFF。
+        sym_idx 为 r_info 右移 32。
+        修补地址 为 obj 的 基地址 加 r_offset。
+        若 类型 等于 R_X86_64_RELATIVE：
+            做 内存写64 用 修补地址、obj 的 基地址 加 r_addend。
+        否则若 类型 等于 R_X86_64_GLOB_DAT 或者 类型 等于 R_X86_64_JUMP_SLOT：
+            sym_name 为 做 获取符号名 用 obj、sym_idx。
+            sym_addr 为 做 查找符号 用 sym_name。
+            若 sym_addr 不等于 0：
+                做 内存写64 用 修补地址、sym_addr 加 r_addend。
+            否则：
+                绑定 为 做 获取符号绑定 用 obj、sym_idx。
+                若 绑定 不等于 STB_WEAK：
+                    做 内核警告 用 「ld.so: 未定义符号 」 加 sym_name。
+                完。
+                做 内存写64 用 修补地址、0。
+            完。
+        否则若 类型 等于 R_X86_64_64：
+            sym_name 为 做 获取符号名 用 obj、sym_idx。
+            sym_addr 为 做 查找符号 用 sym_name。
+            做 内存写64 用 修补地址、sym_addr 加 r_addend。
+        否则若 类型 等于 R_X86_64_IRELATIVE：
+            resolver 为 obj 的 基地址 加 r_addend。
+            真实地址 为 做 调用函数_返回值 用 resolver。
+            做 内存写64 用 修补地址、真实地址。
+        否则若 类型 等于 R_X86_64_TPOFF64：
+            sym_name 为 做 获取符号名 用 obj、sym_idx。
+            做 内存写64 用 修补地址、链接器_安全总偏移 加 r_addend。
+        否则若 类型 不等于 R_X86_64_NONE：
+            做 内核调试 用 「ld.so: 未处理的重定位类型 」 加 做 整数转字符串 用 类型。
+        完。
+        链接器_重定位总数 为 链接器_重定位总数 加 1。
+        i 为 i 加 1。
+    完。
+完。
+
+获取符号名 接受 obj、idx：
+    若 idx 等于 0 或者 obj 的 符号表 等于 0 或者 obj 的 字符串表 等于 0：
+        返还 「」。
+    完。
+    sym 为 obj 的 符号表 加 idx 乘 24。
+    st_name 为 做 内存读32 用 sym。
+    返还 做 读取C字符串 用 obj 的 字符串表 加 st_name。
+完。
+
+获取符号绑定 接受 obj、idx：
+    若 idx 等于 0 或者 obj 的 符号表 等于 0：
+        返还 0。
+    完。
+    sym 为 obj 的 符号表 加 idx 乘 24。
+    st_info 为 做 内存读8 用 sym 加 4。
+    返还 st_info 右移 4 位与 0xF。
+完。
+
+调用初始化 接受 obj：
+    若 obj 的 已初始化：
+        返还。
+    完。
+    obj 的 已初始化 为 真。
+    若 obj 的 INIT 不等于 0：
+        做 调用函数 用 obj 的 INIT。
+    完。
+    若 obj 的 INIT_ARRAY 不等于 0 并且 obj 的 INIT_ARRAY大小 大于 0：
+        数量 为 obj 的 INIT_ARRAY大小 除以 8。
+        可变 i 为 0。
+        只要 i 小于 数量：
+            func 为 做 内存读64 用 obj 的 INIT_ARRAY 加 i 乘 8。
+            若 func 不等于 0：
+                做 调用函数 用 func。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+完。
+
+调用终结化 接受 obj：
+    若 obj 的 FINI_ARRAY 不等于 0 并且 obj 的 FINI_ARRAY大小 大于 0：
+        数量 为 obj 的 FINI_ARRAY大小 除以 8。
+        可变 i 为 数量 减 1。
+        只要 i 大于或等于 0：
+            func 为 做 内存读64 用 obj 的 FINI_ARRAY 加 i 乘 8。
+            若 func 不等于 0：
+                做 调用函数 用 func。
+            完。
+            i 为 i 减 1。
+        完。
+    完。
+    若 obj 的 FINI 不等于 0：
+        做 调用函数 用 obj 的 FINI。
+    完。
+完。
+
+可变 链接器_对象列表 为 一组：（空）。
+
+可变 链接器_安全总偏移 为 0。
+
+STB_WEAK 为 2。
+
+R_X86_64_NONE 为 0。
+
+R_X86_64_64 为 1。
+
+R_X86_64_GLOB_DAT 为 6。
+
+R_X86_64_JUMP_SLOT 为 7。
+
+R_X86_64_RELATIVE 为 8。
+
+R_X86_64_TPOFF64 为 18。
+
+R_X86_64_IRELATIVE 为 37。
+
+查找符号 接受 名称：
+    若 名称 等于 「」 或者 名称 等于 0：
+        返还 0。
+    完。
+    链接器_符号查找数 为 链接器_符号查找数 加 1。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 链接器_对象列表：
+        obj 为 链接器_对象列表 的 第 i 项。
+        addr 为 做 查找符号_在对象中 用 obj、名称。
+        若 addr 不等于 0：
+            返还 addr。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+查找符号_在对象中 接受 obj、名称：
+    若 obj 的 符号表 等于 0 或者 obj 的 字符串表 等于 0：
+        返还 0。
+    完。
+    若 obj 的 GNU_HASH 不等于 0：
+        返还 做 查找符号_GNU哈希 用 obj、名称。
+    完。
+    可变 idx 为 1。
+    只要 idx 小于 obj 的 符号表大小：
+        sym 为 obj 的 符号表 加 idx 乘 24。
+        st_name 为 做 内存读32 用 sym。
+        sym_name 为 做 读取C字符串 用 obj 的 字符串表 加 st_name。
+        若 做 字符串_比较 用 sym_name、名称 等于 0：
+            st_value 为 做 内存读64 用 sym 加 8。
+            若 st_value 不等于 0：
+                返还 obj 的 基地址 加 st_value。
+            完。
+        完。
+        idx 为 idx 加 1。
+    完。
+    返还 0。
+完。
+
+查找符号_GNU哈希 接受 obj、名称：
+    哈希 为 做 GNU_哈希 用 名称。
+    返还 做 查找符号_在对象中_线性 用 obj、名称。
+完。
+
+查找符号_在对象中_线性 接受 obj、名称：
+    若 obj 的 符号表 等于 0 或者 obj 的 字符串表 等于 0：
+        返还 0。
+    完。
+    可变 idx 为 1。
+    只要 idx 小于 obj 的 符号表大小：
+        sym 为 obj 的 符号表 加 idx 乘 24。
+        st_name 为 做 内存读32 用 sym。
+        sym_name 为 做 读取C字符串 用 obj 的 字符串表 加 st_name。
+        若 做 字符串_比较 用 sym_name、名称 等于 0：
+            st_value 为 做 内存读64 用 sym 加 8。
+            若 st_value 不等于 0：
+                返还 obj 的 基地址 加 st_value。
+            完。
+        完。
+        idx 为 idx 加 1。
+    完。
+    返还 0。
+完。
+
+GNU_哈希 接受 名称：
+    可变 h 为 5381。
+    可变 i 为 0。
+    只要 做 内存读8 用 名称 加 i 不等于 0：
+        h 为 (h 左移 5) 加 h 加 做 内存读8 用 名称 加 i。
+        i 为 i 加 1。
+    完。
+    返还 h 位与 0xFFFFFFFF。
+完。
+
+字符串_比较 接受 a、b：
+    若 a 等于 b：
+        返还 0。
+    完。
+    若 a 等于 空 或者 a 等于 0：
+        若 b 等于 空 或者 b 等于 0：
+            返还 0。
+        完。
+        返还 负 1。
+    完。
+    若 b 等于 空 或者 b 等于 0：
+        返还 1。
+    完。
+    al 为 做 字符串长度 用 a。
+    bl 为 做 字符串长度 用 b。
+    可变 i 为 0。
+    只要 i 小于 al 并且 i 小于 bl：
+        ac 为 做 字符编码 用 a、i。
+        bc 为 做 字符编码 用 b、i。
+        若 ac 不等于 bc：
+            返还 ac 减 bc。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 al 减 bl。
+完。
+
+调用函数 接受 地址：
+    若 地址 等于 0：
+        返还。
+    完。
+    汇编。
+    块：
+        「mov rax, [rbp+16]」。
+        「call rax」。
+    完。
+完。
+
+调用函数_返回值 接受 地址：
+    若 地址 等于 0：
+        返还 0。
+    完。
+    可变 结果 为 0。
+    汇编。
+    块：
+        「mov rax, [rbp+16]」。
+        「call rax」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 结果。
+完。
+
+可变 链接器_已初始化 为 假。
+
+可变 链接器_加载对象数 为 0。
+
+可变 链接器_重定位总数 为 0。
+
+可变 链接器_符号查找数 为 0。
+
+链接器_初始化 接受 零参：
+    链接器_对象列表 为 一组：（空）。
+    链接器_已初始化 为 真。
+完。
+
+链接器_加载共享对象 接受 路径：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 链接器_已加载列表：
+        若 链接器_已加载列表 的 第 i 项 的 路径 等于 路径：
+            链接器_已加载列表 的 第 i 项 的 引用计数 为 链接器_已加载列表 的 第 i 项 的 引用计数 加 1。
+            返还 链接器_已加载列表 的 第 i 项 的 基址。
+        完。
+        i 为 i 加 1。
+    完。
+    fd 为 做 系统调用_打开 用 路径、0、0。
+    若 fd 小于 0：
+        返还 0。
+    完。
+    ehdr 为 做 堆_分配 用 64。
+    若 做 系统调用_读 用 fd、ehdr、64 小于 64：
+        做 系统调用_关闭 用 fd。
+        做 堆_释放 用 ehdr。
+        返还 0。
+    完。
+    若 做 内存_读8 用 ehdr 不等于 0x7F 或者 做 内存_读8 用 ehdr 加 1 不等于 0x45：
+        做 系统调用_关闭 用 fd。
+        做 堆_释放 用 ehdr。
+        返还 0。
+    完。
+    phoff 为 做 内存_读64 用 ehdr 加 32。
+    phnum 为 做 内存_读16 用 ehdr 加 56。
+    phentsize 为 做 内存_读16 用 ehdr 加 54。
+    若 phnum 等于 0 或者 phentsize 等于 0：
+        做 系统调用_关闭 用 fd。
+        做 堆_释放 用 ehdr。
+        返还 0。
+    完。
+    phdr_buf 为 做 堆_分配 用 phnum 乘 phentsize。
+    若 phdr_buf 等于 0：
+        返还 负 1。
+    完。
+    做 系统调用_lseek 用 fd、phoff、0。
+    若 做 系统调用_读 用 fd、phdr_buf、phnum 乘 phentsize 小于 phnum 乘 phentsize：
+        做 系统调用_关闭 用 fd。
+        做 堆_释放 用 ehdr。
+        做 堆_释放 用 phdr_buf。
+        返还 0。
+    完。
+    可变 load_min 为 0xFFFFFFFFFFFF。
+    可变 load_max 为 0。
+    i 为 0。
+    只要 i 小于 phnum：
+        ph 为 phdr_buf 加 i 乘 phentsize。
+        p_type 为 做 内存_读32 用 ph。
+        若 p_type 等于 1：
+            vaddr 为 做 内存_读64 用 ph 加 16。
+            memsz 为 做 内存_读64 用 ph 加 40。
+            若 vaddr 小于 load_min：
+                load_min 为 vaddr。
+            完。
+            若 vaddr 加 memsz 大于 load_max：
+                load_max 为 vaddr 加 memsz。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    total_size 为 load_max 减 load_min。
+    base 为 做 系统调用_mmap 用 0、total_size、3、0x22、负 1、0。
+    若 base 等于 0 或者 base 等于 负 1：
+        做 系统调用_关闭 用 fd。
+        做 堆_释放 用 ehdr。
+        做 堆_释放 用 phdr_buf。
+        返还 0。
+    完。
+    i 为 0。
+    只要 i 小于 phnum：
+        ph 为 phdr_buf 加 i 乘 phentsize。
+        若 做 内存_读32 用 ph 等于 1：
+            offset 为 做 内存_读64 用 ph 加 8。
+            vaddr 为 做 内存_读64 用 ph 加 16。
+            filesz 为 做 内存_读64 用 ph 加 32。
+            memsz 为 做 内存_读64 用 ph 加 40。
+            dest 为 base 加 vaddr 减 load_min。
+            做 系统调用_lseek 用 fd、offset、0。
+            若 做 系统调用_读 用 fd、dest、filesz 小于 0：
+                做 内核警告 用 「链接器: PT_LOAD段读取失败」。
+            完。
+            若 memsz 大于 filesz：
+                做 内存_置零 用 dest 加 filesz、memsz 减 filesz。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    做 系统调用_关闭 用 fd。
+    可变 dyn_ptr 为 0。
+    可变 dyn_size 为 0。
+    i 为 0。
+    只要 i 小于 phnum：
+        ph 为 phdr_buf 加 i 乘 phentsize。
+        若 做 内存_读32 用 ph 等于 2：
+            dyn_ptr 为 base 加 做 内存_读64 用 ph 加 16 减 load_min。
+            dyn_size 为 做 内存_读64 用 ph 加 32。
+        完。
+        i 为 i 加 1。
+    完。
+    可变 rela_ptr 为 0。
+    可变 rela_size 为 0。
+    可变 init_func 为 0。
+    若 dyn_ptr 不等于 0：
+        可变 d 为 dyn_ptr。
+        只要 d 小于 dyn_ptr 加 dyn_size：
+            tag 为 做 内存_读64 用 d。
+            val 为 做 内存_读64 用 d 加 8。
+            若 tag 等于 0：
+                d 为 dyn_ptr 加 dyn_size。
+            否则：
+                若 tag 等于 7：
+                    rela_ptr 为 base 加 val 减 load_min。
+                完。
+                若 tag 等于 8：
+                    rela_size 为 val。
+                完。
+                若 tag 等于 12：
+                    init_func 为 base 加 val 减 load_min。
+                完。
+            完。
+            d 为 d 加 16。
+        完。
+    完。
+    若 rela_ptr 不等于 0 并且 rela_size 大于 0：
+        可变 r 为 rela_ptr。
+        只要 r 小于 rela_ptr 加 rela_size：
+            r_offset 为 做 内存_读64 用 r。
+            r_info 为 做 内存_读64 用 r 加 8。
+            r_addend 为 做 内存_读64 用 r 加 16。
+            r_type 为 r_info 位与 0xFFFFFFFF。
+            target 为 base 加 r_offset 减 load_min。
+            若 r_type 等于 8：
+                做 内存_写64 用 target、base 加 r_addend 减 load_min。
+            完。
+            链接器_重定位总数 为 链接器_重定位总数 加 1。
+            r 为 r 加 24。
+        完。
+    完。
+    做 系统调用_mprotect 用 base、total_size、5。
+    若 init_func 不等于 0：
+        做 调用 用 init_func。
+    完。
+    做 追加 用 链接器_已加载列表、一本字典：路径 对应 路径、基址 对应 base、大小 对应 total_size、引用计数 对应 1。
+    链接器_加载对象数 为 链接器_加载对象数 加 1。
+    做 堆_释放 用 ehdr。
+    做 堆_释放 用 phdr_buf。
+    返还 base。
+完。
+
+链接器_统计 接受 零参：
+    返还 一本字典：已加载对象 对应 链接器_加载对象数、重定位总数 对应 链接器_重定位总数、符号查找 对应 链接器_符号查找数、已初始化 对应 链接器_已初始化。
+完。
+
+链接器_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 非 链接器_已初始化：
+        做 追加 用 问题、「链接器未初始化」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「动态链接器健康」。
+    完。
+    返还 问题。
+完。
+
+可变 重定位_处理数 为 0。
+
+可变 重定位_失败数 为 0。
+
+R_X86_64_NONE 为 0。
+
+R_X86_64_64 为 1。
+
+R_X86_64_PC32 为 2。
+
+R_X86_64_GOT32 为 3。
+
+R_X86_64_PLT32 为 4。
+
+R_X86_64_RELATIVE 为 8。
+
+R_X86_64_GLOB_DAT 为 6。
+
+R_X86_64_JUMP_SLOT 为 7。
+
+重定位_类型名 接受 类型：
+    若 类型 等于 R_X86_64_NONE：
+        返还 「NONE」。
+    完。
+    若 类型 等于 R_X86_64_64：
+        返还 「R_X86_64_64」。
+    完。
+    若 类型 等于 R_X86_64_PC32：
+        返还 「R_X86_64_PC32」。
+    完。
+    若 类型 等于 R_X86_64_PLT32：
+        返还 「R_X86_64_PLT32」。
+    完。
+    若 类型 等于 R_X86_64_RELATIVE：
+        返还 「RELATIVE」。
+    完。
+    若 类型 等于 R_X86_64_GLOB_DAT：
+        返还 「GLOB_DAT」。
+    完。
+    若 类型 等于 R_X86_64_JUMP_SLOT：
+        返还 「JUMP_SLOT」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+重定位_统计 接受 零参：
+    返还 一本字典：处理 对应 重定位_处理数、失败 对应 重定位_失败数。
+完。
+
+重定位_重置 接受 零参：
+    重定位_处理数 为 0。
+    重定位_失败数 为 0。
+完。
+
+重定位_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 重定位_失败数 大于 100：
+        做 追加 用 问题、「重定位_失败数=」 加 重定位_失败数。
+    完。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+重定位_综合报告 接受 零参：
+    做 打印 用 「[重定位] ═══ 综合报告 ═══」。
+    做 打印 用 「  链接器_已初始化: 」 加 链接器_已初始化。
+    做 打印 用 「  链接器_重定位总数: 」 加 链接器_重定位总数。
+    做 打印 用 「  重定位_失败数: 」 加 重定位_失败数。
+    做 打印 用 「  健康: 」 加 若 做 重定位_健康评估 则 「正常」 否则 「异常」。
+完。
+
+重定位_全局重置 接受 零参：
+    链接器_已初始化 为 0。
+    链接器_重定位总数 为 0。
+    重定位_失败数 为 0。
+    做 打印 用 「[重定位] 统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

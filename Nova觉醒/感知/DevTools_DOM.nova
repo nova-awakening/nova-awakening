@@ -1,0 +1,104 @@
+《DevTools_DOM》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·文档观察》。
+
+引用《..·标准·原生字符串》。
+
+引用《.·内核直连层》。
+
+引用《..·执行·节点操作》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·外联·ASN1证书解析》。
+
+CDP节点 是 一种 事物，含 节点Id、backend节点Id、节点Type、节点Name、localName、节点Value、child节点Count、children、attributes、真实节点。
+
+可变 CDP_下一个节点Id 为 1。
+
+DevTools_DOM处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「DOM.enable」：
+        session 的 dom启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「DOM.disable」：
+        session 的 dom启用 为 假。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「DOM.getDocument」：
+        msg 的 结果 为 做 DevTools_序列化DOM根。
+    否则若 做 字符串_相等 用 方法、「DOM.requestChild节点s」：
+        节点Id 为 做 DevTools_解析参数_int 用 msg 的 参数、「节点Id」。
+        做 DevTools_发送子节点 用 session、节点Id。
+    否则若 做 字符串_相等 用 方法、「DOM.querySelector」：
+        节点Id 为 做 DevTools_解析参数_int 用 msg 的 参数、「节点Id」。
+        选择器 为 做 DevTools_解析参数_str 用 msg 的 参数、「selector」。
+    否则若 做 字符串_相等 用 方法、「DOM.querySelectorAll」：
+    否则若 做 字符串_相等 用 方法、「DOM.setAttributeValue」：
+    否则若 做 字符串_相等 用 方法、「DOM.removeAttribute」：
+    否则若 做 字符串_相等 用 方法、「DOM.setOuterHTML」：
+    否则若 做 字符串_相等 用 方法、「DOM.highlight节点」：
+    否则若 做 字符串_相等 用 方法、「DOM.hideHighlight」：
+    否则若 做 字符串_相等 用 方法、「DOM.getBoxModel」：
+    完。
+完。
+
+DevTools_序列化DOM根 接受 零参：
+    返还 「{\"root\":{\"节点Id\":1,\"节点Type\":9,\"节点Name\":\"#document\"}}」。
+完。
+
+DevTools_发送子节点 接受 session、节点Id：
+    若 session 等于 0：
+        返还。
+    完。
+    节点 为 做 DOM_查找节点 用 节点Id。
+    若 节点 等于 0：
+        返还。
+    完。
+    buf 为 做 堆_分配 用 8192。
+    可变 pos 为 0。
+    pos 为 做 字符串_追加 用 buf、pos、「{\"method\":\"DOM.setChild节点s\",\"params\":{\"parentId\":」。
+    pos 为 pos 加 做 整数_写入 用 buf 加 pos、节点Id。
+    pos 为 做 字符串_追加 用 buf、pos、「,\"节点s\":[」。
+    可变 child 为 节点 的 第一子节点。
+    可变 first 为 真。
+    只要 child 不等于 0：
+        若 非 first：
+            pos 为 做 字符串_追加 用 buf、pos、「,」。
+        完。
+        pos 为 做 DevTools_序列化节点 用 buf、pos、child。
+        first 为 假。
+        child 为 child 的 下一兄弟。
+    完。
+    pos 为 做 字符串_追加 用 buf、pos、「]}}」。
+    做 内存_写8 用 buf 加 pos、0。
+    做 DevTools_发送消息 用 session、buf、pos。
+    做 堆_释放 用 buf。
+完。
+
+DevTools_CSS处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「CSS.enable」：
+        session 的 css启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「CSS.getMatched样式sFor节点」：
+        节点Id 为 做 DevTools_解析参数_int 用 msg 的 参数、「节点Id」。
+    否则若 做 字符串_相等 用 方法、「CSS.getComputed样式For节点」：
+        节点Id 为 做 DevTools_解析参数_int 用 msg 的 参数、「节点Id」。
+    否则若 做 字符串_相等 用 方法、「CSS.getInline样式sFor节点」：
+    否则若 做 字符串_相等 用 方法、「CSS.set样式Texts」：
+    否则若 做 字符串_相等 用 方法、「CSS.forcePseudoState」：
+    否则若 做 字符串_相等 用 方法、「CSS.get样式SheetText」：
+    完。
+完。
+
+本章 收束。

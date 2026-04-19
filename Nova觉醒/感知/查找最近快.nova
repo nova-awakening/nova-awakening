@@ -1,0 +1,116 @@
+《查找最近快》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·内容可见性》。
+
+ScrollSnap_查找最近 接受 ssc、目标x、目标y：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 等于 0：
+        返还 一组：目标x、目标y。
+    完。
+    可变 最近距离 为 0x7FFFFFFF。
+    可变 最近x 为 目标x。
+    可变 最近y 为 目标y。
+    可变 i 为 0。
+    只要 i 小于 ssc 的 snap点数量：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        若 sp 等于 0：
+            i 为 i 加 1。
+            继续。
+        完。
+        可变 dx 为 0。
+        可变 dy 为 0。
+        若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_BOTH 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+            dx 为 sp 的 x 减 目标x。
+            若 dx 小于 0：
+                dx 为 0 减 dx。
+            完。
+        完。
+        若 ssc 的 轴 等于 SNAP_AXIS_Y 或者 ssc 的 轴 等于 SNAP_AXIS_BOTH 或者 ssc 的 轴 等于 SNAP_AXIS_BLOCK：
+            dy 为 sp 的 y 减 目标y。
+            若 dy 小于 0：
+                dy 为 0 减 dy。
+            完。
+        完。
+        距离 为 dx 加 dy。
+        若 距离 小于 最近距离：
+            最近距离 为 距离。
+            若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_BOTH：
+                最近x 为 sp 的 x。
+            完。
+            若 ssc 的 轴 等于 SNAP_AXIS_Y 或者 ssc 的 轴 等于 SNAP_AXIS_BOTH：
+                最近y 为 sp 的 y。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    若 ssc 的 严格度 等于 SNAP_STRICT_PROXIMITY：
+        阈值 为 ssc 的 视口宽 除以 4。
+        若 最近距离 大于 阈值：
+            返还 一组：目标x、目标y。
+        完。
+    完。
+    若 最近x 小于 0：
+        最近x 为 0。
+    完。
+    若 最近y 小于 0：
+        最近y 为 0。
+    完。
+    若 最近x 大于 ssc 的 内容宽 减 ssc 的 视口宽：
+        最近x 为 ssc 的 内容宽 减 ssc 的 视口宽。
+    完。
+    若 最近y 大于 ssc 的 内容高 减 ssc 的 视口高：
+        最近y 为 ssc 的 内容高 减 ssc 的 视口高。
+    完。
+    返还 一组：最近x、最近y。
+完。
+
+ScrollSnap_滚动结束 接受 ssc：
+    若 ssc 等于 0 或者 ssc 的 轴 等于 SNAP_AXIS_NONE：
+        返还。
+    完。
+    目标 为 做 ScrollSnap_查找最近 用 ssc、ssc 的 滚动x、ssc 的 滚动y。
+    snap_x 为 目标 的 第 0 项。
+    snap_y 为 目标 的 第 1 项。
+    若 snap_x 等于 ssc 的 滚动x 并且 snap_y 等于 ssc 的 滚动y：
+        返还。
+    完。
+    做 ScrollSnap_平滑滚动到 用 ssc、snap_x、snap_y。
+完。
+
+ScrollSnap_平滑滚动到 接受 ssc、目标x、目标y：
+    若 ssc 等于 0：
+        返还。
+    完。
+    ssc 的 正在动画 为 真。
+    ssc 的 动画起始x 为 ssc 的 滚动x。
+    ssc 的 动画起始y 为 ssc 的 滚动y。
+    ssc 的 动画目标x 为 目标x。
+    ssc 的 动画目标y 为 目标y。
+    ssc 的 动画起始时间 为 做 平台_获取高精度时间。
+完。
+
+ScrollSnap_动画tick 接受 ssc、当前时间：
+    若 ssc 等于 0 或者 非 ssc 的 正在动画：
+        返还。
+    完。
+    经过 为 (当前时间 减 ssc 的 动画起始时间) 除以 1000。
+    若 经过 大于或等于 ssc 的 动画持续时间：
+        ssc 的 滚动x 为 ssc 的 动画目标x。
+        ssc 的 滚动y 为 ssc 的 动画目标y。
+        ssc 的 正在动画 为 假。
+        返还。
+    完。
+    t 为 经过 乘 100 除以 ssc 的 动画持续时间。
+    eased 为 做 ScrollSnap_ease 用 t。
+    ssc 的 滚动x 为 ssc 的 动画起始x 加 (ssc 的 动画目标x 减 ssc 的 动画起始x) 乘 eased 除以 100。
+    ssc 的 滚动y 为 ssc 的 动画起始y 加 (ssc 的 动画目标y 减 ssc 的 动画起始y) 乘 eased 除以 100。
+完。
+
+ScrollSnap_ease 接受 t：
+    返还 (3 乘 t 乘 t 减 2 乘 t 乘 t 乘 t 除以 100) 除以 100。
+完。
+
+本章 收束。

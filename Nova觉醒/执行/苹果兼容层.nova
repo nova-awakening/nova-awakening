@@ -1,0 +1,327 @@
+《苹果兼容层》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·标准·文件》。
+
+MH_MAGIC_64 为 0xFEEDFACF。
+
+MH_CIGAM_64 为 0xCFFAEDFE。
+
+MH_EXECUTE 为 2。
+
+MH_DYLIB 为 6。
+
+MH_BUNDLE 为 8。
+
+LC_SEGMENT_64 为 0x19。
+
+LC_SYMTAB 为 0x02。
+
+LC_DYSYMTAB 为 0x0B。
+
+LC_LOAD_DYLIB 为 0x0C。
+
+LC_MAIN 为 0x80000028。
+
+LC_DYLD_INFO_ONLY 为 0x80000022。
+
+LC_CODE_SIGNATURE 为 0x1D。
+
+CPU_TYPE_X86_64 为 0x01000007。
+
+CPU_TYPE_ARM64 为 0x0100000C。
+
+Mach_O模块 是 一种 事物，含 路径、CPU类型、文件类型、基地址、入口点、段列表、依赖库、符号表、代码签名。
+
+可变 _苹果_已加载模块 为 一组：（空）。
+
+可变 _苹果_基址 为 0x100000000。
+
+可变 _苹果_已初始化 为 假。
+
+可变 _苹果_执行数 为 0。
+
+苹果_执行 接受 路径、参数、环境：
+    若 非 _苹果_已初始化：
+        做 苹果_初始化。
+    完。
+    _苹果_执行数 为 _苹果_执行数 加 1。
+    做 内核信息 用 「苹果执行层: 加载 」 加 路径。
+    头部 为 做 文件_读字节前N 用 路径、32。
+    若 头部 等于 空 或者 做 计数 用 头部 小于 32：
+        返还 错误_格式。
+    完。
+    magic 为 做 读取u32_小端 用 头部、0。
+    若 magic 不等于 MH_CIGAM_64 并且 magic 不等于 MH_MAGIC_64：
+        做 内核警告 用 「苹果: 不是Mach-O 64位文件」。
+        返还 错误_格式。
+    完。
+    模块 为 新建 Mach_O模块。
+    模块 的 路径 为 路径。
+    模块 的 CPU类型 为 做 读取u32_小端 用 头部、4。
+    模块 的 文件类型 为 做 读取u32_小端 用 头部、12。
+    模块 的 段列表 为 一组：（空）。
+    模块 的 依赖库 为 一组：（空）。
+    模块 的 符号表 为 一组：（空）。
+    模块 的 代码签名 为 假。
+    若 模块 的 CPU类型 不等于 CPU_TYPE_X86_64 并且 模块 的 CPU类型 不等于 CPU_TYPE_ARM64：
+        做 内核警告 用 「苹果: 不支持的CPU类型 」 加 做 整数转十六进制 用 模块 的 CPU类型。
+        返还 错误_格式。
+    完。
+    模块 的 基地址 为 _苹果_基址。
+    _苹果_基址 为 _苹果_基址 加 0x1000000。
+    ncmds 为 做 读取u32_小端 用 头部、16。
+    sizeofcmds 为 做 读取u32_小端 用 头部、20。
+    cmd数据 为 做 文件_读字节区间 用 路径、32、sizeofcmds。
+    可变 偏移 为 0。
+    可变 i 为 0。
+    只要 i 小于 ncmds 并且 偏移 小于 sizeofcmds：
+        cmd 为 做 读取u32_小端 用 cmd数据、偏移。
+        cmdsize 为 做 读取u32_小端 用 cmd数据、偏移 加 4。
+        若 cmd 等于 LC_SEGMENT_64：
+            做 苹果_映射段 用 模块、cmd数据、偏移、路径。
+        完。
+        若 cmd 等于 LC_MAIN：
+            模块 的 入口点 为 模块 的 基地址 加 做 读取u64_小端 用 cmd数据、偏移 加 8。
+        完。
+        若 cmd 等于 LC_LOAD_DYLIB：
+            dylib名偏移 为 做 读取u32_小端 用 cmd数据、偏移 加 8。
+            dylib名 为 做 读取C字串 用 cmd数据、偏移 加 dylib名偏移。
+            做 追加 用 模块 的 依赖库、dylib名。
+        完。
+        若 cmd 等于 LC_CODE_SIGNATURE：
+            模块 的 代码签名 为 真。
+        完。
+        偏移 为 偏移 加 cmdsize。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 做 计数 用 模块 的 依赖库：
+        做 苹果_加载dylib 用 模块 的 依赖库 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    做 追加 用 _苹果_已加载模块、模块。
+    做 内核信息 用 「苹果: Mach-O加载完成 入口=0x」 加 做 整数转十六进制 用 模块 的 入口点 加 「 段=」 加 做 整数转字符串 用 做 计数 用 模块 的 段列表 加 「 dylib=」 加 做 整数转字符串 用 做 计数 用 模块 的 依赖库。
+    返还 0。
+完。
+
+苹果_映射段 接受 模块、数据、偏移、路径：
+    段名 为 做 读取固定字符串 用 数据 加 偏移 加 8、16。
+    vmaddr 为 做 读取u64_小端 用 数据、偏移 加 24。
+    vmsize 为 做 读取u64_小端 用 数据、偏移 加 32。
+    fileoff 为 做 读取u64_小端 用 数据、偏移 加 40。
+    filesize 为 做 读取u64_小端 用 数据、偏移 加 48。
+    做 追加 用 模块 的 段列表、一组：段名、vmaddr、vmsize、fileoff、filesize。
+完。
+
+苹果_初始化 接受 零参：
+    若 _苹果_已初始化：
+        返还。
+    完。
+    做 苹果_注册syscall 用 0x2000001、「exit」、「Nova_退出」。
+    做 苹果_注册syscall 用 0x2000002、「fork」、「Nova_fork」。
+    做 苹果_注册syscall 用 0x2000003、「read」、「Nova_read」。
+    做 苹果_注册syscall 用 0x2000004、「write」、「Nova_write」。
+    做 苹果_注册syscall 用 0x2000005、「open」、「Nova_open」。
+    做 苹果_注册syscall 用 0x2000006、「close」、「Nova_close」。
+    做 苹果_注册syscall 用 0x2000014、「getpid」、「Nova_getpid」。
+    做 苹果_注册syscall 用 0x200002A、「socket」、「Nova_socket」。
+    做 苹果_注册syscall 用 0x200002E、「connect」、「Nova_connect」。
+    做 苹果_注册syscall 用 0x2000031、「bind」、「Nova_bind」。
+    做 苹果_注册syscall 用 0x2000061、「mmap」、「Nova_mmap」。
+    做 苹果_注册syscall 用 0x2000049、「munmap」、「Nova_munmap」。
+    做 苹果_注册syscall 用 0x200005A、「stat64」、「Nova_stat」。
+    做 苹果_注册syscall 用 0x20000B5、「mprotect」、「Nova_mprotect」。
+    做 苹果_注册syscall 用 0x2000174、「pthread_create」、「Nova_线程创建」。
+    做 苹果_注册syscall 用 0x100001A、「mach_reply_port」、「Nova_mach端口」。
+    做 苹果_注册syscall 用 0x100001C、「task_self_trap」、「Nova_任务自身」。
+    做 苹果_注册syscall 用 0x1000025、「mach_msg_trap」、「Nova_mach消息」。
+    做 苹果_注册dylib 用 「/usr/lib/libSystem.B.dylib」、「Nova原生系统库」。
+    做 苹果_注册dylib 用 「/usr/lib/libc++.1.dylib」、「Nova原生C++库」。
+    做 苹果_注册dylib 用 「/usr/lib/libobjc.A.dylib」、「Nova_ObjC运行时」。
+    做 苹果_注册dylib 用 「/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation」、「Nova基础库」。
+    做 苹果_注册dylib 用 「/System/Library/Frameworks/Foundation.framework/Foundation」、「Nova_Foundation」。
+    做 苹果_注册dylib 用 「/System/Library/Frameworks/AppKit.framework/AppKit」、「Nova_GUI框架」。
+    做 苹果_注册dylib 用 「/System/Library/Frameworks/UIKit.framework/UIKit」、「Nova_触控GUI」。
+    做 苹果_注册dylib 用 「/System/Library/Frameworks/Metal.framework/Metal」、「Nova_GPU层」。
+    做 苹果_注册dylib 用 「/System/Library/Frameworks/SwiftUI.framework/SwiftUI」、「Nova_声明式UI」。
+    _苹果_已初始化 为 真。
+    做 内核信息 用 「苹果兼容层: 初始化完成 (Mach-O 64 + Darwin + Cocoa + UIKit)」。
+完。
+
+可变 _darwin_syscall表 为 一组：（空）。
+
+可变 _darwin_dylib表 为 一组：（空）。
+
+苹果_注册syscall 接受 号、名、Nova映射：
+    做 追加 用 _darwin_syscall表、一组：号、名、Nova映射。
+完。
+
+苹果_注册dylib 接受 路径、Nova映射：
+    做 追加 用 _darwin_dylib表、一组：路径、Nova映射。
+完。
+
+苹果_加载dylib 接受 路径：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _darwin_dylib表：
+        若 _darwin_dylib表 的 第 i 项 的 第 0 项 等于 路径：
+            做 内核信息 用 「苹果: dylib 」 加 路径 加 「 → 」 加 _darwin_dylib表 的 第 i 项 的 第 1 项。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    搜索路径 为 一组：「/usr/lib」、「/usr/local/lib」、「/System/Library/Frameworks」。
+    i 为 0。
+    只要 i 小于 做 计数 用 搜索路径：
+        全路径 为 搜索路径 的 第 i 项 加 「/」 加 路径。
+        若 做 文件_存在 用 全路径：
+            做 内核信息 用 「苹果: 加载外部dylib 」 加 全路径。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    做 内核调试 用 「苹果: dylib未找到 」 加 路径 加 「 (将延迟绑定)」。
+完。
+
+ObjC类 是 一种 事物，含 名称、父类、方法列表、属性列表、协议列表、实例大小。
+
+可变 _objc_类注册表 为 一组：（空）。
+
+ObjC_注册类 接受 名称、父类、实例大小：
+    类 为 新建 ObjC类。
+    类 的 名称 为 名称。
+    类 的 父类 为 父类。
+    类 的 方法列表 为 一组：（空）。
+    类 的 属性列表 为 一组：（空）。
+    类 的 协议列表 为 一组：（空）。
+    类 的 实例大小 为 实例大小。
+    做 追加 用 _objc_类注册表、类。
+完。
+
+ObjC_消息发送 接受 对象、选择器、参数：
+    若 对象 等于 空：
+        返还 空。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _objc_类注册表：
+        类 为 _objc_类注册表 的 第 i 项。
+        可变 j 为 0。
+        只要 j 小于 做 计数 用 类 的 方法列表：
+            若 类 的 方法列表 的 第 j 项 的 第 0 项 等于 选择器：
+                做 内核调试 用 「ObjC: [」 加 类 的 名称 加 「 」 加 选择器 加 「]」。
+                返还 类 的 方法列表 的 第 j 项 的 第 1 项。
+            完。
+            j 为 j 加 1。
+        完。
+        若 类 的 父类 不等于 「」 并且 类 的 父类 不等于 空：
+        完。
+        i 为 i 加 1。
+    完。
+    做 内核调试 用 「ObjC: 未找到选择器 」 加 选择器 加 「 → doesNotRecognizeSelector」。
+    返还 空。
+完。
+
+ObjC_alloc 接受 类名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _objc_类注册表：
+        若 _objc_类注册表 的 第 i 项 的 名称 等于 类名：
+            大小 为 _objc_类注册表 的 第 i 项 的 实例大小。
+            若 大小 等于 0：
+                大小 为 64。
+            完。
+            做 内核调试 用 「ObjC: alloc 」 加 类名 加 「 size=」 加 做 整数转字符串 用 大小。
+            返还 一组：（空）。
+        完。
+        i 为 i 加 1。
+    完。
+    做 ObjC_注册类 用 类名、「NSObject」、64。
+    返还 一组：（空）。
+完。
+
+可变 _gcd_任务队列 为 一组：（空）。
+
+可变 _gcd_主队列 为 一组：（空）。
+
+GCD_队列_主 为 1。
+
+GCD_队列_全局 为 2。
+
+GCD_队列_用户 为 3。
+
+GCD_dispatch_async 接受 队列、块：
+    任务 为 一组：块、队列、0。
+    若 队列 等于 GCD_队列_主：
+        做 追加 用 _gcd_主队列、任务。
+        做 内核调试 用 「GCD: 主队列异步任务 #」 加 做 整数转字符串 用 做 计数 用 _gcd_主队列。
+    否则：
+        做 追加 用 _gcd_任务队列、任务。
+        做 内核调试 用 「GCD: 全局队列异步任务 #」 加 做 整数转字符串 用 做 计数 用 _gcd_任务队列。
+    完。
+    返还 0。
+完。
+
+GCD_dispatch_sync 接受 队列、块：
+    做 内核调试 用 「GCD: 同步执行」。
+    返还 0。
+完。
+
+GCD_dispatch_get_main_queue 接受 零参：
+    返还 GCD_队列_主。
+完。
+
+GCD_dispatch_after 接受 延迟_纳秒、队列、块：
+    任务 为 一组：块、队列、延迟_纳秒。
+    做 追加 用 _gcd_任务队列、任务。
+    返还 0。
+完。
+
+GCD_dispatch_group_create 接受 零参：
+    返还 一本字典：计数 对应 0、已完成 对应 0、等待者 对应 一组：（空）、已通知 对应 假。
+完。
+
+GCD_dispatch_group_enter 接受 组：
+    做 追加 用 组、1。
+完。
+
+GCD_dispatch_group_leave 接受 组：
+    若 做 计数 用 组 大于 0：
+        做 列表_弹出 用 组。
+    完。
+完。
+
+苹果_执行IPA 接受 路径、参数：
+    _苹果_执行数 为 _苹果_执行数 加 1。
+    做 内核信息 用 「苹果: 解压IPA 」 加 路径。
+    zip数据 为 做 文件_读字节全部 用 路径。
+    若 zip数据 等于 空：
+        返还 错误_不存在。
+    完。
+    可变 执行文件路径 为 「」。
+    临时目录 为 「/tmp/nova_ipa_」 加 做 整数转字符串 用 _苹果_执行数。
+    做 内核信息 用 「苹果: IPA解压到 」 加 临时目录。
+    可变 找到 为 假。
+    若 找到 并且 做 字串_长度 用 执行文件路径 大于 0：
+        返还 做 苹果_执行 用 执行文件路径、参数、一组：（空）。
+    完。
+    做 内核信息 用 「苹果: IPA加载完成」。
+    返还 0。
+完。
+
+苹果_报告 接受 零参：
+    可变 r 为 「═══ 苹果生态执行层 ═══\n」。
+    r 为 r 加 「执行次数: 」 加 做 整数转字符串 用 _苹果_执行数 加 「\n」。
+    r 为 r 加 「已加载模块: 」 加 做 整数转字符串 用 做 计数 用 _苹果_已加载模块 加 「\n」。
+    r 为 r 加 「Darwin系统调用: 」 加 做 整数转字符串 用 做 计数 用 _darwin_syscall表 加 「\n」。
+    r 为 r 加 「dylib映射: 」 加 做 整数转字符串 用 做 计数 用 _darwin_dylib表 加 「\n」。
+    r 为 r 加 「ObjC类: 」 加 做 整数转字符串 用 做 计数 用 _objc_类注册表 加 「\n」。
+    返还 r。
+完。
+
+本章 收束。

@@ -1,0 +1,774 @@
+《寄存器定义》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·中枢·内存初始化》。
+
+CR0_PE 为 1。
+
+CR0_MP 为 1 左移 1。
+
+CR0_EM 为 1 左移 2。
+
+CR0_TS 为 1 左移 3。
+
+CR0_ET 为 1 左移 4。
+
+CR0_NE 为 1 左移 5。
+
+CR0_WP 为 1 左移 16。
+
+CR0_AM 为 1 左移 18。
+
+CR0_NW 为 1 左移 29。
+
+CR0_CD 为 1 左移 30。
+
+CR0_PG 为 1 左移 31。
+
+CR4_VME 为 1 左移 0。
+
+CR4_PVI 为 1 左移 1。
+
+CR4_TSD 为 1 左移 2。
+
+CR4_DE 为 1 左移 3。
+
+CR4_PSE 为 1 左移 4。
+
+CR4_PAE 为 1 左移 5。
+
+CR4_MCE 为 1 左移 6。
+
+CR4_PGE 为 1 左移 7。
+
+CR4_PCE 为 1 左移 8。
+
+CR4_OSFXSR 为 1 左移 9。
+
+CR4_OSXMMEXCPT 为 1 左移 10。
+
+CR4_UMIP 为 1 左移 11。
+
+CR4_FSGSBASE 为 1 左移 16。
+
+CR4_PCIDE 为 1 左移 17。
+
+CR4_OSXSAVE 为 1 左移 18。
+
+CR4_SMEP 为 1 左移 20。
+
+CR4_SMAP 为 1 左移 21。
+
+CR4_PKE 为 1 左移 22。
+
+EFLAGS_CF 为 1 左移 0。
+
+EFLAGS_PF 为 1 左移 2。
+
+EFLAGS_AF 为 1 左移 4。
+
+EFLAGS_ZF 为 1 左移 6。
+
+EFLAGS_SF 为 1 左移 7。
+
+EFLAGS_TF 为 1 左移 8。
+
+EFLAGS_IF 为 1 左移 9。
+
+EFLAGS_DF 为 1 左移 10。
+
+EFLAGS_OF 为 1 左移 11。
+
+EFLAGS_IOPL_MASK 为 3 左移 12。
+
+EFLAGS_NT 为 1 左移 14。
+
+EFLAGS_RF 为 1 左移 16。
+
+EFLAGS_VM 为 1 左移 17。
+
+EFLAGS_AC 为 1 左移 18。
+
+EFLAGS_VIF 为 1 左移 19。
+
+EFLAGS_VIP 为 1 左移 20。
+
+EFLAGS_ID 为 1 左移 21。
+
+MSR_EFER 为 0xC0000080。
+
+MSR_STAR 为 0xC0000081。
+
+MSR_LSTAR 为 0xC0000082。
+
+MSR_CSTAR 为 0xC0000083。
+
+MSR_SFMASK 为 0xC0000084。
+
+MSR_FS_BASE 为 0xC0000100。
+
+MSR_GS_BASE 为 0xC0000101。
+
+MSR_KERNEL_GS_BASE 为 0xC0000102。
+
+MSR_接口C_BASE 为 0x1B。
+
+MSR_TSC 为 0x10。
+
+MSR_TSC_AUX 为 0xC0000103。
+
+MSR_MTRR_DEF_TYPE 为 0x2FF。
+
+MSR_PAT 为 0x277。
+
+MSR_PERF_CTL 为 0x199。
+
+MSR_PERF_STATUS 为 0x198。
+
+MSR_MISC_ENABLE 为 0x1A0。
+
+EFER_SCE 为 1。
+
+EFER_LME 为 1 左移 8。
+
+EFER_LMA 为 1 左移 10。
+
+EFER_NXE 为 1 左移 11。
+
+CPUID_FPU 为 1 左移 0。
+
+CPUID_VME 为 1 左移 1。
+
+CPUID_DE 为 1 左移 2。
+
+CPUID_PSE 为 1 左移 3。
+
+CPUID_TSC 为 1 左移 4。
+
+CPUID_MSR 为 1 左移 5。
+
+CPUID_PAE 为 1 左移 6。
+
+CPUID_MCE 为 1 左移 7。
+
+CPUID_CX8 为 1 左移 8。
+
+CPUID_APIC 为 1 左移 9。
+
+CPUID_SEP 为 1 左移 11。
+
+CPUID_MTRR 为 1 左移 12。
+
+CPUID_PGE 为 1 左移 13。
+
+CPUID_MCA 为 1 左移 14。
+
+CPUID_CMOV 为 1 左移 15。
+
+CPUID_PAT 为 1 左移 16。
+
+CPUID_PSE36 为 1 左移 17。
+
+CPUID_CLFSH 为 1 左移 19。
+
+CPUID_MMX 为 1 左移 23。
+
+CPUID_FXSR 为 1 左移 24。
+
+CPUID_SSE 为 1 左移 25。
+
+CPUID_SSE2 为 1 左移 26。
+
+CPUID_HTT 为 1 左移 28。
+
+CPUID_SSE3 为 1 左移 0。
+
+CPUID_PCLMUL 为 1 左移 1。
+
+CPUID_SSSE3 为 1 左移 9。
+
+CPUID_SSE41 为 1 左移 19。
+
+CPUID_SSE42 为 1 左移 20。
+
+CPUID_X2APIC 为 1 左移 21。
+
+CPUID_POPCNT 为 1 左移 23。
+
+CPUID_AES 为 1 左移 25。
+
+CPUID_XSAVE 为 1 左移 26。
+
+CPUID_OSXSAVE 为 1 左移 27。
+
+CPUID_AVX 为 1 左移 28。
+
+CPUID_FSGSBASE 为 1 左移 0。
+
+CPUID_BMI1 为 1 左移 3。
+
+CPUID_AVX2 为 1 左移 5。
+
+CPUID_SMEP_BIT 为 1 左移 7。
+
+CPUID_BMI2 为 1 左移 8。
+
+CPUID_INVPCID 为 1 左移 10。
+
+CPUID_SMAP_BIT 为 1 左移 20。
+
+CPUID_CLFLUSHOPT 为 1 左移 23。
+
+CPUID_NX 为 1 左移 20。
+
+CPUID_PDPE1GB 为 1 左移 26。
+
+CPUID_LM 为 1 左移 29。
+
+PTE_存在 为 1 左移 0。
+
+PTE_可写 为 1 左移 1。
+
+PTE_用户 为 1 左移 2。
+
+PTE_写通 为 1 左移 3。
+
+PTE_禁缓存 为 1 左移 4。
+
+PTE_已访问 为 1 左移 5。
+
+PTE_脏 为 1 左移 6。
+
+PTE_大页 为 1 左移 7。
+
+PTE_全局 为 1 左移 8。
+
+PTE_NX 为 1 左移 63。
+
+PTE_内核读写 为 PTE_存在 位或 PTE_可写。
+
+PTE_内核只读 为 PTE_存在。
+
+PTE_用户读写 为 PTE_存在 位或 PTE_可写 位或 PTE_用户。
+
+PTE_用户只读 为 PTE_存在 位或 PTE_用户。
+
+PTE_用户读写_NX 为 PTE_存在 位或 PTE_可写 位或 PTE_用户 位或 PTE_NX。
+
+GDT_NULL 为 0。
+
+GDT_内核代码 为 0x08。
+
+GDT_内核数据 为 0x10。
+
+GDT_用户代码 为 0x18。
+
+GDT_用户数据 为 0x20。
+
+GDT_TSS 为 0x28。
+
+RPL_内核 为 0。
+
+RPL_用户 为 3。
+
+段_代码_读执行 为 0x9A。
+
+段_数据_读写 为 0x92。
+
+段_长模式 为 0x20。
+
+段_粒度_4K 为 0x80。
+
+段_DPL0 为 0x00。
+
+段_DPL3 为 0x60。
+
+IDT_中断门 为 0x8E。
+
+IDT_陷阱门 为 0x8F。
+
+IDT_用户中断门 为 0xEE。
+
+IDT_任务门 为 0x85。
+
+异常_除零 为 0。
+
+异常_调试 为 1。
+
+异常_NMI 为 2。
+
+异常_断点 为 3。
+
+异常_溢出 为 4。
+
+异常_越界 为 5。
+
+异常_无效指令 为 6。
+
+异常_设备不可用 为 7。
+
+异常_双重错误 为 8。
+
+异常_无效TSS 为 10。
+
+异常_段不存在 为 11。
+
+异常_栈段错误 为 12。
+
+异常_一般保护 为 13。
+
+异常_缺页 为 14。
+
+异常_x87浮点 为 16。
+
+异常_对齐检查 为 17。
+
+异常_机器检查 为 18。
+
+异常_SIMD 为 19。
+
+IRQ_基 为 32。
+
+IRQ_定时器 为 32。
+
+IRQ_键盘 为 33。
+
+IRQ_级联 为 34。
+
+IRQ_串口2 为 35。
+
+IRQ_串口1 为 36。
+
+IRQ_软盘 为 38。
+
+IRQ_RTC 为 40。
+
+IRQ_鼠标 为 44。
+
+IRQ_磁盘1 为 46。
+
+IRQ_磁盘2 为 47。
+
+向量_系统调用 为 0x80。
+
+向量_APIC定时器 为 0xFE。
+
+向量_APIC伪中断 为 0xFF。
+
+TSS_RSP0 为 4。
+
+TSS_RSP1 为 12。
+
+TSS_RSP2 为 20。
+
+TSS_IST1 为 36。
+
+TSS_IST2 为 44。
+
+TSS_IST3 为 52。
+
+TSS_IST4 为 60。
+
+TSS_IST5 为 68。
+
+TSS_IST6 为 76。
+
+TSS_IST7 为 84。
+
+TSS_IOPB 为 102。
+
+TSS_大小 为 104。
+
+APIC_基址 为 0xFEE00000。
+
+APIC_ID 为 0x020。
+
+APIC_版本 为 0x030。
+
+APIC_TPR 为 0x080。
+
+APIC_EOI 为 0x0B0。
+
+APIC_SVR 为 0x0F0。
+
+APIC_ICR_LOW 为 0x300。
+
+APIC_ICR_HIGH 为 0x310。
+
+APIC_LVT_定时器 为 0x320。
+
+APIC_LVT_LINT0 为 0x350。
+
+APIC_LVT_LINT1 为 0x360。
+
+APIC_LVT_错误 为 0x370。
+
+APIC_初始计数 为 0x380。
+
+APIC_当前计数 为 0x390。
+
+APIC_分频 为 0x3E0。
+
+APIC_SVR_使能 为 0x100。
+
+APIC_定时器_周期 为 0x20000。
+
+APIC_定时器_单次 为 0x00000。
+
+APIC_定时器_TSC截止 为 0x40000。
+
+读CR0 接受 零参：
+    返还 做 __asm_读寄存器 用 「cr0」。
+完。
+
+写CR0 接受 值：
+    做 __asm_写寄存器 用 「cr0」、值。
+完。
+
+读CR2 接受 零参：
+    返还 做 __asm_读寄存器 用 「cr2」。
+完。
+
+读CR3 接受 零参：
+    返还 做 __asm_读寄存器 用 「cr3」。
+完。
+
+写CR3 接受 值：
+    做 __asm_写寄存器 用 「cr3」、值。
+完。
+
+读CR4 接受 零参：
+    返还 做 __asm_读寄存器 用 「cr4」。
+完。
+
+写CR4 接受 值：
+    做 __asm_写寄存器 用 「cr4」、值。
+完。
+
+读MSR 接受 地址：
+    返还 做 __asm_rdmsr 用 地址。
+完。
+
+写MSR 接受 地址、值：
+    做 __asm_wrmsr 用 地址、值。
+完。
+
+读TSC 接受 零参：
+    返还 做 __asm_rdtsc。
+完。
+
+APIC_读 接受 偏移：
+    返还 做 内存_读32 用 APIC_基址 加 偏移。
+完。
+
+APIC_写 接受 偏移、值：
+    做 内存_写32 用 APIC_基址 加 偏移、值。
+完。
+
+APIC_发送EOI 接受 零参：
+    做 APIC_写 用 APIC_EOI、0。
+完。
+
+可变 cpuid_edx_1 为 0。
+
+可变 cpuid_ecx_1 为 0。
+
+可变 cpuid_ebx_7 为 0。
+
+可变 cpuid_edx_ext 为 0。
+
+可变 cpuid_已检测 为 假。
+
+CPUID_检测 接受 零参：
+    若 cpuid_已检测：
+        返还。
+    完。
+    cpuid_edx_1 为 做 __asm_cpuid 用 1、3。
+    cpuid_ecx_1 为 做 __asm_cpuid 用 1、2。
+    cpuid_ebx_7 为 做 __asm_cpuid_sub 用 7、0、1。
+    cpuid_edx_ext 为 做 __asm_cpuid 用 0x80000001、3。
+    cpuid_已检测 为 真。
+完。
+
+CPU_有SSE 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_edx_1 位与 CPUID_SSE 不等于 0。
+完。
+
+CPU_有SSE2 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_edx_1 位与 CPUID_SSE2 不等于 0。
+完。
+
+CPU_有SSE3 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_ecx_1 位与 CPUID_SSE3 不等于 0。
+完。
+
+CPU_有AVX 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_ecx_1 位与 CPUID_AVX 不等于 0。
+完。
+
+CPU_有AVX2 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_ebx_7 位与 CPUID_AVX2 不等于 0。
+完。
+
+CPU_有NX 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_edx_ext 位与 CPUID_NX 不等于 0。
+完。
+
+CPU_有1G大页 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_edx_ext 位与 CPUID_PDPE1GB 不等于 0。
+完。
+
+CPU_有长模式 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_edx_ext 位与 CPUID_LM 不等于 0。
+完。
+
+CPU_有APIC 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_edx_1 位与 CPUID_APIC 不等于 0。
+完。
+
+CPU_有X2APIC 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_ecx_1 位与 CPUID_X2APIC 不等于 0。
+完。
+
+CPU_有XSAVE 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_ecx_1 位与 CPUID_XSAVE 不等于 0。
+完。
+
+CPU_有FSGSBASE 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_ebx_7 位与 CPUID_FSGSBASE 不等于 0。
+完。
+
+CPU_有SMEP 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_ebx_7 位与 CPUID_SMEP_BIT 不等于 0。
+完。
+
+CPU_有SMAP 接受 零参：
+    做 CPUID_检测。
+    返还 cpuid_ebx_7 位与 CPUID_SMAP_BIT 不等于 0。
+完。
+
+PTE_地址 接受 条目：
+    返还 条目 位与 0x000FFFFFFFFFF000。
+完。
+
+PTE_标志 接受 条目：
+    返还 条目 位与 0xFFF。
+完。
+
+PTE_是否存在 接受 条目：
+    返还 条目 位与 PTE_存在 不等于 0。
+完。
+
+PTE_是否可写 接受 条目：
+    返还 条目 位与 PTE_可写 不等于 0。
+完。
+
+PTE_是否用户 接受 条目：
+    返还 条目 位与 PTE_用户 不等于 0。
+完。
+
+PTE_是否大页 接受 条目：
+    返还 条目 位与 PTE_大页 不等于 0。
+完。
+
+打印CPU特性 接受 零参：
+    做 CPUID_检测。
+    做 打印行 用 「=== CPU特性 ===」。
+    做 打印行 用 「SSE:    」 加 若 做 CPU_有SSE 则 「是」 否则 「否」。
+    做 打印行 用 「SSE2:   」 加 若 做 CPU_有SSE2 则 「是」 否则 「否」。
+    做 打印行 用 「SSE3:   」 加 若 做 CPU_有SSE3 则 「是」 否则 「否」。
+    做 打印行 用 「AVX:    」 加 若 做 CPU_有AVX 则 「是」 否则 「否」。
+    做 打印行 用 「AVX2:   」 加 若 做 CPU_有AVX2 则 「是」 否则 「否」。
+    做 打印行 用 「NX:     」 加 若 做 CPU_有NX 则 「是」 否则 「否」。
+    做 打印行 用 「1G大页: 」 加 若 做 CPU_有1G大页 则 「是」 否则 「否」。
+    做 打印行 用 「长模式: 」 加 若 做 CPU_有长模式 则 「是」 否则 「否」。
+    做 打印行 用 「APIC:   」 加 若 做 CPU_有APIC 则 「是」 否则 「否」。
+    做 打印行 用 「X2APIC: 」 加 若 做 CPU_有X2APIC 则 「是」 否则 「否」。
+    做 打印行 用 「XSAVE:  」 加 若 做 CPU_有XSAVE 则 「是」 否则 「否」。
+    做 打印行 用 「SMEP:   」 加 若 做 CPU_有SMEP 则 「是」 否则 「否」。
+    做 打印行 用 「SMAP:   」 加 若 做 CPU_有SMAP 则 「是」 否则 「否」。
+完。
+
+寄存器_创建快照 接受 零参：
+    返还 一组：做 读CR0、做 读CR4、做 读EFLAGS、做 读MSR 用 MSR_EFER、做 读MSR 用 MSR_FS_BASE、做 读MSR 用 MSR_GS_BASE。
+完。
+
+寄存器_恢复快照 接受 快照：
+    做 写CR0 用 快照 的 第 0 项。
+    做 写CR4 用 快照 的 第 1 项。
+    做 写EFLAGS 用 快照 的 第 2 项。
+    做 写MSR 用 MSR_EFER、快照 的 第 3 项。
+    做 写MSR 用 MSR_FS_BASE、快照 的 第 4 项。
+    做 写MSR 用 MSR_GS_BASE、快照 的 第 5 项。
+完。
+
+寄存器_比较快照 接受 快照A、快照B：
+    可变 差异 为 一组：（空）。
+    名称 为 一组：「CR0」、「CR4」、「EFLAGS」、「EFER」、「FS_BASE」、「GS_BASE」。
+    可变 i 为 0。
+    只要 i 小于 6：
+        若 快照A 的 第 i 项 不等于 快照B 的 第 i 项：
+            做 追加 用 差异、一组：名称 的 第 i 项、快照A 的 第 i 项、快照B 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 差异。
+完。
+
+寄存器_快照相等 接受 快照A、快照B：
+    可变 i 为 0。
+    只要 i 小于 6：
+        若 快照A 的 第 i 项 不等于 快照B 的 第 i 项：
+            返还 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+寄存器_置位 接受 值、位：
+    返还 值 位或 1 左移 位。
+完。
+
+寄存器_清位 接受 值、位：
+    返还 值 位与 按位取反 (1 左移 位)。
+完。
+
+寄存器_测试位 接受 值、位：
+    返还 值 右移 位 位与 1 等于 1。
+完。
+
+寄存器_提取字段 接受 值、起始位、宽度：
+    掩码 为 (1 左移 宽度) 减 1。
+    返还 值 右移 起始位 位与 掩码。
+完。
+
+寄存器_设置字段 接受 值、起始位、宽度、新值：
+    掩码 为 (1 左移 宽度) 减 1。
+    清除 为 值 位与 按位取反 (掩码 左移 起始位)。
+    返还 清除 位或 (新值 位与 掩码) 左移 起始位。
+完。
+
+CR0_安全检查 接受 值：
+    可变 问题 为 一组：（空）。
+    若 值 位与 CR0_PE 等于 0：
+        做 追加 用 问题、「保护模式未启用」。
+    完。
+    若 值 位与 CR0_PG 等于 0：
+        做 追加 用 问题、「分页未启用」。
+    完。
+    若 值 位与 CR0_WP 等于 0：
+        做 追加 用 问题、「写保护未启用」。
+    完。
+    若 值 位与 CR0_NE 等于 0：
+        做 追加 用 问题、「数字错误未启用」。
+    完。
+    返还 问题。
+完。
+
+CR4_安全检查 接受 值：
+    可变 问题 为 一组：（空）。
+    若 值 位与 CR4_PAE 等于 0：
+        做 追加 用 问题、「PAE未启用」。
+    完。
+    若 值 位与 CR4_SMEP 等于 0：
+        做 追加 用 问题、「SMEP未启用」。
+    完。
+    若 值 位与 CR4_SMAP 等于 0：
+        做 追加 用 问题、「SMAP未启用」。
+    完。
+    返还 问题。
+完。
+
+PTE_构建 接受 物理地址、标志：
+    返还 物理地址 位与 0x000FFFFFFFFFF000 位或 标志 位与 0xFFF。
+完。
+
+PTE_构建_NX 接受 物理地址、标志：
+    返还 做 PTE_构建 用 物理地址、标志 位或 PTE_NX。
+完。
+
+PTE_设置标志 接受 条目、标志：
+    返还 条目 位或 标志。
+完。
+
+PTE_清除标志 接受 条目、标志：
+    返还 条目 位与 按位取反 标志。
+完。
+
+EFLAGS_中断已启用 接受 标志：
+    返还 标志 位与 EFLAGS_IF 不等于 0。
+完。
+
+EFLAGS_获取IOPL 接受 标志：
+    返还 (标志 位与 EFLAGS_IOPL_MASK) 右移 12。
+完。
+
+EFLAGS_设置IOPL 接受 标志、级别：
+    清除 为 标志 位与 按位取反 EFLAGS_IOPL_MASK。
+    返还 清除 位或 (级别 位与 3) 左移 12。
+完。
+
+EFLAGS_方向标志 接受 标志：
+    返还 标志 位与 EFLAGS_DF 不等于 0。
+完。
+
+EFLAGS_溢出标志 接受 标志：
+    返还 标志 位与 EFLAGS_OF 不等于 0。
+完。
+
+PTE_提取物理地址 接受 条目：
+    返还 条目 位与 0x000FFFFFFFFFF000。
+完。
+
+可变 _谐振寄存器_基准快照 为 空。
+
+可变 _谐振寄存器_异常次数 为 0。
+
+谐振寄存器_设置基准 接受 零参：
+    _谐振寄存器_基准快照 为 做 寄存器_创建快照。
+    _谐振寄存器_异常次数 为 0。
+完。
+
+谐振寄存器_检查 接受 零参：
+    若 _谐振寄存器_基准快照 等于 空：
+        返还 0。
+    完。
+    当前 为 做 寄存器_创建快照。
+    差异 为 做 寄存器_比较快照 用 _谐振寄存器_基准快照、当前。
+    若 做 计数 用 差异 大于 0：
+        _谐振寄存器_异常次数 为 _谐振寄存器_异常次数 加 做 计数 用 差异。
+    完。
+    返还 做 计数 用 差异。
+完。
+
+谐振寄存器_异常统计 接受 零参：
+    返还 _谐振寄存器_异常次数。
+完。
+
+寄存器定义_完整统计 接受 零参：
+    做 CPUID_检测。
+    返还 一组：「CR0位定义」、11、「CR4位定义」、16、「EFLAGS位定义」、18、「MSR地址」、17、「CPUID特性」、40、「PTE标志」、10、「GDT选择子」、6、「IDT门类型」、4、「寄存器快照」、4、「位操作工具」、5、「CR安全检查」、2、「PTE构建验证」、7、「EFLAGS工具」、5、「谐振寄存器监控」、1、「谐振异常次数」、_谐振寄存器_异常次数。
+完。
+
+本章 收束。

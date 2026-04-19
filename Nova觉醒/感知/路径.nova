@@ -1,0 +1,138 @@
+《路径》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·抗锯齿扫描》。
+
+引用《.·状态栈》。
+
+引用《.·SkPath路径创建》。
+
+引用《.·绘制矩形创建》。
+
+引用《.·画布像素操作》。
+
+引用《.·样式滤镜》。
+
+画布2D_beginPath 接受 ctx：
+    ctx 的 当前路径 为 做 SkPath_创建。
+    ctx 的 有子路径 为 假。
+完。
+
+画布2D_moveTo 接受 ctx、x、y：
+    做 SkPath_moveTo 用 ctx 的 当前路径、x、y。
+    ctx 的 子路径起点x 为 x。
+    ctx 的 子路径起点y 为 y。
+    ctx 的 有子路径 为 真。
+完。
+
+画布2D_lineTo 接受 ctx、x、y：
+    若 非 ctx 的 有子路径：
+        做 画布2D_moveTo 用 ctx、x、y。
+        返还。
+    完。
+    做 SkPath_lineTo 用 ctx 的 当前路径、x、y。
+完。
+
+画布2D_quadraticCurveTo 接受 ctx、cpx、cpy、x、y：
+    若 非 ctx 的 有子路径：
+        做 画布2D_moveTo 用 ctx、cpx、cpy。
+    完。
+    做 SkPath_quadTo 用 ctx 的 当前路径、cpx、cpy、x、y。
+完。
+
+画布2D_bezierCurveTo 接受 ctx、cp1x、cp1y、cp2x、cp2y、x、y：
+    若 非 ctx 的 有子路径：
+        做 画布2D_moveTo 用 ctx、cp1x、cp1y。
+    完。
+    做 SkPath_Nova三次方To 用 ctx 的 当前路径、cp1x、cp1y、cp2x、cp2y、x、y。
+完。
+
+画布2D_arc 接受 ctx、cx、cy、半径、起始角、结束角、逆时针：
+    若 半径 小于或等于 0：
+        返还。
+    完。
+    可变 角度 为 起始角。
+    可变 剩余 为 结束角 减 起始角。
+    若 逆时针：
+        剩余 为 0 减 剩余。
+    完。
+    若 剩余 小于 0：
+        剩余 为 剩余 加 62832。
+    完。
+    第一个点 为 真。
+    只要 剩余 大于 0：
+        可变 段角 为 剩余。
+        若 段角 大于 15708：
+            段角 为 15708。
+        完。
+        cos1 为 做 定点_cos 用 角度。
+        sin1 为 做 定点_sin 用 角度。
+        cos2 为 做 定点_cos 用 角度 加 段角。
+        sin2 为 做 定点_sin 用 角度 加 段角。
+        x1 为 cx 加 半径 乘 cos1 除以 10000。
+        y1 为 cy 加 半径 乘 sin1 除以 10000。
+        x2 为 cx 加 半径 乘 cos2 除以 10000。
+        y2 为 cy 加 半径 乘 sin2 除以 10000。
+        若 第一个点：
+            若 ctx 的 有子路径：
+                做 SkPath_lineTo 用 ctx 的 当前路径、x1、y1。
+            否则：
+                做 画布2D_moveTo 用 ctx、x1、y1。
+            完。
+            第一个点 为 假。
+        完。
+        k 为 半径 乘 5523 除以 10000 乘 段角 除以 15708。
+        cpx1 为 x1 减 k 乘 sin1 除以 10000。
+        cpy1 为 y1 加 k 乘 cos1 除以 10000。
+        cpx2 为 x2 加 k 乘 sin2 除以 10000。
+        cpy2 为 y2 减 k 乘 cos2 除以 10000。
+        做 SkPath_Nova三次方To 用 ctx 的 当前路径、cpx1、cpy1、cpx2、cpy2、x2、y2。
+        角度 为 角度 加 段角。
+        剩余 为 剩余 减 段角。
+    完。
+完。
+
+画布2D_arcTo 接受 ctx、x1、y1、x2、y2、半径：
+    cx 为 ctx 的 当前路径 的 当前X。
+    cy 为 ctx 的 当前路径 的 当前Y。
+    做 画布2D_lineTo 用 ctx、x1、y1。
+完。
+
+画布2D_closePath 接受 ctx：
+    若 ctx 的 有子路径：
+        做 SkPath_close 用 ctx 的 当前路径。
+    完。
+完。
+
+画布2D_fill 接受 ctx：
+    paint 为 做 画布2D_创建填充画笔 用 ctx。
+    若 paint 的 抗锯齿：
+        做 SkScan_抗锯齿填充路径 用 ctx 的 位图、ctx 的 当前路径、paint。
+    否则：
+        做 SkScan_填充路径 用 ctx 的 位图、ctx 的 当前路径、paint。
+    完。
+完。
+
+画布2D_stroke 接受 ctx：
+    paint 为 做 画布2D_创建描边画笔 用 ctx。
+    描边路径 为 做 SkStroke_描边路径 用 ctx 的 当前路径、ctx 的 当前状态 的 线宽、ctx 的 当前状态 的 线帽、ctx 的 当前状态 的 线接。
+    若 paint 的 抗锯齿：
+        做 SkScan_抗锯齿填充路径 用 ctx 的 位图、描边路径、paint。
+    否则：
+        做 SkScan_填充路径 用 ctx 的 位图、描边路径、paint。
+    完。
+完。
+
+画布2D_clip 接受 ctx：
+    ctx 的 当前状态 的 裁剪路径 为 ctx 的 当前路径。
+完。
+
+画布2D_isPointInPath 接受 ctx、x、y：
+    可变 交叉数 为 0。
+    返还 交叉数 位与 1 等于 1。
+完。
+
+本章 收束。

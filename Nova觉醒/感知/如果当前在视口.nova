@@ -1,0 +1,104 @@
+《如果当前在视口视口》
+
+引用《..·中枢·类型定义》。
+引用《.·布局块级折》。
+引用《.·样式值解析》。
+引用《.·内联布局文》。
+引用《.·弹性布局深度》。
+引用《.·溢出计算》。
+
+        可变 可用宽 为 包含块宽。
+        可变 x偏移 为 内容x。
+
+        ※ 如果当前Y在浮动区域内,收缩可用宽度
+        若 当前Y 小于 左浮动底部 并且 左浮动边界 大于 0：
+            x偏移 为 x偏移 加 左浮动边界。
+            可用宽 为 可用宽 减 左浮动边界。
+        完。
+        若 当前Y 小于 右浮动底部 并且 右浮动边界 小于 包含块宽：
+            可用宽 为 可用宽 减 (包含块宽 减 右浮动边界)。
+        完。
+
+        ※ 如果子元素指定了width,使用指定值; 否则填满可用宽度
+        若 子.宽度 等于 0 并且 子style 不等于 0 并且 子style.width 等于 -1：
+            子.宽度 为 可用宽 减 子.margin_left 减 子.margin_right。
+                     - 子.border_left 减 子.border_right。
+                     - 子.padding_left 减 子.padding_right。
+            若 子.宽度 小于 0：
+        完。
+
+        子.x 为 x偏移 加 子.margin_left 加 子.border_left 加 子.padding_left。
+        子.y 为 当前Y。
+
+        若 子.布局类型 等于 布局类型_块：
+            做 布局块级Flow_布局 用 子。
+        否则若 子.布局类型 等于 布局类型_弹性：
+            做 布局弹性_布局 用 子。
+        否则若 子.布局类型 等于 布局类型_行内：
+            做 布局Inline_布局 用 子。
+        否则若 子.布局类型 等于 布局类型_文本：
+            做 布局Text_布局 用 子。
+        否则若 子.布局类型 等于 布局类型_表格：
+            做 布局Table_布局 用 子。
+        否则：
+            做 布局块级Flow_布局 用 子。
+        完。
+
+        子总高 为 子.高度 加 子.padding_top 加 子.padding_bottom。
+                     + 子.border_top 加 子.border_bottom。
+        若 子总高 小于 0：
+
+        ※ 推进Y
+        当前Y = 子.y 加 子总高。
+
+        ※ 记录margin-bottom(用于与下一个兄弟折叠)
+        上一个margin_bottom 为 子.margin_bottom。
+        若 上一个margin_bottom 小于 0：
+
+        子 为 子.后一兄弟布局。
+    完。
+
+    若 layout.border_bottom 等于 0 并且 layout.padding_bottom 等于 0 并且 !做 布局块级Flow_建立BFC 用 layout：
+        ※ 向上传播: 取父和最后一个子的margin-bottom较大者
+        父mb 为 layout.margin_bottom。
+        若 父mb 小于 0：
+        若 上一个margin_bottom 大于 父mb：
+            layout.margin_bottom 为 上一个margin_bottom。
+        完。
+        ※ 已传播到父, 从内容高中扣除
+        上一个margin_bottom 为 0。
+    完。
+
+    若 !layout.高度已确定：
+        内容高 为 当前Y 减 内容y_起始 加 上一个margin_bottom。
+        ※ 考虑浮动溢出(如果建立BFC,需要包含浮动)
+        若 做 布局块级Flow_建立BFC 用 layout：
+            若 内容y_起始 加 内容高 小于 左浮动底部：
+                内容高 为 左浮动底部 减 内容y_起始。
+            完。
+            若 内容y_起始 加 内容高 小于 右浮动底部：
+                内容高 为 右浮动底部 减 内容y_起始。
+            完。
+        完。
+        ※ min-height / max-height 约束
+        若 style.min_height 大于 0：
+            最小高 为 做 CSS值_解析为像素 用 style.min_height、包含块高。
+            若 内容高 小于 最小高：
+        完。
+        若 style.max_height 大于 0 并且 style.max_height 不等于 -1：
+            最大高 为 做 CSS值_解析为像素 用 style.max_height、包含块高。
+            若 内容高 大于 最大高：
+        完。
+        layout.高度 为 内容高。
+
+    做 布局块级Flow_布局定位子元素 用 layout、包含块宽、包含块高。
+
+    做 布局块级Flow_计算overflow 用 layout。
+
+※ §3 Margin折叠算法 (CSS2.1 §8.3.1)
+※ 折叠规则:
+※ - 两个正margin: 取较大者
+※ - 一正一负: 求和
+※ - 两个负margin: 取绝对值较大者(即更负的那个)
+
+本章 收束。

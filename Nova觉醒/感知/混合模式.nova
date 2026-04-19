@@ -1,0 +1,146 @@
+《混合模式》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·CSS滤镜列表》。
+
+引用《.·高斯模糊》。
+
+BLEND_NORMAL 为 0。
+
+BLEND_MULTIPLY 为 1。
+
+BLEND_SCREEN 为 2。
+
+BLEND_OVERLAY 为 3。
+
+BLEND_DARKEN 为 4。
+
+BLEND_LIGHTEN 为 5。
+
+BLEND_COLOR_DODGE 为 6。
+
+BLEND_COLOR_BURN 为 7。
+
+BLEND_HARD_LIGHT 为 8。
+
+BLEND_SOFT_LIGHT 为 9。
+
+BLEND_DIFFERENCE 为 10。
+
+BLEND_EXCLUSION 为 11。
+
+BLEND_HUE 为 12。
+
+BLEND_SATURATION 为 13。
+
+BLEND_COLOR 为 14。
+
+BLEND_LUMINOSITY 为 15。
+
+Blend_像素 接受 模式、src_r、src_g、src_b、dst_r、dst_g、dst_b：
+    若 模式 等于 BLEND_NORMAL：
+        返还 一组：src_r、src_g、src_b。
+    完。
+    若 模式 等于 BLEND_MULTIPLY：
+        返还 一组：src_r 乘 dst_r 除以 255、src_g 乘 dst_g 除以 255、src_b 乘 dst_b 除以 255。
+    完。
+    若 模式 等于 BLEND_SCREEN：
+        返还 一组：src_r 加 dst_r 减 src_r 乘 dst_r 除以 255、src_g 加 dst_g 减 src_g 乘 dst_g 除以 255、src_b 加 dst_b 减 src_b 乘 dst_b 除以 255。
+    完。
+    若 模式 等于 BLEND_OVERLAY：
+        返还 一组：做 Blend_overlay通道 用 dst_r、src_r、做 Blend_overlay通道 用 dst_g、src_g、做 Blend_overlay通道 用 dst_b、src_b。
+    完。
+    若 模式 等于 BLEND_DARKEN：
+        返还 一组：做 最小值 用 src_r、dst_r、做 最小值 用 src_g、dst_g、做 最小值 用 src_b、dst_b。
+    完。
+    若 模式 等于 BLEND_LIGHTEN：
+        返还 一组：做 最大值 用 src_r、dst_r、做 最大值 用 src_g、dst_g、做 最大值 用 src_b、dst_b。
+    完。
+    若 模式 等于 BLEND_COLOR_DODGE：
+        返还 一组：做 Blend_dodge通道 用 dst_r、src_r、做 Blend_dodge通道 用 dst_g、src_g、做 Blend_dodge通道 用 dst_b、src_b。
+    完。
+    若 模式 等于 BLEND_COLOR_BURN：
+        返还 一组：做 Blend_burn通道 用 dst_r、src_r、做 Blend_burn通道 用 dst_g、src_g、做 Blend_burn通道 用 dst_b、src_b。
+    完。
+    若 模式 等于 BLEND_HARD_LIGHT：
+        返还 一组：做 Blend_overlay通道 用 src_r、dst_r、做 Blend_overlay通道 用 src_g、dst_g、做 Blend_overlay通道 用 src_b、dst_b。
+    完。
+    若 模式 等于 BLEND_DIFFERENCE：
+        返还 一组：做 绝对值 用 src_r 减 dst_r、做 绝对值 用 src_g 减 dst_g、做 绝对值 用 src_b 减 dst_b。
+    完。
+    若 模式 等于 BLEND_EXCLUSION：
+        返还 一组：src_r 加 dst_r 减 2 乘 src_r 乘 dst_r 除以 255、src_g 加 dst_g 减 2 乘 src_g 乘 dst_g 除以 255、src_b 加 dst_b 减 2 乘 src_b 乘 dst_b 除以 255。
+    完。
+    返还 一组：src_r、src_g、src_b。
+完。
+
+Blend_overlay通道 接受 a、b：
+    若 a 小于 128：
+        返还 2 乘 a 乘 b 除以 255。
+    完。
+    返还 255 减 2 乘 (255 减 a) 乘 (255 减 b) 除以 255。
+完。
+
+Blend_dodge通道 接受 dst、src：
+    若 dst 等于 0：
+        返还 0。
+    完。
+    若 src 等于 255：
+        返还 255。
+    完。
+    返还 做 钳制 用 dst 乘 255 除以 (255 减 src)、0、255。
+完。
+
+Blend_burn通道 接受 dst、src：
+    若 dst 等于 255：
+        返还 255。
+    完。
+    若 src 等于 0：
+        返还 0。
+    完。
+    返还 255 减 做 钳制 用 (255 减 dst) 乘 255 除以 src、0、255。
+完。
+
+FilterList_应用 接受 fl、像素、宽、高：
+    若 fl 等于 0 或者 fl 的 数量 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 fl 的 数量：
+        op 为 做 内存_读64 用 fl 的 操作 加 i 乘 8。
+        若 op 等于 0：
+            i 为 i 加 1。
+            继续。
+        完。
+        若 op 的 类型 等于 FILTER_BLUR：
+            做 Filter_blur 用 像素、宽、高、op 的 参数1。
+        否则若 op 的 类型 等于 FILTER_BRIGHTNESS：
+            做 Filter_颜色矩阵应用 用 像素、宽、高、做 Filter_brightness矩阵 用 op 的 参数1。
+        否则若 op 的 类型 等于 FILTER_CONTRAST：
+            做 Filter_颜色矩阵应用 用 像素、宽、高、做 Filter_contrast矩阵 用 op 的 参数1。
+        否则若 op 的 类型 等于 FILTER_GRAYSCALE：
+            做 Filter_颜色矩阵应用 用 像素、宽、高、做 Filter_grayscale矩阵 用 op 的 参数1。
+        否则若 op 的 类型 等于 FILTER_SEPIA：
+            做 Filter_颜色矩阵应用 用 像素、宽、高、做 Filter_sepia矩阵 用 op 的 参数1。
+        否则若 op 的 类型 等于 FILTER_INVERT：
+            做 Filter_颜色矩阵应用 用 像素、宽、高、做 Filter_invert矩阵 用 op 的 参数1。
+        否则若 op 的 类型 等于 FILTER_OPACITY：
+            做 Filter_颜色矩阵应用 用 像素、宽、高、做 Filter_opacity矩阵 用 op 的 参数1。
+        否则若 op 的 类型 等于 FILTER_SATURATE：
+            做 Filter_颜色矩阵应用 用 像素、宽、高、做 Filter_saturate矩阵 用 op 的 参数1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+最大值 接受 a、b：
+    若 a 大于 b：
+        返还 a。
+    完。
+    返还 b。
+完。
+
+本章 收束。

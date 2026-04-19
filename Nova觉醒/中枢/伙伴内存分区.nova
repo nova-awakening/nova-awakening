@@ -1,0 +1,87 @@
+《伙伴内存分区》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+最大阶 为 10。
+
+页大小位移 为 12。
+
+页块阶 为 9。
+
+页块页数 为 512。
+
+GFP_KERNEL 为 0x0CC0。
+
+GFP_ATOMIC 为 0x0200。
+
+GFP_NOIO 为 0x0040。
+
+GFP_NOFS 为 0x00C0。
+
+GFP_USER 为 0x0DC0。
+
+GFP_HIGHUSER 为 0x0DC2。
+
+GFP_直传 为 0x0001。
+
+GFP_HIGHMEM 为 0x0002。
+
+GFP_直传32 为 0x0004。
+
+__GFP_ZERO 为 0x0100。
+
+__GFP_NOWARN 为 0x0200。
+
+__GFP_NORETRY 为 0x1000。
+
+__GFP_COMP 为 0x4000。
+
+__GFP_MOVABLE 为 0x0008。
+
+__GFP_RECLAIMABLE 为 0x0010。
+
+__GFP_HIGH 为 0x0020。
+
+ZONE_直传 为 0。
+
+ZONE_直传32 为 1。
+
+ZONE_NORMAL 为 2。
+
+ZONE_HIGHMEM 为 3。
+
+ZONE_MOVABLE 为 4。
+
+最大ZONE数 为 5。
+
+MIGRATE_UNMOVABLE 为 0。
+
+MIGRATE_MOVABLE 为 1。
+
+MIGRATE_RECLAIMABLE 为 2。
+
+MIGRATE_PCPTYPES 为 3。
+
+MIGRATE_HIGHATOMIC 为 3。
+
+MIGRATE_TYPES 为 4。
+
+WMARK_MIN 为 0。
+
+WMARK_LOW 为 1。
+
+WMARK_HIGH 为 2。
+
+NR_WMARK 为 3。
+
+可变 回退链 为 一组：一组：MIGRATE_RECLAIMABLE、MIGRATE_MOVABLE、一组：MIGRATE_RECLAIMABLE、MIGRATE_UNMOVABLE、一组：MIGRATE_UNMOVABLE、MIGRATE_MOVABLE、一组：（空）。
+
+空闲区域 是 一种 事物，含 空闲链表、空闲数。
+
+PCP缓存 是 一种 事物，含 计数、高水位、批量、链表、锁。
+
+内存zone 是 一种 事物，含 名称、类型。
+
+本章 收束。

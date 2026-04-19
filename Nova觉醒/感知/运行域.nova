@@ -1,0 +1,301 @@
+《运行域》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·平台时间》。
+
+引用《..·中枢·整数转字符串》。
+
+DevTools_Runtime处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「Runtime.enable」：
+        session 的 runtime启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Runtime.evaluate」：
+        表达式 为 做 DevTools_解析参数_str 用 msg 的 参数、「expression」。
+    否则若 做 字符串_相等 用 方法、「Runtime.callFunctionOn」：
+    否则若 做 字符串_相等 用 方法、「Runtime.getProperties」：
+        objectId 为 做 DevTools_解析参数_str 用 msg 的 参数、「objectId」。
+    否则若 做 字符串_相等 用 方法、「Runtime.releaseObject」：
+    完。
+完。
+
+Breakpoint 是 一种 事物，含 id、脚本URL、行号、列号、条件、启用。
+
+CallFrame 是 一种 事物，含 函数名、脚本URL、行号、列号、作用域、this值。
+
+DevTools_调试ger处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「调试ger.enable」：
+        session 的 debugger启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「调试ger.setBreakpointByUrl」：
+        url 为 做 DevTools_解析参数_str 用 msg 的 参数、「url」。
+        行号 为 做 DevTools_解析参数_int 用 msg 的 参数、「lineNumber」。
+        条件 为 做 DevTools_解析参数_str 用 msg 的 参数、「condition」。
+        bp 为 做 堆_分配 用 Breakpoint。
+        bp 的 脚本URL 为 url。
+        bp 的 行号 为 行号。
+        bp 的 列号 为 0。
+        bp 的 条件 为 条件。
+        bp 的 启用 为 真。
+        bp 的 id 为 session 的 断点数 加 1。
+        session 的 断点数 为 session 的 断点数 加 1。
+    否则若 做 字符串_相等 用 方法、「调试ger.removeBreakpoint」：
+    否则若 做 字符串_相等 用 方法、「调试ger.resume」：
+        session 的 已暂停 为 假。
+    否则若 做 字符串_相等 用 方法、「调试ger.stepOver」：
+    否则若 做 字符串_相等 用 方法、「调试ger.stepInto」：
+    否则若 做 字符串_相等 用 方法、「调试ger.stepOut」：
+    否则若 做 字符串_相等 用 方法、「调试ger.pause」：
+        session 的 已暂停 为 真。
+        session 的 暂停原因 为 「debugCommand」。
+    否则若 做 字符串_相等 用 方法、「调试ger.setPauseOnExceptions」：
+    否则若 做 字符串_相等 用 方法、「调试ger.evaluateOnCallFrame」：
+    完。
+完。
+
+CONSOLE_LOG 为 0。
+
+CONSOLE_WARN 为 1。
+
+CONSOLE_ERROR 为 2。
+
+CONSOLE_INFO 为 3。
+
+CONSOLE_DEBUG 为 4。
+
+CONSOLE_TABLE 为 5。
+
+CONSOLE_DIR 为 6。
+
+CONSOLE_CLEAR 为 7。
+
+ConsoleMessage 是 一种 事物，含 级别、文本、url、行号、时间戳、栈追踪、参数、参数数、下一个。
+
+DevTools_Console处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「Console.enable」：
+        session 的 console启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Console.clearMessages」：
+        若 全局DevTools 不等于 0：
+            全局DevTools 的 console日志 为 0。
+            全局DevTools 的 console日志数 为 0。
+        完。
+        msg 的 结果 为 「{}」。
+    完。
+完。
+
+Console_记录 接受 级别、文本、url、行号：
+    若 全局DevTools 等于 0：
+        返还。
+    完。
+    cm 为 做 堆_分配 用 ConsoleMessage。
+    cm 的 级别 为 级别。
+    cm 的 文本 为 文本。
+    cm 的 url 为 url。
+    cm 的 行号 为 行号。
+    cm 的 时间戳 为 做 平台_获取高精度时间。
+    cm 的 栈追踪 为 0。
+    cm 的 参数 为 0。
+    cm 的 参数数 为 0。
+    cm 的 下一个 为 全局DevTools 的 console日志。
+    全局DevTools 的 console日志 为 cm。
+    全局DevTools 的 console日志数 为 全局DevTools 的 console日志数 加 1。
+完。
+
+DevTools_Network处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「Network.enable」：
+        session 的 network启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Network.disable」：
+        session 的 network启用 为 假。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Network.setCacheDisabled」：
+        msg 的 结果 为 「{}」。
+    完。
+完。
+
+DevTools_Page处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「Page.enable」：
+        session 的 page启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Page.reload」：
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「Page.navigate」：
+        msg 的 结果 为 「{}」。
+    完。
+完。
+
+DevTools_DOM处理 接受 session、msg：
+    若 session 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    方法 为 msg 的 方法。
+    若 做 字符串_相等 用 方法、「DOM.enable」：
+        session 的 dom启用 为 真。
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「DOM.getDocument」：
+        msg 的 结果 为 「{}」。
+    否则若 做 字符串_相等 用 方法、「DOM.querySelector」：
+        msg 的 结果 为 「{}」。
+    完。
+完。
+
+可变 全局DevTools 为 0。
+
+DevToolsState 是 一种 事物，含 console日志、console日志数。
+
+DevTools_解析参数_str 接受 参数、键：
+    若 参数 等于 0 或者 键 等于 0：
+        返还 0。
+    完。
+    位置 为 做 字符串_查找 用 参数、键。
+    若 位置 小于 0：
+        返还 0。
+    完。
+    引号1 为 做 字符串_查找子 用 参数、「\"」、位置 加 做 字符串长度 用 键 加 2。
+    若 引号1 小于 0：
+        返还 0。
+    完。
+    引号2 为 做 字符串_查找子 用 参数、「\"」、引号1 加 1。
+    若 引号2 小于 0：
+        返还 0。
+    完。
+    返还 做 字符串子串 用 参数、引号1 加 1、引号2。
+完。
+
+DevTools_解析参数_int 接受 参数、键：
+    若 参数 等于 0 或者 键 等于 0：
+        返还 0。
+    完。
+    位置 为 做 字符串_查找 用 参数、键。
+    若 位置 小于 0：
+        返还 0。
+    完。
+    冒号 为 做 字符串_查找子 用 参数、「:」、位置。
+    若 冒号 小于 0：
+        返还 0。
+    完。
+    返还 做 字符串转整数 用 做 字符串子串 用 参数、冒号 加 1、做 字符串长度 用 参数。
+完。
+
+Console_级别名 接受 级别：
+    若 级别 等于 CONSOLE_LOG：
+        返还 「log」。
+    完。
+    若 级别 等于 CONSOLE_WARN：
+        返还 「warning」。
+    完。
+    若 级别 等于 CONSOLE_ERROR：
+        返还 「error」。
+    完。
+    若 级别 等于 CONSOLE_INFO：
+        返还 「info」。
+    完。
+    若 级别 等于 CONSOLE_DEBUG：
+        返还 「debug」。
+    完。
+    若 级别 等于 CONSOLE_TABLE：
+        返还 「table」。
+    完。
+    返还 「log」。
+完。
+
+可变 DevTools_命令总数 为 0。
+
+可变 DevTools_事件总数 为 0。
+
+可变 DevTools_断点命中数 为 0。
+
+DevTools_统计 接受 零参：
+    返还 一本字典：命令 对应 DevTools_命令总数、事件 对应 DevTools_事件总数、断点命中 对应 DevTools_断点命中数。
+完。
+
+DevTools_健康检查 接受 零参：
+    返还 「开发工具健康」。
+完。
+
+DevTools_重置统计 接受 零参：
+    DevTools_命令总数 为 0。
+    DevTools_事件总数 为 0。
+    DevTools_断点命中数 为 0。
+完。
+
+DevTools_完整统计 接受 零参：
+    返还 一组：DevTools_命令总数、DevTools_事件总数、DevTools_断点命中数。
+完。
+
+可变 AI_运行域_热节点缓存 为 0。
+
+AI_运行域_节点热度 接受 节点、操作类型：
+    若 操作类型 等于 「查询」：
+        返还 「缓存」。
+    完。
+    若 操作类型 等于 「修改」：
+        AI_运行域_热节点缓存 为 0。
+        返还 「失效」。
+    完。
+    返还 「普通」。
+完。
+
+AI_运行域_批量DOM优化 接受 操作数：
+    若 操作数 大于 100：
+        返还 「延迟重排」。
+    完。
+    若 操作数 大于 10：
+        返还 「批量重排」。
+    完。
+    返还 「即时重排」。
+完。
+
+运行域_统计 接受 零参：
+    返还 一本字典：DevTools命令总数 对应 DevTools_命令总数、DevTools事件总数 对应 DevTools_事件总数。
+完。
+
+运行域_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 DevTools_命令总数 大于 100000：
+        做 追加 用 问题、「DevTools_命令总数异常增长」。
+    完。
+    若 DevTools_事件总数 大于 100000：
+        做 追加 用 问题、「DevTools_事件总数异常增长」。
+    完。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+运行域_综合报告 接受 零参：
+    做 打印 用 「[运行域] ═══ 综合报告 ═══」。
+    做 打印 用 「  DevTools_命令总数: 」 加 DevTools_命令总数。
+    做 打印 用 「  DevTools_事件总数: 」 加 DevTools_事件总数。
+    做 打印 用 「  健康: 」 加 若 做 运行域_健康评估 则 「正常」 否则 「异常」。
+完。
+
+运行域_全局重置 接受 零参：
+    DevTools_命令总数 为 0。
+    DevTools_事件总数 为 0。
+    做 打印 用 「[运行域] 统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

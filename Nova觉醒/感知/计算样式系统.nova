@@ -1,0 +1,671 @@
+《计算样式系统》
+
+引用《.·内核直连层》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·字符串替换》。
+
+Display_none 为 0。
+
+Display_block 为 1。
+
+Display_inline 为 2。
+
+Display_inline_block 为 3。
+
+Display_flex 为 4。
+
+Display_inline_flex 为 5。
+
+Display_grid 为 6。
+
+Display_inline_grid 为 7。
+
+Display_table 为 8。
+
+Display_table_row 为 9。
+
+Display_table_cell 为 10。
+
+Display_list_item 为 11。
+
+Display_contents 为 12。
+
+Position_static 为 0。
+
+Position_relative 为 1。
+
+Position_absolute 为 2。
+
+Position_fixed 为 3。
+
+Position_sticky 为 4。
+
+Overflow_visible 为 0。
+
+Overflow_hidden 为 1。
+
+Overflow_scroll 为 2。
+
+Overflow_auto 为 3。
+
+浮动_none 为 0。
+
+浮动_left 为 1。
+
+浮动_right 为 2。
+
+TextAlign_left 为 0。
+
+TextAlign_right 为 1。
+
+TextAlign_center 为 2。
+
+TextAlign_justify 为 3。
+
+弹性Dir_row 为 0。
+
+弹性Dir_row_reverse 为 1。
+
+弹性Dir_column 为 2。
+
+弹性Dir_column_reverse 为 3。
+
+JC_flex_start 为 0。
+
+JC_flex_end 为 1。
+
+JC_center 为 2。
+
+JC_space_between 为 3。
+
+JC_space_around 为 4。
+
+JC_space_evenly 为 5。
+
+JC_stretch 为 6。
+
+BoxSizing_content 为 0。
+
+BoxSizing_border 为 1。
+
+Visibility_visible 为 0。
+
+Visibility_hidden 为 1。
+
+Visibility_collapse 为 2。
+
+计算长度 是 一种 事物，含 值、是auto、单位。
+
+Computed样式 是 一种 事物，含 display、position、float_val、clear、box_sizing、width、height、min_width、min_height、max_width、max_height、padding_top、padding_right、padding_bottom、padding_left、margin_top、margin_right、margin_bottom、margin_left、border_top_width、border_right_width、border_bottom_width、border_left_width、border_top_color、border_right_color、border_bottom_color、border_left_color、border_top_style、border_right_style、border_bottom_style、border_left_style、border_radius_tl、border_radius_tr、border_radius_bl、border_radius_br、top、right、bottom、left、z_index、visibility、opacity、overflow_x、overflow_y、color、background_color、font_size、font_weight、font_style、line_height、text_align、text_decoration、text_transform、white_space、word_break、letter_spacing、flex_direction、flex_wrap、flex_grow、flex_shrink、flex_basis、justify_content、align_items、align_self、align_content、grid_template_columns、grid_template_rows、grid_column_start、grid_column_end、grid_row_start、grid_row_end、grid_gap_column、grid_gap_row、transform_matrix、will_change_flags、contain_flags、继承版本号、脏标志、缓存哈希。
+
+属性组_盒模型 为 0x01。
+
+属性组_尺寸 为 0x02。
+
+属性组_边距 为 0x04。
+
+属性组_边框 为 0x08。
+
+属性组_定位 为 0x10。
+
+属性组_视觉 为 0x20。
+
+属性组_字体 为 0x40。
+
+属性组_弹性 为 0x80。
+
+属性组_网格 为 0x100。
+
+属性组_变换 为 0x200。
+
+属性组_全部 为 0x3FF。
+
+脏_无 为 0。
+
+脏_样式已变 为 0x01。
+
+脏_需要重排 为 0x02。
+
+脏_需要重绘 为 0x04。
+
+脏_需要重合成 为 0x08。
+
+脏_子树已变 为 0x10。
+
+继承属性_color 为 0x01。
+
+继承属性_font_size 为 0x02。
+
+继承属性_font_weight 为 0x04。
+
+继承属性_font_style 为 0x08。
+
+继承属性_line_height 为 0x10。
+
+继承属性_text_align 为 0x20。
+
+继承属性_visibility 为 0x40。
+
+继承属性_white_space 为 0x80。
+
+继承属性_word_break 为 0x100。
+
+继承属性_letter_spacing 为 0x200。
+
+继承属性_text_decoration 为 0x400。
+
+继承属性_全部 为 0x7FF。
+
+样式缓存容量 为 4096。
+
+布隆过滤器大小 为 1024。
+
+可变 全局_样式计算次数 为 0。
+
+可变 全局_缓存命中次数 为 0。
+
+可变 全局_缓存未中次数 为 0。
+
+可变 全局_继承传播次数 为 0。
+
+可变 全局_属性组跳过次数 为 0。
+
+可变 全局_AI预测命中 为 0。
+
+可变 全局_AI预测未中 为 0。
+
+可变 样式缓存表 为 空。
+
+可变 样式缓存数量 为 0。
+
+可变 布隆过滤器 为 空。
+
+计算样式系统_初始化 接受 零参：
+    样式缓存表 为 做 数组_创建 用 样式缓存容量、空。
+    样式缓存数量 为 0。
+    布隆过滤器 为 做 数组_创建 用 布隆过滤器大小、0。
+    全局_样式计算次数 为 0。
+    全局_缓存命中次数 为 0。
+    全局_缓存未中次数 为 0。
+    全局_继承传播次数 为 0。
+    全局_属性组跳过次数 为 0。
+    全局_AI预测命中 为 0。
+    全局_AI预测未中 为 0。
+    返还 真。
+完。
+
+创建默认样式 接受 零参：
+    可变。
+    s 为 新建 Computed样式。
+    s 的 display 为 Display_inline。
+    s 的 position 为 Position_static。
+    s 的 float_val 为 浮动_none。
+    s 的 clear 为 0。
+    s 的 box_sizing 为 BoxSizing_content。
+    s 的 width 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 height 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 min_width 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 min_height 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 max_width 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 max_height 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 padding_top 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 padding_right 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 padding_bottom 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 padding_left 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 margin_top 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 margin_right 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 margin_bottom 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 margin_left 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 border_top_width 为 0。
+    s 的 border_right_width 为 0。
+    s 的 border_bottom_width 为 0。
+    s 的 border_left_width 为 0。
+    s 的 border_top_color 为 0x000000FF。
+    s 的 border_right_color 为 0x000000FF。
+    s 的 border_bottom_color 为 0x000000FF。
+    s 的 border_left_color 为 0x000000FF。
+    s 的 border_top_style 为 0。
+    s 的 border_right_style 为 0。
+    s 的 border_bottom_style 为 0。
+    s 的 border_left_style 为 0。
+    s 的 border_radius_tl 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 border_radius_tr 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 border_radius_bl 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 border_radius_br 为 新建 计算长度：值 为 0、是auto 为 假、单位 为 0。
+    s 的 top 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 right 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 bottom 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 left 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 z_index 为 0。
+    s 的 visibility 为 Visibility_visible。
+    s 的 opacity 为 10000。
+    s 的 overflow_x 为 Overflow_visible。
+    s 的 overflow_y 为 Overflow_visible。
+    s 的 color 为 0x000000FF。
+    s 的 background_color 为 0x00000000。
+    s 的 font_size 为 1600。
+    s 的 font_weight 为 400。
+    s 的 font_style 为 0。
+    s 的 line_height 为 0。
+    s 的 text_align 为 TextAlign_left。
+    s 的 text_decoration 为 0。
+    s 的 text_transform 为 0。
+    s 的 white_space 为 0。
+    s 的 word_break 为 0。
+    s 的 letter_spacing 为 0。
+    s 的 flex_direction 为 弹性Dir_row。
+    s 的 flex_wrap 为 0。
+    s 的 flex_grow 为 0。
+    s 的 flex_shrink 为 1000。
+    s 的 flex_basis 为 新建 计算长度：值 为 0、是auto 为 真、单位 为 0。
+    s 的 justify_content 为 JC_flex_start。
+    s 的 align_items 为 JC_stretch。
+    s 的 align_self 为 0。
+    s 的 align_content 为 JC_stretch。
+    s 的 grid_template_columns 为 空。
+    s 的 grid_template_rows 为 空。
+    s 的 grid_column_start 为 0。
+    s 的 grid_column_end 为 0。
+    s 的 grid_row_start 为 0。
+    s 的 grid_row_end 为 0。
+    s 的 grid_gap_column 为 0。
+    s 的 grid_gap_row 为 0。
+    s 的 transform_matrix 为 空。
+    s 的 will_change_flags 为 0。
+    s 的 contain_flags 为 0。
+    s 的 继承版本号 为 0。
+    s 的 脏标志 为 0。
+    s 的 缓存哈希 为 0。
+    返还 s。
+完。
+
+布隆_哈希 接受 输入：
+    可变。
+    h 为 0x811C9DC5。
+    可变。
+    i 为 0。
+    只要 i 小于 做 字符串_长度 用 输入：
+        h 为 h 位异或 做 字符串_字符码 用 输入、i。
+        h 为 h 乘 0x01000193。
+        h 为 h 位与 0xFFFFFFFF。
+        i 为 i 加 1。
+    完。
+    返还 h。
+完。
+
+布隆过滤器_插入 接受 哈希值：
+    若 布隆过滤器 等于 空：
+        返还。
+    完。
+    h1 为 哈希值 位与 0xFFFF。
+    h2 为 哈希值 右移 16 位与 0xFFFF。
+    idx0 为 h1 取余于 布隆过滤器大小。
+    idx1 为 h2 取余于 布隆过滤器大小。
+    idx2 为 (h1 加 h2) 取余于 布隆过滤器大小。
+    布隆过滤器 的 第 idx0 项 为 1。
+    布隆过滤器 的 第 idx1 项 为 1。
+    布隆过滤器 的 第 idx2 项 为 1。
+完。
+
+布隆过滤器_可能包含 接受 哈希值：
+    若 布隆过滤器 等于 空：
+        返还 假。
+    完。
+    h1 为 哈希值 位与 0xFFFF。
+    h2 为 哈希值 右移 16 位与 0xFFFF。
+    idx0 为 h1 取余于 布隆过滤器大小。
+    idx1 为 h2 取余于 布隆过滤器大小。
+    idx2 为 (h1 加 h2) 取余于 布隆过滤器大小。
+    返还 布隆过滤器 的 第 idx0 项 等于 1 并且 布隆过滤器 的 第 idx1 项 等于 1 并且 布隆过滤器 的 第 idx2 项 等于 1。
+完。
+
+布隆过滤器_重置 接受 零参：
+    若 布隆过滤器 等于 空：
+        返还。
+    完。
+    可变。
+    i 为 0。
+    只要 i 小于 布隆过滤器大小：
+        布隆过滤器 的 第 i 项 为 0。
+        i 为 i 加 1。
+    完。
+完。
+
+样式缓存_计算哈希 接受 元素标签、类名、伪类标志：
+    可变。
+    h 为 0x1505。
+    h 为 h 乘 33 加 做 布隆_哈希 用 元素标签。
+    h 为 h 乘 33 加 做 布隆_哈希 用 类名。
+    h 为 h 乘 33 加 伪类标志。
+    返还 h 位与 0xFFFFFFFF。
+完。
+
+样式缓存_查找 接受 哈希值：
+    若 样式缓存表 等于 空：
+        返还 空。
+    完。
+    索引 为 哈希值 取余于 样式缓存容量。
+    节点 为 样式缓存表 的 第 索引 项。
+    若 节点 不等于 空 并且 节点 的 哈希 等于 哈希值：
+        全局_缓存命中次数 为 全局_缓存命中次数 加 1。
+        返还 节点 的 样式。
+    完。
+    全局_缓存未中次数 为 全局_缓存未中次数 加 1。
+    返还 空。
+完。
+
+样式缓存_存入 接受 哈希值、样式对象：
+    若 样式缓存表 等于 空：
+        返还。
+    完。
+    索引 为 哈希值 取余于 样式缓存容量。
+    样式缓存表 的 第 索引 项 为 一本字典：哈希 对应 哈希值、样式 对应 样式对象。
+    样式缓存数量 为 样式缓存数量 加 1。
+完。
+
+样式缓存_全部清除 接受 零参：
+    若 样式缓存表 等于 空：
+        返还。
+    完。
+    可变。
+    i 为 0。
+    只要 i 小于 样式缓存容量：
+        样式缓存表 的 第 i 项 为 空。
+        i 为 i 加 1。
+    完。
+    样式缓存数量 为 0。
+完。
+
+样式继承_从父传播 接受 子样式、父样式：
+    若 父样式 等于 空：
+        返还 子样式。
+    完。
+    若 子样式 的 color 等于 0x000000FF：
+        子样式 的 color 为 父样式 的 color。
+    完。
+    若 子样式 的 font_size 等于 1600：
+        子样式 的 font_size 为 父样式 的 font_size。
+    完。
+    若 子样式 的 font_weight 等于 400：
+        子样式 的 font_weight 为 父样式 的 font_weight。
+    完。
+    若 子样式 的 font_style 等于 0：
+        子样式 的 font_style 为 父样式 的 font_style。
+    完。
+    若 子样式 的 line_height 等于 0：
+        子样式 的 line_height 为 父样式 的 line_height。
+    完。
+    若 子样式 的 text_align 等于 TextAlign_left：
+        子样式 的 text_align 为 父样式 的 text_align。
+    完。
+    若 子样式 的 visibility 等于 Visibility_visible：
+        子样式 的 visibility 为 父样式 的 visibility。
+    完。
+    若 子样式 的 white_space 等于 0：
+        子样式 的 white_space 为 父样式 的 white_space。
+    完。
+    若 子样式 的 word_break 等于 0：
+        子样式 的 word_break 为 父样式 的 word_break。
+    完。
+    若 子样式 的 letter_spacing 等于 0：
+        子样式 的 letter_spacing 为 父样式 的 letter_spacing。
+    完。
+    子样式 的 继承版本号 为 父样式 的 继承版本号 加 1。
+    全局_继承传播次数 为 全局_继承传播次数 加 1。
+    返还 子样式。
+完。
+
+属性_应用到样式 接受 样式对象、属性名、属性值：
+    可变。
+    变化组 为 0。
+    若 属性名 等于 「display」：
+        样式对象 的 display 为 属性值。
+        变化组 为 属性组_盒模型。
+    否则若 属性名 等于 「position」：
+        样式对象 的 position 为 属性值。
+        变化组 为 属性组_盒模型。
+    否则若 属性名 等于 「float」：
+        样式对象 的 float_val 为 属性值。
+        变化组 为 属性组_盒模型。
+    否则若 属性名 等于 「box-sizing」：
+        样式对象 的 box_sizing 为 属性值。
+        变化组 为 属性组_盒模型。
+    否则若 属性名 等于 「visibility」：
+        样式对象 的 visibility 为 属性值。
+        变化组 为 属性组_视觉。
+    否则若 属性名 等于 「opacity」：
+        样式对象 的 opacity 为 属性值。
+        变化组 为 属性组_视觉。
+    否则若 属性名 等于 「color」：
+        样式对象 的 color 为 属性值。
+        变化组 为 属性组_视觉。
+    否则若 属性名 等于 「background-color」：
+        样式对象 的 background_color 为 属性值。
+        变化组 为 属性组_视觉。
+    否则若 属性名 等于 「font-size」：
+        样式对象 的 font_size 为 属性值。
+        变化组 为 属性组_字体。
+    否则若 属性名 等于 「font-weight」：
+        样式对象 的 font_weight 为 属性值。
+        变化组 为 属性组_字体。
+    否则若 属性名 等于 「line-height」：
+        样式对象 的 line_height 为 属性值。
+        变化组 为 属性组_字体。
+    否则若 属性名 等于 「text-align」：
+        样式对象 的 text_align 为 属性值。
+        变化组 为 属性组_字体。
+    否则若 属性名 等于 「flex-direction」：
+        样式对象 的 flex_direction 为 属性值。
+        变化组 为 属性组_弹性。
+    否则若 属性名 等于 「flex-grow」：
+        样式对象 的 flex_grow 为 属性值。
+        变化组 为 属性组_弹性。
+    否则若 属性名 等于 「flex-shrink」：
+        样式对象 的 flex_shrink 为 属性值。
+        变化组 为 属性组_弹性。
+    否则若 属性名 等于 「justify-content」：
+        样式对象 的 justify_content 为 属性值。
+        变化组 为 属性组_弹性。
+    否则若 属性名 等于 「align-items」：
+        样式对象 的 align_items 为 属性值。
+        变化组 为 属性组_弹性。
+    完。
+    样式对象 的 脏标志 为 样式对象 的 脏标志 位或 脏_样式已变。
+    返还 变化组。
+完。
+
+计算脏影响 接受 变化组位图：
+    可变。
+    影响 为 脏_无。
+    若 变化组位图 位与 (属性组_盒模型 位或 属性组_尺寸 位或 属性组_边距 位或 属性组_边框 位或 属性组_定位 位或 属性组_弹性 位或 属性组_网格)：
+        影响 为 影响 位或 脏_需要重排 位或 脏_需要重绘。
+    完。
+    若 变化组位图 位与 (属性组_视觉 位或 属性组_字体)：
+        影响 为 影响 位或 脏_需要重绘。
+    完。
+    若 变化组位图 位与 属性组_变换：
+        影响 为 影响 位或 脏_需要重合成。
+    完。
+    返还 影响。
+完。
+
+选择器_标签 为 1。
+
+选择器_类 为 2。
+
+选择器_ID 为 3。
+
+选择器_属性 为 4。
+
+选择器_伪类 为 5。
+
+选择器_通配 为 6。
+
+CSS规则 是 一种 事物，含 选择器类型、选择器值、优先级、属性列表。
+
+计算优先级 接受 规则：
+    若 规则 的 选择器类型 等于 选择器_ID：
+        返还 100。
+    完。
+    若 规则 的 选择器类型 等于 选择器_类：
+        返还 10。
+    完。
+    若 规则 的 选择器类型 等于 选择器_伪类：
+        返还 10。
+    完。
+    若 规则 的 选择器类型 等于 选择器_属性：
+        返还 10。
+    完。
+    若 规则 的 选择器类型 等于 选择器_标签：
+        返还 1。
+    完。
+    返还 0。
+完。
+
+选择器_匹配 接受 规则、元素标签、元素类名、元素ID：
+    sel_hash 为 做 布隆_哈希 用 规则 的 选择器值。
+    若 非 做 布隆过滤器_可能包含 用 sel_hash：
+        返还 假。
+    完。
+    若 规则 的 选择器类型 等于 选择器_标签：
+        返还 元素标签 等于 规则 的 选择器值。
+    否则若 规则 的 选择器类型 等于 选择器_类：
+        返还 元素类名 等于 规则 的 选择器值。
+    否则若 规则 的 选择器类型 等于 选择器_ID：
+        返还 元素ID 等于 规则 的 选择器值。
+    否则若 规则 的 选择器类型 等于 选择器_通配：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+计算元素样式 接受 元素标签、元素类名、元素ID、伪类标志、规则集、父样式：
+    全局_样式计算次数 为 全局_样式计算次数 加 1。
+    cache_hash 为 做 样式缓存_计算哈希 用 元素标签、元素类名、伪类标志。
+    缓存结果 为 做 样式缓存_查找 用 cache_hash。
+    若 缓存结果 不等于 空：
+        返还 缓存结果。
+    完。
+    可变。
+    样式 为 做 创建默认样式。
+    可变。
+    变化组总 为 0。
+    做 布隆过滤器_插入 用 做 布隆_哈希 用 元素标签。
+    若 元素类名 不等于 空 并且 元素类名 不等于 「」：
+        做 布隆过滤器_插入 用 做 布隆_哈希 用 元素类名。
+    完。
+    若 元素ID 不等于 空 并且 元素ID 不等于 「」：
+        做 布隆过滤器_插入 用 做 布隆_哈希 用 元素ID。
+    完。
+    若 规则集 不等于 空：
+        可变。
+        ri 为 0。
+        只要 ri 小于 做 数组_长度 用 规则集：
+            规则 为 规则集 的 第 ri 项。
+            若 做 选择器_匹配 用 规则、元素标签、元素类名、元素ID：
+                若 规则 的 属性列表 不等于 空：
+                    可变。
+                    pi 为 0。
+                    只要 pi 小于 做 数组_长度 用 规则 的 属性列表：
+                        prop 为 规则 的 属性列表 的 第 pi 项。
+                        grp 为 做 属性_应用到样式 用 样式、prop 的 name、prop 的 value。
+                        变化组总 为 变化组总 位或 grp。
+                        pi 为 pi 加 1。
+                    完。
+                完。
+            完。
+            ri 为 ri 加 1。
+        完。
+    完。
+    样式 为 做 样式继承_从父传播 用 样式、父样式。
+    样式 的 脏标志 为 做 计算脏影响 用 变化组总。
+    样式 的 缓存哈希 为 cache_hash。
+    做 样式缓存_存入 用 cache_hash、样式。
+    返还 样式。
+完。
+
+AI_样式预测缓存 接受 元素标签、元素类名：
+    特征 为 做 Tensor_创建 用 1、4。
+    做 Tensor_写 用 特征、0、0、做 布隆_哈希 用 元素标签 乘 1.0。
+    做 Tensor_写 用 特征、0、1、做 布隆_哈希 用 元素类名 乘 1.0。
+    做 Tensor_写 用 特征、0、2、全局_缓存命中次数 乘 1.0。
+    做 Tensor_写 用 特征、0、3、全局_样式计算次数 乘 1.0。
+    结果 为 做 AI总线_推理 用 「style_cache_predictor」、特征。
+    可变。
+    应预热 为 假。
+    若 结果 不等于 空：
+        conf 为 做 Tensor_读 用 结果、0、0。
+        若 conf 大于 0.75：
+            应预热 为 真。
+            全局_AI预测命中 为 全局_AI预测命中 加 1。
+        否则：
+            全局_AI预测未中 为 全局_AI预测未中 加 1。
+        完。
+        做 Tensor_释放 用 结果。
+    完。
+    做 Tensor_释放 用 特征。
+    返还 应预热。
+完。
+
+样式无效化_向下传播 接受 节点、变化组：
+    若 节点 等于 空：
+        返还。
+    完。
+    若 节点 的 计算样式 不等于 空：
+        节点 的 计算样式 的 脏标志 为 节点 的 计算样式 的 脏标志 位或 脏_样式已变 位或 脏_子树已变。
+    完。
+    涉及继承 为 变化组 位与 (属性组_视觉 位或 属性组_字体) 不等于 0。
+    若 涉及继承 并且 节点 的 子节点列表 不等于 空：
+        可变。
+        ci 为 0。
+        只要 ci 小于 做 数组_长度 用 节点 的 子节点列表：
+            做 样式无效化_向下传播 用 节点 的 子节点列表 的 第 ci 项、变化组。
+            ci 为 ci 加 1。
+        完。
+    完。
+完。
+
+全树样式重算 接受 根节点、规则集：
+    做 样式缓存_全部清除。
+    做 布隆过滤器_重置。
+    做 全树样式重算_递归 用 根节点、规则集、空。
+完。
+
+全树样式重算_递归 接受 节点、规则集、父样式：
+    若 节点 等于 空：
+        返还。
+    完。
+    新样式 为 做 计算元素样式 用 节点 的 标签、节点 的 类名、节点 的 id、节点 的 伪类标志、规则集、父样式。
+    节点 的 计算样式 为 新样式。
+    若 节点 的 子节点列表 不等于 空：
+        可变。
+        i 为 0。
+        只要 i 小于 做 数组_长度 用 节点 的 子节点列表：
+            做 全树样式重算_递归 用 节点 的 子节点列表 的 第 i 项、规则集、新样式。
+            i 为 i 加 1。
+        完。
+    完。
+完。
+
+计算样式_诊断输出 接受 零参：
+    可变。
+    报告 为 「[NCSS诊断报告]\n」。
+    报告 为 报告 加 「样式计算总次数: 」 加 全局_样式计算次数 加 「\n」。
+    报告 为 报告 加 「缓存命中: 」 加 全局_缓存命中次数 加 「\n」。
+    报告 为 报告 加 「缓存未中: 」 加 全局_缓存未中次数 加 「\n」。
+    总查询 为 全局_缓存命中次数 加 全局_缓存未中次数。
+    若 总查询 大于 0：
+        命中率 为 全局_缓存命中次数 乘 100 除以 总查询。
+        报告 为 报告 加 「缓存命中率: 」 加 命中率 加 「%\n」。
+    完。
+    报告 为 报告 加 「继承传播次数: 」 加 全局_继承传播次数 加 「\n」。
+    报告 为 报告 加 「属性组跳过: 」 加 全局_属性组跳过次数 加 「\n」。
+    报告 为 报告 加 「AI预测命中: 」 加 全局_AI预测命中 加 「\n」。
+    报告 为 报告 加 「AI预测未中: 」 加 全局_AI预测未中 加 「\n」。
+    报告 为 报告 加 「当前缓存数量: 」 加 样式缓存数量 加 「/」 加 样式缓存容量 加 「\n」。
+    返还 报告。
+完。
+
+本章 收束。

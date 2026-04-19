@@ -1,0 +1,604 @@
+《安全策执行检》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·执行·底层内存操》。
+
+引用《..·中枢·字符串替换》。
+
+CSP_检查 接受 state、指令类型、url、文档URL：
+    若 state 等于 0 或者 state 的 策略数 等于 0：
+        返还 真。
+    完。
+    可变 policy 为 state 的 策略头。
+    只要 policy 不等于 0：
+        若 非 做 CSP_策略检查 用 policy、指令类型、url、文档URL：
+            若 policy 的 模式 等于 CSP_ENFORCE：
+                做 CSP_记录违规 用 state、指令类型、url、文档URL。
+                返还 假。
+            否则：
+                做 CSP_记录违规 用 state、指令类型、url、文档URL。
+            完。
+        完。
+        policy 为 policy 的 下一个。
+    完。
+    返还 真。
+完。
+
+CSP_策略检查 接受 policy、指令类型、url、文档URL：
+    若 policy 等于 0：
+        返还 真。
+    完。
+    dir 为 policy 的 指令 的 第 指令类型 项。
+    若 dir 等于 0：
+        dir 为 policy 的 指令 的 第 CSP_DEFAULT_SRC 项。
+        若 dir 等于 0：
+            返还 真。
+        完。
+    完。
+    返还 做 CSP_源匹配 用 dir 的 源、url、文档URL。
+完。
+
+CSP_源匹配 接受 src、url、文档URL：
+    若 src 等于 0：
+        返还 真。
+    完。
+    若 src 的 标志 位与 SRC_NONE：
+        返还 假。
+    完。
+    若 src 的 标志 位与 SRC_WILDCARD：
+        返还 真。
+    完。
+    若 src 的 标志 位与 SRC_SELF：
+        若 做 CSP_同源 用 url、文档URL：
+            返还 真。
+        完。
+    完。
+    若 src 的 标志 位与 SRC_HTTPS 并且 做 URL_是HTTPS 用 url：
+        返还 真。
+    完。
+    若 src 的 标志 位与 SRC_DATA 并且 做 URL_是Data 用 url：
+        返还 真。
+    完。
+    若 src 的 标志 位与 SRC_BLOB 并且 做 URL_是Blob 用 url：
+        返还 真。
+    完。
+    可变 i 为 0。
+    只要 i 小于 src 的 主机数：
+        若 做 CSP_主机匹配 用 src 的 主机 的 第 i 项、url：
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+CSP_同源 接受 url_a、url_b：
+    若 url_a 等于 0 或者 url_b 等于 0：
+        返还 假。
+    完。
+    返还 做 字符串_相等 用 url_a、url_b。
+完。
+
+CSP_主机匹配 接受 模式、url：
+    若 模式 等于 0 或者 url 等于 0：
+        返还 假。
+    完。
+    模式长 为 做 字节长度 用 模式。
+    若 模式长 大于或等于 2 并且 做 字节取 用 模式、0 等于 0x2A 并且 做 字节取 用 模式、1 等于 0x2E：
+        返还 做 字符串_结尾匹配 用 url、模式 加 1、模式长 减 1。
+    完。
+    返还 做 字符串_包含 用 url、模式。
+完。
+
+CSP_检查内联脚本 接受 state、nonce、内容哈希：
+    若 state 等于 0 或者 state 的 策略数 等于 0：
+        返还 真。
+    完。
+    可变 policy 为 state 的 策略头。
+    只要 policy 不等于 0：
+        dir 为 policy 的 指令 的 第 CSP_SCRIPT_SRC 项。
+        若 dir 等于 0：
+            dir 为 policy 的 指令 的 第 CSP_DEFAULT_SRC 项。
+        完。
+        若 dir 不等于 0 并且 dir 的 源 不等于 0：
+            src 为 dir 的 源。
+            若 src 的 标志 位与 SRC_UNSAFE_INLINE：
+            否则：
+                可变 nonce_ok 为 假。
+                若 nonce 不等于 0：
+                    可变 i 为 0。
+                    只要 i 小于 src 的 nonce数：
+                        若 做 字符串_相等 用 nonce、src 的 nonce 的 第 i 项：
+                            nonce_ok 为 真。
+                            跳出。
+                        完。
+                        i 为 i 加 1。
+                    完。
+                完。
+                可变 hash_ok 为 假。
+                若 内容哈希 不等于 0：
+                    可变 i 为 0。
+                    只要 i 小于 src 的 hash数：
+                        若 做 字符串_相等 用 内容哈希、src 的 hash 的 第 i 项：
+                            hash_ok 为 真。
+                            跳出。
+                        完。
+                        i 为 i 加 1。
+                    完。
+                完。
+                若 非 nonce_ok 并且 非 hash_ok：
+                    若 policy 的 模式 等于 CSP_ENFORCE：
+                        返还 假。
+                    完。
+                完。
+            完。
+        完。
+        policy 为 policy 的 下一个。
+    完。
+    返还 真。
+完。
+
+CSP_检查eval 接受 state：
+    若 state 等于 0 或者 state 的 策略数 等于 0：
+        返还 真。
+    完。
+    可变 policy 为 state 的 策略头。
+    只要 policy 不等于 0：
+        dir 为 policy 的 指令 的 第 CSP_SCRIPT_SRC 项。
+        若 dir 等于 0：
+            dir 为 policy 的 指令 的 第 CSP_DEFAULT_SRC 项。
+        完。
+        若 dir 不等于 0 并且 dir 的 源 不等于 0：
+            若 非 (dir 的 源 的 标志 位与 SRC_UNSAFE_EVAL)：
+                若 policy 的 模式 等于 CSP_ENFORCE：
+                    返还 假。
+                完。
+            完。
+        完。
+        policy 为 policy 的 下一个。
+    完。
+    返还 真。
+完。
+
+CSP_ENFORCE 为 0。
+
+CSP_REPORT_ONLY 为 1。
+
+CSP_DEFAULT_SRC 为 0。
+
+CSP_SCRIPT_SRC 为 1。
+
+CSP_STYLE_SRC 为 2。
+
+CSP_IMG_SRC 为 3。
+
+CSP_FONT_SRC 为 4。
+
+CSP_CONNECT_SRC 为 5。
+
+CSP_MEDIA_SRC 为 6。
+
+CSP_OBJECT_SRC 为 7。
+
+CSP_FRAME_SRC 为 8。
+
+CSP_CHILD_SRC 为 9。
+
+CSP_WORKER_SRC 为 10。
+
+CSP_MANIFEST_SRC 为 11。
+
+CSP_BASE_URI 为 12。
+
+CSP_FORM_ACTION 为 13。
+
+CSP_FRAME_ANCESTORS 为 14。
+
+CSP_NAVIGATE_TO 为 15。
+
+CSP_指令数 为 16。
+
+SRC_NONE 为 0x0001。
+
+SRC_WILDCARD 为 0x0002。
+
+SRC_SELF 为 0x0004。
+
+SRC_HTTPS 为 0x0008。
+
+SRC_DATA 为 0x0010。
+
+SRC_BLOB 为 0x0020。
+
+SRC_UNSAFE_INLINE 为 0x0040。
+
+SRC_UNSAFE_EVAL 为 0x0080。
+
+SRC_STRICT_DYNAMIC 为 0x0100。
+
+SRC_UNSAFE_HASHES 为 0x0200。
+
+SRC_WASM_UNSAFE_EVAL 为 0x0400。
+
+CSP_指令名 接受 类型：
+    若 类型 等于 CSP_DEFAULT_SRC：
+        返还 「default-src」。
+    完。
+    若 类型 等于 CSP_SCRIPT_SRC：
+        返还 「script-src」。
+    完。
+    若 类型 等于 CSP_STYLE_SRC：
+        返还 「style-src」。
+    完。
+    若 类型 等于 CSP_IMG_SRC：
+        返还 「img-src」。
+    完。
+    若 类型 等于 CSP_FONT_SRC：
+        返还 「font-src」。
+    完。
+    若 类型 等于 CSP_CONNECT_SRC：
+        返还 「connect-src」。
+    完。
+    若 类型 等于 CSP_MEDIA_SRC：
+        返还 「media-src」。
+    完。
+    若 类型 等于 CSP_OBJECT_SRC：
+        返还 「object-src」。
+    完。
+    若 类型 等于 CSP_FRAME_SRC：
+        返还 「frame-src」。
+    完。
+    若 类型 等于 CSP_CHILD_SRC：
+        返还 「child-src」。
+    完。
+    若 类型 等于 CSP_WORKER_SRC：
+        返还 「worker-src」。
+    完。
+    若 类型 等于 CSP_BASE_URI：
+        返还 「base-uri」。
+    完。
+    若 类型 等于 CSP_FORM_ACTION：
+        返还 「form-action」。
+    完。
+    若 类型 等于 CSP_FRAME_ANCESTORS：
+        返还 「frame-ancestors」。
+    完。
+    返还 「unknown」。
+完。
+
+CSP状态 是 一种 事物，含 策略头、策略数。
+
+CSP策略 是 一种 事物，含 模式、指令、下一个、原始头。
+
+CSP指令 是 一种 事物，含 类型、源。
+
+CSP源表达式 是 一种 事物，含 标志、主机、主机数、nonce、nonce数、hash、hash数。
+
+CSP状态_创建 接受 零参：
+    state 为 新建 CSP状态。
+    state 的 策略头 为 0。
+    state 的 策略数 为 0。
+    返还 state。
+完。
+
+CSP策略_创建 接受 模式：
+    policy 为 新建 CSP策略。
+    policy 的 模式 为 模式。
+    policy 的 指令 为 做 堆_分配 用 CSP_指令数 乘 8。
+    可变 i 为 0。
+    只要 i 小于 CSP_指令数：
+        做 内存_写64 用 policy 的 指令 加 i 乘 8、0。
+        i 为 i 加 1。
+    完。
+    policy 的 下一个 为 0。
+    policy 的 原始头 为 0。
+    返还 policy。
+完。
+
+CSP状态_添加策略 接受 state、policy：
+    若 state 等于 0 或者 policy 等于 0：
+        返还。
+    完。
+    policy 的 下一个 为 state 的 策略头。
+    state 的 策略头 为 policy。
+    state 的 策略数 为 state 的 策略数 加 1。
+完。
+
+CSP_解析头 接受 头字符串、模式：
+    若 头字符串 等于 0：
+        返还 0。
+    完。
+    policy 为 做 CSP策略_创建 用 模式。
+    policy 的 原始头 为 头字符串。
+    长度 为 做 字节长度 用 头字符串。
+    可变 位置 为 0。
+    只要 位置 小于 长度：
+        只要 位置 小于 长度 并且 (做 字节取 用 头字符串、位置 等于 32 或者 做 字节取 用 头字符串、位置 等于 59)：
+            位置 为 位置 加 1。
+        完。
+        若 位置 大于或等于 长度：
+            跳出。
+        完。
+        指令开始 为 位置。
+        只要 位置 小于 长度 并且 做 字节取 用 头字符串、位置 不等于 59：
+            位置 为 位置 加 1。
+        完。
+        做 CSP_解析指令 用 policy、头字符串 加 指令开始、位置 减 指令开始。
+    完。
+    返还 policy。
+完。
+
+CSP_解析指令 接受 policy、指令文本、长度：
+    若 policy 等于 0 或者 长度 等于 0：
+        返还。
+    完。
+    可变 位置 为 0。
+    只要 位置 小于 长度 并且 做 字节取 用 指令文本、位置 等于 32：
+        位置 为 位置 加 1。
+    完。
+    名称开始 为 位置。
+    只要 位置 小于 长度 并且 做 字节取 用 指令文本、位置 不等于 32：
+        位置 为 位置 加 1。
+    完。
+    名称长 为 位置 减 名称开始。
+    类型 为 做 CSP_解析指令名 用 指令文本 加 名称开始、名称长。
+    若 类型 小于 0：
+        返还。
+    完。
+    src 为 新建 CSP源表达式。
+    src 的 标志 为 0。
+    src 的 主机 为 一组：（空）。
+    src 的 主机数 为 0。
+    src 的 nonce 为 一组：（空）。
+    src 的 nonce数 为 0。
+    src 的 hash 为 一组：（空）。
+    src 的 hash数 为 0。
+    只要 位置 小于 长度：
+        只要 位置 小于 长度 并且 做 字节取 用 指令文本、位置 等于 32：
+            位置 为 位置 加 1。
+        完。
+        若 位置 大于或等于 长度：
+            跳出。
+        完。
+        值开始 为 位置。
+        只要 位置 小于 长度 并且 做 字节取 用 指令文本、位置 不等于 32：
+            位置 为 位置 加 1。
+        完。
+        做 CSP_解析源值 用 src、指令文本 加 值开始、位置 减 值开始。
+    完。
+    dir 为 新建 CSP指令。
+    dir 的 类型 为 类型。
+    dir 的 源 为 src。
+    做 内存_写64 用 policy 的 指令 加 类型 乘 8、dir。
+完。
+
+CSP_解析指令名 接受 名、长度：
+    若 做 字符串_等于N 用 名、长度、「default-src」：
+        返还 CSP_DEFAULT_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「script-src」：
+        返还 CSP_SCRIPT_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「style-src」：
+        返还 CSP_STYLE_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「img-src」：
+        返还 CSP_IMG_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「font-src」：
+        返还 CSP_FONT_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「connect-src」：
+        返还 CSP_CONNECT_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「media-src」：
+        返还 CSP_MEDIA_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「object-src」：
+        返还 CSP_OBJECT_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「frame-src」：
+        返还 CSP_FRAME_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「child-src」：
+        返还 CSP_CHILD_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「worker-src」：
+        返还 CSP_WORKER_SRC。
+    完。
+    若 做 字符串_等于N 用 名、长度、「base-uri」：
+        返还 CSP_BASE_URI。
+    完。
+    若 做 字符串_等于N 用 名、长度、「form-action」：
+        返还 CSP_FORM_ACTION。
+    完。
+    若 做 字符串_等于N 用 名、长度、「frame-ancestors」：
+        返还 CSP_FRAME_ANCESTORS。
+    完。
+    返还 负 1。
+完。
+
+CSP_解析源值 接受 src、值、长度：
+    若 做 字符串_等于N 用 值、长度、「'none'」：
+        src 的 标志 为 src 的 标志 位或 SRC_NONE。
+    否则若 做 字符串_等于N 用 值、长度、「*」：
+        src 的 标志 为 src 的 标志 位或 SRC_WILDCARD。
+    否则若 做 字符串_等于N 用 值、长度、「'self'」：
+        src 的 标志 为 src 的 标志 位或 SRC_SELF。
+    否则若 做 字符串_等于N 用 值、长度、「https:」：
+        src 的 标志 为 src 的 标志 位或 SRC_HTTPS。
+    否则若 做 字符串_等于N 用 值、长度、「data:」：
+        src 的 标志 为 src 的 标志 位或 SRC_DATA。
+    否则若 做 字符串_等于N 用 值、长度、「blob:」：
+        src 的 标志 为 src 的 标志 位或 SRC_BLOB。
+    否则若 做 字符串_等于N 用 值、长度、「'unsafe-inline'」：
+        src 的 标志 为 src 的 标志 位或 SRC_UNSAFE_INLINE。
+    否则若 做 字符串_等于N 用 值、长度、「'unsafe-eval'」：
+        src 的 标志 为 src 的 标志 位或 SRC_UNSAFE_EVAL。
+    否则若 做 字符串_等于N 用 值、长度、「'strict-dynamic'」：
+        src 的 标志 为 src 的 标志 位或 SRC_STRICT_DYNAMIC。
+    否则若 做 字符串_等于N 用 值、长度、「'wasm-unsafe-eval'」：
+        src 的 标志 为 src 的 标志 位或 SRC_WASM_UNSAFE_EVAL。
+    否则若 长度 大于 8 并且 做 字符串_等于N 用 值、7、「'nonce-」：
+        nonce值 为 做 字符串_子串 用 值 加 7、0、长度 减 8。
+        做 追加 用 src 的 nonce、nonce值。
+        src 的 nonce数 为 src 的 nonce数 加 1。
+    否则若 长度 大于 8 并且 做 字符串_等于N 用 值、5、「'sha」：
+        做 追加 用 src 的 hash、做 字符串_子串 用 值、0、长度。
+        src 的 hash数 为 src 的 hash数 加 1。
+    否则：
+        做 追加 用 src 的 主机、做 字符串_子串 用 值、0、长度。
+        src 的 主机数 为 src 的 主机数 加 1。
+    完。
+完。
+
+可变 CSP_违规记录 为 一组：（空）。
+
+可变 CSP_违规总数 为 0。
+
+最大违规记录 为 1000。
+
+CSP违规 是 一种 事物，含 指令类型、阻止URL、文档URL、时间戳、已报告。
+
+CSP_记录违规 接受 state、指令类型、url、文档URL：
+    CSP_违规总数 为 CSP_违规总数 加 1。
+    若 做 计数 用 CSP_违规记录 大于或等于 最大违规记录：
+        返还。
+    完。
+    记录 为 新建 CSP违规。
+    记录 的 指令类型 为 指令类型。
+    记录 的 阻止URL 为 url。
+    记录 的 文档URL 为 文档URL。
+    记录 的 时间戳 为 0。
+    记录 的 已报告 为 假。
+    做 追加 用 CSP_违规记录、记录。
+完。
+
+CSP_获取违规数 接受 零参：
+    返还 CSP_违规总数。
+完。
+
+CSP_获取最近违规 接受 数量：
+    总 为 做 计数 用 CSP_违规记录。
+    若 数量 大于 总：
+        数量 为 总。
+    完。
+    可变 结果 为 一组：（空）。
+    可变 i 为 总 减 数量。
+    只要 i 小于 总：
+        做 追加 用 结果、CSP_违规记录 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+CSP_清空违规 接受 零参：
+    CSP_违规记录 为 一组：（空）。
+    CSP_违规总数 为 0。
+完。
+
+可变 CSP_检查总数 为 0。
+
+可变 CSP_阻止总数 为 0。
+
+可变 CSP_通过总数 为 0。
+
+CSP_统计 接受 零参：
+    返还 一本字典：检查总数 对应 CSP_检查总数、阻止 对应 CSP_阻止总数、通过 对应 CSP_通过总数、违规记录数 对应 做 计数 用 CSP_违规记录、违规总数 对应 CSP_违规总数。
+完。
+
+CSP_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 CSP_阻止总数 大于 CSP_检查总数 除以 3 并且 CSP_检查总数 大于 100：
+        做 追加 用 问题、「CSP阻止率过高: 」 加 做 整数转字符串 用 CSP_阻止总数 乘 100 除以 CSP_检查总数 加 「%」。
+    完。
+    若 CSP_违规总数 大于 1000：
+        做 追加 用 问题、「CSP违规记录过多」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「CSP安全策略健康」。
+    完。
+    返还 问题。
+完。
+
+CSP_重置统计 接受 零参：
+    CSP_检查总数 为 0。
+    CSP_阻止总数 为 0。
+    CSP_通过总数 为 0。
+    CSP_违规记录 为 一组：（空）。
+    CSP_违规总数 为 0。
+完。
+
+CSP_完整统计 接受 零参：
+    返还 一组：CSP_检查总数、CSP_阻止总数、CSP_通过总数、CSP_违规总数。
+完。
+
+URL_是HTTPS 接受 url：
+    若 url 等于 0：
+        返还 假。
+    完。
+    返还 做 字符串_以开头 用 url、「https://」。
+完。
+
+URL_是Data 接受 url：
+    若 url 等于 0：
+        返还 假。
+    完。
+    返还 做 字符串_以开头 用 url、「data:」。
+完。
+
+URL_是Blob 接受 url：
+    若 url 等于 0：
+        返还 假。
+    完。
+    返还 做 字符串_以开头 用 url、「blob:」。
+完。
+
+URL_是HTTP 接受 url：
+    若 url 等于 0：
+        返还 假。
+    完。
+    返还 做 字符串_以开头 用 url、「http://」。
+完。
+
+URL_是安全上下文 接受 url：
+    返还 做 URL_是HTTPS 用 url 或者 做 字符串_以开头 用 url、「wss://」 或者 做 字符串_包含 用 url、「localhost」。
+完。
+
+可变 AI_安全策执行_带宽估计 为 0。
+
+可变 AI_安全策执行_丢包窗口 为 一组：（空）。
+
+AI_安全策执行_带宽预测 接受 发送字节、耗时毫秒：
+    若 耗时毫秒 等于 0：
+        返还 AI_安全策执行_带宽估计。
+    完。
+    当前 为 发送字节 乘 1000 除以 耗时毫秒。
+    AI_安全策执行_带宽估计 为 AI_安全策执行_带宽估计 乘 700 除以 1000 加 当前 乘 300 除以 1000。
+    返还 AI_安全策执行_带宽估计。
+完。
+
+AI_安全策执行_拥塞建议 接受 丢包率：
+    做 追加 用 AI_安全策执行_丢包窗口、丢包率。
+    若 做 计数 用 AI_安全策执行_丢包窗口 大于 10：
+        做 列表_移除 用 AI_安全策执行_丢包窗口、0。
+    完。
+    若 丢包率 大于 50：
+        返还 「减半窗口」。
+    完。
+    若 丢包率 小于 5：
+        返还 「增大窗口」。
+    完。
+    返还 「保持」。
+完。
+
+本章 收束。

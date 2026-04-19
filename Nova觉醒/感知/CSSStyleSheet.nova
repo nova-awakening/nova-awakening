@@ -1,0 +1,235 @@
+《CSSStyleSheet》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·CSSStyleDeclaration》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·文档节点》。
+
+CSS样式Sheet_Obj 是 一种 事物，含 标题、类型、href、所有者节点、规则列表、规则数量、规则容量、已禁用。
+
+CSS样式Sheet_创建 接受 零参：
+    ss 为 做 堆_分配 用 CSS样式Sheet_Obj。
+    ss 的 标题 为 0。
+    ss 的 类型 为 做 字符串_复制 用 「text/css」。
+    ss 的 href 为 0。
+    ss 的 所有者节点 为 0。
+    ss 的 规则容量 为 64。
+    ss 的 规则列表 为 做 堆_分配_数组 用 ss 的 规则容量 乘 8。
+    ss 的 规则数量 为 0。
+    ss 的 已禁用 为 假。
+    返还 ss。
+完。
+
+CSS样式Sheet_insertRule 接受 ss、规则文本、索引：
+    若 索引 大于 ss 的 规则数量：
+        返还 负 1。
+    完。
+    若 ss 的 规则数量 大于或等于 ss 的 规则容量：
+        返还 负 1。
+    完。
+    rule 为 做 CSSRule_解析 用 规则文本、ss。
+    若 rule 等于 0：
+        返还 负 1。
+    完。
+    可变 i 为 ss 的 规则数量。
+    只要 i 大于 索引：
+        做 内存_写64 用 ss 的 规则列表 加 i 乘 8、做 内存_读64 用 ss 的 规则列表 加 (i 减 1) 乘 8。
+        i 为 i 减 1。
+    完。
+    做 内存_写64 用 ss 的 规则列表 加 索引 乘 8、rule。
+    ss 的 规则数量 为 ss 的 规则数量 加 1。
+    返还 索引。
+完。
+
+CSS样式Sheet_deleteRule 接受 ss、索引：
+    若 索引 大于或等于 ss 的 规则数量：
+        返还。
+    完。
+    可变 i 为 索引。
+    只要 i 小于 ss 的 规则数量 减 1：
+        做 内存_写64 用 ss 的 规则列表 加 i 乘 8、做 内存_读64 用 ss 的 规则列表 加 (i 加 1) 乘 8。
+        i 为 i 加 1。
+    完。
+    ss 的 规则数量 为 ss 的 规则数量 减 1。
+完。
+
+CSSRule_解析 接受 文本、父样式表：
+    rule 为 做 堆_分配 用 CSSRule。
+    rule 的 类型 为 CSS规则_样式。
+    rule 的 CSS文本 为 做 字符串_复制 用 文本。
+    rule 的 父规则 为 0。
+    rule 的 父样式表 为 父样式表。
+    返还 rule。
+完。
+
+getComputed样式 接受 元素、伪元素：
+    若 元素 等于 0：
+        返还 0。
+    完。
+    扩展 为 做 元素_获取扩展 用 元素。
+    若 扩展 等于 0 或者 扩展 的 计算样式 等于 0：
+        返还 0。
+    完。
+    style 为 扩展 的 计算样式。
+    sd 为 做 CSS样式Declaration_创建 用 假、元素。
+    可变 display_str 为 「block」。
+    若 style 的 display 等于 0：
+        display_str 为 「none」。
+    否则若 style 的 display 等于 显示_行内：
+        display_str 为 「inline」。
+    否则若 style 的 display 等于 显示_行内块：
+        display_str 为 「inline-block」。
+    否则若 style 的 display 等于 显示_flex：
+        display_str 为 「flex」。
+    否则若 style 的 display 等于 显示_grid：
+        display_str 为 「grid」。
+    否则若 style 的 display 等于 显示_表格：
+        display_str 为 「table」。
+    完。
+    做 CSS样式Declaration_setProperty 用 sd、「display」、display_str、0。
+    可变 pos_str 为 「static」。
+    若 style 的 position 等于 1：
+        pos_str 为 「relative」。
+    否则若 style 的 position 等于 2：
+        pos_str 为 「absolute」。
+    否则若 style 的 position 等于 3：
+        pos_str 为 「fixed」。
+    否则若 style 的 position 等于 4：
+        pos_str 为 「sticky」。
+    完。
+    做 CSS样式Declaration_setProperty 用 sd、「position」、pos_str、0。
+    做 CSS样式Declaration_setProperty 用 sd、「width」、做 CSS值转像素字符串 用 style 的 width、0。
+    做 CSS样式Declaration_setProperty 用 sd、「height」、做 CSS值转像素字符串 用 style 的 height、0。
+    做 CSS样式Declaration_setProperty 用 sd、「margin-top」、做 CSS值转像素字符串 用 style 的 margin_top、0。
+    做 CSS样式Declaration_setProperty 用 sd、「margin-right」、做 CSS值转像素字符串 用 style 的 margin_right、0。
+    做 CSS样式Declaration_setProperty 用 sd、「margin-bottom」、做 CSS值转像素字符串 用 style 的 margin_bottom、0。
+    做 CSS样式Declaration_setProperty 用 sd、「margin-left」、做 CSS值转像素字符串 用 style 的 margin_left、0。
+    做 CSS样式Declaration_setProperty 用 sd、「padding-top」、做 CSS值转像素字符串 用 style 的 padding_top、0。
+    做 CSS样式Declaration_setProperty 用 sd、「padding-right」、做 CSS值转像素字符串 用 style 的 padding_right、0。
+    做 CSS样式Declaration_setProperty 用 sd、「padding-bottom」、做 CSS值转像素字符串 用 style 的 padding_bottom、0。
+    做 CSS样式Declaration_setProperty 用 sd、「padding-left」、做 CSS值转像素字符串 用 style 的 padding_left、0。
+    做 CSS样式Declaration_setProperty 用 sd、「color」、做 CSS颜色转字符串 用 style 的 color、0。
+    做 CSS样式Declaration_setProperty 用 sd、「background-color」、做 CSS颜色转字符串 用 style 的 background_color、0。
+    做 CSS样式Declaration_setProperty 用 sd、「font-size」、做 CSS值转像素字符串 用 style 的 font_size、0。
+    做 CSS样式Declaration_setProperty 用 sd、「font-weight」、做 整数转字符串 用 style 的 font_weight、0。
+    opacity_str 为 做 堆_分配 用 10。
+    整数部分 为 style 的 opacity 除以 100。
+    小数部分 为 style 的 opacity 取余于 100。
+    若 style 的 opacity 大于或等于 100：
+        做 CSS样式Declaration_setProperty 用 sd、「opacity」、「1」、0。
+    否则：
+        s 为 做 字符串_连接 用 「0.」、做 整数转字符串 用 style 的 opacity。
+        做 CSS样式Declaration_setProperty 用 sd、「opacity」、s、0。
+    完。
+    可变 ov_str 为 「visible」。
+    若 style 的 overflow 等于 1：
+        ov_str 为 「hidden」。
+    否则若 style 的 overflow 等于 2：
+        ov_str 为 「scroll」。
+    否则若 style 的 overflow 等于 3：
+        ov_str 为 「auto」。
+    完。
+    做 CSS样式Declaration_setProperty 用 sd、「overflow」、ov_str、0。
+    若 style 的 z_index 不等于 0：
+        做 CSS样式Declaration_setProperty 用 sd、「z-index」、做 整数转字符串 用 style 的 z_index、0。
+    否则：
+        做 CSS样式Declaration_setProperty 用 sd、「z-index」、「auto」、0。
+    完。
+    做 CSS样式Declaration_setProperty 用 sd、「border-top-width」、做 CSS值转像素字符串 用 style 的 border_top_width、0。
+    做 CSS样式Declaration_setProperty 用 sd、「border-right-width」、做 CSS值转像素字符串 用 style 的 border_right_width、0。
+    做 CSS样式Declaration_setProperty 用 sd、「border-bottom-width」、做 CSS值转像素字符串 用 style 的 border_bottom_width、0。
+    做 CSS样式Declaration_setProperty 用 sd、「border-left-width」、做 CSS值转像素字符串 用 style 的 border_left_width、0。
+    做 CSS样式Declaration_setProperty 用 sd、「visibility」、若 style 的 visibility 等于 0 则 「visible」 否则 「hidden」、0。
+    可变 cursor_str 为 「auto」。
+    若 style 的 cursor 等于 30：
+        cursor_str 为 「pointer」。
+    否则若 style 的 cursor 等于 31：
+        cursor_str 为 「text」。
+    否则若 style 的 cursor 等于 32：
+        cursor_str 为 「wait」。
+    否则若 style 的 cursor 等于 33：
+        cursor_str 为 「move」。
+    完。
+    做 CSS样式Declaration_setProperty 用 sd、「cursor」、cursor_str、0。
+    返还 sd。
+完。
+
+CSS值转像素字符串 接受 值：
+    若 值 等于 负 1：
+        返还 「auto」。
+    完。
+    若 值 等于 0：
+        返还 「0px」。
+    完。
+    px 为 值 除以 100。
+    小数 为 值 取余于 100。
+    若 小数 等于 0：
+        返还 做 字符串_连接 用 做 整数转字符串 用 px、「px」。
+    完。
+    s 为 做 整数转字符串 用 px。
+    s 为 做 字符串_连接 用 s、「.」。
+    若 小数 小于 10：
+        s 为 做 字符串_连接 用 s、「0」。
+    完。
+    s 为 做 字符串_连接 用 s、做 整数转字符串 用 小数。
+    s 为 做 字符串_连接 用 s、「px」。
+    返还 s。
+完。
+
+CSS颜色转字符串 接受 argb：
+    a 为 argb 右移 24 位与 0xFF。
+    r 为 argb 右移 16 位与 0xFF。
+    g 为 argb 右移 8 位与 0xFF。
+    b 为 argb 位与 0xFF。
+    若 a 等于 255：
+        s 为 「rgb(」。
+        s 为 做 字符串_连接 用 s、做 整数转字符串 用 r。
+        s 为 做 字符串_连接 用 s、「, 」。
+        s 为 做 字符串_连接 用 s、做 整数转字符串 用 g。
+        s 为 做 字符串_连接 用 s、「, 」。
+        s 为 做 字符串_连接 用 s、做 整数转字符串 用 b。
+        s 为 做 字符串_连接 用 s、「)」。
+        返还 s。
+    完。
+    s 为 「rgba(」。
+    s 为 做 字符串_连接 用 s、做 整数转字符串 用 r。
+    s 为 做 字符串_连接 用 s、「, 」。
+    s 为 做 字符串_连接 用 s、做 整数转字符串 用 g。
+    s 为 做 字符串_连接 用 s、「, 」。
+    s 为 做 字符串_连接 用 s、做 整数转字符串 用 b。
+    s 为 做 字符串_连接 用 s、「, 」。
+    alpha_pct 为 a 乘 1000 除以 255。
+    alpha_int 为 alpha_pct 除以 1000。
+    alpha_frac 为 alpha_pct 取余于 1000。
+    s 为 做 字符串_连接 用 s、做 整数转字符串 用 alpha_int。
+    s 为 做 字符串_连接 用 s、「.」。
+    s 为 做 字符串_连接 用 s、做 整数转字符串_宽度3 用 alpha_frac。
+    s 为 做 字符串_连接 用 s、「)」。
+    返还 s。
+完。
+
+可变 AI_样式样式_样式缓存命中 为 0。
+
+AI_样式样式_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+        返还 「高复杂度」。
+    完。
+    若 组合子数 大于 2：
+        返还 「中复杂度」。
+    完。
+    返还 「低复杂度」。
+完。
+
+AI_样式样式_布局缓存 接受 元素哈希：
+    AI_样式样式_样式缓存命中 为 AI_样式样式_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。

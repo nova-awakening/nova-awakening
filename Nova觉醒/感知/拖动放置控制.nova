@@ -1,0 +1,439 @@
+《拖动放置控制》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·内容可见性》。
+
+DragState 是 一种 事物，含 活跃、源元素、当前目标、数据传输、起始X、起始Y、当前X、当前Y。
+
+可变 全局拖拽状态 为 0。
+
+Drag_获取状态 接受 零参：
+    若 全局拖拽状态 等于 0：
+        全局拖拽状态 为 做 堆_分配 用 DragState。
+        全局拖拽状态 的 活跃 为 假。
+    完。
+    返还 全局拖拽状态。
+完。
+
+Drag_开始 接受 源元素、x、y：
+    state 为 做 Drag_获取状态。
+    若 state 等于 0 或者 源元素 等于 0：
+        返还。
+    完。
+    state 的 数据传输 为 做 DataTransfer_创建。
+    state 的 数据传输 的 effectAllowed 为 EFFECT_ALLOWED_UNINITIALIZED。
+    evt 为 做 Drag事件_创建 用 「dragstart」、x、y、state 的 数据传输。
+    state 的 活跃 为 真。
+    state 的 源元素 为 源元素。
+    state 的 起始X 为 x。
+    state 的 起始Y 为 y。
+    state 的 当前X 为 x。
+    state 的 当前Y 为 y。
+    state 的 当前目标 为 0。
+完。
+
+Drag_移动 接受 x、y：
+    state 为 做 Drag_获取状态。
+    若 state 等于 0 或者 非 state 的 活跃：
+        返还。
+    完。
+    state 的 当前X 为 x。
+    state 的 当前Y 为 y。
+    目标 为 0。
+    若 目标 不等于 state 的 当前目标：
+        若 state 的 当前目标 不等于 0：
+            leave 为 做 Drag事件_创建 用 「dragleave」、x、y、state 的 数据传输。
+        完。
+        若 目标 不等于 0：
+            enter 为 做 Drag事件_创建 用 「dr智能体er」、x、y、state 的 数据传输。
+        完。
+        state 的 当前目标 为 目标。
+    完。
+    drag 为 做 Drag事件_创建 用 「drag」、x、y、state 的 数据传输。
+    若 state 的 当前目标 不等于 0：
+        over 为 做 Drag事件_创建 用 「dragover」、x、y、state 的 数据传输。
+    完。
+完。
+
+Drag_释放 接受 x、y：
+    state 为 做 Drag_获取状态。
+    若 state 等于 0 或者 非 state 的 活跃：
+        返还。
+    完。
+    若 state 的 当前目标 不等于 0：
+        drop 为 做 Drag事件_创建 用 「drop」、x、y、state 的 数据传输。
+    完。
+    end 为 做 Drag事件_创建 用 「dragend」、x、y、state 的 数据传输。
+    state 的 活跃 为 假。
+    state 的 源元素 为 0。
+    state 的 当前目标 为 0。
+完。
+
+Drag事件 是 一种 事物，含 基类、clientX、clientY、dataTransfer。
+
+Drag事件_创建 接受 类型、x、y、dt：
+    evt 为 做 堆_分配 用 Drag事件。
+    evt 的 基类 为 做 事件_创建2 用 类型、真、真。
+    evt 的 clientX 为 x。
+    evt 的 clientY 为 y。
+    evt 的 dataTransfer 为 dt。
+    返还 evt。
+完。
+
+NDDC_版本 为 1。
+
+NDDC_最大数据项 为 16。
+
+NDDC_AI特征维度 为 10。
+
+可变 NDDC_拖放总数 为 0。
+
+可变 NDDC_成功数 为 0。
+
+可变 NDDC_取消数 为 0。
+
+可变 NDDC_AI推理次数 为 0。
+
+EFFECT_NONE 为 0。
+
+EFFECT_COPY 为 1。
+
+EFFECT_MOVE 为 2。
+
+EFFECT_LINK 为 3。
+
+EFFECT_ALLOWED_UNINITIALIZED 为 负 1。
+
+DataTransferItem 是 一种 事物，含 类型名、类型原子、种类、数据、文件名。
+
+DataTransfer 是 一种 事物，含 数据项、数据项数、dropEffect、effectAllowed、拖拽图像、图像X偏移、图像Y偏移。
+
+DataTransfer_创建 接受 零参：
+    dt 为 做 堆_分配 用 DataTransfer。
+    dt 的 数据项 为 做 数组_创建 用 NDDC_最大数据项。
+    dt 的 数据项数 为 0。
+    dt 的 dropEffect 为 EFFECT_NONE。
+    dt 的 effectAllowed 为 EFFECT_ALLOWED_UNINITIALIZED。
+    dt 的 拖拽图像 为 0。
+    dt 的 图像X偏移 为 0。
+    dt 的 图像Y偏移 为 0。
+    返还 dt。
+完。
+
+DataTransfer_释放 接受 dt：
+    若 dt 等于 0：
+        返还。
+    完。
+    做 堆_释放 用 dt 的 数据项。
+    做 堆_释放 用 dt。
+完。
+
+DataTransfer_setData 接受 dt、类型、数据：
+    若 dt 等于 0：
+        返还。
+    完。
+    原子 为 做 原子化 用 类型。
+    可变 i 为 0。
+    只要 i 小于 dt 的 数据项数：
+        若 dt 的 数据项 的 第 i 项 的 类型原子 等于 原子：
+            dt 的 数据项 的 第 i 项 的 数据 为 数据。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 dt 的 数据项数 大于或等于 NDDC_最大数据项：
+        返还。
+    完。
+    idx 为 dt 的 数据项数。
+    dt 的 数据项 的 第 idx 项 为 一本字典：类型名 对应 类型、类型原子 对应 原子、种类 对应 0、数据 对应 数据、文件名 对应 「」。
+    dt 的 数据项数 为 idx 加 1。
+完。
+
+DataTransfer_getData 接受 dt、类型：
+    若 dt 等于 0：
+        返还 「」。
+    完。
+    原子 为 做 原子化 用 类型。
+    可变 i 为 0。
+    只要 i 小于 dt 的 数据项数：
+        若 dt 的 数据项 的 第 i 项 的 类型原子 等于 原子：
+            返还 dt 的 数据项 的 第 i 项 的 数据。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 「」。
+完。
+
+DataTransfer_clearData 接受 dt、类型：
+    若 dt 等于 0：
+        返还。
+    完。
+    若 类型 等于 0：
+        dt 的 数据项数 为 0。
+        返还。
+    完。
+    原子 为 做 原子化 用 类型。
+    可变 写位 为 0。
+    可变 i 为 0。
+    只要 i 小于 dt 的 数据项数：
+        若 dt 的 数据项 的 第 i 项 的 类型原子 不等于 原子：
+            若 写位 不等于 i：
+                dt 的 数据项 的 第 写位 项 为 dt 的 数据项 的 第 i 项。
+            完。
+            写位 为 写位 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    dt 的 数据项数 为 写位。
+完。
+
+DataTransfer_setDragImage 接受 dt、元素、x、y：
+    若 dt 等于 0：
+        返还。
+    完。
+    dt 的 拖拽图像 为 元素。
+    dt 的 图像X偏移 为 x。
+    dt 的 图像Y偏移 为 y。
+完。
+
+NDDC_协商效果 接受 dt、dropEffect：
+    若 dt 等于 0：
+        返还 EFFECT_NONE。
+    完。
+    若 dt 的 effectAllowed 等于 EFFECT_ALLOWED_UNINITIALIZED：
+        返还 dropEffect。
+    完。
+    若 dt 的 effectAllowed 等于 EFFECT_COPY 并且 dropEffect 等于 EFFECT_COPY：
+        返还 EFFECT_COPY。
+    完。
+    若 dt 的 effectAllowed 等于 EFFECT_MOVE 并且 dropEffect 等于 EFFECT_MOVE：
+        返还 EFFECT_MOVE。
+    完。
+    若 dt 的 effectAllowed 等于 EFFECT_LINK 并且 dropEffect 等于 EFFECT_LINK：
+        返还 EFFECT_LINK。
+    完。
+    返还 EFFECT_NONE。
+完。
+
+NDDC_完整拖放开始 接受 源元素、x、y：
+    若 源元素 等于 0：
+        返还 假。
+    完。
+    若 非 做 元素_是可拖拽 用 源元素：
+        返还 假。
+    完。
+    做 Drag_开始 用 源元素、x、y。
+    NDDC_拖放总数 为 NDDC_拖放总数 加 1。
+    返还 真。
+完。
+
+NDDC_完整拖放移动 接受 x、y：
+    state 为 做 Drag_获取状态。
+    若 state 等于 0 或者 非 state 的 活跃：
+        返还。
+    完。
+    目标 为 做 NDDC_命中测试 用 x、y。
+    做 Drag_移动 用 x、y。
+    若 目标 不等于 0 并且 state 的 数据传输 不等于 0：
+        效果 为 做 NDDC_协商效果 用 state 的 数据传输、state 的 数据传输 的 dropEffect。
+        做 NDDC_更新游标 用 效果。
+    完。
+完。
+
+NDDC_完整拖放释放 接受 x、y：
+    state 为 做 Drag_获取状态。
+    若 state 等于 0 或者 非 state 的 活跃：
+        返还。
+    完。
+    做 Drag_释放 用 x、y。
+    若 state 的 当前目标 不等于 0：
+        NDDC_成功数 为 NDDC_成功数 加 1。
+    否则：
+        NDDC_取消数 为 NDDC_取消数 加 1。
+    完。
+完。
+
+NDDC_命中测试 接受 x、y：
+    返还 0。
+完。
+
+NDDC_更新游标 接受 效果：
+    若 效果 等于 EFFECT_COPY：
+        做 平台_设置游标 用 游标_复制。
+    否则若 效果 等于 EFFECT_MOVE：
+        做 平台_设置游标 用 游标_移动。
+    否则若 效果 等于 EFFECT_LINK：
+        做 平台_设置游标 用 游标_链接。
+    否则：
+        做 平台_设置游标 用 游标_禁止。
+    完。
+完。
+
+元素_是可拖拽 接受 元素：
+    若 元素 等于 0：
+        返还 假。
+    完。
+    若 元素 的 属性_draggable 等于 真：
+        返还 真。
+    完。
+    若 元素 的 标签名原子 等于 做 原子化 用 「img」：
+        返还 真。
+    完。
+    若 元素 的 标签名原子 等于 做 原子化 用 「a」 并且 元素 的 属性_href 不等于 0：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+DataTransfer_addFile 接受 dt、文件名、类型、数据、大小：
+    若 dt 等于 0 或者 dt 的 数据项数 大于或等于 NDDC_最大数据项：
+        返还。
+    完。
+    idx 为 dt 的 数据项数。
+    dt 的 数据项 的 第 idx 项 为 一本字典：类型名 对应 类型、类型原子 对应 做 原子化 用 类型、种类 对应 1、数据 对应 数据、文件名 对应 文件名。
+    dt 的 数据项数 为 idx 加 1。
+完。
+
+DataTransfer_获取文件数 接受 dt：
+    若 dt 等于 0：
+        返还 0。
+    完。
+    可变 计数 为 0。
+    可变 i 为 0。
+    只要 i 小于 dt 的 数据项数：
+        若 dt 的 数据项 的 第 i 项 的 种类 等于 1：
+            计数 为 计数 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 计数。
+完。
+
+NDDC_AI预测拖放 接受 零参：
+    特征 为 做 Tensor_创建 用 一组：NDDC_AI特征维度。
+    做 Tensor_写 用 特征、一组：0、NDDC_拖放总数。
+    做 Tensor_写 用 特征、一组：1、NDDC_成功数。
+    做 Tensor_写 用 特征、一组：2、NDDC_取消数。
+    做 Tensor_写 用 特征、一组：3、0。
+    做 Tensor_写 用 特征、一组：4、0。
+    做 Tensor_写 用 特征、一组：5、0。
+    做 Tensor_写 用 特征、一组：6、0。
+    做 Tensor_写 用 特征、一组：7、0。
+    做 Tensor_写 用 特征、一组：8、0。
+    做 Tensor_写 用 特征、一组：9、0。
+    预测 为 做 AI总线_推理 用 「NDDC拖放预测」、特征。
+    NDDC_AI推理次数 为 NDDC_AI推理次数 加 1。
+    做 Tensor_释放 用 特征。
+    做 Tensor_释放 用 预测。
+完。
+
+NDDC_获取统计 接受 零参：
+    返还 一本字典：版本 对应 NDDC_版本、拖放总数 对应 NDDC_拖放总数、成功数 对应 NDDC_成功数、取消数 对应 NDDC_取消数、成功率 对应 若 NDDC_拖放总数 大于 0 则 NDDC_成功数 乘 1000 除以 NDDC_拖放总数 否则 0、AI推理次数 对应 NDDC_AI推理次数。
+完。
+
+NDDC_重置统计 接受 零参：
+    NDDC_拖放总数 为 0。
+    NDDC_成功数 为 0。
+    NDDC_取消数 为 0。
+    NDDC_AI推理次数 为 0。
+完。
+
+NDDC_剪贴板最大项 为 8。
+
+剪贴板项 是 一种 事物，含 类型、数据、时间戳。
+
+可变 NDDC_剪贴板 为 一组：（空）。
+
+可变 NDDC_剪贴板数 为 0。
+
+NDDC_剪贴板初始化 接受 零参：
+    NDDC_剪贴板 为 做 数组_创建 用 NDDC_剪贴板最大项。
+    NDDC_剪贴板数 为 0。
+完。
+
+NDDC_剪贴板写入 接受 类型、数据：
+    原子 为 做 原子化 用 类型。
+    可变 i 为 0。
+    只要 i 小于 NDDC_剪贴板数：
+        若 做 原子化 用 NDDC_剪贴板 的 第 i 项 的 类型 等于 原子：
+            NDDC_剪贴板 的 第 i 项 的 数据 为 数据。
+            NDDC_剪贴板 的 第 i 项 的 时间戳 为 做 平台_获取高精度时间。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 NDDC_剪贴板数 大于或等于 NDDC_剪贴板最大项：
+        返还。
+    完。
+    NDDC_剪贴板 的 第 NDDC_剪贴板数 项 为 一本字典：类型 对应 类型、数据 对应 数据、时间戳 对应 做 平台_获取高精度时间。
+    NDDC_剪贴板数 为 NDDC_剪贴板数 加 1。
+完。
+
+NDDC_剪贴板读取 接受 类型：
+    原子 为 做 原子化 用 类型。
+    可变 i 为 0。
+    只要 i 小于 NDDC_剪贴板数：
+        若 做 原子化 用 NDDC_剪贴板 的 第 i 项 的 类型 等于 原子：
+            返还 NDDC_剪贴板 的 第 i 项 的 数据。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 「」。
+完。
+
+NDDC_剪贴板清空 接受 零参：
+    NDDC_剪贴板数 为 0。
+完。
+
+文本选区 是 一种 事物，含 锚点节点、锚点偏移、焦点节点、焦点偏移、是否折叠、方向。
+
+可变 全局选区 为 0。
+
+选区_获取 接受 零参：
+    若 全局选区 等于 0：
+        全局选区 为 做 堆_分配 用 文本选区。
+        全局选区 的 锚点节点 为 0。
+        全局选区 的 焦点节点 为 0。
+        全局选区 的 是否折叠 为 真。
+    完。
+    返还 全局选区。
+完。
+
+选区_设置范围 接受 锚节点、锚偏移、焦节点、焦偏移：
+    sel 为 做 选区_获取。
+    sel 的 锚点节点 为 锚节点。
+    sel 的 锚点偏移 为 锚偏移。
+    sel 的 焦点节点 为 焦节点。
+    sel 的 焦点偏移 为 焦偏移。
+    sel 的 是否折叠 为 锚节点 等于 焦节点 并且 锚偏移 等于 焦偏移。
+完。
+
+选区_折叠到开头 接受 零参：
+    sel 为 做 选区_获取。
+    sel 的 焦点节点 为 sel 的 锚点节点。
+    sel 的 焦点偏移 为 sel 的 锚点偏移。
+    sel 的 是否折叠 为 真。
+完。
+
+选区_折叠到末尾 接受 零参：
+    sel 为 做 选区_获取。
+    sel 的 锚点节点 为 sel 的 焦点节点。
+    sel 的 锚点偏移 为 sel 的 焦点偏移。
+    sel 的 是否折叠 为 真。
+完。
+
+选区_清除 接受 零参：
+    sel 为 做 选区_获取。
+    sel 的 锚点节点 为 0。
+    sel 的 焦点节点 为 0。
+    sel 的 是否折叠 为 真。
+完。
+
+本章 收束。

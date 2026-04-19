@@ -1,0 +1,97 @@
+《分配》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·文档事件》。
+
+HTMLSlot元素 是 一种 事物，含 节点、名称、分配节点、分配数、分配容量。
+
+Slot_创建 接受 名称：
+    s 为 做 堆_分配 用 HTMLSlot元素。
+    s 的 节点 为 0。
+    s 的 名称 为 若 名称 不等于 0 则 做 字符串_复制 用 名称 否则 「」。
+    s 的 分配容量 为 32。
+    s 的 分配节点 为 做 堆_分配_数组 用 32 乘 8。
+    s 的 分配数 为 0。
+    返还 s。
+完。
+
+Slot_分配 接受 shadowRoot：
+    若 shadowRoot 等于 0：
+        返还。
+    完。
+    宿主 为 shadowRoot 的 宿主。
+    若 宿主 等于 0：
+        返还。
+    完。
+完。
+
+Slot_assigned节点s 接受 slot、flatten：
+    若 slot 等于 0：
+        返还 0。
+    完。
+    若 非 flatten：
+        返还 slot 的 分配节点。
+    完。
+    返还 slot 的 分配节点。
+完。
+
+Slot_assigned元素s 接受 slot：
+    若 slot 等于 0：
+        返还 0。
+    完。
+    返还 0。
+完。
+
+Slot_assign 接受 slot、节点s、数量：
+    若 slot 等于 0 或者 节点s 等于 0：
+        返还。
+    完。
+    slot 的 分配数 为 0。
+    可变 i 为 0。
+    只要 i 小于 数量 并且 i 小于 slot 的 分配容量：
+        做 内存_写64 用 slot 的 分配节点 加 i 乘 8、做 内存_读64 用 节点s 加 i 乘 8。
+        slot 的 分配数 为 slot 的 分配数 加 1。
+        i 为 i 加 1。
+    完。
+    做 Slot_触发slotchange 用 slot。
+完。
+
+Slot_触发slotchange 接受 slot：
+    若 slot 等于 0 或者 slot 的 节点 等于 0：
+        返还。
+    完。
+    evt 为 做 事件_创建2 用 「slotchange」、真、假。
+完。
+
+HTMLTemplate元素 是 一种 事物，含 节点、content。
+
+Template_创建 接受 零参：
+    t 为 做 堆_分配 用 HTMLTemplate元素。
+    t 的 节点 为 0。
+    t 的 content 为 0。
+    返还 t。
+完。
+
+Template_getContent 接受 t：
+    若 t 等于 0：
+        返还 0。
+    完。
+    若 t 的 content 等于 0：
+        t 的 content 为 做 堆_分配 用 8。
+    完。
+    返还 t 的 content。
+完。
+
+Template_clone 接受 t、deep：
+    若 t 等于 0 或者 t 的 content 等于 0：
+        返还 0。
+    完。
+    返还 0。
+完。
+
+本章 收束。

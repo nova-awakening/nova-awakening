@@ -1,0 +1,181 @@
+《索引操作》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·IndexedDB客户端》。
+
+引用《.·IDB事务》。
+
+引用《..·中枢·辅助存根》。
+
+IDB_createIndex 接受 store、名称、keyPath、unique、multiEntry：
+    若 store 等于 0 或者 store 的 索引数 大于或等于 store 的 索引容量：
+        返还 0。
+    完。
+    idx 为 做 堆_分配 用 IDBIndex。
+    idx 的 名称 为 做 字符串_复制 用 名称。
+    idx 的 keyPath 为 做 字符串_复制 用 keyPath。
+    idx 的 unique 为 unique。
+    idx 的 multiEntry 为 multiEntry。
+    idx 的 根节点 为 做 BPlus_创建叶子。
+    idx 的 记录数 为 0。
+    做 内存_写64 用 store 的 索引 加 store 的 索引数 乘 8、idx。
+    store 的 索引数 为 store 的 索引数 加 1。
+    返还 idx。
+完。
+
+IDBKeyRange_only 接受 键：
+    r 为 做 堆_分配 用 IDBKeyRange。
+    r 的 下界 为 键。
+    r 的 上界 为 键。
+    r 的 含下界 为 真。
+    r 的 含上界 为 真。
+    返还 r。
+完。
+
+IDBKeyRange_bound 接受 下、上、含下、含上：
+    r 为 做 堆_分配 用 IDBKeyRange。
+    r 的 下界 为 下。
+    r 的 上界 为 上。
+    r 的 含下界 为 含下。
+    r 的 含上界 为 含上。
+    返还 r。
+完。
+
+IDBKeyRange_lowerBound 接受 下、开放：
+    r 为 做 堆_分配 用 IDBKeyRange。
+    r 的 下界 为 下。
+    r 的 上界 为 0。
+    r 的 含下界 为 非 开放。
+    r 的 含上界 为 真。
+    返还 r。
+完。
+
+IDBKeyRange_upperBound 接受 上、开放：
+    r 为 做 堆_分配 用 IDBKeyRange。
+    r 的 下界 为 0。
+    r 的 上界 为 上。
+    r 的 含下界 为 真。
+    r 的 含上界 为 非 开放。
+    返还 r。
+完。
+
+IDBKeyRange_包含 接受 范围、键：
+    若 范围 等于 0 或者 键 等于 0：
+        返还 真。
+    完。
+    若 范围 的 下界 不等于 0：
+        cmp 为 做 IDBKey_比较 用 键、范围 的 下界。
+        若 范围 的 含下界 并且 cmp 小于 0：
+            返还 假。
+        完。
+        若 非 范围 的 含下界 并且 cmp 小于或等于 0：
+            返还 假。
+        完。
+    完。
+    若 范围 的 上界 不等于 0：
+        cmp 为 做 IDBKey_比较 用 键、范围 的 上界。
+        若 范围 的 含上界 并且 cmp 大于 0：
+            返还 假。
+        完。
+        若 非 范围 的 含上界 并且 cmp 大于或等于 0：
+            返还 假。
+        完。
+    完。
+    返还 真。
+完。
+
+IDB_openCursor 接受 store、范围、方向：
+    若 store 等于 0 或者 store 的 主树根 等于 0：
+        返还 0。
+    完。
+    cursor 为 做 堆_分配 用 IDBCursor。
+    cursor 的 存储 为 store。
+    cursor 的 索引 为 0。
+    cursor 的 方向 为 方向。
+    cursor 的 范围 为 范围。
+    cursor 的 已完成 为 假。
+    可变 节点 为 store 的 主树根。
+    只要 节点 不等于 0 并且 非 节点 的 是叶子：
+        节点 为 节点 的 子节点 的 第 0 项。
+    完。
+    cursor 的 当前节点 为 节点。
+    cursor 的 当前位置idx 为 0。
+    若 范围 不等于 0 并且 范围 的 下界 不等于 0 并且 方向 小于或等于 IDB_CURSOR_NEXT_UNIQUE：
+        做 IDB_cursor_前进到 用 cursor、范围 的 下界。
+    完。
+    做 IDB_cursor_更新当前 用 cursor。
+    返还 cursor。
+完。
+
+IDB_cursor_continue 接受 cursor：
+    若 cursor 等于 0 或者 cursor 的 已完成：
+        返还。
+    完。
+    节点 为 cursor 的 当前节点。
+    若 节点 等于 0：
+        cursor 的 已完成 为 真。
+        返还。
+    完。
+    若 cursor 的 方向 等于 IDB_CURSOR_NEXT 或者 cursor 的 方向 等于 IDB_CURSOR_NEXT_UNIQUE：
+        cursor 的 当前位置idx 为 cursor 的 当前位置idx 加 1。
+        若 cursor 的 当前位置idx 大于或等于 节点 的 键数：
+            cursor 的 当前节点 为 节点 的 下一叶子。
+            cursor 的 当前位置idx 为 0。
+            若 cursor 的 当前节点 等于 0：
+                cursor 的 已完成 为 真。
+                返还。
+            完。
+        完。
+    否则：
+        若 cursor 的 当前位置idx 等于 0：
+            prev 为 做 BTree_前一叶子 用 cursor 的 树、cursor 的 当前节点。
+            若 prev 等于 0：
+                cursor 的 已完成 为 真。
+                返还。
+            完。
+            cursor 的 当前节点 为 prev。
+            cursor 的 当前位置idx 为 prev 的 键数 减 1。
+        完。
+        cursor 的 当前位置idx 为 cursor 的 当前位置idx 减 1。
+    完。
+    做 IDB_cursor_更新当前 用 cursor。
+    若 cursor 的 范围 不等于 0 并且 cursor 的 当前键 不等于 0：
+        若 非 做 IDBKeyRange_包含 用 cursor 的 范围、cursor 的 当前键：
+            cursor 的 已完成 为 真。
+        完。
+    完。
+完。
+
+IDB_cursor_更新当前 接受 cursor：
+    若 cursor 等于 0 或者 cursor 的 当前节点 等于 0：
+        返还。
+    完。
+    节点 为 cursor 的 当前节点。
+    若 cursor 的 当前位置idx 小于 节点 的 键数：
+        cursor 的 当前键 为 节点 的 键 的 第 cursor 的 当前位置idx 项。
+        cursor 的 当前值 为 节点 的 值 的 第 cursor 的 当前位置idx 项。
+    完。
+完。
+
+IDB_cursor_前进到 接受 cursor、目标键：
+    只要 cursor 的 当前节点 不等于 0 并且 非 cursor 的 已完成：
+        节点 为 cursor 的 当前节点。
+        只要 cursor 的 当前位置idx 小于 节点 的 键数：
+            cmp 为 做 IDBKey_比较 用 节点 的 键 的 第 cursor 的 当前位置idx 项、目标键。
+            若 cmp 大于或等于 0：
+                返还。
+            完。
+            cursor 的 当前位置idx 为 cursor 的 当前位置idx 加 1。
+        完。
+        cursor 的 当前节点 为 节点 的 下一叶子。
+        cursor 的 当前位置idx 为 0。
+        若 cursor 的 当前节点 等于 0：
+            cursor 的 已完成 为 真。
+        完。
+    完。
+完。
+
+本章 收束。

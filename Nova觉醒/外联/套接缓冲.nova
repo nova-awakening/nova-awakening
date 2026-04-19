@@ -1,0 +1,253 @@
+《套接缓冲》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·IP解析与随机》。
+
+引用《.·网缓冲分配》。
+
+Nova网络缓冲 是 一种 事物，含 data、tail、end、head、len、data_len、mac_header、network_header、transport_header、protocol、pkt_type、ip_summed、dev、sk、dst、users、buf。
+
+PACKET_HOST 为 0。
+
+PACKET_BROADCAST 为 1。
+
+PACKET_MULTICAST 为 2。
+
+PACKET_OTHERHOST 为 3。
+
+ETH_P_IP 为 0x0800。
+
+ETH_P_ARP 为 0x0806。
+
+ETH_P_IPV6 为 0x86DD。
+
+CHECKSUM_NONE 为 0。
+
+CHECKSUM_PARTIAL 为 1。
+
+CHECKSUM_COMPLETE 为 2。
+
+Nova缓冲_HEADROOM 为 128。
+
+Nova缓冲_创建_v1 接受 大小：
+    总大小 为 Nova缓冲_HEADROOM 加 大小。
+    buf 为 做 缓冲区 用 总大小。
+    若 buf 等于 空：
+        返还 空。
+    完。
+    Nova缓冲 为 新建 Nova网络缓冲。
+    Nova缓冲 的 buf 为 buf。
+    Nova缓冲 的 head 为 0。
+    Nova缓冲 的 data 为 Nova缓冲_HEADROOM。
+    Nova缓冲 的 tail 为 Nova缓冲_HEADROOM。
+    Nova缓冲 的 end 为 总大小。
+    Nova缓冲 的 len 为 0。
+    Nova缓冲 的 data_len 为 0。
+    Nova缓冲 的 mac_header 为 0。
+    Nova缓冲 的 network_header 为 0。
+    Nova缓冲 的 transport_header 为 0。
+    Nova缓冲 的 protocol 为 0。
+    Nova缓冲 的 pkt_type 为 PACKET_HOST。
+    Nova缓冲 的 ip_summed 为 CHECKSUM_NONE。
+    Nova缓冲 的 dev 为 空。
+    Nova缓冲 的 sk 为 空。
+    Nova缓冲 的 dst 为 空。
+    Nova缓冲 的 users 为 1。
+    返还 Nova缓冲。
+完。
+
+Nova缓冲_释放_v1 接受 Nova缓冲：
+    若 Nova缓冲 等于 空：
+        返还。
+    完。
+    Nova缓冲 的 users 为 Nova缓冲 的 users 减 1。
+    若 Nova缓冲 的 users 小于或等于 0：
+    完。
+完。
+
+Nova缓冲_克隆_v1 接受 Nova缓冲：
+    Nova缓冲 的 users 为 Nova缓冲 的 users 加 1。
+    返还 Nova缓冲。
+完。
+
+Nova缓冲_push_v1 接受 Nova缓冲、长度：
+    Nova缓冲 的 data 为 Nova缓冲 的 data 减 长度。
+    Nova缓冲 的 len 为 Nova缓冲 的 len 加 长度。
+    返还 Nova缓冲 的 buf 加 Nova缓冲 的 data。
+完。
+
+Nova缓冲_pull_v1 接受 Nova缓冲、长度：
+    Nova缓冲 的 data 为 Nova缓冲 的 data 加 长度。
+    Nova缓冲 的 len 为 Nova缓冲 的 len 减 长度。
+    返还 Nova缓冲 的 buf 加 Nova缓冲 的 data。
+完。
+
+Nova缓冲_put_v1 接受 Nova缓冲、长度：
+    旧tail 为 Nova缓冲 的 tail。
+    Nova缓冲 的 tail 为 Nova缓冲 的 tail 加 长度。
+    Nova缓冲 的 len 为 Nova缓冲 的 len 加 长度。
+    返还 Nova缓冲 的 buf 加 旧tail。
+完。
+
+Nova缓冲_trim_v1 接受 Nova缓冲、新长度：
+    Nova缓冲 的 len 为 新长度。
+    Nova缓冲 的 tail 为 Nova缓冲 的 data 加 新长度。
+完。
+
+Nova缓冲_reserve_v1 接受 Nova缓冲、长度：
+    Nova缓冲 的 data 为 Nova缓冲 的 data 加 长度。
+    Nova缓冲 的 tail 为 Nova缓冲 的 tail 加 长度。
+完。
+
+Nova缓冲_设置mac头_v1 接受 Nova缓冲：
+    Nova缓冲 的 mac_header 为 Nova缓冲 的 data。
+完。
+
+Nova缓冲_设置网络头_v1 接受 Nova缓冲：
+    Nova缓冲 的 network_header 为 Nova缓冲 的 data。
+完。
+
+Nova缓冲_设置传输头_v1 接受 Nova缓冲：
+    Nova缓冲 的 transport_header 为 Nova缓冲 的 data。
+完。
+
+Nova缓冲_mac头 接受 Nova缓冲：
+    返还 Nova缓冲 的 buf 加 Nova缓冲 的 mac_header。
+完。
+
+Nova缓冲_网络头 接受 Nova缓冲：
+    返还 Nova缓冲 的 buf 加 Nova缓冲 的 network_header。
+完。
+
+Nova缓冲_传输头 接受 Nova缓冲：
+    返还 Nova缓冲 的 buf 加 Nova缓冲 的 transport_header。
+完。
+
+Nova缓冲_数据_v1 接受 Nova缓冲：
+    返还 Nova缓冲 的 buf 加 Nova缓冲 的 data。
+完。
+
+Nova缓冲_长度_v1 接受 Nova缓冲：
+    返还 Nova缓冲 的 len。
+完。
+
+Nova缓冲_headroom_v1 接受 Nova缓冲：
+    返还 Nova缓冲 的 data 减 Nova缓冲 的 head。
+完。
+
+Nova缓冲_tailroom_v1 接受 Nova缓冲：
+    返还 Nova缓冲 的 end 减 Nova缓冲 的 tail。
+完。
+
+Nova缓冲_协议_v1 接受 Nova缓冲：
+    返还 Nova缓冲 的 protocol。
+完。
+
+Nova缓冲_设置协议_v1 接受 Nova缓冲、p：
+    Nova缓冲 的 protocol 为 p。
+完。
+
+Nova缓冲_设备_v1 接受 Nova缓冲：
+    返还 Nova缓冲 的 dev。
+完。
+
+Nova缓冲_设置设备_v1 接受 Nova缓冲、d：
+    Nova缓冲 的 dev 为 d。
+完。
+
+Nova缓冲_放入数据_v1 接受 Nova缓冲、数据、长度：
+    dst 为 做 Nova缓冲_put 用 Nova缓冲、长度。
+    做 内存复制 用 dst、数据、长度。
+完。
+
+Nova缓冲_读取数据_v1 接受 Nova缓冲、目标、偏移、长度：
+    做 内存复制 用 目标、Nova缓冲 的 buf 加 Nova缓冲 的 data 加 偏移、长度。
+完。
+
+Nova缓冲_线性长度_v1 接受 Nova缓冲：
+    返还 Nova缓冲 的 len 减 Nova缓冲 的 data_len。
+完。
+
+Nova缓冲_是线性_v1 接受 Nova缓冲：
+    返还 Nova缓冲 的 data_len 等于 0。
+完。
+
+Nova缓冲_包类型名 接受 类型：
+    若 类型 等于 PACKET_HOST：
+        返还 「HOST」。
+    完。
+    若 类型 等于 PACKET_BROADCAST：
+        返还 「BROADCAST」。
+    完。
+    若 类型 等于 PACKET_MULTICAST：
+        返还 「MULTICAST」。
+    完。
+    若 类型 等于 PACKET_OTHERHOST：
+        返还 「OTHERHOST」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+Nova缓冲_协议名 接受 协议：
+    若 协议 等于 ETH_P_IP：
+        返还 「IPv4」。
+    完。
+    若 协议 等于 ETH_P_ARP：
+        返还 「ARP」。
+    完。
+    若 协议 等于 ETH_P_IPV6：
+        返还 「IPv6」。
+    完。
+    返还 「0x」 加 做 整数转十六进制 用 协议。
+完。
+
+Nova缓冲_校验和名 接受 状态：
+    若 状态 等于 CHECKSUM_NONE：
+        返还 「NONE」。
+    完。
+    若 状态 等于 CHECKSUM_PARTIAL：
+        返还 「PARTIAL」。
+    完。
+    若 状态 等于 CHECKSUM_COMPLETE：
+        返还 「COMPLETE」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+Socket缓冲_完整统计 接受 零参：
+    返还 一组：Nova缓冲_分配总数、Nova缓冲_释放总数。
+完。
+
+可变 AI_套接缓冲_带宽估计 为 0。
+
+可变 AI_套接缓冲_丢包窗口 为 一组：（空）。
+
+AI_套接缓冲_带宽预测 接受 发送字节、耗时毫秒：
+    若 耗时毫秒 等于 0：
+        返还 AI_套接缓冲_带宽估计。
+    完。
+    当前 为 发送字节 乘 1000 除以 耗时毫秒。
+    AI_套接缓冲_带宽估计 为 AI_套接缓冲_带宽估计 乘 700 除以 1000 加 当前 乘 300 除以 1000。
+    返还 AI_套接缓冲_带宽估计。
+完。
+
+AI_套接缓冲_拥塞建议 接受 丢包率：
+    做 追加 用 AI_套接缓冲_丢包窗口、丢包率。
+    若 做 计数 用 AI_套接缓冲_丢包窗口 大于 10：
+        做 列表_移除 用 AI_套接缓冲_丢包窗口、0。
+    完。
+    若 丢包率 大于 50：
+        返还 「减半窗口」。
+    完。
+    若 丢包率 小于 5：
+        返还 「增大窗口」。
+    完。
+    返还 「保持」。
+完。
+
+本章 收束。

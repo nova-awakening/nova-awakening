@@ -1,0 +1,637 @@
+《执行常量》
+
+引用《..·中枢·日志中枢》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·字符串替换》。
+
+PE_DOS_MAGIC 为 0x5A4D。
+
+PE_DOS_LFANEW 为 0x3C。
+
+PE_SIGNATURE 为 0x00004550。
+
+IMAGE_FILE_MACHINE_AMD64 为 0x8664。
+
+IMAGE_FILE_MACHINE_I386 为 0x014C。
+
+IMAGE_FILE_MACHINE_ARM64 为 0xAA64。
+
+PE32_MAGIC 为 0x10B。
+
+PE32PLUS_MAGIC 为 0x20B。
+
+IMAGE_SCN_MEM_EXECUTE 为 0x20000000。
+
+IMAGE_SCN_MEM_READ 为 0x40000000。
+
+IMAGE_SCN_MEM_WRITE 为 0x80000000。
+
+IMAGE_SCN_CNT_CODE 为 0x00000020。
+
+IMAGE_SCN_CNT_INIT_DATA 为 0x00000040。
+
+IMAGE_SCN_CNT_UNINIT_DATA 为 0x00000080。
+
+IMAGE_DIRECTORY_ENTRY_EXPORT 为 0。
+
+IMAGE_DIRECTORY_ENTRY_IMPORT 为 1。
+
+IMAGE_DIRECTORY_ENTRY_RESOURCE 为 2。
+
+IMAGE_DIRECTORY_ENTRY_EXCEPTION 为 3。
+
+IMAGE_DIRECTORY_ENTRY_SECURITY 为 4。
+
+IMAGE_DIRECTORY_ENTRY_BASERELOC 为 5。
+
+IMAGE_DIRECTORY_ENTRY_DEBUG 为 6。
+
+IMAGE_DIRECTORY_ENTRY_安全 为 9。
+
+IMAGE_DIRECTORY_ENTRY_IAT 为 12。
+
+IMAGE_REL_BASED_ABSOLUTE 为 0。
+
+IMAGE_REL_BASED_HIGH 为 1。
+
+IMAGE_REL_BASED_LOW 为 2。
+
+IMAGE_REL_BASED_HIGHLOW 为 3。
+
+IMAGE_REL_BASED_DIR64 为 10。
+
+PE模块 是 一种 事物，含 路径、名称、基地址、映像大小、入口点、节列表、导入表、导出表、是DLL、是64位、首选基址、已重定位。
+
+PE节 是 一种 事物，含 名称、虚拟地址、虚拟大小、文件偏移、文件大小、标志。
+
+可变 PE_已加载模块 为 一组：（空）。
+
+可变 Win32_已初始化 为 假。
+
+可变 Win32_程序数 为 0。
+
+可变 Win32_接口调用数 为 0。
+
+可变 Win32_DLL_基址 为 0x70000000。
+
+NPEL_MAX_MODULES 为 64。
+
+NPEL_MAX_SECTIONS 为 32。
+
+NPEL_MAX_IMPORTS 为 256。
+
+NPEL_MAX_EXPORTS 为 512。
+
+NPEL_MAX_RELOCS 为 4096。
+
+NPEL_MAX_DLL_NAME 为 128。
+
+可变 NPEL_加载次数 为 0。
+
+可变 NPEL_重定位次数 为 0。
+
+可变 NPEL_导入绑定次数 为 0。
+
+可变 NPEL_API翻译次数 为 0。
+
+可变 NPEL_AI预测次数 为 0。
+
+NPEL_读u8 接受 buf、off：
+    返还 做 内存读8 用 buf 加 off 位与 0xFF。
+完。
+
+NPEL_读u16 接受 buf、off：
+    返还 做 内存读16 用 buf 加 off 位与 0xFFFF。
+完。
+
+NPEL_读u32 接受 buf、off：
+    返还 做 内存读32 用 buf 加 off。
+完。
+
+NPEL_读u64 接受 buf、off：
+    返还 做 内存读64 用 buf 加 off。
+完。
+
+NPEL_验证DOS头 接受 buf、大小：
+    若 大小 小于 64：
+        返还 假。
+    完。
+    magic 为 做 NPEL_读u16 用 buf、0。
+    若 magic 不等于 PE_DOS_MAGIC：
+        返还 假。
+    完。
+    lfanew 为 做 NPEL_读u32 用 buf、PE_DOS_LFANEW。
+    若 lfanew 小于 64 或者 lfanew 加 4 大于 大小：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+NPEL_验证PE签名 接受 buf、lfanew：
+    返还 做 NPEL_读u32 用 buf、lfanew 等于 PE_SIGNATURE。
+完。
+
+NPEL_解析COFF头 接受 buf、lfanew、mod：
+    coff 为 lfanew 加 4。
+    machine 为 做 NPEL_读u16 用 buf、coff。
+    numSections 为 做 NPEL_读u16 用 buf、coff 加 2。
+    optHdrSize 为 做 NPEL_读u16 用 buf、coff 加 16。
+    characteristics 为 做 NPEL_读u16 用 buf、coff 加 18。
+    mod 的 是DLL 为 characteristics 位与 0x2000 不等于 0。
+    若 machine 等于 IMAGE_FILE_MACHINE_AMD64 或者 machine 等于 IMAGE_FILE_MACHINE_ARM64：
+        mod 的 是64位 为 真。
+    否则：
+        mod 的 是64位 为 假。
+    完。
+    返还 numSections。
+完。
+
+NPEL_解析OptionalHeader 接受 buf、lfanew、mod：
+    opt 为 lfanew 加 24。
+    magic 为 做 NPEL_读u16 用 buf、opt。
+    若 magic 等于 PE32PLUS_MAGIC：
+        mod 的 首选基址 为 做 NPEL_读u64 用 buf、opt 加 24。
+        mod 的 映像大小 为 做 NPEL_读u32 用 buf、opt 加 56。
+        mod 的 入口点 为 mod 的 基地址 加 做 NPEL_读u32 用 buf、opt 加 16。
+        返还 opt 加 112。
+    否则：
+        mod 的 首选基址 为 做 NPEL_读u32 用 buf、opt 加 28。
+        mod 的 映像大小 为 做 NPEL_读u32 用 buf、opt 加 56。
+        mod 的 入口点 为 mod 的 基地址 加 做 NPEL_读u32 用 buf、opt 加 16。
+        返还 opt 加 96。
+    完。
+完。
+
+NPEL_解析节表 接受 buf、lfanew、numSections、mod：
+    optSize 为 做 NPEL_读u16 用 buf、lfanew 加 20。
+    sectHdr 为 lfanew 加 24 加 optSize。
+    mod 的 节列表 为 做 堆分配 用 numSections 乘 8。
+    可变 i 为 0。
+    只要 i 小于 numSections 并且 i 小于 NPEL_MAX_SECTIONS：
+        sec 为 做 堆分配 用 PE节。
+        name_ptr 为 buf 加 sectHdr 加 i 乘 40。
+        sec 的 名称 为 name_ptr。
+        sec 的 虚拟大小 为 做 NPEL_读u32 用 buf、sectHdr 加 i 乘 40 加 8。
+        sec 的 虚拟地址 为 做 NPEL_读u32 用 buf、sectHdr 加 i 乘 40 加 12。
+        sec 的 文件大小 为 做 NPEL_读u32 用 buf、sectHdr 加 i 乘 40 加 16。
+        sec 的 文件偏移 为 做 NPEL_读u32 用 buf、sectHdr 加 i 乘 40 加 20。
+        sec 的 标志 为 做 NPEL_读u32 用 buf、sectHdr 加 i 乘 40 加 36。
+        做 内存写64 用 mod 的 节列表 加 i 乘 8、sec。
+        i 为 i 加 1。
+    完。
+    返还 numSections。
+完。
+
+NPEL_映射节到内存 接受 buf、mod、numSections：
+    base 为 mod 的 基地址。
+    可变 i 为 0。
+    只要 i 小于 numSections：
+        sec 为 做 内存读64 用 mod 的 节列表 加 i 乘 8。
+        若 sec 不等于 0 并且 sec 的 文件大小 大于 0：
+            dst 为 base 加 sec 的 虚拟地址。
+            src 为 buf 加 sec 的 文件偏移。
+            可变 j 为 0。
+            只要 j 小于 sec 的 文件大小：
+                做 内存写8 用 dst 加 j、做 内存读8 用 src 加 j。
+                j 为 j 加 1。
+            完。
+            只要 j 小于 sec 的 虚拟大小：
+                做 内存写8 用 dst 加 j、0。
+                j 为 j 加 1。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NPEL_设置节权限 接受 mod、numSections：
+    可变 i 为 0。
+    只要 i 小于 numSections：
+        sec 为 做 内存读64 用 mod 的 节列表 加 i 乘 8。
+        若 sec 不等于 0：
+            flags 为 sec 的 标志。
+            prot 为 0。
+            若 flags 位与 IMAGE_SCN_MEM_READ：
+                prot 为 prot 位或 1。
+            完。
+            若 flags 位与 IMAGE_SCN_MEM_WRITE：
+                prot 为 prot 位或 2。
+            完。
+            若 flags 位与 IMAGE_SCN_MEM_EXECUTE：
+                prot 为 prot 位或 4。
+            完。
+            做 系统调用_设置内存保护 用 mod 的 基地址 加 sec 的 虚拟地址、sec 的 虚拟大小、prot。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NPEL导入项 是 一种 事物，含 DLL名称、函数名、序号、绑定地址、已绑定。
+
+可变 NPEL_导入池 为 0。
+
+可变 NPEL_导入数 为 0。
+
+NPEL_解析导入表 接受 buf、mod、dataDir：
+    importRVA 为 做 NPEL_读u32 用 buf、dataDir 加 8。
+    importSize 为 做 NPEL_读u32 用 buf、dataDir 加 12。
+    若 importRVA 等于 0 或者 importSize 等于 0：
+        返还。
+    完。
+    NPEL_导入池 为 做 堆分配 用 NPEL_MAX_IMPORTS 乘 8。
+    NPEL_导入数 为 0。
+    base 为 mod 的 基地址。
+    可变 off 为 importRVA。
+    只要 真：
+        nameRVA 为 做 NPEL_读u32 用 base、off 加 12。
+        若 nameRVA 等于 0：
+            断开。
+        完。
+        iltRVA 为 做 NPEL_读u32 用 base、off。
+        iatRVA 为 做 NPEL_读u32 用 base、off 加 16。
+        dll_name 为 base 加 nameRVA。
+        可变 idx 为 0。
+        thunk_size 为 若 mod 的 是64位 则 8 否则 4。
+        只要 真：
+            entry 为 若 mod 的 是64位 则 做 NPEL_读u64 用 base、iltRVA 加 idx 乘 thunk_size 否则 做 NPEL_读u32 用 base、iltRVA 加 idx 乘 thunk_size。
+            若 entry 等于 0：
+                断开。
+            完。
+            imp 为 做 堆分配 用 NPEL导入项。
+            imp 的 DLL名称 为 dll_name。
+            ordinal_flag 为 若 mod 的 是64位 则 entry 右移 63 否则 entry 右移 31。
+            若 ordinal_flag：
+                imp 的 序号 为 entry 位与 0xFFFF。
+                imp 的 函数名 为 0。
+            否则：
+                hintRVA 为 entry 位与 0x7FFFFFFF。
+                imp 的 序号 为 做 NPEL_读u16 用 base、hintRVA。
+                imp 的 函数名 为 base 加 hintRVA 加 2。
+            完。
+            imp 的 绑定地址 为 base 加 iatRVA 加 idx 乘 thunk_size。
+            imp 的 已绑定 为 假。
+            若 NPEL_导入数 小于 NPEL_MAX_IMPORTS：
+                做 内存写64 用 NPEL_导入池 加 NPEL_导入数 乘 8、imp。
+                NPEL_导入数 为 NPEL_导入数 加 1。
+            完。
+            idx 为 idx 加 1。
+        完。
+        off 为 off 加 20。
+    完。
+完。
+
+NPEL_绑定导入 接受 imp：
+    若 imp 等于 0 或者 imp 的 已绑定：
+        返还。
+    完。
+    addr 为 做 Win32_查找API 用 imp 的 DLL名称、imp 的 函数名、imp 的 序号。
+    若 addr 不等于 0：
+        做 内存写64 用 imp 的 绑定地址、addr。
+        imp 的 已绑定 为 真。
+        NPEL_导入绑定次数 为 NPEL_导入绑定次数 加 1。
+    完。
+完。
+
+NPEL_绑定所有导入 接受 零参：
+    可变 i 为 0。
+    只要 i 小于 NPEL_导入数：
+        imp 为 做 内存读64 用 NPEL_导入池 加 i 乘 8。
+        做 NPEL_绑定导入 用 imp。
+        i 为 i 加 1。
+    完。
+完。
+
+NPEL_处理重定位 接受 buf、mod、dataDir：
+    relocRVA 为 做 NPEL_读u32 用 buf、dataDir 加 40。
+    relocSize 为 做 NPEL_读u32 用 buf、dataDir 加 44。
+    若 relocRVA 等于 0 或者 relocSize 等于 0：
+        返还。
+    完。
+    delta 为 mod 的 基地址 减 mod 的 首选基址。
+    若 delta 等于 0：
+        mod 的 已重定位 为 真。
+        返还。
+    完。
+    base 为 mod 的 基地址。
+    可变 off 为 0。
+    只要 off 小于 relocSize：
+        pageRVA 为 做 NPEL_读u32 用 base、relocRVA 加 off。
+        blockSize 为 做 NPEL_读u32 用 base、relocRVA 加 off 加 4。
+        若 blockSize 小于或等于 8：
+            断开。
+        完。
+        numEntries 为 (blockSize 减 8) 除以 2。
+        可变 i 为 0。
+        只要 i 小于 numEntries：
+            entry 为 做 NPEL_读u16 用 base、relocRVA 加 off 加 8 加 i 乘 2。
+            type 为 entry 右移 12。
+            offset 为 entry 位与 0xFFF。
+            addr 为 base 加 pageRVA 加 offset。
+            若 type 等于 IMAGE_REL_BASED_HIGHLOW：
+                val 为 做 NPEL_读u32 用 addr、0。
+                做 内存写32 用 addr、val 加 delta。
+                NPEL_重定位次数 为 NPEL_重定位次数 加 1。
+            否则若 type 等于 IMAGE_REL_BASED_DIR64：
+                val64 为 做 NPEL_读u64 用 addr、0。
+                做 内存写64 用 addr、val64 加 delta。
+                NPEL_重定位次数 为 NPEL_重定位次数 加 1。
+            否则若 type 等于 IMAGE_REL_BASED_HIGH：
+                val 为 做 NPEL_读u16 用 addr、0。
+                做 内存写16 用 addr、val 加 (delta 右移 16)。
+                NPEL_重定位次数 为 NPEL_重定位次数 加 1。
+            否则若 type 等于 IMAGE_REL_BASED_LOW：
+                val 为 做 NPEL_读u16 用 addr、0。
+                做 内存写16 用 addr、val 加 (delta 位与 0xFFFF)。
+                NPEL_重定位次数 为 NPEL_重定位次数 加 1。
+            完。
+            i 为 i 加 1。
+        完。
+        off 为 off 加 blockSize。
+    完。
+    mod 的 已重定位 为 真。
+完。
+
+Win32API映射 是 一种 事物，含 dll名、函数名、nova处理函数。
+
+可变 Win32_API表 为 0。
+
+可变 Win32_API数 为 0。
+
+Win32_API_MAX 为 256。
+
+Win32_注册API 接受 dll、func、handler：
+    若 Win32_API数 大于或等于 Win32_API_MAX：
+        返还。
+    完。
+    entry 为 做 堆分配 用 Win32API映射。
+    entry 的 dll名 为 dll。
+    entry 的 函数名 为 func。
+    entry 的 nova处理函数 为 handler。
+    做 内存写64 用 Win32_API表 加 Win32_API数 乘 8、entry。
+    Win32_API数 为 Win32_API数 加 1。
+完。
+
+Win32_字符串比较 接受 a、b：
+    可变 i 为 0。
+    只要 真：
+        ca 为 做 内存读8 用 a 加 i 位与 0xFF。
+        cb 为 做 内存读8 用 b 加 i 位与 0xFF。
+        若 ca 大于或等于 65 并且 ca 小于或等于 90：
+            ca 为 ca 加 32。
+        完。
+        若 cb 大于或等于 65 并且 cb 小于或等于 90：
+            cb 为 cb 加 32。
+        完。
+        若 ca 不等于 cb：
+            返还 假。
+        完。
+        若 ca 等于 0：
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+Win32_查找API 接受 dll、func、序号：
+    NPEL_API翻译次数 为 NPEL_API翻译次数 加 1。
+    可变 i 为 0。
+    只要 i 小于 Win32_API数：
+        entry 为 做 内存读64 用 Win32_API表 加 i 乘 8。
+        若 entry 不等于 0：
+            若 dll 不等于 0 并且 做 Win32_字符串比较 用 entry 的 dll名、dll：
+                若 func 不等于 0 并且 做 Win32_字符串比较 用 entry 的 函数名、func：
+                    返还 entry 的 nova处理函数。
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Win32_GetModuleHandle 接受 参数：
+    若 参数 等于 0：
+        返还 PE_主模块基址。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 已加载DLL：
+        若 做 字符串相等_忽略大小写 用 已加载DLL 的 第 i 项 的 名称、参数：
+            返还 已加载DLL 的 第 i 项 的 基址。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Win32_GetProcAddress 接受 参数：
+    若 参数 等于 0：
+        返还 0。
+    完。
+    模块 为 参数 的 第 0 项。
+    函数名 为 参数 的 第 1 项。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 已加载DLL：
+        若 已加载DLL 的 第 i 项 的 基址 等于 模块：
+            导出 为 已加载DLL 的 第 i 项 的 导出表。
+            可变 j 为 0。
+            只要 j 小于 做 计数 用 导出：
+                若 导出 的 第 j 项 的 名称 等于 函数名：
+                    返还 导出 的 第 j 项 的 地址。
+                完。
+                j 为 j 加 1。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Win32_ExitProcess 接受 参数：
+    做 系统调用_退出进程 用 参数。
+完。
+
+Win32_VirtualAlloc 接受 addr、size、type、prot：
+    返还 做 系统调用_分配内存 用 size。
+完。
+
+Win32_VirtualFree 接受 addr、size、type：
+    做 系统调用_释放内存 用 addr。
+    返还 1。
+完。
+
+Win32_GetLastError 接受 零参：
+    返还 _win32_最后错误码。
+完。
+
+Win32_SetLastError 接受 code：
+    _win32_最后错误码 为 code。
+完。
+
+Win32_GetStdHandle 接受 id：
+    若 id 等于 负 11：
+        返还 1。
+    完。
+    若 id 等于 负 10：
+        返还 0。
+    完。
+    返还 2。
+完。
+
+Win32_WriteFile 接受 handle、buf、len、written、overlapped：
+    n 为 做 系统调用_写 用 handle、buf、len。
+    若 n 小于 0：
+        返还 0。
+    完。
+    若 written 不等于 0：
+        做 内存写32 用 written、n。
+    完。
+    返还 1。
+完。
+
+Win32_ReadFile 接受 handle、buf、len、read、overlapped：
+    n 为 做 系统调用_读 用 handle、buf、len。
+    若 read 不等于 0：
+        做 内存写32 用 read、n。
+    完。
+    返还 1。
+完。
+
+Win32_CloseHandle 接受 handle：
+    做 系统调用_关闭 用 handle。
+    返还 1。
+完。
+
+Win32_CreateFileA 接受 name、access、share、sec、disp、flags、tmpl：
+    返还 做 系统调用_打开 用 name、access。
+完。
+
+Win32_GetTickCount 接受 零参：
+    返还 做 系统调用_时间戳。
+完。
+
+Win32_Sleep 接受 ms：
+    做 系统调用_休眠 用 ms。
+完。
+
+Win32_HeapAlloc 接受 heap、flags、size：
+    返还 做 系统调用_分配内存 用 size。
+完。
+
+Win32_HeapFree 接受 heap、flags、ptr：
+    做 系统调用_释放内存 用 ptr。
+    返还 1。
+完。
+
+Win32_初始化API表 接受 零参：
+    Win32_API表 为 做 堆分配 用 Win32_API_MAX 乘 8。
+    Win32_API数 为 0。
+    做 Win32_注册API 用 「kernel32.dll」、「GetModuleHandleA」、Win32_GetModuleHandle。
+    做 Win32_注册API 用 「kernel32.dll」、「GetProcAddress」、Win32_GetProcAddress。
+    做 Win32_注册API 用 「kernel32.dll」、「ExitProcess」、Win32_ExitProcess。
+    做 Win32_注册API 用 「kernel32.dll」、「VirtualAlloc」、Win32_VirtualAlloc。
+    做 Win32_注册API 用 「kernel32.dll」、「VirtualFree」、Win32_VirtualFree。
+    做 Win32_注册API 用 「kernel32.dll」、「GetLastError」、Win32_GetLastError。
+    做 Win32_注册API 用 「kernel32.dll」、「SetLastError」、Win32_SetLastError。
+    做 Win32_注册API 用 「kernel32.dll」、「GetStdHandle」、Win32_GetStdHandle。
+    做 Win32_注册API 用 「kernel32.dll」、「WriteFile」、Win32_WriteFile。
+    做 Win32_注册API 用 「kernel32.dll」、「ReadFile」、Win32_ReadFile。
+    做 Win32_注册API 用 「kernel32.dll」、「CloseHandle」、Win32_CloseHandle。
+    做 Win32_注册API 用 「kernel32.dll」、「CreateFileA」、Win32_CreateFileA。
+    做 Win32_注册API 用 「kernel32.dll」、「GetTickCount」、Win32_GetTickCount。
+    做 Win32_注册API 用 「kernel32.dll」、「Sleep」、Win32_Sleep。
+    做 Win32_注册API 用 「kernel32.dll」、「HeapAlloc」、Win32_HeapAlloc。
+    做 Win32_注册API 用 「kernel32.dll」、「HeapFree」、Win32_HeapFree。
+    Win32_已初始化 为 真。
+完。
+
+NPEL_AI_兼容性预测 接受 mod：
+    若 全局AI总线 等于 0 或者 mod 等于 0：
+        返还 1.0。
+    完。
+    NPEL_AI预测次数 为 NPEL_AI预测次数 加 1。
+    tensor 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 tensor、0、若 mod 的 是64位 则 1.0 否则 0.0。
+    做 Tensor_写 用 tensor、1、若 mod 的 是DLL 则 1.0 否则 0.0。
+    做 Tensor_写 用 tensor、2、NPEL_导入数 除以 128.0。
+    做 Tensor_写 用 tensor、3、Win32_API数 除以 128.0。
+    做 Tensor_写 用 tensor、4、mod 的 映像大小 除以 16777216.0。
+    做 Tensor_写 用 tensor、5、NPEL_重定位次数 除以 1024.0。
+    out 为 做 AI总线_推理 用 全局AI总线、「NPEL_兼容性」、tensor、6。
+    score 为 0.5。
+    若 out 不等于 0：
+        score 为 做 Tensor_读 用 out、0。
+        做 Tensor_释放 用 out。
+    完。
+    做 Tensor_释放 用 tensor。
+    返还 score。
+完。
+
+NPEL_模块信息 接受 mod：
+    若 mod 等于 0：
+        返还。
+    完。
+    做 打印 用 「[NPEL] base=0x」 加 做 整数转十六进制 用 mod 的 基地址 加 「 size=」 加 mod 的 映像大小 加 「 entry=0x」 加 做 整数转十六进制 用 mod 的 入口点 加 「 64bit=」 加 mod 的 是64位 加 「 dll=」 加 mod 的 是DLL。
+完。
+
+NPEL_运行时统计 接受 零参：
+    做 打印 用 「[NPEL] loads=」 加 做 整数转字符串 用 NPEL_加载次数 加 「 relocs=」 加 做 整数转字符串 用 NPEL_重定位次数 加 「 imports=」 加 做 整数转字符串 用 NPEL_导入绑定次数 加 「 apiCalls=」 加 做 整数转字符串 用 NPEL_API翻译次数 加 「 aiPredict=」 加 做 整数转字符串 用 NPEL_AI预测次数 加 「 modules=」 加 做 整数转字符串 用 Win32_程序数。
+完。
+
+NPEL_加载PE 接受 buf、大小、基地址：
+    NPEL_加载次数 为 NPEL_加载次数 加 1。
+    若 非 Win32_已初始化：
+        做 Win32_初始化API表。
+    完。
+    若 非 做 NPEL_验证DOS头 用 buf、大小：
+        做 打印 用 「[NPEL] DOS头无效」。
+        返还 0。
+    完。
+    lfanew 为 做 NPEL_读u32 用 buf、PE_DOS_LFANEW。
+    若 非 做 NPEL_验证PE签名 用 buf、lfanew：
+        做 打印 用 「[NPEL] PE签名无效」。
+        返还 0。
+    完。
+    mod 为 做 堆分配 用 PE模块。
+    mod 的 基地址 为 基地址。
+    mod 的 已重定位 为 假。
+    numSections 为 做 NPEL_解析COFF头 用 buf、lfanew、mod。
+    dataDir 为 做 NPEL_解析OptionalHeader 用 buf、lfanew、mod。
+    做 NPEL_解析节表 用 buf、lfanew、numSections、mod。
+    做 NPEL_映射节到内存 用 buf、mod、numSections。
+    做 NPEL_处理重定位 用 buf、mod、dataDir。
+    做 NPEL_解析导入表 用 buf、mod、dataDir。
+    做 NPEL_绑定所有导入。
+    做 NPEL_设置节权限 用 mod、numSections。
+    compat 为 做 NPEL_AI_兼容性预测 用 mod。
+    做 NPEL_模块信息 用 mod。
+    做 打印 用 「[NPEL] 兼容性评分=」 加 compat。
+    Win32_程序数 为 Win32_程序数 加 1。
+    返还 mod。
+完。
+
+NPEL_执行PE 接受 mod：
+    若 mod 等于 0：
+        返还 负 1。
+    完。
+    若 mod 的 入口点 等于 0：
+        返还 负 2。
+    完。
+    做 打印 用 「[NPEL] 执行入口点 0x」 加 做 整数转十六进制 用 mod 的 入口点。
+    返还 做 系统调用_跳转执行 用 mod 的 入口点。
+完。
+
+NPEL_卸载PE 接受 mod：
+    若 mod 等于 0：
+        返还。
+    完。
+    做 NPEL_运行时统计。
+    做 系统调用_释放内存 用 mod 的 基地址。
+    做 堆释放 用 mod。
+    做 打印 用 「[NPEL] 模块已卸载」。
+完。
+
+本章 收束。

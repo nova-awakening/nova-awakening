@@ -1,0 +1,200 @@
+《渲染管线从》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·事件系统核心》。
+
+引用《.·文档创建》。
+
+引用《.·合成决策》。
+
+引用《..·执行·接口绑定》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《.·从布局树构》。
+
+引用《..·执行·底层内存操》。
+
+引用《.·渲染管线计》。
+
+引用《.·资源加载资源》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·原子驻留》。
+
+引用《.·绝对位置计》。
+
+引用《..·标准·加法运算符》。
+
+引用《.·标记树构建》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·样式引擎Engine》。
+
+引用《.·核心布局算》。
+
+引用《.·文档节点》。
+
+渲染管线_导航到URL 接受 tab、url字符串：
+    tab 的 正在加载 为 真。
+    tab 的 加载进度 为 0。
+    tab 的 URL 为 做 字符串_复制 用 url字符串。
+    若 tab 的 历史数量 小于 100：
+        做 内存_写64 用 tab 的 历史列表 加 tab 的 历史数量 乘 8、做 字符串_复制 用 url字符串。
+        tab 的 历史数量 为 tab 的 历史数量 加 1。
+        tab 的 历史当前 为 tab 的 历史数量 减 1。
+    完。
+    tab 的 加载进度 为 10。
+    可变 html内容 为 0。
+    可变 html长度 为 0。
+    若 做 字符串_等于N 用 url字符串、10、「about:blank」：
+        html内容 为 做 字符串_复制 用 「<html><head></head><body></body></html>」。
+        html长度 为 做 字符串_长度 用 html内容。
+    否则：
+        loader 为 做 ResourceLoader_创建 用 url字符串、资源类型_主文档。
+        做 ResourceLoader_开始加载 用 loader。
+        若 loader 的 状态 等于 请求状态_完成：
+            html内容 为 loader 的 接收缓冲。
+            html长度 为 loader 的 已接收字节。
+        否则：
+            html内容 为 做 字符串_复制 用 「<html><body><h1>无法加载页面</h1><p>网络错误</p></body></html>」。
+            html长度 为 做 字符串_长度 用 html内容。
+        完。
+    完。
+    tab 的 加载进度 为 30。
+    tab 的 文档 为 做 Document_创建 用 url字符串。
+    parser 为 做 HTMLDocumentParser_创建 用 tab 的 文档。
+    做 HTMLDocumentParser_解析 用 parser、html内容。
+    tab 的 加载进度 为 50。
+    做 渲染管线_提取标题 用 tab。
+    tab 的 样式引擎 为 做 样式Engine_创建 用 tab 的 文档。
+    做 渲染管线_收集样式表 用 tab。
+    tab 的 加载进度 为 60。
+    做 渲染管线_计算样式 用 tab。
+    tab 的 加载进度 为 70。
+    tab 的 布局根 为 做 布局Tree_构建 用 tab 的 文档、tab 的 视口宽、tab 的 视口高。
+    做 布局Object_布局 用 tab 的 布局根。
+    tab 的 加载进度 为 80。
+    tab 的 绘制层根 为 做 绘制Layer_从布局树构建 用 tab 的 布局根。
+    tab 的 加载进度 为 85。
+    做 绘制Layer_更新合成 用 tab 的 绘制层根。
+    tab 的 加载进度 为 90。
+    做 渲染管线_绘制 用 tab。
+    tab 的 加载进度 为 100。
+    tab 的 正在加载 为 假。
+    做 网接口_安装Document 用 tab 的 js_Nova运行时实例、tab 的 js_context、tab 的 文档。
+    做 网接口_安装Window 用 tab 的 js_Nova运行时实例、tab 的 js_context、tab。
+    做 Script_执行所有脚本 用 tab 的 js_Nova运行时实例、tab 的 文档。
+    事件 为 做 事件_创建 用 「DOMContentLoaded」、真、假。
+    事件 的 是受信任的 为 真。
+    做 事件Target_dispatch事件 用 tab 的 文档、事件。
+    doc_js 为 做 Nova对象_获取属性 用 tab 的 js_Nova运行时实例、tab 的 js_context 的 全局对象、「document」。
+    若 doc_js 不等于 0：
+        做 Nova对象_设置属性 用 tab 的 js_Nova运行时实例、doc_js、「readyState」、做 Nova值_创建_String 用 tab 的 js_Nova运行时实例、「interactive」。
+    完。
+    load事件 为 做 事件_创建 用 「load」、假、假。
+    load事件 的 是受信任的 为 真。
+    做 事件Target_dispatch事件 用 tab 的 文档、load事件。
+    若 doc_js 不等于 0：
+        做 Nova对象_设置属性 用 tab 的 js_Nova运行时实例、doc_js、「readyState」、做 Nova值_创建_String 用 tab 的 js_Nova运行时实例、「complete」。
+    完。
+    做 Nova运行时实例_执行微任务 用 tab 的 js_Nova运行时实例。
+完。
+
+渲染管线_提取标题 接受 tab：
+    head 为 做 Document_获取head 用 tab 的 文档。
+    若 head 等于 0：
+        返还。
+    完。
+    可变 子 为 head 的 第一子节点。
+    只要 子 不等于 0：
+        若 子 的 节点类型 等于 元素_节点：
+            扩展 为 做 元素_获取扩展 用 子。
+            若 扩展 不等于 0 并且 扩展 的 标签名原子 等于 原子_title：
+                文本 为 子 的 第一子节点。
+                若 文本 不等于 0 并且 文本 的 节点类型 等于 TEXT_节点：
+                    标题文本 为 做 CharacterData_data 用 文本。
+                    若 标题文本 不等于 0：
+                        tab 的 标题 为 做 字符串_复制 用 标题文本。
+                    完。
+                完。
+                返还。
+            完。
+        完。
+        子 为 子 的 后一兄弟。
+    完。
+完。
+
+渲染管线_收集样式表 接受 tab：
+    head 为 做 Document_获取head 用 tab 的 文档。
+    若 head 等于 0：
+        返还。
+    完。
+    可变 子 为 head 的 第一子节点。
+    只要 子 不等于 0：
+        若 子 的 节点类型 等于 元素_节点：
+            扩展 为 做 元素_获取扩展 用 子。
+            若 扩展 不等于 0：
+                若 扩展 的 标签名原子 等于 原子_style：
+                    css文本节点 为 子 的 第一子节点。
+                    若 css文本节点 不等于 0 并且 css文本节点 的 节点类型 等于 TEXT_节点：
+                        css文本 为 做 CharacterData_data 用 css文本节点。
+                        若 css文本 不等于 0：
+                            做 样式Engine_添加样式表 用 tab 的 样式引擎、css文本。
+                        完。
+                    完。
+                完。
+                若 扩展 的 标签名原子 等于 原子_link：
+                    rel 为 做 元素_getAttribute 用 子、「rel」。
+                    href 为 做 元素_getAttribute 用 子、「href」。
+                    若 rel 不等于 0 并且 做 字符串_相等 用 rel、「stylesheet」 并且 href 不等于 0：
+                        loader 为 做 ResourceLoader_创建 用 href、资源类型_样式表。
+                        做 ResourceLoader_开始加载 用 loader。
+                        若 loader 的 状态 等于 请求状态_完成：
+                            做 样式Engine_添加样式表 用 tab 的 样式引擎、loader 的 接收缓冲。
+                        完。
+                    完。
+                完。
+            完。
+        完。
+        子 为 子 的 后一兄弟。
+    完。
+    body 为 做 Document_获取body 用 tab 的 文档。
+    若 body 不等于 0：
+        做 渲染管线_收集内联样式_递归 用 tab、body。
+    完。
+完。
+
+渲染管线_收集内联样式_递归 接受 tab、节点：
+    若 节点 等于 0：
+        返还。
+    完。
+    若 节点 的 节点类型 等于 元素_节点：
+        扩展 为 做 元素_获取扩展 用 节点。
+        若 扩展 不等于 0 并且 扩展 的 标签名原子 等于 原子_style：
+            css文本节点 为 节点 的 第一子节点。
+            若 css文本节点 不等于 0 并且 css文本节点 的 节点类型 等于 TEXT_节点：
+                css文本 为 做 CharacterData_data 用 css文本节点。
+                若 css文本 不等于 0：
+                    做 样式Engine_添加样式表 用 tab 的 样式引擎、css文本。
+                完。
+            完。
+        完。
+    完。
+    可变 子 为 节点 的 第一子节点。
+    只要 子 不等于 0：
+        做 渲染管线_收集内联样式_递归 用 tab、子。
+        子 为 子 的 后一兄弟。
+    完。
+完。
+
+本章 收束。

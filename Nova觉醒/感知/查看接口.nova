@@ -1,0 +1,535 @@
+《查看接口》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·中枢·内容可见性》。
+
+引用《.·WebCrypto签名验证》。
+
+NOTIF_DIR_AUTO 为 0。
+
+NOTIF_DIR_LTR 为 1。
+
+NOTIF_DIR_RTL 为 2。
+
+NOTIF_MAX_ACTIONS 为 4。
+
+NOTIF_MAX_VIBRATE 为 8。
+
+NOTIF_QUEUE_MAX 为 64。
+
+NOTIF_GROUP_MAX 为 16。
+
+Notification 是 一种 事物，含 标题、body、icon、badge、image、tag、data、方向、language、Nova经典tify、requireInteraction、silent、timestamp、actions、actions数、onclick、onclose、onerror、onshow、已关闭、id、振动模式、振动数、组名、优先级、超时ms、持久化、已读。
+
+NotificationAction 是 一种 事物，含 action、title、icon、回调。
+
+NotificationGroup 是 一种 事物，含 组名、通知列表、数量、折叠。
+
+通知统计 是 一种 事物，含 创建数、显示数、关闭数、点击数、动作点击数、超时关闭数、权限拒绝数、队列溢出数。
+
+可变 通知权限 为 PERM_PROMPT。
+
+可变 通知队列 为 一组：（空）。
+
+可变 通知队列数 为 0。
+
+可变 通知ID计数器 为 0。
+
+可变 通知组列表 为 一组：（空）。
+
+可变 通知组数 为 0。
+
+可变 全局_通知统计 为 空。
+
+通知统计_初始化 接受 零参：
+    若 全局_通知统计 等于 空：
+        全局_通知统计 为 新建 通知统计。
+        全局_通知统计 的 创建数 为 0。
+        全局_通知统计 的 显示数 为 0。
+        全局_通知统计 的 关闭数 为 0。
+        全局_通知统计 的 点击数 为 0。
+        全局_通知统计 的 动作点击数 为 0。
+        全局_通知统计 的 超时关闭数 为 0。
+        全局_通知统计 的 权限拒绝数 为 0。
+        全局_通知统计 的 队列溢出数 为 0。
+    完。
+完。
+
+Notification_requestPermission 接受 零参：
+    做 通知统计_初始化。
+    若 通知权限 等于 PERM_PROMPT：
+        通知权限 为 PERM_GRANTED。
+        做 Permissions_设置 用 PERM_NAME_NOTIFICATIONS、PERM_GRANTED。
+    完。
+    返还 通知权限。
+完。
+
+Notification_requestPermission_回调 接受 回调：
+    结果 为 做 Notification_requestPermission。
+    若 回调 不等于 0：
+    完。
+    返还 结果。
+完。
+
+Notification_获取权限 接受 零参：
+    返还 通知权限。
+完。
+
+Notification_创建 接受 标题、body、icon、tag：
+    做 通知统计_初始化。
+    若 通知权限 不等于 PERM_GRANTED：
+        全局_通知统计 的 权限拒绝数 为 全局_通知统计 的 权限拒绝数 加 1。
+        返还 0。
+    完。
+    若 tag 不等于 0 并且 tag 不等于 「」：
+        旧 为 做 Notification_按tag查找 用 tag。
+        若 旧 不等于 0：
+            做 Notification_close 用 旧。
+        完。
+    完。
+    若 通知队列数 大于或等于 NOTIF_QUEUE_MAX：
+        全局_通知统计 的 队列溢出数 为 全局_通知统计 的 队列溢出数 加 1。
+        做 Notification_移除最旧。
+    完。
+    通知ID计数器 为 通知ID计数器 加 1。
+    n 为 做 堆_分配 用 Notification。
+    n 的 id 为 通知ID计数器。
+    n 的 标题 为 标题。
+    n 的 body 为 body。
+    n 的 icon 为 icon。
+    n 的 tag 为 tag。
+    n 的 badge 为 0。
+    n 的 image 为 0。
+    n 的 data 为 0。
+    n 的 方向 为 NOTIF_DIR_AUTO。
+    n 的 language 为 0。
+    n 的 Nova经典tify 为 假。
+    n 的 requireInteraction 为 假。
+    n 的 silent 为 假。
+    n 的 timestamp 为 做 平台_获取高精度时间。
+    n 的 actions数 为 0。
+    n 的 actions 为 做 堆_分配 用 NOTIF_MAX_ACTIONS 乘 32。
+    n 的 已关闭 为 假。
+    n 的 onclick 为 0。
+    n 的 onclose 为 0。
+    n 的 onerror 为 0。
+    n 的 onshow 为 0。
+    n 的 振动模式 为 做 堆_分配 用 NOTIF_MAX_VIBRATE 乘 8。
+    n 的 振动数 为 0。
+    n 的 组名 为 「」。
+    n 的 优先级 为 0。
+    n 的 超时ms 为 5000。
+    n 的 持久化 为 假。
+    n 的 已读 为 假。
+    做 追加 用 通知队列、n。
+    通知队列数 为 通知队列数 加 1。
+    全局_通知统计 的 创建数 为 全局_通知统计 的 创建数 加 1。
+    做 Notification_显示 用 n。
+    返还 n。
+完。
+
+Notification_创建_完整 接受 标题、body、icon、tag、选项：
+    n 为 做 Notification_创建 用 标题、body、icon、tag。
+    若 n 等于 0：
+        返还 0。
+    完。
+    若 选项 不等于 0：
+        若 选项 的 badge 不等于 0：
+            n 的 badge 为 选项 的 badge。
+        完。
+        若 选项 的 image 不等于 0：
+            n 的 image 为 选项 的 image。
+        完。
+        若 选项 的 data 不等于 0：
+            n 的 data 为 选项 的 data。
+        完。
+        若 选项 的 方向 不等于 0：
+            n 的 方向 为 选项 的 方向。
+        完。
+        若 选项 的 language 不等于 0：
+            n 的 language 为 选项 的 language。
+        完。
+        若 选项 的 requireInteraction：
+            n 的 requireInteraction 为 真。
+        完。
+        若 选项 的 silent：
+            n 的 silent 为 真。
+        完。
+        若 选项 的 组名 不等于 「」：
+            n 的 组名 为 选项 的 组名。
+        完。
+        若 选项 的 优先级 不等于 0：
+            n 的 优先级 为 选项 的 优先级。
+        完。
+        若 选项 的 超时ms 大于 0：
+            n 的 超时ms 为 选项 的 超时ms。
+        完。
+        若 选项 的 持久化：
+            n 的 持久化 为 真。
+        完。
+    完。
+    若 n 的 组名 不等于 「」：
+        做 Notification_加入组 用 n。
+    完。
+    返还 n。
+完。
+
+Notification_添加动作 接受 n、action、title、icon：
+    若 n 等于 0 或者 n 的 actions数 大于或等于 NOTIF_MAX_ACTIONS：
+        返还。
+    完。
+    act 为 新建 NotificationAction。
+    act 的 action 为 action。
+    act 的 title 为 title。
+    act 的 icon 为 icon。
+    act 的 回调 为 0。
+    做 内存_写64 用 n 的 actions 加 n 的 actions数 乘 32、act。
+    n 的 actions数 为 n 的 actions数 加 1。
+完。
+
+Notification_设置振动 接受 n、模式、长度：
+    若 n 等于 0 或者 n 的 silent：
+        返还。
+    完。
+    可变 i 为 0。
+    实际长 为 长度。
+    若 实际长 大于 NOTIF_MAX_VIBRATE：
+        实际长 为 NOTIF_MAX_VIBRATE。
+    完。
+    只要 i 小于 实际长：
+        做 内存_写64 用 n 的 振动模式 加 i 乘 8、模式 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    n 的 振动数 为 实际长。
+完。
+
+Notification_close 接受 n：
+    做 通知统计_初始化。
+    若 n 等于 0 或者 n 的 已关闭：
+        返还。
+    完。
+    n 的 已关闭 为 真。
+    全局_通知统计 的 关闭数 为 全局_通知统计 的 关闭数 加 1。
+    做 Notification_从队列移除 用 n 的 id。
+    若 n 的 onclose 不等于 0：
+        做 Notification_分发事件 用 n、「close」。
+    完。
+完。
+
+Notification_显示 接受 n：
+    做 通知统计_初始化。
+    若 n 等于 0：
+        返还。
+    完。
+    全局_通知统计 的 显示数 为 全局_通知统计 的 显示数 加 1。
+    若 非 n 的 silent 并且 n 的 振动数 大于 0：
+        做 Notification_执行振动 用 n。
+    完。
+    若 n 的 onshow 不等于 0：
+        做 Notification_分发事件 用 n、「show」。
+    完。
+    若 非 n 的 requireInteraction 并且 n 的 超时ms 大于 0：
+        做 Notification_设置超时 用 n、n 的 超时ms。
+    完。
+完。
+
+Notification_点击 接受 n：
+    做 通知统计_初始化。
+    若 n 等于 0 或者 n 的 已关闭：
+        返还。
+    完。
+    n 的 已读 为 真。
+    全局_通知统计 的 点击数 为 全局_通知统计 的 点击数 加 1。
+    若 n 的 onclick 不等于 0：
+        做 Notification_分发事件 用 n、「click」。
+    完。
+完。
+
+Notification_动作点击 接受 n、actionIndex：
+    做 通知统计_初始化。
+    若 n 等于 0 或者 n 的 已关闭：
+        返还。
+    完。
+    若 actionIndex 小于 0 或者 actionIndex 大于或等于 n 的 actions数：
+        返还。
+    完。
+    全局_通知统计 的 动作点击数 为 全局_通知统计 的 动作点击数 加 1。
+    act 为 做 内存_读64 用 n 的 actions 加 actionIndex 乘 32。
+    若 act 不等于 0 并且 act 的 回调 不等于 0：
+    完。
+完。
+
+Notification_超时处理 接受 n：
+    做 通知统计_初始化。
+    若 n 等于 0 或者 n 的 已关闭：
+        返还。
+    完。
+    全局_通知统计 的 超时关闭数 为 全局_通知统计 的 超时关闭数 加 1。
+    做 Notification_close 用 n。
+完。
+
+Notification_设置超时 接受 n、ms：
+    若 n 等于 0：
+        返还。
+    完。
+完。
+
+Notification_执行振动 接受 n：
+    若 n 等于 0 或者 n 的 振动数 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 n 的 振动数：
+        时长 为 做 内存_读64 用 n 的 振动模式 加 i 乘 8。
+        i 为 i 加 1。
+    完。
+完。
+
+Notification_分发事件 接受 n、事件类型：
+    若 n 等于 0：
+        返还。
+    完。
+完。
+
+Notification_按tag查找 接受 tag：
+    可变 i 为 0。
+    只要 i 小于 通知队列数：
+        若 通知队列 的 第 i 项 的 tag 等于 tag 并且 非 通知队列 的 第 i 项 的 已关闭：
+            返还 通知队列 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Notification_按id查找 接受 id：
+    可变 i 为 0。
+    只要 i 小于 通知队列数：
+        若 通知队列 的 第 i 项 的 id 等于 id：
+            返还 通知队列 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Notification_从队列移除 接受 id：
+    可变 i 为 0。
+    只要 i 小于 通知队列数：
+        若 通知队列 的 第 i 项 的 id 等于 id：
+            可变 j 为 i。
+            只要 j 小于 通知队列数 减 1：
+                通知队列 的 第 j 项 为 通知队列 的 第 j 加 1 项。
+                j 为 j 加 1。
+            完。
+            通知队列数 为 通知队列数 减 1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+Notification_移除最旧 接受 零参：
+    若 通知队列数 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 通知队列数：
+        若 非 通知队列 的 第 i 项 的 持久化 并且 非 通知队列 的 第 i 项 的 已关闭：
+            做 Notification_close 用 通知队列 的 第 i 项。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 通知队列数 大于 0：
+        做 Notification_close 用 通知队列 的 第 0 项。
+    完。
+完。
+
+Notification_关闭全部 接受 零参：
+    可变 i 为 通知队列数 减 1。
+    只要 i 大于或等于 0：
+        做 Notification_close 用 通知队列 的 第 i 项。
+        i 为 i 减 1。
+    完。
+完。
+
+Notification_加入组 接受 n：
+    若 n 等于 0 或者 n 的 组名 等于 「」：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 通知组数：
+        若 通知组列表 的 第 i 项 的 组名 等于 n 的 组名：
+            做 追加 用 通知组列表 的 第 i 项 的 通知列表、n。
+            通知组列表 的 第 i 项 的 数量 为 通知组列表 的 第 i 项 的 数量 加 1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 通知组数 大于或等于 NOTIF_GROUP_MAX：
+        返还。
+    完。
+    组 为 新建 NotificationGroup。
+    组 的 组名 为 n 的 组名。
+    组 的 通知列表 为 一组：n。
+    组 的 数量 为 1。
+    组 的 折叠 为 假。
+    做 追加 用 通知组列表、组。
+    通知组数 为 通知组数 加 1。
+完。
+
+Notification_获取组 接受 组名：
+    可变 i 为 0。
+    只要 i 小于 通知组数：
+        若 通知组列表 的 第 i 项 的 组名 等于 组名：
+            返还 通知组列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+Notification_折叠组 接受 组名：
+    组 为 做 Notification_获取组 用 组名。
+    若 组 不等于 空：
+        组 的 折叠 为 真。
+    完。
+完。
+
+Notification_展开组 接受 组名：
+    组 为 做 Notification_获取组 用 组名。
+    若 组 不等于 空：
+        组 的 折叠 为 假。
+    完。
+完。
+
+Notification_获取未读数 接受 零参：
+    可变 计 为 0。
+    可变 i 为 0。
+    只要 i 小于 通知队列数：
+        若 非 通知队列 的 第 i 项 的 已关闭 并且 非 通知队列 的 第 i 项 的 已读：
+            计 为 计 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 计。
+完。
+
+Notification_标记全部已读 接受 零参：
+    可变 i 为 0。
+    只要 i 小于 通知队列数：
+        通知队列 的 第 i 项 的 已读 为 真。
+        i 为 i 加 1。
+    完。
+完。
+
+SW_showNotification 接受 reg、标题、options：
+    若 reg 等于 0 或者 通知权限 不等于 PERM_GRANTED：
+        返还。
+    完。
+    n 为 做 Notification_创建 用 标题、0、0、0。
+    若 n 不等于 0 并且 options 不等于 0：
+        若 options 的 body 不等于 0：
+            n 的 body 为 options 的 body。
+        完。
+        若 options 的 icon 不等于 0：
+            n 的 icon 为 options 的 icon。
+        完。
+        若 options 的 tag 不等于 0：
+            n 的 tag 为 options 的 tag。
+        完。
+        若 options 的 badge 不等于 0：
+            n 的 badge 为 options 的 badge。
+        完。
+    完。
+完。
+
+SW_getNotifications 接受 reg、tag过滤：
+    若 reg 等于 0：
+        返还 一组：（空）。
+    完。
+    可变 结果 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 通知队列数：
+        若 非 通知队列 的 第 i 项 的 已关闭：
+            若 tag过滤 等于 「」 或者 通知队列 的 第 i 项 的 tag 等于 tag过滤：
+                做 追加 用 结果、通知队列 的 第 i 项。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+Notification_打印统计 接受 零参：
+    做 通知统计_初始化。
+    做 打印行 用 「=== 通知统计 ===」。
+    做 打印行 用 「创建数: 」 加 做 整数转字符串 用 全局_通知统计 的 创建数。
+    做 打印行 用 「显示数: 」 加 做 整数转字符串 用 全局_通知统计 的 显示数。
+    做 打印行 用 「关闭数: 」 加 做 整数转字符串 用 全局_通知统计 的 关闭数。
+    做 打印行 用 「点击数: 」 加 做 整数转字符串 用 全局_通知统计 的 点击数。
+    做 打印行 用 「动作点击: 」 加 做 整数转字符串 用 全局_通知统计 的 动作点击数。
+    做 打印行 用 「超时关闭: 」 加 做 整数转字符串 用 全局_通知统计 的 超时关闭数。
+    做 打印行 用 「权限拒绝: 」 加 做 整数转字符串 用 全局_通知统计 的 权限拒绝数。
+    做 打印行 用 「队列溢出: 」 加 做 整数转字符串 用 全局_通知统计 的 队列溢出数。
+    做 打印行 用 「当前队列: 」 加 做 整数转字符串 用 通知队列数。
+    做 打印行 用 「未读数: 」 加 做 整数转字符串 用 做 Notification_获取未读数。
+    做 打印行 用 「分组数: 」 加 做 整数转字符串 用 通知组数。
+完。
+
+Notification_重置统计 接受 零参：
+    全局_通知统计 的 创建数 为 0。
+    全局_通知统计 的 显示数 为 0。
+    全局_通知统计 的 关闭数 为 0。
+    全局_通知统计 的 点击数 为 0。
+    全局_通知统计 的 动作点击数 为 0。
+    全局_通知统计 的 超时关闭数 为 0。
+    全局_通知统计 的 权限拒绝数 为 0。
+    全局_通知统计 的 队列溢出数 为 0。
+完。
+
+Notification_获取权限状态 接受 零参：
+    返还 通知权限。
+完。
+
+Notification_获取队列数 接受 零参：
+    返还 通知队列数。
+完。
+
+可变 AI_查看接口_事件频率 为 0。
+
+可变 AI_查看接口_节流阈值 为 16。
+
+AI_查看接口_节流判断 接受 事件类型、间隔毫秒：
+    AI_查看接口_事件频率 为 AI_查看接口_事件频率 加 1。
+    若 事件类型 等于 「滚动」 并且 间隔毫秒 小于 AI_查看接口_节流阈值：
+        返还 真。
+    完。
+    若 事件类型 等于 「移动」 并且 间隔毫秒 小于 AI_查看接口_节流阈值：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_查看接口_优先级排序 接受 事件类型：
+    若 事件类型 等于 「点击」：
+        返还 100。
+    完。
+    若 事件类型 等于 「输入」：
+        返还 90。
+    完。
+    若 事件类型 等于 「滚动」：
+        返还 30。
+    完。
+    返还 50。
+完。
+
+本章 收束。

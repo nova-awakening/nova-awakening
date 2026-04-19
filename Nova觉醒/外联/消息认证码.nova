@@ -1,0 +1,121 @@
+《消息认证码》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·散列函数》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·感知·内核直连层》。
+
+引用《.·密码学原语》。
+
+HMAC_SHA256 接受 密钥、密钥长度、数据、数据长度、输出：
+    块大小 为 64。
+    key_block 为 做 堆_分配 用 块大小。
+    做 内存_置零 用 key_block、块大小。
+    若 密钥长度 大于 块大小：
+        做 SHA256 用 密钥、密钥长度、key_block。
+    否则：
+        做 内存_复制 用 key_block、密钥、密钥长度。
+    完。
+    ipad 为 做 堆_分配 用 块大小。
+    可变 i 为 0。
+    只要 i 小于 块大小：
+        做 内存_写8 用 ipad 加 i、做 内存_读8 用 key_block 加 i 位异或 0x36。
+        i 为 i 加 1。
+    完。
+    opad 为 做 堆_分配 用 块大小。
+    i 为 0。
+    只要 i 小于 块大小：
+        做 内存_写8 用 opad 加 i、做 内存_读8 用 key_block 加 i 位异或 0x5C。
+        i 为 i 加 1。
+    完。
+    inner_hash 为 做 堆_分配 用 32。
+    inner_ctx 为 做 堆_分配 用 SHA256_CTX。
+    做 SHA256_初始化 用 inner_ctx。
+    做 SHA256_更新 用 inner_ctx、ipad、块大小。
+    做 SHA256_更新 用 inner_ctx、数据、数据长度。
+    做 SHA256_最终 用 inner_ctx、inner_hash。
+    outer_ctx 为 做 堆_分配 用 SHA256_CTX。
+    做 SHA256_初始化 用 outer_ctx。
+    做 SHA256_更新 用 outer_ctx、opad、块大小。
+    做 SHA256_更新 用 outer_ctx、inner_hash、32。
+    做 SHA256_最终 用 outer_ctx、输出。
+    做 内存_清零 用 key_block、64。
+    做 堆_释放 用 key_block。
+    做 堆_释放 用 ipad。
+    做 堆_释放 用 opad。
+    做 堆_释放 用 inner_hash。
+    做 堆_释放 用 inner_ctx。
+    做 堆_释放 用 outer_ctx。
+完。
+
+HKDF_Extract 接受 salt、salt_len、ikm、ikm_len、prk：
+    若 salt 等于 0 或者 salt_len 等于 0：
+        zero_salt 为 做 堆_分配 用 32。
+        做 内存_置零 用 zero_salt、32。
+        做 HMAC_SHA256 用 zero_salt、32、ikm、ikm_len、prk。
+        做 堆_释放 用 zero_salt。
+    否则：
+        做 HMAC_SHA256 用 salt、salt_len、ikm、ikm_len、prk。
+    完。
+完。
+
+HKDF_Expand 接受 prk、prk_len、info、info_len、okm、okm_len：
+    N 为 (okm_len 加 31) 除以 32。
+    T 为 做 堆_分配 用 32。
+    可变 T_len 为 0。
+    可变 已输出 为 0。
+    可变 i 为 1。
+    只要 i 小于或等于 N：
+        input_len 为 T_len 加 info_len 加 1。
+        input 为 做 堆_分配 用 input_len。
+        若 T_len 大于 0：
+            做 内存_复制 用 input、T、T_len。
+        完。
+        若 info_len 大于 0：
+            做 内存_复制 用 input 加 T_len、info、info_len。
+        完。
+        做 内存_写8 用 input 加 T_len 加 info_len、i。
+        做 HMAC_SHA256 用 prk、prk_len、input、input_len、T。
+        做 堆_释放 用 input。
+        T_len 为 32。
+        复制量 为 若 okm_len 减 已输出 小于 32 则 okm_len 减 已输出 否则 32。
+        做 内存_复制 用 okm 加 已输出、T、复制量。
+        已输出 为 已输出 加 复制量。
+        i 为 i 加 1。
+    完。
+    做 堆_释放 用 T。
+完。
+
+HKDF_Expand_Label 接受 secret、label、context、ctx_len、out、out_len：
+    label_len 为 做 字节长度 用 label。
+    prefix 为 「tls13 」。
+    prefix_len 为 6。
+    info_len 为 2 加 1 加 prefix_len 加 label_len 加 1 加 ctx_len。
+    info 为 做 堆_分配 用 info_len。
+    可变 pos 为 0。
+    做 内存_写8 用 info 加 pos、out_len 右移 8 位与 0xFF。
+    pos 为 pos 加 1。
+    做 内存_写8 用 info 加 pos、out_len 位与 0xFF。
+    pos 为 pos 加 1。
+    做 内存_写8 用 info 加 pos、prefix_len 加 label_len。
+    pos 为 pos 加 1。
+    做 内存_复制 用 info 加 pos、prefix、prefix_len。
+    pos 为 pos 加 prefix_len。
+    做 内存_复制 用 info 加 pos、label、label_len。
+    pos 为 pos 加 label_len。
+    做 内存_写8 用 info 加 pos、ctx_len。
+    pos 为 pos 加 1。
+    若 ctx_len 大于 0：
+        做 内存_复制 用 info 加 pos、context、ctx_len。
+        pos 为 pos 加 ctx_len。
+    完。
+    做 HKDF_Expand 用 secret、32、info、pos、out、out_len。
+    做 堆_释放 用 info。
+完。
+
+本章 收束。

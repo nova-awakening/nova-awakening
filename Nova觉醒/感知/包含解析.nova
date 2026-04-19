@@ -1,0 +1,125 @@
+《包含解析》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+CONTAIN_NONE 为 0x00。
+
+CONTAIN_SIZE 为 0x01。
+
+CONTAIN_LAYOUT 为 0x02。
+
+CONTAIN_STYLE 为 0x04。
+
+CONTAIN_PAINT 为 0x08。
+
+CONTAIN_STRICT 为 0x0F。
+
+CONTAIN_CONTENT 为 0x0E。
+
+CONTAIN_INLINE_SIZE 为 0x10。
+
+CV_VISIBLE 为 0。
+
+CV_HIDDEN 为 1。
+
+CV_AUTO 为 2。
+
+Containment_解析 接受 值字符串：
+    若 值字符串 等于 0：
+        返还 CONTAIN_NONE。
+    完。
+    若 做 字符串_相等 用 值字符串、「none」：
+        返还 CONTAIN_NONE。
+    完。
+    若 做 字符串_相等 用 值字符串、「strict」：
+        返还 CONTAIN_STRICT。
+    完。
+    若 做 字符串_相等 用 值字符串、「content」：
+        返还 CONTAIN_CONTENT。
+    完。
+    可变 结果 为 CONTAIN_NONE。
+    若 做 字符串_包含 用 值字符串、「size」：
+        结果 为 结果 位或 CONTAIN_SIZE。
+    完。
+    若 做 字符串_包含 用 值字符串、「layout」：
+        结果 为 结果 位或 CONTAIN_LAYOUT。
+    完。
+    若 做 字符串_包含 用 值字符串、「style」：
+        结果 为 结果 位或 CONTAIN_STYLE。
+    完。
+    若 做 字符串_包含 用 值字符串、「paint」：
+        结果 为 结果 位或 CONTAIN_PAINT。
+    完。
+    若 做 字符串_包含 用 值字符串、「inline-size」：
+        结果 为 结果 位或 CONTAIN_INLINE_SIZE。
+    完。
+    返还 结果。
+完。
+
+ContentVisibility_解析 接受 值字符串：
+    若 值字符串 等于 0 或者 做 字符串_相等 用 值字符串、「visible」：
+        返还 CV_VISIBLE。
+    完。
+    若 做 字符串_相等 用 值字符串、「hidden」：
+        返还 CV_HIDDEN。
+    完。
+    若 做 字符串_相等 用 值字符串、「auto」：
+        返还 CV_AUTO。
+    完。
+    返还 CV_VISIBLE。
+完。
+
+Containment_应用到布局 接受 布局对象、contain标志：
+    若 布局对象 等于 0：
+        返还。
+    完。
+    若 contain标志 位与 CONTAIN_SIZE：
+        做 Containment_应用Size 用 布局对象。
+    完。
+    若 contain标志 位与 CONTAIN_LAYOUT：
+        做 Containment_应用布局 用 布局对象。
+    完。
+    若 contain标志 位与 CONTAIN_PAINT：
+        做 Containment_应用绘制 用 布局对象。
+    完。
+    若 contain标志 位与 CONTAIN_STYLE：
+        做 Containment_应用样式 用 布局对象。
+    完。
+完。
+
+Containment_应用Size 接受 布局对象：
+    样式 为 布局对象 的 计算样式。
+    若 样式 等于 0：
+        返还。
+    完。
+    若 样式 的 contain_intrinsic_width 大于 0：
+        布局对象 的 宽 为 样式 的 contain_intrinsic_width。
+    完。
+    若 样式 的 contain_intrinsic_height 大于 0：
+        布局对象 的 高 为 样式 的 contain_intrinsic_height。
+    完。
+    布局对象 的 size_contained 为 真。
+完。
+
+Containment_应用布局 接受 布局对象：
+    布局对象 的 是独立BFC 为 真。
+    布局对象 的 layout_contained 为 真。
+完。
+
+Containment_应用绘制 接受 布局对象：
+    布局对象 的 paint_contained 为 真。
+    布局对象 的 是层叠上下文 为 真。
+    布局对象 的 overflow_clip 为 真。
+完。
+
+Containment_应用样式 接受 布局对象：
+    布局对象 的 style_contained 为 真。
+完。
+
+本章 收束。

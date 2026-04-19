@@ -1,0 +1,87 @@
+《资源取数资》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《.·原子驻留》。
+
+引用《.·资源加载资源》。
+
+引用《..·中枢·内存初始化》。
+
+Resource取数er 是 一种 事物，含 活跃请求列表、活跃请求数量、活跃请求容量、缓存、缓存数量、缓存容量、每主机最大连接、总请求数、缓存命中数、网络请求数、总接收字节。
+
+Resource取数er_创建 接受 零参：
+    fetcher 为 做 堆_分配 用 Resource取数er。
+    fetcher 的 活跃请求容量 为 32。
+    fetcher 的 活跃请求列表 为 做 堆_分配_数组 用 fetcher 的 活跃请求容量 乘 8。
+    fetcher 的 活跃请求数量 为 0。
+    fetcher 的 缓存容量 为 256。
+    fetcher 的 缓存 为 做 堆_分配_数组 用 fetcher 的 缓存容量 乘 24。
+    fetcher 的 缓存数量 为 0。
+    fetcher 的 每主机最大连接 为 6。
+    fetcher 的 总请求数 为 0。
+    fetcher 的 缓存命中数 为 0。
+    fetcher 的 网络请求数 为 0。
+    fetcher 的 总接收字节 为 0。
+    返还 fetcher。
+完。
+
+Resource取数er_获取资源 接受 fetcher、url字符串、资源类型、完成回调、用户数据：
+    fetcher 的 总请求数 为 fetcher 的 总请求数 加 1。
+    缓存数据 为 做 Resource取数er_查缓存 用 fetcher、url字符串。
+    若 缓存数据 不等于 0：
+        fetcher 的 缓存命中数 为 fetcher 的 缓存命中数 加 1。
+        若 完成回调 不等于 0：
+            长度 为 做 内存_读32 用 缓存数据 加 8。
+            数据 为 做 内存_读64 用 缓存数据。
+            做 调用 用 完成回调、0、数据、长度。
+        完。
+        返还。
+    完。
+    fetcher 的 网络请求数 为 fetcher 的 网络请求数 加 1。
+    loader 为 做 ResourceLoader_创建 用 url字符串、资源类型。
+    loader 的 完成回调 为 完成回调。
+    loader 的 用户数据 为 用户数据。
+    若 fetcher 的 活跃请求数量 小于 fetcher 的 活跃请求容量：
+        做 内存_写64 用 fetcher 的 活跃请求列表 加 fetcher 的 活跃请求数量 乘 8、loader。
+        fetcher 的 活跃请求数量 为 fetcher 的 活跃请求数量 加 1。
+    完。
+    做 ResourceLoader_开始加载 用 loader。
+    若 loader 的 状态 等于 请求状态_完成 并且 loader 的 已接收字节 大于 0：
+        做 Resource取数er_存缓存 用 fetcher、url字符串、loader 的 接收缓冲、loader 的 已接收字节。
+        fetcher 的 总接收字节 为 fetcher 的 总接收字节 加 loader 的 已接收字节。
+    完。
+完。
+
+Resource取数er_查缓存 接受 fetcher、url字符串：
+    哈希 为 做 字符串_哈希 用 url字符串。
+    可变 i 为 0。
+    只要 i 小于 fetcher 的 缓存数量：
+        偏移 为 fetcher 的 缓存 加 i 乘 24。
+        若 做 内存_读32 用 偏移 加 16 等于 哈希：
+            返还 偏移。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Resource取数er_存缓存 接受 fetcher、url字符串、数据、长度：
+    若 fetcher 的 缓存数量 大于或等于 fetcher 的 缓存容量：
+        返还。
+    完。
+    副本 为 做 堆_分配 用 长度 加 1。
+    做 内存_复制 用 副本、数据、长度。
+    做 内存_写8 用 副本 加 长度、0。
+    偏移 为 fetcher 的 缓存 加 fetcher 的 缓存数量 乘 24。
+    做 内存_写64 用 偏移、副本。
+    做 内存_写32 用 偏移 加 8、长度。
+    做 内存_写32 用 偏移 加 16、做 字符串_哈希 用 url字符串。
+    fetcher 的 缓存数量 为 fetcher 的 缓存数量 加 1。
+完。
+
+本章 收束。

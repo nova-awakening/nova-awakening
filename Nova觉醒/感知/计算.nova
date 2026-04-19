@@ -1,0 +1,294 @@
+《计算》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·选择匹配》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·沙箱隔离进》。
+
+引用《.·原子驻留》。
+
+引用《.·HTTP头部管理》。
+
+引用《.·文档节点》。
+
+Specificity 是 一种 事物，含 a、b、c。
+
+Specificity_计算 接受 选择器：
+    spec 为 新建 Specificity。
+    spec 的 a 为 0。
+    spec 的 b 为 0。
+    spec 的 c 为 0。
+    若 选择器 等于 0：
+        返还 spec。
+    完。
+    做 Specificity_累加 用 选择器、spec。
+    返还 spec。
+完。
+
+Specificity_累加 接受 选择器、spec：
+    若 选择器 等于 0：
+        返还。
+    完。
+    若 选择器 的 类型 等于 SEL_ID：
+        spec 的 a 为 spec 的 a 加 1。
+    否则若 选择器 的 类型 等于 SEL_CLASS：
+        spec 的 b 为 spec 的 b 加 1。
+    否则若 选择器 的 类型 等于 SEL_ATTR：
+        spec 的 b 为 spec 的 b 加 1。
+    否则若 选择器 的 类型 等于 SEL_TAG：
+        spec 的 c 为 spec 的 c 加 1。
+    否则若 选择器 的 类型 等于 SEL_PSEUDO_ELEM：
+        spec 的 c 为 spec 的 c 加 1。
+    否则若 选择器 的 类型 等于 SEL_PSEUDO_CLASS：
+        若 选择器 的 伪类ID 等于 PC_WHERE：
+        否则若 选择器 的 伪类ID 等于 PC_NOT 或者 选择器 的 伪类ID 等于 PC_IS 或者 选择器 的 伪类ID 等于 PC_HAS：
+            可变 max_a 为 0。
+            可变 max_b 为 0。
+            可变 max_c 为 0。
+            可变 i 为 0。
+            只要 i 小于 选择器 的 伪类子选择器数：
+                子 为 做 内存_读64 用 选择器 的 伪类子选择器 加 i 乘 8。
+                子spec 为 做 Specificity_计算 用 子。
+                若 子spec 的 a 大于 max_a 或者 子spec 的 a 等于 max_a 并且 子spec 的 b 大于 max_b 或者 子spec 的 a 等于 max_a 并且 子spec 的 b 等于 max_b 并且 子spec 的 c 大于 max_c：
+                    max_a 为 子spec 的 a。
+                    max_b 为 子spec 的 b。
+                    max_c 为 子spec 的 c。
+                完。
+                i 为 i 加 1。
+            完。
+            spec 的 a 为 spec 的 a 加 max_a。
+            spec 的 b 为 spec 的 b 加 max_b。
+            spec 的 c 为 spec 的 c 加 max_c。
+        否则：
+            spec 的 b 为 spec 的 b 加 1。
+        完。
+    否则若 选择器 的 类型 等于 SEL_COMPOUND：
+        可变 i 为 0。
+        只要 i 小于 选择器 的 子项数量：
+            做 Specificity_累加 用 做 内存_读64 用 选择器 的 子项列表 加 i 乘 8、spec。
+            i 为 i 加 1。
+        完。
+    否则若 选择器 的 类型 等于 SEL_COMPLEX：
+        做 Specificity_累加 用 选择器 的 左选择器、spec。
+        做 Specificity_累加 用 选择器 的 右选择器、spec。
+    完。
+完。
+
+Specificity_比较 接受 a、b：
+    若 a 的 a 不等于 b 的 a：
+        返还 a 的 a 减 b 的 a。
+    完。
+    若 a 的 b 不等于 b 的 b：
+        返还 a 的 b 减 b 的 b。
+    完。
+    返还 a 的 c 减 b 的 c。
+完。
+
+Specificity_转数值 接受 spec：
+    返还 spec 的 a 乘 65536 加 spec 的 b 乘 256 加 spec 的 c。
+完。
+
+Selector_匹配 接受 选择器、元素：
+    若 选择器 等于 0 或者 元素 等于 0：
+        返还 假。
+    完。
+    若 选择器 的 类型 等于 SEL_TAG：
+        扩展 为 做 元素_获取扩展 用 元素。
+        若 扩展 等于 0：
+            返还 假。
+        完。
+        返还 做 字符串_相等_不区分大小写 用 扩展 的 标签名、选择器 的 名称。
+    完。
+    若 选择器 的 类型 等于 SEL_CLASS：
+        返还 做 元素_hasClass 用 元素、选择器 的 名称。
+    完。
+    若 选择器 的 类型 等于 SEL_ID：
+        返还 做 字符串_相等 用 做 元素_getAttribute 用 元素、「id」、选择器 的 名称。
+    完。
+    若 选择器 的 类型 等于 SEL_UNIVERSAL：
+        返还 真。
+    完。
+    若 选择器 的 类型 等于 SEL_ATTR：
+        返还 做 Selector_匹配属性 用 选择器、元素。
+    完。
+    若 选择器 的 类型 等于 SEL_PSEUDO_CLASS：
+        返还 做 Selector_匹配伪类 用 选择器、元素。
+    完。
+    若 选择器 的 类型 等于 SEL_COMPOUND：
+        可变 i 为 0。
+        只要 i 小于 选择器 的 子项数量：
+            若 非 做 Selector_匹配 用 做 内存_读64 用 选择器 的 子项列表 加 i 乘 8、元素：
+                返还 假。
+            完。
+            i 为 i 加 1。
+        完。
+        返还 真。
+    完。
+    若 选择器 的 类型 等于 SEL_COMPLEX：
+        返还 做 Selector_匹配复杂 用 选择器、元素。
+    完。
+    返还 假。
+完。
+
+Selector_匹配属性 接受 sel、元素：
+    属性值 为 做 元素_getAttribute 用 元素、sel 的 属性名。
+    若 sel 的 属性匹配 等于 ATTR_EXISTS：
+        返还 属性值 不等于 0。
+    完。
+    若 属性值 等于 0：
+        返还 假。
+    完。
+    期望 为 sel 的 属性值。
+    若 期望 等于 0：
+        返还 假。
+    完。
+    若 sel 的 属性匹配 等于 ATTR_EXACT：
+        若 sel 的 属性大小写：
+            返还 做 字符串_相等_不区分大小写 用 属性值、期望。
+        完。
+        返还 做 字符串_相等 用 属性值、期望。
+    完。
+    若 sel 的 属性匹配 等于 ATTR_PREFIX：
+        返还 做 字符串_开头匹配 用 属性值、期望。
+    完。
+    若 sel 的 属性匹配 等于 ATTR_SUFFIX：
+        返还 做 字符串_结尾匹配 用 属性值、期望。
+    完。
+    若 sel 的 属性匹配 等于 ATTR_SUBSTRING：
+        返还 做 字符串_包含 用 属性值、期望。
+    完。
+    若 sel 的 属性匹配 等于 ATTR_INCLUDES：
+        返还 做 字符串_词列表包含 用 属性值、期望。
+    完。
+    若 sel 的 属性匹配 等于 ATTR_DASH：
+        返还 做 字符串_相等 用 属性值、期望 或者 做 字符串_开头匹配 用 属性值、做 字符串_连接 用 期望、「-」。
+    完。
+    返还 假。
+完。
+
+Selector_匹配伪类 接受 sel、元素：
+    pc 为 sel 的 伪类ID。
+    若 pc 等于 PC_HOVER：
+        返还 做 元素_状态_hover 用 元素。
+    完。
+    若 pc 等于 PC_FOCUS：
+        返还 做 元素_状态_focus 用 元素。
+    完。
+    若 pc 等于 PC_ACTIVE：
+        返还 做 元素_状态_active 用 元素。
+    完。
+    若 pc 等于 PC_FIRST_CHILD：
+        返还 做 元素_是第一子 用 元素。
+    完。
+    若 pc 等于 PC_LAST_CHILD：
+        返还 做 元素_是最后子 用 元素。
+    完。
+    若 pc 等于 PC_ONLY_CHILD：
+        返还 做 元素_是第一子 用 元素 并且 做 元素_是最后子 用 元素。
+    完。
+    若 pc 等于 PC_FIRST_OF_TYPE：
+        返还 做 元素_是同类型第一 用 元素。
+    完。
+    若 pc 等于 PC_LAST_OF_TYPE：
+        返还 做 元素_是同类型最后 用 元素。
+    完。
+    若 pc 等于 PC_ONLY_OF_TYPE：
+        返还 做 元素_是同类型第一 用 元素 并且 做 元素_是同类型最后 用 元素。
+    完。
+    若 pc 等于 PC_NTH_CHILD：
+        返还 做 Selector_匹配nth 用 元素、sel 的 伪类参数_a、sel 的 伪类参数_b、假、假。
+    完。
+    若 pc 等于 PC_NTH_LAST_CHILD：
+        返还 做 Selector_匹配nth 用 元素、sel 的 伪类参数_a、sel 的 伪类参数_b、真、假。
+    完。
+    若 pc 等于 PC_NTH_OF_TYPE：
+        返还 做 Selector_匹配nth 用 元素、sel 的 伪类参数_a、sel 的 伪类参数_b、假、真。
+    完。
+    若 pc 等于 PC_NTH_LAST_OF_TYPE：
+        返还 做 Selector_匹配nth 用 元素、sel 的 伪类参数_a、sel 的 伪类参数_b、真、真。
+    完。
+    若 pc 等于 PC_EMPTY：
+        返还 元素 的 第一子节点 等于 0。
+    完。
+    若 pc 等于 PC_CHECKED：
+        c 为 做 元素_getAttribute 用 元素、「checked」。
+        返还 c 不等于 0。
+    完。
+    若 pc 等于 PC_DISABLED：
+        返还 做 元素_getAttribute 用 元素、「disabled」 不等于 0。
+    完。
+    若 pc 等于 PC_ENABLED：
+        返还 做 元素_getAttribute 用 元素、「disabled」 等于 0。
+    完。
+    若 pc 等于 PC_REQUIRED：
+        返还 做 元素_getAttribute 用 元素、「required」 不等于 0。
+    完。
+    若 pc 等于 PC_OPTIONAL：
+        返还 做 元素_getAttribute 用 元素、「required」 等于 0。
+    完。
+    若 pc 等于 PC_ROOT：
+        返还 元素 的 父节点 不等于 0 并且 元素 的 父节点 的 节点类型 等于 9。
+    完。
+    若 pc 等于 PC_TARGET：
+        返还 假。
+    完。
+    若 pc 等于 PC_NOT：
+        可变 i 为 0。
+        只要 i 小于 sel 的 伪类子选择器数：
+            子sel 为 做 内存_读64 用 sel 的 伪类子选择器 加 i 乘 8。
+            若 做 Selector_匹配 用 子sel、元素：
+                返还 假。
+            完。
+            i 为 i 加 1。
+        完。
+        返还 真。
+    完。
+    若 pc 等于 PC_IS 或者 pc 等于 PC_WHERE：
+        可变 i 为 0。
+        只要 i 小于 sel 的 伪类子选择器数：
+            子sel 为 做 内存_读64 用 sel 的 伪类子选择器 加 i 乘 8。
+            若 做 Selector_匹配 用 子sel、元素：
+                返还 真。
+            完。
+            i 为 i 加 1。
+        完。
+        返还 假。
+    完。
+    若 pc 等于 PC_HAS：
+        可变 i 为 0。
+        只要 i 小于 sel 的 伪类子选择器数：
+            子sel 为 做 内存_读64 用 sel 的 伪类子选择器 加 i 乘 8。
+            若 做 Selector_has检查后代 用 元素、子sel：
+                返还 真。
+            完。
+            i 为 i 加 1。
+        完。
+        返还 假。
+    完。
+    返还 假。
+完。
+
+可变 AI_计算_调用数 为 0。
+
+可变 AI_计算_异常数 为 0。
+
+AI_计算_监控 接受 零参：
+    AI_计算_调用数 为 AI_计算_调用数 加 1。
+    返还 AI_计算_异常数 等于 0。
+完。
+
+AI_计算_健康检查 接受 零参：
+    若 AI_计算_调用数 大于 0 并且 AI_计算_异常数 乘 100 除以 AI_计算_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

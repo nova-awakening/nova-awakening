@@ -1,0 +1,232 @@
+《Windows_DLL注册》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+注册_内置DLL_ntdll 接受 零参：
+    dll 为 新建 PE模块。
+    dll 的 名称 为 「ntdll.dll」。
+    dll 的 是DLL 为 真。
+    dll 的 基地址 为 Win32_DLL_基址。
+    Win32_DLL_基址 为 Win32_DLL_基址 加 0x100000。
+    dll 的 导出表 为 一组：（空）。
+    做 追加 用 dll 的 导出表、一组：「RtlInitUnicodeString」、win32_RtlInitUnicodeString。
+    做 追加 用 dll 的 导出表、一组：「NtClose」、win32_CloseHandle。
+    做 追加 用 dll 的 导出表、一组：「NtQueryInformationProcess」、win32_NtQueryInformationProcess。
+    做 追加 用 PE_已加载模块、dll。
+完。
+
+注册_内置DLL_user32 接受 零参：
+    dll 为 新建 PE模块。
+    dll 的 名称 为 「user32.dll」。
+    dll 的 是DLL 为 真。
+    dll 的 基地址 为 Win32_DLL_基址。
+    Win32_DLL_基址 为 Win32_DLL_基址 加 0x100000。
+    dll 的 导出表 为 一组：（空）。
+    做 追加 用 dll 的 导出表、一组：「MessageBoxW」、win32_MessageBoxW。
+    做 追加 用 dll 的 导出表、一组：「MessageBoxA」、win32_MessageBoxA。
+    做 追加 用 dll 的 导出表、一组：「CreateWindowExW」、win32_CreateWindowExW。
+    做 追加 用 dll 的 导出表、一组：「ShowWindow」、win32_ShowWindow。
+    做 追加 用 dll 的 导出表、一组：「GetMessageW」、win32_GetMessageW。
+    做 追加 用 dll 的 导出表、一组：「DispatchMessageW」、win32_DispatchMessageW。
+    做 追加 用 dll 的 导出表、一组：「DefWindowProcW」、win32_DefWindowProcW。
+    做 追加 用 dll 的 导出表、一组：「PostQuitMessage」、win32_PostQuitMessage。
+    做 追加 用 PE_已加载模块、dll。
+完。
+
+注册_内置DLL_gdi32 接受 零参：
+    dll 为 新建 PE模块。
+    dll 的 名称 为 「gdi32.dll」。
+    dll 的 是DLL 为 真。
+    dll 的 基地址 为 Win32_DLL_基址。
+    Win32_DLL_基址 为 Win32_DLL_基址 加 0x100000。
+    dll 的 导出表 为 一组：（空）。
+    做 追加 用 dll 的 导出表、一组：「Create字体W」、win32_CreateFontW。
+    做 追加 用 dll 的 导出表、一组：「SelectObject」、win32_SelectObject。
+    做 追加 用 dll 的 导出表、一组：「TextOutW」、win32_TextOutW。
+    做 追加 用 PE_已加载模块、dll。
+完。
+
+注册_内置DLL_msvcrt 接受 零参：
+    dll 为 新建 PE模块。
+    dll 的 名称 为 「msvcrt.dll」。
+    dll 的 是DLL 为 真。
+    dll 的 基地址 为 Win32_DLL_基址。
+    Win32_DLL_基址 为 Win32_DLL_基址 加 0x100000。
+    dll 的 导出表 为 一组：（空）。
+    做 追加 用 dll 的 导出表、一组：「printf」、win32_printf。
+    做 追加 用 dll 的 导出表、一组：「puts」、win32_puts。
+    做 追加 用 dll 的 导出表、一组：「malloc」、win32_malloc。
+    做 追加 用 dll 的 导出表、一组：「free」、win32_free。
+    做 追加 用 dll 的 导出表、一组：「exit」、win32_exit。
+    做 追加 用 dll 的 导出表、一组：「memcpy」、win32_memcpy。
+    做 追加 用 dll 的 导出表、一组：「memset」、win32_memset。
+    做 追加 用 dll 的 导出表、一组：「strlen」、win32_strlen。
+    做 追加 用 dll 的 导出表、一组：「strcpy」、win32_strcpy。
+    做 追加 用 PE_已加载模块、dll。
+完。
+
+注册_内置DLL_advapi32 接受 零参：
+    dll 为 新建 PE模块。
+    dll 的 名称 为 「advapi32.dll」。
+    dll 的 是DLL 为 真。
+    dll 的 基地址 为 Win32_DLL_基址。
+    Win32_DLL_基址 为 Win32_DLL_基址 加 0x100000。
+    dll 的 导出表 为 一组：（空）。
+    做 追加 用 dll 的 导出表、一组：「RegOpenKeyExW」、win32_RegOpenKeyExW。
+    做 追加 用 dll 的 导出表、一组：「RegCloseKey」、win32_RegCloseKey。
+    做 追加 用 PE_已加载模块、dll。
+完。
+
+注册_内置DLL_ws2_32 接受 零参：
+    dll 为 新建 PE模块。
+    dll 的 名称 为 「ws2_32.dll」。
+    dll 的 是DLL 为 真。
+    dll 的 基地址 为 Win32_DLL_基址。
+    Win32_DLL_基址 为 Win32_DLL_基址 加 0x100000。
+    dll 的 导出表 为 一组：（空）。
+    做 追加 用 dll 的 导出表、一组：「WSAStartup」、win32_WSAStartup。
+    做 追加 用 dll 的 导出表、一组：「WSACleanup」、win32_WSACleanup。
+    做 追加 用 dll 的 导出表、一组：「socket」、win32_socket。
+    做 追加 用 dll 的 导出表、一组：「connect」、win32_connect。
+    做 追加 用 dll 的 导出表、一组：「send」、win32_send。
+    做 追加 用 dll 的 导出表、一组：「recv」、win32_recv。
+    做 追加 用 dll 的 导出表、一组：「closesocket」、win32_closesocket。
+    做 追加 用 PE_已加载模块、dll。
+完。
+
+win32_MessageBoxW 接受 hwnd、text、caption、type：
+    做 内核信息 用 「Win32 MessageBox: [对话框]」。
+    返还 1。
+完。
+
+win32_MessageBoxA 接受 hwnd、text、caption、type：
+    返还 做 win32_MessageBoxW 用 hwnd、text、caption、type。
+完。
+
+win32_RtlInitUnicodeString 接受 dest、src：
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 0。
+完。
+
+win32_NtQueryInformationProcess 接受 handle、info_class、info、info_len、ret_len：
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 0。
+完。
+
+可变 _win32_窗口表 为 一组：（空）。
+
+可变 _win32_消息队列 为 一组：（空）。
+
+可变 _win32_下一句柄 为 0x10000。
+
+可变 _win32_程序运行 为 真。
+
+win32_CreateWindowExW 接受 dwExStyle、lpClassName、lpWindowName、dwStyle、x、y、nWidth、nHeight、hWndParent、hMenu、hInstance、lpParam：
+    hwnd 为 _win32_下一句柄。
+    _win32_下一句柄 为 _win32_下一句柄 加 1。
+    做 追加 用 _win32_窗口表、一组：hwnd、lpClassName、lpWindowName、x、y、nWidth、nHeight、假。
+    做 内核调试 用 「Win32: CreateWindowExW '」 加 lpWindowName 加 「' hwnd=0x」 加 做 整数转十六进制 用 hwnd。
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 hwnd。
+完。
+
+win32_ShowWindow 接受 hwnd、nCmdShow：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _win32_窗口表：
+        若 _win32_窗口表 的 第 i 项 的 第 0 项 等于 hwnd：
+            _win32_窗口表 的 第 i 项 的 第 7 项 为 nCmdShow 不等于 0。
+            做 内核调试 用 「Win32: ShowWindow hwnd=0x」 加 做 整数转十六进制 用 hwnd 加 「 show=」 加 做 整数转字符串 用 nCmdShow。
+            i 为 做 计数 用 _win32_窗口表。
+        完。
+        i 为 i 加 1。
+    完。
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 1。
+完。
+
+win32_GetMessageW 接受 lpMsg、hwnd、wMsgFilterMin、wMsgFilterMax：
+    若 非 _win32_程序运行：
+        返还 0。
+    完。
+    若 做 计数 用 _win32_消息队列 大于 0：
+        msg 为 _win32_消息队列 的 第 0 项。
+        可变 新队列 为 一组：（空）。
+        可变 j 为 1。
+        只要 j 小于 做 计数 用 _win32_消息队列：
+            做 追加 用 新队列、_win32_消息队列 的 第 j 项。
+            j 为 j 加 1。
+        完。
+        _win32_消息队列 为 新队列。
+        返还 1。
+    完。
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 1。
+完。
+
+win32_DispatchMessageW 接受 lpMsg：
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 0。
+完。
+
+win32_DefWindowProcW 接受 hwnd、msg、wParam、lParam：
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 0。
+完。
+
+win32_PostQuitMessage 接受 nExitCode：
+    _win32_程序运行 为 假。
+    做 追加 用 _win32_消息队列、一组：0、0x0012、nExitCode、0。
+    做 内核调试 用 「Win32: PostQuitMessage code=」 加 做 整数转字符串 用 nExitCode。
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+完。
+
+可变 _win32_GDI对象表 为 一组：（空）。
+
+可变 _win32_下一GDI句柄 为 0x80000。
+
+win32_CreateFontW 接受 nHeight、nWidth、nEscapement、nOrientation、fnWeight、fdwItalic、fdwUnderline、fdwStrikeOut、fdwCharSet、fdwOutputPrecision、fdwClipPrecision、fdwQuality、fdwPitchAndFamily、lpszFace：
+    h 为 _win32_下一GDI句柄。
+    _win32_下一GDI句柄 为 _win32_下一GDI句柄 加 1。
+    做 追加 用 _win32_GDI对象表、一组：h、「字体」、一组：nHeight、fnWeight、lpszFace。
+    做 内核调试 用 「Win32: CreateFontW '」 加 lpszFace 加 「' h=」 加 做 整数转字符串 用 nHeight。
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 h。
+完。
+
+win32_SelectObject 接受 hdc、hgdiobj：
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 0。
+完。
+
+win32_TextOutW 接受 hdc、x、y、lpString、c：
+    做 内核调试 用 「Win32: TextOutW at (」 加 做 整数转字符串 用 x 加 「,」 加 做 整数转字符串 用 y 加 「)」。
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 1。
+完。
+
+可变 _win32_注册表 为 一组：（空）。
+
+可变 _win32_下一注册表句柄 为 0xF0000。
+
+win32_RegOpenKeyExW 接受 hKey、lpSubKey、ulOptions、samDesired、phkResult：
+    h 为 _win32_下一注册表句柄。
+    _win32_下一注册表句柄 为 _win32_下一注册表句柄 加 1。
+    做 追加 用 _win32_注册表、一组：lpSubKey、h、一组：（空）。
+    做 内核调试 用 「Win32: RegOpenKeyExW '」 加 lpSubKey 加 「'」。
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 0。
+完。
+
+win32_RegCloseKey 接受 hKey：
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 0。
+完。
+
+win32_WSACleanup 接受 零参：
+    Win32_接口调用数 为 Win32_接口调用数 加 1。
+    返还 0。
+完。
+
+本章 收束。

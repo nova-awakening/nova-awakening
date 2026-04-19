@@ -1,0 +1,383 @@
+《汇编线性内存》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·日志中枢》。
+
+引用《..·中枢·内存虚拟》。
+
+引用《..·中枢·公共智能》。
+
+引用《..·引导·引导加载器》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·执行·底层内存操》。
+
+WASM_PAGE_SIZE 为 65536。
+
+WasmMemory 是 一种 事物，含 数据、当前页数、最大页数、共享。
+
+WasmMemory_创建 接受 初始页、最大页、共享：
+    mem 为 做 堆_分配 用 WasmMemory。
+    mem 的 当前页数 为 初始页。
+    mem 的 最大页数 为 最大页。
+    mem 的 共享 为 共享。
+    mem 的 数据 为 做 堆_分配 用 初始页 乘 WASM_PAGE_SIZE。
+    做 内存_清零 用 mem 的 数据、初始页 乘 WASM_PAGE_SIZE。
+    返还 mem。
+完。
+
+WasmMemory_grow 接受 mem、增加页数：
+    若 mem 等于 0：
+        返还 负 1。
+    完。
+    新页数 为 mem 的 当前页数 加 增加页数。
+    若 新页数 大于 mem 的 最大页数：
+        返还 负 1。
+    完。
+    旧大小 为 mem 的 当前页数 乘 WASM_PAGE_SIZE。
+    新大小 为 新页数 乘 WASM_PAGE_SIZE。
+    新数据 为 做 堆_分配 用 新大小。
+    做 内存_复制 用 新数据、mem 的 数据、旧大小。
+    做 内存_清零 用 新数据 加 旧大小、新大小 减 旧大小。
+    做 堆_释放 用 mem 的 数据。
+    mem 的 数据 为 新数据。
+    旧页数 为 mem 的 当前页数。
+    mem 的 当前页数 为 新页数。
+    返还 旧页数。
+完。
+
+WasmMemory_load_i32 接受 mem、地址：
+    若 mem 等于 0 或者 地址 加 4 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 0。
+    完。
+    返还 做 内存_读32 用 mem 的 数据 加 地址。
+完。
+
+WasmMemory_store_i32 接受 mem、地址、值：
+    若 mem 等于 0 或者 地址 加 4 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还。
+    完。
+    做 内存_写32 用 mem 的 数据 加 地址、值。
+完。
+
+WasmMemory_load_i64 接受 mem、地址：
+    若 mem 等于 0 或者 地址 加 8 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 0。
+    完。
+    返还 做 内存_读64 用 mem 的 数据 加 地址。
+完。
+
+WasmMemory_store_i64 接受 mem、地址、值：
+    若 mem 等于 0 或者 地址 加 8 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还。
+    完。
+    做 内存_写64 用 mem 的 数据 加 地址、值。
+完。
+
+WasmMemory_load_i8 接受 mem、地址：
+    若 mem 等于 0 或者 地址 大于或等于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 0。
+    完。
+    返还 做 内存_读8 用 mem 的 数据 加 地址。
+完。
+
+WasmMemory_store_i8 接受 mem、地址、值：
+    若 mem 等于 0 或者 地址 大于或等于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还。
+    完。
+    做 内存_写8 用 mem 的 数据 加 地址、值。
+完。
+
+WasmTable 是 一种 事物，含 元素、当前大小、最大大小、元素类型。
+
+WasmTable_创建 接受 初始、最大：
+    tab 为 做 堆_分配 用 WasmTable。
+    tab 的 当前大小 为 初始。
+    tab 的 最大大小 为 最大。
+    tab 的 元素类型 为 WASM_FUNCREF。
+    tab 的 元素 为 做 堆_分配_数组 用 初始 乘 8。
+    做 内存_清零 用 tab 的 元素、初始 乘 8。
+    返还 tab。
+完。
+
+WasmTable_get 接受 tab、索引：
+    若 tab 等于 0 或者 索引 大于或等于 tab 的 当前大小：
+        返还 0。
+    完。
+    返还 做 内存_读64 用 tab 的 元素 加 索引 乘 8。
+完。
+
+WasmTable_set 接受 tab、索引、值：
+    若 tab 等于 0 或者 索引 大于或等于 tab 的 当前大小：
+        返还。
+    完。
+    做 内存_写64 用 tab 的 元素 加 索引 乘 8、值。
+完。
+
+WasmTable_grow 接受 tab、增加、初始值：
+    若 tab 等于 0：
+        返还 负 1。
+    完。
+    新大小 为 tab 的 当前大小 加 增加。
+    若 新大小 大于 tab 的 最大大小：
+        返还 负 1。
+    完。
+    新元素 为 做 堆_分配_数组 用 新大小 乘 8。
+    做 内存_复制 用 新元素、tab 的 元素、tab 的 当前大小 乘 8。
+    可变 i 为 tab 的 当前大小。
+    只要 i 小于 新大小：
+        做 内存_写64 用 新元素 加 i 乘 8、初始值。
+        i 为 i 加 1。
+    完。
+    做 堆_释放 用 tab 的 元素。
+    tab 的 元素 为 新元素。
+    旧大小 为 tab 的 当前大小。
+    tab 的 当前大小 为 新大小。
+    返还 旧大小。
+完。
+
+WASM_TYPE_I32 为 0x7F。
+
+WASM_TYPE_I64 为 0x7E。
+
+WASM_TYPE_F32 为 0x7D。
+
+WASM_TYPE_F64 为 0x7C。
+
+WASM_FUNCREF 为 0x70。
+
+WASM_EXTERNREF 为 0x6F。
+
+WasmGlobal 是 一种 事物，含 类型、可变、值_i64。
+
+WasmGlobal_创建 接受 类型、可变、初始值：
+    返还 新建 WasmGlobal：类型 为 类型、可变 为 可变、值_i64 为 初始值。
+完。
+
+WasmGlobal_get 接受 g：
+    若 g 等于 空：
+        返还 0。
+    完。
+    返还 g 的 值_i64。
+完。
+
+WasmGlobal_set 接受 g、值：
+    若 g 等于 空 或者 非 g 的 可变：
+        返还。
+    完。
+    g 的 值_i64 为 值。
+完。
+
+WasmDataSegment 是 一种 事物，含 内存索引、偏移表达式、数据、数据大小、是被动、已dropped。
+
+WasmData_初始化主动段 接受 mem、段列表：
+    若 mem 等于 空 或者 段列表 等于 空：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 段列表：
+        seg 为 段列表 的 第 i 项。
+        若 非 seg 的 是被动 并且 非 seg 的 已dropped：
+            偏移 为 seg 的 偏移表达式。
+            若 偏移 加 seg 的 数据大小 小于或等于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+                做 内存_复制 用 mem 的 数据 加 偏移、seg 的 数据、seg 的 数据大小。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    WASM_数据初始化数 为 WASM_数据初始化数 加 1。
+完。
+
+WasmData_memory_init 接受 mem、段、目标偏移、源偏移、长度：
+    若 mem 等于 空 或者 段 等于 空 或者 段 的 已dropped：
+        返还 错误_陷阱。
+    完。
+    若 源偏移 加 长度 大于 段 的 数据大小：
+        返还 错误_陷阱。
+    完。
+    若 目标偏移 加 长度 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 错误_陷阱。
+    完。
+    做 内存_复制 用 mem 的 数据 加 目标偏移、段 的 数据 加 源偏移、长度。
+    返还 成功。
+完。
+
+WasmData_drop 接受 段：
+    若 段 等于 空：
+        返还。
+    完。
+    段 的 已dropped 为 真。
+完。
+
+WasmMemory_load_i16_s 接受 mem、地址：
+    若 mem 等于 0 或者 地址 加 2 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 0。
+    完。
+    v 为 做 内存_读16 用 mem 的 数据 加 地址。
+    若 v 位与 0x8000：
+        返还 v 位或 0xFFFF0000。
+    完。
+    返还 v。
+完。
+
+WasmMemory_load_i16_u 接受 mem、地址：
+    若 mem 等于 0 或者 地址 加 2 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 0。
+    完。
+    返还 做 内存_读16 用 mem 的 数据 加 地址 位与 0xFFFF。
+完。
+
+WasmMemory_store_i16 接受 mem、地址、值：
+    若 mem 等于 0 或者 地址 加 2 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还。
+    完。
+    做 内存_写16 用 mem 的 数据 加 地址、值 位与 0xFFFF。
+完。
+
+WasmMemory_load_i8_s 接受 mem、地址：
+    若 mem 等于 0 或者 地址 大于或等于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 0。
+    完。
+    v 为 做 内存_读8 用 mem 的 数据 加 地址。
+    若 v 位与 0x80：
+        返还 v 位或 0xFFFFFF00。
+    完。
+    返还 v。
+完。
+
+WasmMemory_fill 接受 mem、目标、值、长度：
+    若 mem 等于 0 或者 目标 加 长度 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 错误_陷阱。
+    完。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 内存_写8 用 mem 的 数据 加 目标 加 i、值 位与 0xFF。
+        i 为 i 加 1。
+    完。
+    返还 成功。
+完。
+
+WasmMemory_copy 接受 mem、目标、源、长度：
+    若 mem 等于 0：
+        返还 错误_陷阱。
+    完。
+    若 目标 加 长度 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 错误_陷阱。
+    完。
+    若 源 加 长度 大于 mem 的 当前页数 乘 WASM_PAGE_SIZE：
+        返还 错误_陷阱。
+    完。
+    若 目标 小于或等于 源：
+        可变 i 为 0。
+        只要 i 小于 长度：
+            做 内存_写8 用 mem 的 数据 加 目标 加 i、做 内存_读8 用 mem 的 数据 加 源 加 i。
+            i 为 i 加 1。
+        完。
+    否则：
+        可变 i 为 长度 减 1。
+        只要 i 大于或等于 0：
+            做 内存_写8 用 mem 的 数据 加 目标 加 i、做 内存_读8 用 mem 的 数据 加 源 加 i。
+            i 为 i 减 1。
+        完。
+    完。
+    返还 成功。
+完。
+
+WasmElemSegment 是 一种 事物，含 表索引、偏移表达式、函数索引列表、数量、是被动、已dropped。
+
+WasmElem_初始化主动段 接受 tab、段：
+    若 tab 等于 空 或者 段 等于 空 或者 段 的 已dropped：
+        返还。
+    完。
+    偏移 为 段 的 偏移表达式。
+    可变 i 为 0。
+    只要 i 小于 段 的 数量：
+        若 偏移 加 i 小于 tab 的 当前大小：
+            做 WasmTable_set 用 tab、偏移 加 i、段 的 函数索引列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+WasmElem_table_init 接受 tab、段、目标偏移、源偏移、长度：
+    若 tab 等于 空 或者 段 等于 空 或者 段 的 已dropped：
+        返还 错误_陷阱。
+    完。
+    若 源偏移 加 长度 大于 段 的 数量：
+        返还 错误_陷阱。
+    完。
+    若 目标偏移 加 长度 大于 tab 的 当前大小：
+        返还 错误_陷阱。
+    完。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 WasmTable_set 用 tab、目标偏移 加 i、段 的 函数索引列表 的 第 源偏移 加 i 项。
+        i 为 i 加 1。
+    完。
+    返还 成功。
+完。
+
+WasmElem_drop 接受 段：
+    若 段 等于 空：
+        返还。
+    完。
+    段 的 已dropped 为 真。
+完。
+
+可变 AI_grow历史 为 一组：（空）。
+
+AI_grow历史_最大 为 16。
+
+AI_WASM内存_预测增长 接受 mem：
+    若 做 计数 用 AI_grow历史 小于 3：
+        返还 1。
+    完。
+    可变 总 为 0。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 AI_grow历史：
+        总 为 总 加 AI_grow历史 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    平均 为 总 除以 做 计数 用 AI_grow历史。
+    预测 为 平均 乘 3 除以 2。
+    若 预测 小于 1：
+        预测 为 1。
+    完。
+    若 预测 大于 256：
+        预测 为 256。
+    完。
+    返还 预测。
+完。
+
+AI_WASM内存_记录增长 接受 增加页数：
+    做 追加 用 AI_grow历史、增加页数。
+    若 做 计数 用 AI_grow历史 大于 AI_grow历史_最大：
+        AI_grow历史 为 做 子列表 用 AI_grow历史、AI_grow历史_最大 除以 2、AI_grow历史_最大。
+    完。
+完。
+
+可变 WASM_内存创建数 为 0。
+
+可变 WASM_内存grow数 为 0。
+
+可变 WASM_表创建数 为 0。
+
+可变 WASM_全局创建数 为 0。
+
+可变 WASM_数据初始化数 为 0。
+
+可变 WASM_越界陷阱数 为 0。
+
+错误_陷阱 为 负 100。
+
+WASM内存_统计 接受 零参：
+    返还 一本字典：内存创建 对应 WASM_内存创建数、内存grow 对应 WASM_内存grow数、表创建 对应 WASM_表创建数、全局创建 对应 WASM_全局创建数、数据初始化 对应 WASM_数据初始化数、越界陷阱 对应 WASM_越界陷阱数、AI_grow历史 对应 做 计数 用 AI_grow历史。
+完。
+
+本章 收束。

@@ -1,0 +1,680 @@
+《标记输出元素》
+
+METER_区域_最优 为 0。
+
+METER_区域_次优 为 1。
+
+METER_区域_差 为 2。
+
+Q10_单位 为 1024。
+
+PROGRESS_动画帧数 为 60。
+
+FIELDSET_最大子控件 为 256。
+
+可变 NFOC_创建总数 为 0。
+
+可变 NFOC_更新总数 为 0。
+
+可变 NFOC_度量渲染 为 0。
+
+可变 NFOC_AI预测总数 为 0。
+
+可变 NFOC_约束传播数 为 0。
+
+Output_设置值 接受 o、新值：
+    若 o 等于 0：
+        返还。
+    完。
+    o 的 值 为 新值。
+    NFOC_更新总数 为 NFOC_更新总数 加 1。
+    若 o 的 节点 不等于 0：
+        做 节点_设置文本内容 用 o 的 节点、新值。
+    完。
+完。
+
+Output_获取值 接受 o：
+    若 o 等于 0：
+        返还 「」。
+    完。
+    返还 o 的 值。
+完。
+
+Output_重置 接受 o：
+    若 o 等于 0：
+        返还。
+    完。
+    o 的 值 为 o 的 defaultValue。
+    若 o 的 节点 不等于 0：
+        做 节点_设置文本内容 用 o 的 节点、o 的 defaultValue。
+    完。
+完。
+
+Output_设置默认值 接受 o、dv：
+    若 o 等于 0：
+        返还。
+    完。
+    o 的 defaultValue 为 dv。
+完。
+
+Output_解析htmlFor 接受 o：
+    若 o 等于 0 或者 o 的 htmlFor 等于 0：
+        返还 一组：0、0。
+    完。
+    ids 为 做 堆_分配 用 32 乘 8。
+    可变 数量 为 0。
+    长 为 做 字符串_长度 用 o 的 htmlFor。
+    可变 i 为 0。
+    只要 i 小于 长 并且 数量 小于 32：
+        只要 i 小于 长 并且 做 内存_读8 用 o 的 htmlFor 加 i 等于 0x20：
+            i 为 i 加 1。
+        完。
+        若 i 大于或等于 长：
+            断开。
+        完。
+        起 为 i。
+        只要 i 小于 长 并且 做 内存_读8 用 o 的 htmlFor 加 i 不等于 0x20：
+            i 为 i 加 1。
+        完。
+        id 为 做 字符串_子串 用 o 的 htmlFor、起、i 减 起。
+        做 内存_写64 用 ids 加 数量 乘 8、id。
+        数量 为 数量 加 1。
+    完。
+    返还 一组：ids、数量。
+完。
+
+Output_觉察关联控件 接受 o、doc：
+    若 o 等于 0 或者 doc 等于 0：
+        返还。
+    完。
+    parsed 为 做 Output_解析htmlFor 用 o。
+    ids 为 parsed 的 第 0 项。
+    数量 为 parsed 的 第 1 项。
+    若 ids 等于 0 或者 数量 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        id 为 做 内存_读64 用 ids 加 i 乘 8。
+        elem 为 做 文档_通过ID查找 用 doc、id。
+        若 elem 不等于 0：
+            做 节点_添加监听 用 elem、「input」、Output_关联输入回调、o。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+Output_关联输入回调 接受 事件、o：
+    若 o 等于 0 或者 事件 等于 0：
+        返还。
+    完。
+    src 为 事件 的 目标。
+    若 src 不等于 0：
+        做 Output_设置值 用 o、做 节点_获取属性 用 src、「value」。
+    完。
+完。
+
+Output_checkValidity 接受 o：
+    若 o 等于 0：
+        返还 真。
+    完。
+    若 o 的 自定义校验消息 不等于 空 并且 o 的 自定义校验消息 不等于 「」：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+Output_reportValidity 接受 o：
+    有效 为 做 Output_checkValidity 用 o。
+    若 非 有效 并且 o 不等于 0：
+        做 DOM_触发事件 用 o、「invalid」。
+    完。
+    返还 有效。
+完。
+
+Output_获取校验消息 接受 o：
+    返还 「」。
+完。
+
+Progress_设置值 接受 p、v：
+    若 p 等于 0：
+        返还。
+    完。
+    若 v 小于 0：
+        v 为 0。
+    完。
+    若 v 大于 p 的 max：
+        v 为 p 的 max。
+    完。
+    p 的 value 为 v。
+    p 的 是确定 为 真。
+    NFOC_更新总数 为 NFOC_更新总数 加 1。
+完。
+
+Progress_设置最大值 接受 p、m：
+    若 p 等于 0：
+        返还。
+    完。
+    若 m 小于或等于 0：
+        m 为 Q10_单位。
+    完。
+    p 的 max 为 m。
+    若 p 的 value 大于 m：
+        p 的 value 为 m。
+    完。
+完。
+
+Progress_设置不确定 接受 p：
+    若 p 等于 0：
+        返还。
+    完。
+    p 的 是确定 为 假。
+    p 的 value 为 0。
+完。
+
+Progress_获取百分比 接受 p：
+    若 p 等于 0 或者 非 p 的 是确定 或者 p 的 max 等于 0：
+        返还 负 1。
+    完。
+    返还 p 的 value 乘 100 除以 p 的 max。
+完。
+
+ProgressAnimation 是 一种 事物，含 当前帧、总帧数、起始位置、结束位置、循环。
+
+Progress_创建动画 接受 零参：
+    a 为 做 堆_分配 用 ProgressAnimation。
+    a 的 当前帧 为 0。
+    a 的 总帧数 为 PROGRESS_动画帧数。
+    a 的 起始位置 为 0。
+    a 的 结束位置 为 Q10_单位。
+    a 的 循环 为 真。
+    返还 a。
+完。
+
+Progress_动画推进 接受 anim：
+    若 anim 等于 0：
+        返还 0。
+    完。
+    anim 的 当前帧 为 anim 的 当前帧 加 1。
+    若 anim 的 当前帧 大于或等于 anim 的 总帧数：
+        若 anim 的 循环：
+            anim 的 当前帧 为 0。
+        否则：
+            anim 的 当前帧 为 anim 的 总帧数 减 1。
+        完。
+    完。
+    半 为 anim 的 总帧数 除以 2。
+    若 半 等于 0：
+        返还 0。
+    完。
+    若 anim 的 当前帧 小于 半：
+        返还 anim 的 起始位置 加 (anim 的 结束位置 减 anim 的 起始位置) 乘 anim 的 当前帧 除以 半。
+    完。
+    返还 anim 的 结束位置 减 (anim 的 结束位置 减 anim 的 起始位置) 乘 (anim 的 当前帧 减 半) 除以 半。
+完。
+
+Meter_设置值 接受 m、v：
+    若 m 等于 0：
+        返还。
+    完。
+    若 v 小于 m 的 min：
+        v 为 m 的 min。
+    完。
+    若 v 大于 m 的 max：
+        v 为 m 的 max。
+    完。
+    m 的 value 为 v。
+    NFOC_更新总数 为 NFOC_更新总数 加 1。
+完。
+
+Meter_设置范围 接受 m、min_v、max_v：
+    若 m 等于 0：
+        返还。
+    完。
+    若 min_v 大于 max_v：
+        返还。
+    完。
+    m 的 min 为 min_v。
+    m 的 max 为 max_v。
+    若 m 的 low 小于 m 的 min：
+        m 的 low 为 m 的 min。
+    完。
+    若 m 的 high 大于 m 的 max：
+        m 的 high 为 m 的 max。
+    完。
+    若 m 的 value 小于 m 的 min：
+        m 的 value 为 m 的 min。
+    完。
+    若 m 的 value 大于 m 的 max：
+        m 的 value 为 m 的 max。
+    完。
+完。
+
+Meter_设置阈值 接受 m、low、high、opt：
+    若 m 等于 0：
+        返还。
+    完。
+    若 low 小于 m 的 min：
+        low 为 m 的 min。
+    完。
+    若 high 大于 m 的 max：
+        high 为 m 的 max。
+    完。
+    若 low 大于 high：
+        low 为 high。
+    完。
+    m 的 low 为 low。
+    m 的 high 为 high。
+    m 的 optimum 为 opt。
+    若 m 的 optimum 小于 m 的 min：
+        m 的 optimum 为 m 的 min。
+    完。
+    若 m 的 optimum 大于 m 的 max：
+        m 的 optimum 为 m 的 max。
+    完。
+完。
+
+Meter_获取填充比例 接受 m：
+    若 m 等于 0：
+        返还 0。
+    完。
+    范围 为 m 的 max 减 m 的 min。
+    若 范围 小于或等于 0：
+        返还 0。
+    完。
+    返还 (m 的 value 减 m 的 min) 乘 Q10_单位 除以 范围。
+完。
+
+Meter_获取颜色 接受 m：
+    z 为 做 Meter_区域 用 m。
+    若 z 等于 METER_区域_最优：
+        返还 0x4CAF50。
+    完。
+    若 z 等于 METER_区域_次优：
+        返还 0xFFC107。
+    完。
+    返还 0xF44336。
+完。
+
+MeterRenderDesc 是 一种 事物，含 x、y、宽、高、填充比例、填充颜色、背景颜色、边框圆角。
+
+Meter_生成渲染描述 接受 m、x、y、宽、高：
+    d 为 做 堆_分配 用 MeterRenderDesc。
+    d 的 x 为 x。
+    d 的 y 为 y。
+    d 的 宽 为 宽。
+    d 的 高 为 高。
+    d 的 填充比例 为 做 Meter_获取填充比例 用 m。
+    d 的 填充颜色 为 做 Meter_获取颜色 用 m。
+    d 的 背景颜色 为 0xE0E0E0。
+    d 的 边框圆角 为 4。
+    NFOC_度量渲染 为 NFOC_度量渲染 加 1。
+    返还 d。
+完。
+
+FieldSet_创建 接受 零参：
+    fs 为 做 堆_分配 用 HTMLFieldSet元素。
+    fs 的 节点 为 0。
+    fs 的 name 为 0。
+    fs 的 disabled 为 假。
+    fs 的 form 为 0。
+    NFOC_创建总数 为 NFOC_创建总数 加 1。
+    返还 fs。
+完。
+
+Legend_创建 接受 零参：
+    lg 为 做 堆_分配 用 HTMLLegend元素。
+    lg 的 节点 为 0。
+    lg 的 form 为 0。
+    NFOC_创建总数 为 NFOC_创建总数 加 1。
+    返还 lg。
+完。
+
+FieldSet_获取第一个Legend 接受 fs：
+    若 fs 等于 0 或者 fs 的 节点 等于 0：
+        返还 0。
+    完。
+    子 为 做 节点_第一子 用 fs 的 节点。
+    只要 子 不等于 0：
+        若 做 节点_标签名相等 用 子、「legend」：
+            返还 子。
+        完。
+        子 为 做 节点_下一兄弟 用 子。
+    完。
+    返还 0。
+完。
+
+FieldSet_是在Legend内 接受 节点、legend节点：
+    若 节点 等于 0 或者 legend节点 等于 0：
+        返还 假。
+    完。
+    可变 p 为 做 节点_父 用 节点。
+    只要 p 不等于 0：
+        若 p 等于 legend节点：
+            返还 真。
+        完。
+        p 为 做 节点_父 用 p。
+    完。
+    返还 假。
+完。
+
+FieldSet_传播disabled 接受 fs：
+    若 fs 等于 0 或者 fs 的 节点 等于 0：
+        返还。
+    完。
+    legend 为 做 FieldSet_获取第一个Legend 用 fs。
+    做 FieldSet_递归传播dis 用 fs 的 节点、fs 的 disabled、legend。
+    NFOC_约束传播数 为 NFOC_约束传播数 加 1。
+完。
+
+FieldSet_递归传播dis 接受 节点、disabled、legend：
+    若 节点 等于 0：
+        返还。
+    完。
+    子 为 做 节点_第一子 用 节点。
+    只要 子 不等于 0：
+        若 legend 不等于 0 并且 做 FieldSet_是在Legend内 用 子、legend：
+            子 为 做 节点_下一兄弟 用 子。
+            继续。
+        完。
+        若 做 节点_是表单控件 用 子：
+            做 节点_设置属性 用 子、「disabled」、disabled。
+        完。
+        做 FieldSet_递归传播dis 用 子、disabled、legend。
+        子 为 做 节点_下一兄弟 用 子。
+    完。
+完。
+
+FieldSet_设置disabled 接受 fs、v：
+    若 fs 等于 0：
+        返还。
+    完。
+    fs 的 disabled 为 v。
+    做 FieldSet_传播disabled 用 fs。
+完。
+
+FieldSet_获取元素集合 接受 fs：
+    若 fs 等于 0 或者 fs 的 节点 等于 0：
+        返还 一组：0、0。
+    完。
+    结果 为 做 堆_分配 用 FIELDSET_最大子控件 乘 8。
+    可变 数量 为 0。
+    做 FieldSet_收集控件 用 fs 的 节点、结果、数量。
+    返还 一组：结果、数量。
+完。
+
+FieldSet_收集控件 接受 节点、结果、数量：
+    若 节点 等于 0：
+        返还 数量。
+    完。
+    子 为 做 节点_第一子 用 节点。
+    只要 子 不等于 0 并且 数量 小于 FIELDSET_最大子控件：
+        若 做 节点_是表单控件 用 子：
+            做 内存_写64 用 结果 加 数量 乘 8、子。
+            数量 为 数量 加 1。
+        完。
+        数量 为 做 FieldSet_收集控件 用 子、结果、数量。
+        子 为 做 节点_下一兄弟 用 子。
+    完。
+    返还 数量。
+完。
+
+NFOC_查找关联表单 接受 节点：
+    若 节点 等于 0：
+        返还 0。
+    完。
+    formId 为 做 节点_获取属性 用 节点、「form」。
+    若 formId 不等于 0 并且 做 字符串_长度 用 formId 大于 0：
+        doc 为 做 节点_获取文档 用 节点。
+        若 doc 不等于 0：
+            f 为 做 文档_通过ID查找 用 doc、formId。
+            若 f 不等于 0 并且 做 节点_标签名相等 用 f、「form」：
+                返还 f。
+            完。
+        完。
+    完。
+    可变 p 为 做 节点_父 用 节点。
+    只要 p 不等于 0：
+        若 做 节点_标签名相等 用 p、「form」：
+            返还 p。
+        完。
+        p 为 做 节点_父 用 p。
+    完。
+    返还 0。
+完。
+
+NFOC_解析标签关联 接受 节点：
+    若 节点 等于 0：
+        返还 0。
+    完。
+    id 为 做 节点_获取属性 用 节点、「id」。
+    若 id 等于 0 或者 做 字符串_长度 用 id 等于 0：
+        返还 0。
+    完。
+    doc 为 做 节点_获取文档 用 节点。
+    若 doc 等于 0：
+        返还 0。
+    完。
+    labels 为 做 文档_查询全部 用 doc、「label」。
+    若 labels 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 labels 的 长度：
+        lbl 为 labels 的 元素 的 第 i 项。
+        forAttr 为 做 节点_获取属性 用 lbl、「for」。
+        若 forAttr 不等于 0 并且 做 字符串_相等 用 forAttr、id：
+            返还 lbl。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+Progress_设置ARIA 接受 p：
+    若 p 等于 0 或者 p 的 节点 等于 0：
+        返还。
+    完。
+    做 节点_设置属性 用 p 的 节点、「role」、「progressbar」。
+    若 p 的 是确定：
+        百分比 为 做 Progress_获取百分比 用 p。
+        做 节点_设置属性 用 p 的 节点、「aria-valuenow」、百分比。
+        做 节点_设置属性 用 p 的 节点、「aria-valuemin」、0。
+        做 节点_设置属性 用 p 的 节点、「aria-valuemax」、100。
+    否则：
+        做 节点_移除属性 用 p 的 节点、「aria-valuenow」。
+    完。
+完。
+
+Meter_设置ARIA 接受 m：
+    若 m 等于 0 或者 m 的 节点 等于 0：
+        返还。
+    完。
+    做 节点_设置属性 用 m 的 节点、「role」、「meter」。
+    做 节点_设置属性 用 m 的 节点、「aria-valuenow」、m 的 value。
+    做 节点_设置属性 用 m 的 节点、「aria-valuemin」、m 的 min。
+    做 节点_设置属性 用 m 的 节点、「aria-valuemax」、m 的 max。
+完。
+
+NFOC_AI提取特征 接受 m、p：
+    t 为 做 Tensor_创建 用 10。
+    若 t 等于 0：
+        返还 0。
+    完。
+    做 Tensor_写 用 t、0、NFOC_创建总数。
+    做 Tensor_写 用 t、1、NFOC_更新总数。
+    做 Tensor_写 用 t、2、NFOC_度量渲染。
+    做 Tensor_写 用 t、3、NFOC_约束传播数。
+    若 m 不等于 0：
+        做 Tensor_写 用 t、4、m 的 value。
+        做 Tensor_写 用 t、5、做 Meter_区域 用 m。
+    完。
+    若 p 不等于 0：
+        做 Tensor_写 用 t、6、p 的 value。
+        做 Tensor_写 用 t、7、p 的 max。
+        若 p 的 是确定：
+            做 Tensor_写 用 t、8、1。
+        否则：
+            做 Tensor_写 用 t、8、0。
+        完。
+    完。
+    做 Tensor_写 用 t、9、NFOC_AI预测总数。
+    返还 t。
+完。
+
+NFOC_AI预测下一值 接受 m：
+    若 m 等于 0：
+        返还 0。
+    完。
+    t 为 做 NFOC_AI提取特征 用 m、0。
+    若 t 等于 0：
+        返还 m 的 value。
+    完。
+    结果 为 做 AI总线_推理 用 「nfoc_meter」、t。
+    做 全局AI总线 的 发布 用 「nfoc_predict」、「value」、结果。
+    做 Tensor_释放 用 t。
+    NFOC_AI预测总数 为 NFOC_AI预测总数 加 1。
+    返还 结果。
+完。
+
+NFOC_AI异常检测 接受 m、p：
+    t 为 做 NFOC_AI提取特征 用 m、p。
+    若 t 等于 0：
+        返还 0。
+    完。
+    异常 为 做 AI总线_异常检测 用 「nfoc_form」、t。
+    做 Tensor_释放 用 t。
+    返还 异常。
+完。
+
+NFOC_获取统计 接受 零参：
+    返还 一组：NFOC_创建总数、NFOC_更新总数、NFOC_度量渲染、NFOC_AI预测总数、NFOC_约束传播数。
+完。
+
+NFOC_重置统计 接受 零参：
+    NFOC_创建总数 为 0。
+    NFOC_更新总数 为 0。
+    NFOC_度量渲染 为 0。
+    NFOC_AI预测总数 为 0。
+    NFOC_约束传播数 为 0。
+完。
+
+NFOC_自检 接受 零参：
+    m 为 做 Meter_创建。
+    做 Meter_设置范围 用 m、0、100。
+    做 Meter_设置阈值 用 m、25、75、50。
+    m 的 value 为 50。
+    若 做 Meter_区域 用 m 不等于 METER_区域_最优：
+        返还 假。
+    完。
+    m 的 value 为 10。
+    若 做 Meter_区域 用 m 等于 METER_区域_最优：
+        返还 假。
+    完。
+    p 为 做 Progress_创建。
+    做 Progress_设置值 用 p、512。
+    若 做 Progress_获取百分比 用 p 不等于 50：
+        返还 假。
+    完。
+    o 为 做 Output_创建。
+    做 Output_设置默认值 用 o、「hello」。
+    做 Output_设置值 用 o、「world」。
+    做 Output_重置 用 o。
+    若 非 做 字符串_相等 用 做 Output_获取值 用 o、「hello」：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·推理·文档特征》。
+
+HTMLOutput元素 是 一种 事物，含 节点、name、htmlFor、值、defaultValue、form。
+
+Output_创建 接受 零参：
+    o 为 做 堆_分配 用 HTMLOutput元素。
+    o 的 节点 为 0。
+    o 的 name 为 0。
+    o 的 htmlFor 为 0。
+    o 的 值 为 「」。
+    o 的 defaultValue 为 「」。
+    o 的 form 为 0。
+    返还 o。
+完。
+
+HTNova多层感知器rogress元素 是 一种 事物，含 节点、value、max、是确定。
+
+Progress_创建 接受 零参：
+    p 为 做 堆_分配 用 HTNova多层感知器rogress元素。
+    p 的 节点 为 0。
+    p 的 value 为 0。
+    p 的 max 为 1024。
+    p 的 是确定 为 假。
+    返还 p。
+完。
+
+Progress_position 接受 p：
+    若 p 等于 0 或者 非 p 的 是确定 或者 p 的 max 等于 0：
+        返还 负 1。
+    完。
+    返还 p 的 value 乘 1024 除以 p 的 max。
+完。
+
+HTMLMeter元素 是 一种 事物，含 节点、value、min、max、low、high、optimum。
+
+Meter_创建 接受 零参：
+    m 为 做 堆_分配 用 HTMLMeter元素。
+    m 的 节点 为 0。
+    m 的 value 为 0。
+    m 的 min 为 0。
+    m 的 max 为 1024。
+    m 的 low 为 0。
+    m 的 high 为 1024。
+    m 的 optimum 为 512。
+    返还 m。
+完。
+
+Meter_区域 接受 m：
+    若 m 等于 0：
+        返还 0。
+    完。
+    若 m 的 optimum 大于或等于 m 的 low 并且 m 的 optimum 小于或等于 m 的 high：
+        若 m 的 value 大于或等于 m 的 low 并且 m 的 value 小于或等于 m 的 high：
+            返还 0。
+        完。
+        返还 1。
+    完。
+    若 m 的 optimum 小于 m 的 low：
+        若 m 的 value 小于或等于 m 的 low：
+            返还 0。
+        完。
+        若 m 的 value 小于或等于 m 的 high：
+            返还 1。
+        完。
+        返还 2。
+    完。
+    若 m 的 value 大于或等于 m 的 high：
+        返还 0。
+    完。
+    若 m 的 value 大于或等于 m 的 low：
+        返还 1。
+    完。
+    返还 2。
+完。
+
+HTMLFieldSet元素 是 一种 事物，含 节点、name、disabled、form。
+
+HTMLLegend元素 是 一种 事物，含 节点、form。
+
+本章 收束。

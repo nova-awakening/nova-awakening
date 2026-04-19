@@ -1,0 +1,479 @@
+《动态链接器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·中枢·可执行加载》。
+
+引用《..·标准·文件》。
+
+共享库 是 一种 事物，含 路径、soname、基地址、映像大小、引用计数、符号表、依赖列表、已初始化、init函数、fini函数、init_array、init_array_sz、fini_array、fini_array_sz、GOT地址、PLT地址。
+
+可变 _已加载库 为 一组：（空）。
+
+可变 _全局符号表 为 一组：（空）。
+
+可变 _库搜索路径 为 一组：（空）。
+
+可变 _库加载基址 为 0x7F000000。
+
+可变 _链接器已初始化 为 假。
+
+动态链接器_初始化 接受 零参：
+    若 _链接器已初始化：
+        返还。
+    完。
+    _已加载库 为 一组：（空）。
+    _全局符号表 为 一组：（空）。
+    _库搜索路径 为 一组：「/lib」、「/lib64」、「/lib/x86_64-linux-gnu」、「/usr/lib」、「/usr/lib/x86_64-linux-gnu」、「/usr/local/lib」。
+    做 动态链接器_注册内置库。
+    _链接器已初始化 为 真。
+    做 内核信息 用 「动态链接器(ld-nova): 初始化完成, 搜索路径=」 加 做 整数转字符串 用 做 计数 用 _库搜索路径。
+完。
+
+动态链接器_加载 接受 soname：
+    若 非 _链接器已初始化：
+        做 动态链接器_初始化。
+    完。
+    已有 为 做 动态链接器_查找库 用 soname。
+    若 已有 大于或等于 0：
+        _已加载库 的 第 已有 项 的 引用计数 为 _已加载库 的 第 已有 项 的 引用计数 加 1。
+        返还 已有。
+    完。
+    完整路径 为 做 动态链接器_搜索 用 soname。
+    若 完整路径 等于 空：
+        做 内核警告 用 「ld-nova: 找不到 」 加 soname。
+        返还 负 1。
+    完。
+    库 为 新建 共享库。
+    库 的 路径 为 完整路径。
+    库 的 soname 为 soname。
+    库 的 引用计数 为 1。
+    库 的 已初始化 为 假。
+    库 的 符号表 为 一组：（空）。
+    库 的 依赖列表 为 一组：（空）。
+    库 的 基地址 为 _库加载基址。
+    _库加载基址 为 _库加载基址 加 0x400000。
+    解析结果 为 做 动态链接器_解析ELF 用 完整路径、库。
+    若 解析结果 小于 0：
+        做 内核警告 用 「ld-nova: 解析失败 」 加 soname。
+        返还 负 1。
+    完。
+    做 追加 用 _已加载库、库。
+    库索引 为 做 计数 用 _已加载库 减 1。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 库 的 依赖列表：
+        做 动态链接器_加载 用 库 的 依赖列表 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    做 动态链接器_导出符号 用 库索引。
+    做 内核信息 用 「ld-nova: 加载 」 加 soname 加 「 @ 0x」 加 做 整数转十六进制 用 库 的 基地址 加 「 符号=」 加 做 整数转字符串 用 做 计数 用 库 的 符号表。
+    返还 库索引。
+完。
+
+动态链接器_搜索 接受 soname：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _库搜索路径：
+        路径 为 _库搜索路径 的 第 i 项 加 「/」 加 soname。
+        若 做 文件_存在 用 路径：
+            返还 路径。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+动态链接器_查找库 接受 soname：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _已加载库：
+        若 _已加载库 的 第 i 项 的 soname 等于 soname：
+            返还 i。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+动态链接器_解析符号 接受 名称：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _全局符号表：
+        若 _全局符号表 的 第 i 项 的 第 0 项 等于 名称：
+            返还 _全局符号表 的 第 i 项 的 第 1 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+动态链接器_导出符号 接受 库索引：
+    库 为 _已加载库 的 第 库索引 项。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 库 的 符号表：
+        符号 为 库 的 符号表 的 第 i 项。
+        若 符号 的 第 3 项 大于 0：
+            做 追加 用 _全局符号表、一组：符号 的 第 0 项、符号 的 第 1 项 加 库 的 基地址。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+动态链接器_PLT回调 接受 库索引、GOT偏移：
+    库 为 _已加载库 的 第 库索引 项。
+    符号地址 为 做 动态链接器_解析符号_按索引 用 库索引、GOT偏移。
+    若 符号地址 大于 0：
+        做 内存写64 用 库 的 GOT地址 加 GOT偏移、符号地址。
+    完。
+    返还 符号地址。
+完。
+
+动态链接器_解析符号_按索引 接受 库索引、索引：
+    若 索引 小于 做 计数 用 _已加载库 的 第 库索引 项 的 符号表：
+        名称 为 _已加载库 的 第 库索引 项 的 符号表 的 第 索引 项 的 第 0 项。
+        返还 做 动态链接器_解析符号 用 名称。
+    完。
+    返还 0。
+完。
+
+动态链接器_初始化库 接受 库索引：
+    库 为 _已加载库 的 第 库索引 项。
+    若 库 的 已初始化：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 库 的 依赖列表：
+        dep 为 做 动态链接器_查找库 用 库 的 依赖列表 的 第 i 项。
+        若 dep 大于或等于 0：
+            做 动态链接器_初始化库 用 dep。
+        完。
+        i 为 i 加 1。
+    完。
+    若 库 的 init函数 不等于 0：
+        初始化函数 为 库 的 基地址 加 库 的 init函数。
+    完。
+    若 库 的 init_array 不等于 0 并且 库 的 init_array_sz 大于 0：
+        数组地址 为 库 的 基地址 加 库 的 init_array。
+        项数 为 库 的 init_array_sz 除以 8。
+        i 为 0。
+        只要 i 小于 项数：
+            fn_addr 为 做 内存读64 用 数组地址 加 i 乘 8。
+            若 fn_addr 不等于 0：
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+    _已加载库 的 第 库索引 项 的 已初始化 为 真。
+完。
+
+动态链接器_析构库 接受 库索引：
+    库 为 _已加载库 的 第 库索引 项。
+    若 非 库 的 已初始化：
+        返还。
+    完。
+    若 库 的 fini_array 不等于 0 并且 库 的 fini_array_sz 大于 0：
+        数组地址 为 库 的 基地址 加 库 的 fini_array。
+        项数 为 库 的 fini_array_sz 除以 8。
+        可变 i 为 项数 减 1。
+        只要 i 大于或等于 0：
+            fn_addr 为 做 内存读64 用 数组地址 加 i 乘 8。
+            若 fn_addr 不等于 0：
+            完。
+            i 为 i 减 1。
+        完。
+    完。
+    若 库 的 fini函数 不等于 0：
+    完。
+    _已加载库 的 第 库索引 项 的 已初始化 为 假。
+完。
+
+动态链接器_注册内置库 接受 零参：
+    libc 为 新建 共享库。
+    libc 的 soname 为 「libc.so.6」。
+    libc 的 路径 为 「/lib/x86_64-linux-gnu/libc.so.6」。
+    libc 的 基地址 为 0x7E000000。
+    libc 的 引用计数 为 999。
+    libc 的 已初始化 为 真。
+    libc 的 符号表 为 一组：（空）。
+    libc 的 依赖列表 为 一组：（空）。
+    libc 的 init函数 为 0。
+    libc 的 fini函数 为 0。
+    libc 的 init_array 为 0。
+    libc 的 init_array_sz 为 0。
+    libc 的 fini_array 为 0。
+    libc 的 fini_array_sz 为 0。
+    libc 的 GOT地址 为 0。
+    libc 的 PLT地址 为 0。
+    做 追加 用 libc 的 符号表、一组：「printf」、0x1000、0、1。
+    做 追加 用 libc 的 符号表、一组：「puts」、0x1100、0、1。
+    做 追加 用 libc 的 符号表、一组：「scanf」、0x1200、0、1。
+    做 追加 用 libc 的 符号表、一组：「malloc」、0x2000、0、1。
+    做 追加 用 libc 的 符号表、一组：「free」、0x2100、0、1。
+    做 追加 用 libc 的 符号表、一组：「calloc」、0x2200、0、1。
+    做 追加 用 libc 的 符号表、一组：「realloc」、0x2300、0、1。
+    做 追加 用 libc 的 符号表、一组：「memcpy」、0x3000、0、1。
+    做 追加 用 libc 的 符号表、一组：「memset」、0x3100、0、1。
+    做 追加 用 libc 的 符号表、一组：「memmove」、0x3200、0、1。
+    做 追加 用 libc 的 符号表、一组：「strcmp」、0x3300、0、1。
+    做 追加 用 libc 的 符号表、一组：「strlen」、0x3400、0、1。
+    做 追加 用 libc 的 符号表、一组：「strcpy」、0x3500、0、1。
+    做 追加 用 libc 的 符号表、一组：「strcat」、0x3600、0、1。
+    做 追加 用 libc 的 符号表、一组：「open」、0x4000、0、1。
+    做 追加 用 libc 的 符号表、一组：「close」、0x4100、0、1。
+    做 追加 用 libc 的 符号表、一组：「read」、0x4200、0、1。
+    做 追加 用 libc 的 符号表、一组：「write」、0x4300、0、1。
+    做 追加 用 libc 的 符号表、一组：「lseek」、0x4400、0、1。
+    做 追加 用 libc 的 符号表、一组：「exit」、0x5000、0、1。
+    做 追加 用 libc 的 符号表、一组：「_exit」、0x5100、0、1。
+    做 追加 用 libc 的 符号表、一组：「fork」、0x5200、0、1。
+    做 追加 用 libc 的 符号表、一组：「execve」、0x5300、0、1。
+    做 追加 用 libc 的 符号表、一组：「waitpid」、0x5400、0、1。
+    做 追加 用 libc 的 符号表、一组：「getpid」、0x5500、0、1。
+    做 追加 用 libc 的 符号表、一组：「getppid」、0x5600、0、1。
+    做 追加 用 libc 的 符号表、一组：「pthread_create」、0x6000、0、1。
+    做 追加 用 libc 的 符号表、一组：「pthread_join」、0x6100、0、1。
+    做 追加 用 libc 的 符号表、一组：「pthread_mutex_lock」、0x6200、0、1。
+    做 追加 用 libc 的 符号表、一组：「pthread_mutex_unlock」、0x6300、0、1。
+    做 追加 用 libc 的 符号表、一组：「socket」、0x7000、0、1。
+    做 追加 用 libc 的 符号表、一组：「bind」、0x7100、0、1。
+    做 追加 用 libc 的 符号表、一组：「listen」、0x7200、0、1。
+    做 追加 用 libc 的 符号表、一组：「accept」、0x7300、0、1。
+    做 追加 用 libc 的 符号表、一组：「connect」、0x7400、0、1。
+    做 追加 用 libc 的 符号表、一组：「send」、0x7500、0、1。
+    做 追加 用 libc 的 符号表、一组：「recv」、0x7600、0、1。
+    做 追加 用 _已加载库、libc。
+    libpthread 为 新建 共享库。
+    libpthread 的 soname 为 「libpthread.so.0」。
+    libpthread 的 路径 为 「/lib/x86_64-linux-gnu/libpthread.so.0」。
+    libpthread 的 基地址 为 0x7D000000。
+    libpthread 的 引用计数 为 999。
+    libpthread 的 已初始化 为 真。
+    libpthread 的 符号表 为 一组：（空）。
+    libpthread 的 依赖列表 为 一组：（空）。
+    libpthread 的 init函数 为 0。
+    libpthread 的 fini函数 为 0。
+    libpthread 的 init_array 为 0。
+    libpthread 的 init_array_sz 为 0。
+    libpthread 的 fini_array 为 0。
+    libpthread 的 fini_array_sz 为 0。
+    libpthread 的 GOT地址 为 0。
+    libpthread 的 PLT地址 为 0。
+    做 追加 用 _已加载库、libpthread。
+    libdl 为 新建 共享库。
+    libdl 的 soname 为 「libdl.so.2」。
+    libdl 的 路径 为 「/lib/x86_64-linux-gnu/libdl.so.2」。
+    libdl 的 基地址 为 0x7C000000。
+    libdl 的 引用计数 为 999。
+    libdl 的 已初始化 为 真。
+    libdl 的 符号表 为 一组：（空）。
+    libdl 的 依赖列表 为 一组：（空）。
+    libdl 的 init函数 为 0。
+    libdl 的 fini函数 为 0。
+    libdl 的 init_array 为 0。
+    libdl 的 init_array_sz 为 0。
+    libdl 的 fini_array 为 0。
+    libdl 的 fini_array_sz 为 0。
+    libdl 的 GOT地址 为 0。
+    libdl 的 PLT地址 为 0。
+    做 追加 用 libdl 的 符号表、一组：「dlopen」、0x100、0、1。
+    做 追加 用 libdl 的 符号表、一组：「dlsym」、0x200、0、1。
+    做 追加 用 libdl 的 符号表、一组：「dlclose」、0x300、0、1。
+    做 追加 用 libdl 的 符号表、一组：「dlerror」、0x400、0、1。
+    做 追加 用 _已加载库、libdl。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _已加载库：
+        做 动态链接器_导出符号 用 i。
+        i 为 i 加 1。
+    完。
+完。
+
+DT_NULL 为 0。
+
+DT_NEEDED 为 1。
+
+DT_HASH 为 4。
+
+DT_STRTAB 为 5。
+
+DT_SYMTAB 为 6。
+
+DT_STRSZ 为 10。
+
+DT_SYMENT 为 11。
+
+DT_INIT 为 12。
+
+DT_FINI 为 13。
+
+DT_SONAME 为 14。
+
+DT_INIT_ARRAY 为 25。
+
+DT_FINI_ARRAY 为 26。
+
+DT_INIT_ARRAYSZ 为 27。
+
+DT_FINI_ARRAYSZ 为 28。
+
+PT_LOAD 为 1。
+
+PT_DYNAMIC 为 2。
+
+动态链接器_解析ELF 接受 路径、库：
+    头 为 做 文件_读字节前N 用 路径、64。
+    若 头 等于 空 或者 做 计数 用 头 小于 64：
+        返还 负 1。
+    完。
+    若 头 的 第 0 项 不等于 0x7F 或者 头 的 第 1 项 不等于 0x45 或者 头 的 第 2 项 不等于 0x4C 或者 头 的 第 3 项 不等于 0x46：
+        返还 负 1。
+    完。
+    若 头 的 第 4 项 不等于 2：
+        返还 负 1。
+    完。
+    e_phoff 为 做 读取u64_小端 用 头、32。
+    e_phentsize 为 做 读取u16_小端 用 头、54。
+    e_phnum 为 做 读取u16_小端 用 头、56。
+    ph数据 为 做 文件_读字节区间 用 路径、e_phoff、e_phnum 乘 e_phentsize。
+    若 ph数据 等于 空：
+        返还 负 1。
+    完。
+    可变 dyn偏移 为 0。
+    可变 dyn大小 为 0。
+    可变 映像大小 为 0。
+    可变 i 为 0。
+    只要 i 小于 e_phnum：
+        基 为 i 乘 e_phentsize。
+        p_type 为 做 读取u32_小端 用 ph数据、基。
+        p_offset 为 做 读取u64_小端 用 ph数据、基 加 8。
+        p_vaddr 为 做 读取u64_小端 用 ph数据、基 加 16。
+        p_filesz 为 做 读取u64_小端 用 ph数据、基 加 32。
+        p_memsz 为 做 读取u64_小端 用 ph数据、基 加 40。
+        若 p_type 等于 PT_LOAD：
+            段末 为 p_vaddr 加 p_memsz。
+            若 段末 大于 映像大小：
+                映像大小 为 段末。
+            完。
+        完。
+        若 p_type 等于 PT_DYNAMIC：
+            dyn偏移 为 p_offset。
+            dyn大小 为 p_filesz。
+        完。
+        i 为 i 加 1。
+    完。
+    库 的 映像大小 为 映像大小。
+    若 dyn大小 等于 0：
+        返还 0。
+    完。
+    dyn数据 为 做 文件_读字节区间 用 路径、dyn偏移、dyn大小。
+    若 dyn数据 等于 空：
+        返还 负 1。
+    完。
+    可变 strtab偏移 为 0。
+    可变 strtab大小 为 0。
+    可变 symtab偏移 为 0。
+    可变 syment大小 为 24。
+    可变 needed列表 为 一组：（空）。
+    可变 d 为 0。
+    只要 d 小于 dyn大小：
+        d_tag 为 做 读取u64_小端 用 dyn数据、d。
+        d_val 为 做 读取u64_小端 用 dyn数据、d 加 8。
+        若 d_tag 等于 DT_NULL：
+            d 为 dyn大小。
+        完。
+        若 d_tag 等于 DT_NEEDED：
+            做 追加 用 needed列表、d_val。
+        完。
+        若 d_tag 等于 DT_STRTAB：
+            strtab偏移 为 d_val。
+        完。
+        若 d_tag 等于 DT_STRSZ：
+            strtab大小 为 d_val。
+        完。
+        若 d_tag 等于 DT_SYMTAB：
+            symtab偏移 为 d_val。
+        完。
+        若 d_tag 等于 DT_SYMENT：
+            syment大小 为 d_val。
+        完。
+        若 d_tag 等于 DT_INIT：
+            库 的 init函数 为 d_val。
+        完。
+        若 d_tag 等于 DT_FINI：
+            库 的 fini函数 为 d_val。
+        完。
+        若 d_tag 等于 DT_INIT_ARRAY：
+            库 的 init_array 为 d_val。
+        完。
+        若 d_tag 等于 DT_INIT_ARRAYSZ：
+            库 的 init_array_sz 为 d_val。
+        完。
+        若 d_tag 等于 DT_FINI_ARRAY：
+            库 的 fini_array 为 d_val。
+        完。
+        若 d_tag 等于 DT_FINI_ARRAYSZ：
+            库 的 fini_array_sz 为 d_val。
+        完。
+        若 d_tag 等于 DT_SONAME：
+        完。
+        d 为 d 加 16。
+    完。
+    可变 strtab 为 空。
+    若 strtab偏移 大于 0 并且 strtab大小 大于 0：
+        strtab 为 做 文件_读字节区间 用 路径、strtab偏移、strtab大小。
+    完。
+    若 strtab 不等于 空：
+        i 为 0。
+        只要 i 小于 做 计数 用 needed列表：
+            名偏移 为 needed列表 的 第 i 项。
+            若 名偏移 小于 strtab大小：
+                名 为 做 读取C字串 用 strtab、名偏移。
+                做 追加 用 库 的 依赖列表、名。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+    若 symtab偏移 大于 0 并且 strtab 不等于 空：
+        sym数据 为 做 文件_读字节区间 用 路径、symtab偏移、4096 乘 syment大小。
+        若 sym数据 不等于 空：
+            最大条数 为 做 计数 用 sym数据 除以 syment大小。
+            可变 s 为 0。
+            只要 s 小于 最大条数：
+                基s 为 s 乘 syment大小。
+                st_name 为 做 读取u32_小端 用 sym数据、基s。
+                st_info 为 sym数据 的 第 基s 加 4 项。
+                st_value 为 做 读取u64_小端 用 sym数据、基s 加 8。
+                st_size 为 做 读取u64_小端 用 sym数据、基s 加 16。
+                bind 为 st_info 右移 4。
+                若 bind 大于或等于 1 并且 st_value 大于 0 并且 st_name 小于 strtab大小：
+                    符号名 为 做 读取C字串 用 strtab、st_name。
+                    若 做 字串_长度 用 符号名 大于 0：
+                        做 追加 用 库 的 符号表、一组：符号名、st_value、st_size、bind。
+                    完。
+                完。
+                s 为 s 加 1。
+            完。
+        完。
+    完。
+    做 内核信息 用 「ld-nova: 解析 」 加 路径 加 「 符号=」 加 做 整数转字符串 用 做 计数 用 库 的 符号表 加 「 依赖=」 加 做 整数转字符串 用 做 计数 用 库 的 依赖列表。
+    返还 0。
+完。
+
+动态链接器_报告 接受 零参：
+    可变 r 为 「═══ 动态链接器(ld-nova) ═══\n」。
+    r 为 r 加 「已加载库: 」 加 做 整数转字符串 用 做 计数 用 _已加载库 加 「\n」。
+    r 为 r 加 「全局符号: 」 加 做 整数转字符串 用 做 计数 用 _全局符号表 加 「\n」。
+    r 为 r 加 「搜索路径: 」 加 做 整数转字符串 用 做 计数 用 _库搜索路径 加 「\n」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _已加载库：
+        r 为 r 加 「  」 加 _已加载库 的 第 i 项 的 soname 加 「 @ 0x」 加 做 整数转十六进制 用 _已加载库 的 第 i 项 的 基地址。
+        r 为 r 加 「 ref=」 加 做 整数转字符串 用 _已加载库 的 第 i 项 的 引用计数。
+        r 为 r 加 「 sym=」 加 做 整数转字符串 用 做 计数 用 _已加载库 的 第 i 项 的 符号表 加 「\n」。
+        i 为 i 加 1。
+    完。
+    返还 r。
+完。
+
+本章 收束。

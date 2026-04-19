@@ -1,0 +1,757 @@
+《样式引擎》
+
+※ NovaOS 浏览器内核 · 第二层 · CSS解析引擎
+※ 核心能力: CSS3解析 → 样式计算 → 层叠/继承/选择器匹配
+
+引用《.·内核适配》。
+引用《.·节点操作》。
+引用《..·中枢·字符串替换》。
+
+CSS_显示 为 0
+CSS_位置 为 1
+CSS_宽度 为 2
+CSS_高度 为 3
+CSS_外边距 为 4
+CSS_内边距 为 5
+CSS_边框 为 6
+CSS_背景色 为 7
+CSS_前景色 为 8
+CSS_字号 为 9
+CSS_字重 为 10
+CSS_字族 为 11
+CSS_行高 为 12
+CSS_文字对齐 为 13
+CSS_浮动 为 14
+CSS_溢出 为 15
+CSS_透明度 为 16
+CSS_变换 为 17
+CSS_过渡 为 18
+CSS_弹性方向 为 19
+CSS_弹性换行 为 20
+CSS_对齐项目 为 21
+CSS_主轴对齐 为 22
+CSS_Z序 为 23
+CSS_圆角 为 24
+CSS_阴影 为 25
+CSS_顶 为 26
+CSS_左 为 27
+CSS_右 为 28
+CSS_底 为 29
+CSS_弹性增长 为 30
+CSS_网格模板列 为 31
+CSS_网格模板行 为 32
+CSS_光标 为 33
+CSS_属性总数 为 34。
+
+显示_无 为 0
+显示_块 为 1
+显示_行 为 2
+显示_行块 为 3
+显示_弹性 为 4
+显示_网格 为 5
+显示_表格 为 6
+
+位置_静态 为 0
+位置_相对 为 1
+位置_绝对 为 2
+位置_固定 为 3
+位置_粘性 为 4
+
+选择器_标签 为 0
+选择器_类 为 1
+选择器_ID 为 2
+选择器_通配 为 3
+选择器_后代 为 4
+选择器_子代 为 5
+选择器_伪类 为 6
+选择器_属性 为 7
+
+CSS选择器 是 一种 事物：
+    类型,。
+    值,。
+    特异度,
+完。
+
+CSS规则 是 一种 事物：
+    选择器,
+    属性,
+    特异度,。
+    来源,
+完。
+
+CSS计算值 是 一种 事物：
+    属性值,
+    有效,。
+完。
+
+CSS样式表 是 一种 事物：
+    规则列表,
+    来源,。
+完。
+
+可变 CSS_样式表列表 为 []。
+可变 CSS_默认样式 为 空。
+可变 CSS_已初始化 为 假。
+
+※ NCPA理论 — Nova层叠解析理论 (Nova Cascade Parsing Architecture)
+※ 理论核心: 词法增量缓存 + 特异度分层排序 + AI选择器热度预判
+※ 公式1: ParseCost = O(tokens_changed) (增量解析)
+※ 公式2: CascadeResolve = O(matched_rules log matched_rules)
+※ 公式3: SelectorHotness = AI(selector_sequence, dom_shape) → prematch_score
+
+TOK_EOF 为 0。
+TOK_IDENT 为 1。
+TOK_HASH 为 2。
+TOK_DOT 为 3。
+TOK_COLON 为 4。
+TOK_SEMICOLON 为 5。
+TOK_LBRACE 为 6。
+TOK_RBRACE 为 7。
+TOK_LPAREN 为 8。
+TOK_RPAREN 为 9。
+TOK_NUMBER 为 10。
+TOK_PERCENT 为 11。
+TOK_STRING 为 12。
+TOK_COMMA 为 13。
+TOK_GT 为 14。
+TOK_STAR 为 15。
+TOK_LBRACKET 为 16。
+TOK_RBRACKET 为 17。
+TOK_EQUAL 为 18。
+TOK_BANG 为 19。
+TOK_WHITESPACE 为 20。
+TOK_COMMENT 为 21。
+
+CSSToken 是 一种 事物：
+    类型,。
+    文本,。
+    行,。
+    列,。
+完。
+
+解析上下文 是 一种 事物：
+    源码,。
+    偏移,。
+    行,。
+    列,。
+    token列表,
+    token索引,。
+完。
+
+可变 全局_css解析次数 为 0。
+可变 全局_token总数 为 0。
+可变 全局_规则总数 为 0。
+可变 全局_匹配总次数 为 0。
+可变 全局_层叠解决次数 为 0。
+可变 全局_继承传播次数 为 0。
+可变 全局_AI热点命中 为 0。
+可变 全局_AI热点未中 为 0。
+
+CSS_缓存槽位 为 128。
+可变 CSS_源码缓存 为 空。
+
+※ §2 初始化与默认样式
+
+CSS引擎_初始化 接受 )：
+    CSS_样式表列表 为 []。
+    CSS_源码缓存 为 做 数组_创建 用 CSS_缓存槽位、空。
+    CSS_默认样式 为 做 CSS_创建默认计算值。
+    CSS_已初始化 为 真。
+    全局_css解析次数 为 0。
+    全局_token总数 为 0。
+    全局_规则总数 为 0。
+    全局_匹配总次数 为 0。
+    全局_层叠解决次数 为 0。
+    全局_继承传播次数 为 0。
+    全局_AI热点命中 为 0。
+    全局_AI热点未中 为 0。
+    返还 真。
+完。
+
+CSS_创建默认计算值 接受 )：
+    可变 计算 = CSS计算值 { 属性值: 做 数组_创建 用 CSS_属性总数、空, 有效: 真 }。
+    计算.属性值[CSS_显示] 为 显示_行。
+    计算.属性值[CSS_位置] 为 位置_静态。
+    计算.属性值[CSS_宽度] 为 「auto」。
+    计算.属性值[CSS_高度] 为 「auto」。
+    计算.属性值[CSS_外边距] 为 「0」。
+    计算.属性值[CSS_内边距] 为 「0」。
+    计算.属性值[CSS_背景色] 为 「transparent」。
+    计算.属性值[CSS_前景色] 为 「#000000」。
+    计算.属性值[CSS_字号] 为 「16px」。
+    计算.属性值[CSS_字重] 为 「400」。
+    计算.属性值[CSS_字族] 为 「NovaSans」。
+    计算.属性值[CSS_行高] 为 「normal」。
+    计算.属性值[CSS_文字对齐] 为 「left」。
+    计算.属性值[CSS_浮动] 为 「none」。
+    计算.属性值[CSS_溢出] 为 「visible」。
+    计算.属性值[CSS_透明度] 为 「1」。
+    计算.属性值[CSS_变换] 为 「none」。
+    计算.属性值[CSS_过渡] 为 「none」。
+    计算.属性值[CSS_弹性方向] 为 「row」。
+    计算.属性值[CSS_弹性换行] 为 「nowrap」。
+    计算.属性值[CSS_对齐项目] 为 「stretch」。
+    计算.属性值[CSS_主轴对齐] 为 「flex-start」。
+    计算.属性值[CSS_Z序] 为 「auto」。
+    计算.属性值[CSS_圆角] 为 「0」。
+    计算.属性值[CSS_阴影] 为 「none」。
+    计算.属性值[CSS_顶] 为 「auto」。
+    计算.属性值[CSS_左] 为 「auto」。
+    计算.属性值[CSS_右] 为 「auto」。
+    计算.属性值[CSS_底] 为 「auto」。
+    计算.属性值[CSS_弹性增长] 为 「0」。
+    计算.属性值[CSS_网格模板列] 为 「none」。
+    计算.属性值[CSS_网格模板行] 为 「none」。
+    计算.属性值[CSS_光标] 为 「auto」。
+    返还 计算。
+完。
+
+※ §3 词法分析器
+
+CSS_是字母 接受 ch)：
+    返还 (ch 不小于 「a」 并且 ch 不大于 「z」) 或者 (ch 不小于 「A」 并且 ch 不大于 「Z」) 或者 ch 等于 「_」 或者 ch 等于 「-」。
+完。
+
+CSS_是数字 接受 ch)：
+    返还 ch 不小于 「0」 并且 ch 不大于 「9」。
+完。
+
+CSS_跳过空白 接受 ctx)：
+    只要 ctx.偏移 小于 做 字符串_长度 用 ctx.源码：
+        ch 为 做 字符串_字符 用 ctx.源码、ctx.偏移。
+        若 ch 等于 「 」 或者 ch 等于 「\t」 或者 ch 等于 「\r」：
+            ctx.偏移 为 ctx.偏移 加 1。
+            ctx.列 为 ctx.列 加 1。
+        否则若 ch 等于 「\n」：
+            ctx.偏移 为 ctx.偏移 加 1。
+            ctx.行 为 ctx.行 加 1。
+            ctx.列 为 1。
+        否则：
+            返还。
+        完。
+    完。
+完。
+
+CSS_读取标识符 接受 ctx)：
+    起始 为 ctx.偏移。
+    只要 ctx.偏移 小于 做 字符串_长度 用 ctx.源码：
+        ch 为 做 字符串_字符 用 ctx.源码、ctx.偏移。
+        若 做 CSS_是字母 用 ch 或者 做 CSS_是数字 用 ch：
+            ctx.偏移 为 ctx.偏移 加 1。
+            ctx.列 为 ctx.列 加 1。
+        否则：
+            跳出。
+        完。
+    完。
+    返还 做 字符串_切片 用 ctx.源码、起始、ctx.偏移 减 起始。
+完。
+
+CSS_读取数字 接受 ctx)：
+    起始 为 ctx.偏移。
+    可变 有小数点 = 假。
+    只要 ctx.偏移 小于 做 字符串_长度 用 ctx.源码：
+        ch 为 做 字符串_字符 用 ctx.源码、ctx.偏移。
+        若 做 CSS_是数字 用 ch：
+            ctx.偏移 为 ctx.偏移 加 1。
+            ctx.列 为 ctx.列 加 1。
+        否则若 ch 等于 「.」 并且 !有小数点：
+            有小数点 为 真。
+            ctx.偏移 为 ctx.偏移 加 1。
+            ctx.列 为 ctx.列 加 1。
+        否则：
+            跳出。
+        完。
+    完。
+    返还 做 字符串_切片 用 ctx.源码、起始、ctx.偏移 减 起始。
+完。
+
+CSS_词法分析 接受 源码)：
+    可变 ctx = 解析上下文 ：
+        源码。
+        偏移。
+        行。
+        列。
+        token列表。
+        token索引。
+    完。
+
+    只要 ctx.偏移 小于 做 字符串_长度 用 ctx.源码：
+        做 CSS_跳过空白 用 ctx。
+        若 ctx.偏移 不小于 做 字符串_长度 用 ctx.源码：
+        ch 为 做 字符串_字符 用 ctx.源码、ctx.偏移。
+        行 为 ctx.行。
+        列 为 ctx.列。
+
+        若 做 CSS_是字母 用 ch：
+            text 为 做 CSS_读取标识符 用 ctx。
+            做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_IDENT、文本: text、行: 行、列: 列 }。
+        否则若 做 CSS_是数字 用 ch：
+            num 为 做 CSS_读取数字 用 ctx。
+            做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_NUMBER、文本: num、行: 行、列: 列 }。
+        否则：
+            ctx.偏移 为 ctx.偏移 加 1。
+            ctx.列 为 ctx.列 加 1。
+            若 ch 等于 「#」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_HASH、文本: 「#」、行: 行、列: 列 }。
+            否则若 ch 等于 「.」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_DOT、文本: 「.」、行: 行、列: 列 }。
+            否则若 ch 等于 「:」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_COLON、文本: 「:」、行: 行、列: 列 }。
+            否则若 ch 等于 「;」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_SEMICOLON、文本: 「;」、行: 行、列: 列 }。
+            否则：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_LBRACE、文本: 「{」、行: 行、列: 列 }。
+            否则若 ch 等于 「}」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_RBRACE、文本: 「}」、行: 行、列: 列 }。
+            否则若 ch 等于 「,」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_COMMA、文本: 「、」、行: 行、列: 列 }。
+            否则若 ch 等于 「>」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_GT、文本: 「>」、行: 行、列: 列 }。
+            否则若 ch 等于 「*」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_STAR、文本: 「*」、行: 行、列: 列 }。
+            否则若 ch 等于 「[」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_LBRACKET、文本: 「[」、行: 行、列: 列 }。
+            否则若 ch 等于 「]」：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_RBRACKET、文本: 「]」、行: 行、列: 列 }。
+            否则：
+                做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_EQUAL、文本: 「=」、行: 行、列: 列 }。
+            否则：
+                ※ 忽略未知字符
+            完。
+        完。
+    完。
+    做 数组_推入 用 ctx.token列表、CSSToken { 类型: TOK_EOF、文本: 「」、行: ctx.行、列: ctx.列 }。
+    全局_token总数 为 全局_token总数 加 做 数组_长度 用 ctx.token列表。
+    返还 ctx.token列表。
+完。
+
+※ §4 语法解析器 — 规则与声明
+
+CSS_当前Token 接受 ctx)：
+    若 ctx.token索引 不小于 做 数组_长度 用 ctx.token列表：
+        返还 CSSToken { 类型: TOK_EOF, 文本: 「」, 行: 0, 列: 0 }。
+    完。
+    返还 ctx.token列表[ctx.token索引]。
+完。
+
+CSS_消费Token 接受 ctx)：
+    tok 为 做 CSS_当前Token 用 ctx。
+    ctx.token索引 为 ctx.token索引 加 1。
+    返还 tok。
+完。
+
+CSS_匹配Token 接受 ctx、类型)：
+    若 做 CSS_当前Token 用 ctx.类型 等于 类型：
+        ctx.token索引 为 ctx.token索引 加 1。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+CSS_解析选择器 接受 ctx)：
+    可变 选择器列表 = []。
+    可变 特异度 = 0。
+    只要 真：
+        tok 为 做 CSS_当前Token 用 ctx。
+        若 tok.类型 等于 TOK_LBRACE 或者 tok.类型 等于 TOK_EOF：
+        若 tok.类型 等于 TOK_IDENT：
+            做 数组_推入 用 选择器列表、CSS选择器 { 类型: 选择器_标签、值: tok.文本、特异度: 1 }。
+            特异度 为 特异度 加 1。
+            做 CSS_消费Token 用 ctx。
+        否则若 tok.类型 等于 TOK_DOT：
+            做 CSS_消费Token 用 ctx。
+            nameTok 为 做 CSS_消费Token 用 ctx。
+            做 数组_推入 用 选择器列表、CSS选择器 { 类型: 选择器_类、值: nameTok.文本、特异度: 10 }。
+            特异度 为 特异度 加 10。
+        否则：
+            做 CSS_消费Token 用 ctx。
+            idTok 为 做 CSS_消费Token 用 ctx。
+            做 数组_推入 用 选择器列表、CSS选择器 { 类型: 选择器_ID、值: idTok.文本、特异度: 100 }。
+            特异度 为 特异度 加 100。
+        否则：
+            做 数组_推入 用 选择器列表、CSS选择器 { 类型: 选择器_通配、值: 「*」、特异度: 0 }。
+            做 CSS_消费Token 用 ctx。
+        否则：
+            做 CSS_消费Token 用 ctx。
+        完。
+    完。
+    返还 { 列表: 选择器列表, 特异度: 特异度 }。
+完。
+
+CSS_属性名到ID 接受 name)：
+    若 name 等于 「display」：
+    若 name 等于 「position」：
+    若 name 等于 「width」：
+    若 name 等于 「height」：
+    若 name 等于 「margin」：
+    若 name 等于 「padding」：
+    若 name 等于 「border」：
+    若 name 等于 「background-color」：
+    若 name 等于 「color」：
+    若 name 等于 「font-size」：
+    若 name 等于 「font-weight」：
+    若 name 等于 「font-family」：
+    若 name 等于 「line-height」：
+    若 name 等于 「text-align」：
+    若 name 等于 「float」：
+    若 name 等于 「overflow」：
+    若 name 等于 「opacity」：
+    若 name 等于 「transform」：
+    若 name 等于 「transition」：
+    若 name 等于 「flex-direction」：
+    若 name 等于 「flex-wrap」：
+    若 name 等于 「align-items」：
+    若 name 等于 「justify-content」：
+    若 name 等于 「z-index」：
+    若 name 等于 「border-radius」：
+    若 name 等于 「box-shadow」：
+    若 name 等于 「top」：
+    若 name 等于 「left」：
+    若 name 等于 「right」：
+    若 name 等于 「bottom」：
+    若 name 等于 「flex-grow」：
+    若 name 等于 「grid-template-columns」：
+    若 name 等于 「grid-template-rows」：
+    若 name 等于 「cursor」：
+    返还 -1。
+完。
+
+CSS_解析声明块 接受 ctx)：
+    可变 属性列表 = []。
+    若 !做 CSS_匹配Token 用 ctx、TOK_LBRACE：
+    只要 真：
+        tok 为 做 CSS_当前Token 用 ctx。
+        若 tok.类型 等于 TOK_RBRACE 或者 tok.类型 等于 TOK_EOF：
+            做 CSS_匹配Token 用 ctx、TOK_RBRACE。
+            跳出。
+        完。
+        若 tok.类型 不等于 TOK_IDENT：
+            做 CSS_消费Token 用 ctx。
+            继续。
+        完。
+        propName 为 做 CSS_消费Token 用 ctx.文本。
+        若 !做 CSS_匹配Token 用 ctx、TOK_COLON：
+        可变 value = 「」。
+        只要 真：
+            vt 为 做 CSS_当前Token 用 ctx。
+            若 vt.类型 等于 TOK_SEMICOLON 或者 vt.类型 等于 TOK_RBRACE 或者 vt.类型 等于 TOK_EOF：
+            value 为 value 加 vt.文本。
+            做 CSS_消费Token 用 ctx。
+        完。
+        做 CSS_匹配Token 用 ctx、TOK_SEMICOLON。
+        propId 为 做 CSS_属性名到ID 用 propName。
+        若 propId 不小于 0：
+            做 数组_推入 用 属性列表、[propId、value]。
+        完。
+    完。
+    返还 属性列表。
+完。
+
+CSS_解析样式表 接受 源码、来源)：
+    全局_css解析次数 为 全局_css解析次数 加 1。
+    token列表 为 做 CSS_词法分析 用 源码。
+    可变 ctx = 解析上下文 ：
+        源码。
+        偏移。
+        行。
+        列。
+        token列表。
+        token索引。
+    完。
+    可变 规则列表 = []。
+
+    只要 做 CSS_当前Token 用 ctx.类型 不等于 TOK_EOF：
+        sel 为 做 CSS_解析选择器 用 ctx。
+        若 做 数组_长度 用 sel.列表 等于 0：
+            做 CSS_消费Token 用 ctx。
+            继续。
+        完。
+        decl 为 做 CSS_解析声明块 用 ctx。
+        规则 为 CSS规则 ：
+            选择器: sel.列表,。
+            属性。
+            特异度: sel.特异度,。
+            来源。
+        完。
+        做 数组_推入 用 规则列表、规则。
+    完。
+
+    ss 为 CSS样式表 { 规则列表: 规则列表, 来源: 来源 }。
+    全局_规则总数 为 全局_规则总数 加 做 数组_长度 用 规则列表。
+    返还 ss。
+完。
+
+※ §5 选择器匹配引擎
+
+CSS_元素有类 接受 元素、类名)：
+    若 元素 等于 空：
+    cls 为 做 DOM_获取属性 用 元素、「class」。
+    若 cls 等于 空：
+    返还 做 字符串_包含 用 cls、类名。
+完。
+
+CSS_选择器匹配单个 接受 选择器、元素)：
+    若 选择器.类型 等于 选择器_通配：
+    若 选择器.类型 等于 选择器_标签：
+        返还 做 DOM_标签名 用 元素 等于 选择器.值。
+    完。
+    若 选择器.类型 等于 选择器_类：
+        返还 做 CSS_元素有类 用 元素、选择器.值。
+    完。
+    若 选择器.类型 等于 选择器_ID：
+        返还 做 DOM_获取属性 用 元素、「id」 等于 选择器.值。
+    完。
+    返还 假。
+完。
+
+CSS_规则匹配元素 接受 规则、元素)：
+    全局_匹配总次数 为 全局_匹配总次数 加 1。
+    可变 i = 0。
+    只要 i 小于 做 数组_长度 用 规则.选择器：
+        若 !做 CSS_选择器匹配单个 用 规则.选择器[i]、元素：
+            返还 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+※ §6 层叠计算与继承
+
+CSS_来源权重 接受 来源)：
+    若 来源 等于 0：
+    若 来源 等于 1：
+    若 来源 等于 2：
+    返还 0。
+完。
+
+CSS_规则排序 接受 规则列表)：
+    ※ 按 来源权重+特异度 排序
+    可变 i = 1。
+    只要 i 小于 做 数组_长度 用 规则列表：
+        key 为 规则列表[i]。
+        可变 j = i 减 1。
+        只要 (j 不小于 0 &&：
+            (做 CSS_来源权重 用 规则列表[j].来源 加 规则列表[j].特异度) >。
+            (做 CSS_来源权重 用 key.来源 加 key.特异度)) ：
+            规则列表[j 加 1] = 规则列表[j]。
+            j 为 j 减 1。
+        完。
+        规则列表[j 加 1] = key。
+        i 为 i 加 1。
+    完。
+完。
+
+CSS_是继承属性 接受 propId)：
+    返还 propId 等于 CSS_前景色 ||。
+        propId 为 = CSS_字号 ||。
+        propId 为 = CSS_字重 ||。
+        propId 为 = CSS_字族 ||。
+        propId 为 = CSS_行高 ||。
+        propId 为 = CSS_文字对齐。
+完。
+
+CSS_计算元素样式 接受 元素、父计算值)：
+    全局_层叠解决次数 为 全局_层叠解决次数 加 1。
+    可变 计算值 = 做 CSS_创建默认计算值。
+    可变 匹配规则 = []。
+
+    ※ 收集匹配规则
+    可变 si = 0。
+    只要 si 小于 做 数组_长度 用 CSS_样式表列表：
+        ss 为 CSS_样式表列表[si]。
+        可变 ri = 0。
+        只要 ri 小于 做 数组_长度 用 ss.规则列表：
+            规则 为 ss.规则列表[ri]。
+            若 做 CSS_规则匹配元素 用 规则、元素：
+                做 数组_推入 用 匹配规则、规则。
+            完。
+            ri 为 ri 加 1。
+        完。
+        si 为 si 加 1。
+    完。
+
+    ※ 排序并应用
+    做 CSS_规则排序 用 匹配规则。
+    可变 mi = 0。
+    只要 mi 小于 做 数组_长度 用 匹配规则：
+        规则 为 匹配规则[mi]。
+        可变 pi = 0。
+        只要 pi 小于 做 数组_长度 用 规则.属性：
+            p 为 规则.属性[pi]。
+            计算值.属性值[p[0]] 为 做 CSS_规范化属性值 用 p[0]、p[1]、元素。
+            pi 为 pi 加 1。
+        完。
+        mi 为 mi 加 1。
+    完。
+
+    ※ 继承阶段
+    若 父计算值 不等于 空：
+        可变 id = 0。
+        只要 id 小于 CSS_属性总数：
+            若 做 CSS_是继承属性 用 id 并且 计算值.属性值[id] 等于 CSS_默认样式.属性值[id]：
+                计算值.属性值[id] 为 父计算值.属性值[id]。
+                全局_继承传播次数 为 全局_继承传播次数 加 1。
+            完。
+            id 为 id 加 1。
+        完。
+    完。
+
+    返还 计算值。
+完。
+
+※ §7 属性值规范化
+
+CSS_长度归一化 接受 v、参考值)：
+    若 做 字符串_以结尾 用 v、「px」：
+        返还 v。
+    完。
+    若 做 字符串_以结尾 用 v、「%」：
+        num 为 做 字符串_转数值 用 做 字符串_切片 用 v、0、做 字符串_长度 用 v 减 1。
+        返还 ((num 乘 参考值) 除以 100) 加 「px」。
+    完。
+    若 v 等于 「auto」：
+    ※ 无单位默认px
+    若 做 字符串_长度 用 v 大于 0 并且 做 CSS_是数字 用 做 字符串_字符 用 v、0：
+        返还 v 加 「px」。
+    完。
+    返还 v。
+完。
+
+CSS_颜色归一化 接受 v)：
+    若 v 等于 「red」：
+    若 v 等于 「green」：
+    若 v 等于 「blue」：
+    若 v 等于 「black」：
+    若 v 等于 「white」：
+    返还 v。
+完。
+
+CSS_规范化属性值 接受 propId、raw、元素)：
+    若 (propId 等于 CSS_宽度 或者 propId 等于 CSS_高度 ||：
+        propId 为 = CSS_外边距 或者 propId 等于 CSS_内边距 ||。
+        propId 为 = CSS_顶 或者 propId 等于 CSS_左 或者 propId 等于 CSS_右 或者 propId 等于 CSS_底) ：
+        返还 做 CSS_长度归一化 用 raw、1000。
+    完。
+    若 propId 等于 CSS_背景色 或者 propId 等于 CSS_前景色：
+        返还 做 CSS_颜色归一化 用 raw。
+    完。
+    若 propId 等于 CSS_透明度：
+        n 为 做 字符串_转数值 用 raw。
+        若 n 小于 0：
+        若 n 大于 1：
+        返还 n 加 「」。
+    完。
+    若 propId 等于 CSS_显示：
+        若 raw 等于 「block」 或者 raw 等于 「inline」 或者 raw 等于 「inline-block」 或者 raw 等于 「flex」 或者 raw 等于 「grid」 或者 raw 等于 「none」：
+            返还 raw。
+        完。
+        返还 「inline」。
+    完。
+    返还 raw。
+完。
+
+※ §8 样式表管理接口
+
+CSS_添加样式表源码 接受 源码、来源)：
+    若 !CSS_已初始化：
+    样式表 为 做 CSS_解析样式表 用 源码、来源。
+    做 数组_推入 用 CSS_样式表列表、样式表。
+    返还 样式表。
+完。
+
+CSS_清空样式表 接受 )：
+    CSS_样式表列表 为 []。
+完。
+
+CSS_移除样式表 接受 index)：
+    若 index 小于 0 或者 index 不小于 做 数组_长度 用 CSS_样式表列表：
+    做 数组_删除 用 CSS_样式表列表、index。
+    返还 真。
+完。
+
+※ §9 DOM树样式重算
+
+可变 _CSS重算深度 为 0。
+
+CSS_重算子树 接受 node、父样式)：
+    若 node 等于 空：
+    _CSS重算深度 为 _CSS重算深度 加 1。
+    若 _CSS重算深度 大于 5000：
+    当前样式 为 做 CSS_计算元素样式 用 node、父样式。
+    做 DOM_设置计算样式 用 node、当前样式。
+    可变 i = 0。
+    kids 为 做 DOM_子节点 用 node。
+    只要 i 小于 做 数组_长度 用 kids：
+        做 CSS_重算子树 用 kids[i]、当前样式。
+        i 为 i 加 1。
+    完。
+完。
+
+CSS_全树重算 接受 文档)：
+    root 为 做 DOM_文档根 用 文档。
+    做 CSS_重算子树 用 root、空。
+完。
+
+※ §10 AI选择器热点预判 (NCPA公式3)
+
+CSS_AI_热点选择器预热 接受 文档)：
+    特征 为 做 Tensor_创建 用 1、4。
+    做 Tensor_写 用 特征、0、0、做 数组_长度 用 CSS_样式表列表 乘 1.0。
+    做 Tensor_写 用 特征、0、1、全局_规则总数 乘 1.0。
+    做 Tensor_写 用 特征、0、2、做 DOM_节点总数 用 文档 乘 1.0。
+    做 Tensor_写 用 特征、0、3、全局_匹配总次数 乘 1.0。
+    结果 为 做 AI总线_推理 用 「css_selector_hotness」、特征。
+    若 结果 不等于 空：
+        conf 为 做 Tensor_读 用 结果、0、0。
+        若 conf 大于 0.7：
+            全局_AI热点命中 为 全局_AI热点命中 加 1。
+        否则：
+            全局_AI热点未中 为 全局_AI热点未中 加 1。
+        完。
+        做 Tensor_释放 用 结果。
+    完。
+    做 Tensor_释放 用 特征。
+完。
+
+※ §11 增量样式更新
+
+可变 _CSS局部重算深度 为 0。
+
+CSS_节点局部重算 接受 node)：
+    若 node 等于 空：
+    _CSS局部重算深度 为 _CSS局部重算深度 加 1。
+    若 _CSS局部重算深度 大于 5000：
+    父 为 做 DOM_父节点 用 node。
+    父样式 为 空。
+    若 父 不等于 空：
+        父样式 为 做 DOM_获取计算样式 用 父。
+    完。
+    新样式 为 做 CSS_计算元素样式 用 node、父样式。
+    做 DOM_设置计算样式 用 node、新样式。
+    ※ 继承属性变更时，递归子树
+    可变 i = 0。
+    kids 为 做 DOM_子节点 用 node。
+    只要 i 小于 做 数组_长度 用 kids：
+        做 CSS_节点局部重算 用 kids[i]。
+        i 为 i 加 1。
+    完。
+完。
+
+※ §12 诊断输出
+
+CSS_诊断报告 接受 )：
+    可变 报告 = 「[NCPA诊断报告]\n」。
+    报告 为 报告 加 「CSS解析次数: 」 加 全局_css解析次数 加 「\n」。
+    报告 为 报告 加 「Token总数: 」 加 全局_token总数 加 「\n」。
+    报告 为 报告 加 「规则总数: 」 加 全局_规则总数 加 「\n」。
+    报告 为 报告 加 「匹配总次数: 」 加 全局_匹配总次数 加 「\n」。
+    报告 为 报告 加 「层叠解决次数: 」 加 全局_层叠解决次数 加 「\n」。
+    报告 为 报告 加 「继承传播次数: 」 加 全局_继承传播次数 加 「\n」。
+    报告 为 报告 加 「AI热点命中: 」 加 全局_AI热点命中 加 「\n」。
+    报告 为 报告 加 「AI热点未中: 」 加 全局_AI热点未中 加 「\n」。
+    报告 为 报告 加 「样式表数量: 」 加 做 数组_长度 用 CSS_样式表列表 加 「\n」。
+    返还 报告。
+完。
+
+本章 收束。

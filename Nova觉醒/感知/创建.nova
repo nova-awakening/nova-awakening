@@ -1,0 +1,475 @@
+《创建》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·内容可见性》。
+
+ICE统计 是 一种 事物，含 候选创建次数、host候选数、srflx候选数、relay候选数、优先级计算次数、SDP序列化次数、配对创建次数、连接检查次数、检查成功次数、检查失败次数、STUN请求次数、STUN响应次数、STUN超时次数、AI路径调用次数、AI路径命中次数、总处理耗时_纳秒、错误总数、候选销毁次数。
+
+AI_ICE状态 是 一种 事物，含 历史host成功率、历史srflx成功率、历史relay使用率、历史平均检查时间、连续host成功数、预测最佳类型、采样计数器、学习权重。
+
+可变 全局ICE统计 为 0。
+
+可变 全局ICE_AI 为 0。
+
+可变 全局ICE已初始化 为 假。
+
+ICE_初始化全局 接受 零参：
+    若 全局ICE已初始化 等于 真：
+        返还 错误_已存在。
+    完。
+    全局ICE统计 为 做 堆_分配_清零 用 144。
+    若 全局ICE统计 等于 空：
+        返还 错误_内存不足。
+    完。
+    全局ICE_AI 为 做 堆_分配_清零 用 40。
+    若 全局ICE_AI 不等于 空：
+        全局ICE_AI 的 预测最佳类型 为 0。
+        全局ICE_AI 的 学习权重 为 128。
+    完。
+    全局ICE已初始化 为 真。
+    做 打印 用 「[ICE] 初始化完成」。
+    返还 0。
+完。
+
+ICE_销毁全局 接受 零参：
+    若 全局ICE统计 不等于 空：
+        做 堆_释放 用 全局ICE统计。
+        全局ICE统计 为 0。
+    完。
+    若 全局ICE_AI 不等于 空：
+        做 堆_释放 用 全局ICE_AI。
+        全局ICE_AI 为 0。
+    完。
+    全局ICE已初始化 为 假。
+    返还 0。
+完。
+
+ICE_CANDIDATE_HOST 为 0。
+
+ICE_CANDIDATE_SRFLX 为 1。
+
+ICE_CANDIDATE_PRFLX 为 2。
+
+ICE_CANDIDATE_RELAY 为 3。
+
+ICE_STATE_NEW 为 0。
+
+ICE_STATE_CHECKING 为 1。
+
+ICE_STATE_CONNECTED 为 2。
+
+ICE_STATE_COMPLETED 为 3。
+
+ICE_STATE_FAILED 为 4。
+
+ICE_STATE_DISCONNECTED 为 5。
+
+ICE_STATE_CLOSED 为 6。
+
+ICE_GATHER_NEW 为 0。
+
+ICE_GATHER_GATHERING 为 1。
+
+ICE_GATHER_COMPLETE 为 2。
+
+SIGNAL_STATE_STABLE 为 0。
+
+SIGNAL_STATE_HAVE_LOCAL_OFFER 为 1。
+
+SIGNAL_STATE_HAVE_REMOTE_OFFER 为 2。
+
+SIGNAL_STATE_HAVE_LOCAL_PRANSWER 为 3。
+
+SIGNAL_STATE_HAVE_REMOTE_PRANSWER 为 4。
+
+SIGNAL_STATE_CLOSED 为 5。
+
+PC_STATE_NEW 为 0。
+
+PC_STATE_CONNECTING 为 1。
+
+PC_STATE_CONNECTED 为 2。
+
+PC_STATE_DISCONNECTED 为 3。
+
+PC_STATE_FAILED 为 4。
+
+PC_STATE_CLOSED 为 5。
+
+ICECandidate 是 一种 事物，含 类型、协议、IP地址、端口、优先级、基础地址、基础端口、sdpMid、sdpMLineIndex、候选字符串。
+
+ICECandidate_创建 接受 类型、协议、IP、端口、优先级：
+    c 为 做 堆_分配 用 ICECandidate。
+    c 的 类型 为 类型。
+    c 的 协议 为 协议。
+    c 的 IP地址 为 若 IP 不等于 0 则 做 字符串_复制 用 IP 否则 0。
+    c 的 端口 为 端口。
+    c 的 优先级 为 优先级。
+    c 的 基础地址 为 0。
+    c 的 基础端口 为 0。
+    c 的 sdpMid 为 0。
+    c 的 sdpMLineIndex 为 0。
+    c 的 候选字符串 为 0。
+    返还 c。
+完。
+
+ICECandidate_计算优先级 接受 类型、本地偏好、分量ID：
+    可变 type_pref 为 0。
+    若 类型 等于 ICE_CANDIDATE_HOST：
+        type_pref 为 126。
+    否则若 类型 等于 ICE_CANDIDATE_SRFLX：
+        type_pref 为 100。
+    否则若 类型 等于 ICE_CANDIDATE_PRFLX：
+        type_pref 为 110。
+    否则若 类型 等于 ICE_CANDIDATE_RELAY：
+        type_pref 为 0。
+    完。
+    若 全局ICE统计 不等于 空：
+        全局ICE统计 的 优先级计算次数 为 全局ICE统计 的 优先级计算次数 加 1。
+    完。
+    返还 (type_pref 左移 24) 加 (本地偏好 左移 8) 加 (256 减 分量ID)。
+完。
+
+ICECandidate_序列化SDP 接受 c：
+    若 c 等于 空：
+        返还 空。
+    完。
+    可变 sdp 为 「candidate:」。
+    sdp 为 做 字符串拼接 用 sdp、「1 」。
+    sdp 为 做 字符串拼接 用 sdp、「1 」。
+    若 c 的 协议 等于 0：
+        sdp 为 做 字符串拼接 用 sdp、「udp 」。
+    否则：
+        sdp 为 做 字符串拼接 用 sdp、「tcp 」。
+    完。
+    sdp 为 做 字符串拼接 用 sdp、做 转字符串 用 c 的 优先级。
+    sdp 为 做 字符串拼接 用 sdp、「 」。
+    若 c 的 IP地址 不等于 空：
+        sdp 为 做 字符串拼接 用 sdp、c 的 IP地址。
+    否则：
+        sdp 为 做 字符串拼接 用 sdp、「0.0.0.0」。
+    完。
+    sdp 为 做 字符串拼接 用 sdp、「 」。
+    sdp 为 做 字符串拼接 用 sdp、做 转字符串 用 c 的 端口。
+    sdp 为 做 字符串拼接 用 sdp、「 typ 」。
+    若 c 的 类型 等于 ICE_CANDIDATE_HOST：
+        sdp 为 做 字符串拼接 用 sdp、「host」。
+    否则若 c 的 类型 等于 ICE_CANDIDATE_SRFLX：
+        sdp 为 做 字符串拼接 用 sdp、「srflx」。
+    否则若 c 的 类型 等于 ICE_CANDIDATE_PRFLX：
+        sdp 为 做 字符串拼接 用 sdp、「prflx」。
+    否则若 c 的 类型 等于 ICE_CANDIDATE_RELAY：
+        sdp 为 做 字符串拼接 用 sdp、「relay」。
+    完。
+    c 的 候选字符串 为 sdp。
+    若 全局ICE统计 不等于 空：
+        全局ICE统计 的 SDP序列化次数 为 全局ICE统计 的 SDP序列化次数 加 1。
+    完。
+    返还 sdp。
+完。
+
+ICECandidate_销毁 接受 c：
+    若 c 等于 空：
+        返还。
+    完。
+    做 堆_释放 用 c。
+    若 全局ICE统计 不等于 空：
+        全局ICE统计 的 候选销毁次数 为 全局ICE统计 的 候选销毁次数 加 1。
+    完。
+完。
+
+ICECandidate_获取类型名 接受 类型：
+    若 类型 等于 ICE_CANDIDATE_HOST：
+        返还 「host」。
+    完。
+    若 类型 等于 ICE_CANDIDATE_SRFLX：
+        返还 「srflx」。
+    完。
+    若 类型 等于 ICE_CANDIDATE_PRFLX：
+        返还 「prflx」。
+    完。
+    若 类型 等于 ICE_CANDIDATE_RELAY：
+        返还 「relay」。
+    完。
+    返还 「unknown」。
+完。
+
+ICE候选对 是 一种 事物，含 本地候选、远端候选、优先级、状态、RTT、最后检查时间。
+
+最大ICE配对数 为 64。
+
+ICE对_等待 为 0。
+
+ICE对_进行中 为 1。
+
+ICE对_成功 为 2。
+
+ICE对_失败 为 3。
+
+ICE候选对_创建 接受 本地、远端：
+    若 本地 等于 空 或者 远端 等于 空：
+        返还 空。
+    完。
+    对 为 做 堆_分配 用 ICE候选对。
+    若 对 等于 空：
+        返还 空。
+    完。
+    对 的 本地候选 为 本地。
+    对 的 远端候选 为 远端。
+    可变 G 为 本地 的 优先级。
+    可变 D 为 远端 的 优先级。
+    若 G 大于 D：
+        对 的 优先级 为 D 乘 4294967296 加 G 乘 2 加 1。
+    否则：
+        对 的 优先级 为 G 乘 4294967296 加 D 乘 2。
+    完。
+    对 的 状态 为 ICE对_等待。
+    对 的 RTT 为 0。
+    对 的 最后检查时间 为 0。
+    若 全局ICE统计 不等于 空：
+        全局ICE统计 的 配对创建次数 为 全局ICE统计 的 配对创建次数 加 1。
+    完。
+    返还 对。
+完。
+
+ICE候选对_执行检查 接受 对：
+    若 对 等于 空 或者 对 的 状态 不等于 ICE对_等待：
+        返还 错误_无效参数。
+    完。
+    对 的 状态 为 ICE对_进行中。
+    开始 为 做 平台_获取高精度时间。
+    若 全局ICE统计 不等于 空：
+        全局ICE统计 的 连接检查次数 为 全局ICE统计 的 连接检查次数 加 1。
+        全局ICE统计 的 STUN请求次数 为 全局ICE统计 的 STUN请求次数 加 1。
+    完。
+    本地 为 对 的 本地候选。
+    若 本地 不等于 空 并且 本地 的 类型 等于 ICE_CANDIDATE_HOST：
+        对 的 状态 为 ICE对_成功。
+        对 的 RTT 为 5。
+        若 全局ICE统计 不等于 空：
+            全局ICE统计 的 检查成功次数 为 全局ICE统计 的 检查成功次数 加 1。
+            全局ICE统计 的 STUN响应次数 为 全局ICE统计 的 STUN响应次数 加 1。
+        完。
+    否则：
+        对 的 状态 为 ICE对_成功。
+        对 的 RTT 为 50。
+        若 全局ICE统计 不等于 空：
+            全局ICE统计 的 检查成功次数 为 全局ICE统计 的 检查成功次数 加 1。
+        完。
+    完。
+    对 的 最后检查时间 为 做 平台_获取高精度时间。
+    做 AI_ICE_记录检查 用 对。
+    返还 0。
+完。
+
+ICE_收集本地候选 接受 候选列表、候选数指针、容量：
+    若 候选列表 等于 空 或者 候选数指针 等于 空：
+        返还 错误_无效参数。
+    完。
+    当前数 为 做 内存_读32 用 候选数指针。
+    若 当前数 小于 容量：
+        host 为 做 ICECandidate_创建 用 ICE_CANDIDATE_HOST、0、「127.0.0.1」、9000、0。
+        若 host 不等于 空：
+            host 的 优先级 为 做 ICECandidate_计算优先级 用 ICE_CANDIDATE_HOST、65535、1。
+            做 ICECandidate_序列化SDP 用 host。
+            做 内存_写64 用 候选列表 加 当前数 乘 8、host。
+            当前数 为 当前数 加 1。
+            若 全局ICE统计 不等于 空：
+                全局ICE统计 的 候选创建次数 为 全局ICE统计 的 候选创建次数 加 1。
+                全局ICE统计 的 host候选数 为 全局ICE统计 的 host候选数 加 1。
+            完。
+        完。
+    完。
+    若 当前数 小于 容量：
+        srflx 为 做 ICECandidate_创建 用 ICE_CANDIDATE_SRFLX、0、「203.0.113.1」、12345、0。
+        若 srflx 不等于 空：
+            srflx 的 优先级 为 做 ICECandidate_计算优先级 用 ICE_CANDIDATE_SRFLX、65535、1。
+            做 ICECandidate_序列化SDP 用 srflx。
+            做 内存_写64 用 候选列表 加 当前数 乘 8、srflx。
+            当前数 为 当前数 加 1。
+            若 全局ICE统计 不等于 空：
+                全局ICE统计 的 候选创建次数 为 全局ICE统计 的 候选创建次数 加 1。
+                全局ICE统计 的 srflx候选数 为 全局ICE统计 的 srflx候选数 加 1。
+            完。
+        完。
+    完。
+    做 内存_写32 用 候选数指针、当前数。
+    若 全局ICE统计 不等于 空：
+        全局ICE统计 的 ICE候选收集次数 为 全局ICE统计 的 ICE候选收集次数 加 1。
+    完。
+    返还 0。
+完。
+
+AI_ICE_记录检查 接受 对：
+    若 全局ICE_AI 等于 空 或者 对 等于 空：
+        返还。
+    完。
+    AI 为 全局ICE_AI。
+    AI 的 采样计数器 为 AI 的 采样计数器 加 1。
+    本地 为 对 的 本地候选。
+    可变 当前类型 为 0。
+    若 本地 不等于 空：
+        当前类型 为 本地 的 类型。
+    完。
+    成功 为 对 的 状态 等于 ICE对_成功。
+    AI 的 历史平均检查时间 为 (AI 的 历史平均检查时间 乘 7 加 对 的 RTT 乘 1024) 除以 8。
+    若 当前类型 等于 ICE_CANDIDATE_HOST 并且 成功 等于 真：
+        AI 的 历史host成功率 为 (AI 的 历史host成功率 乘 15 加 1024) 除以 16。
+        AI 的 连续host成功数 为 AI 的 连续host成功数 加 1。
+    否则：
+        AI 的 连续host成功数 为 0。
+    完。
+    若 当前类型 等于 ICE_CANDIDATE_SRFLX 并且 成功 等于 真：
+        AI 的 历史srflx成功率 为 (AI 的 历史srflx成功率 乘 15 加 1024) 除以 16。
+    完。
+    若 当前类型 等于 ICE_CANDIDATE_RELAY：
+        AI 的 历史relay使用率 为 (AI 的 历史relay使用率 乘 15 加 1024) 除以 16。
+    完。
+    若 AI 的 采样计数器 小于 8：
+        返还。
+    完。
+    AI 的 采样计数器 为 0。
+    若 全局ICE统计 不等于 空：
+        全局ICE统计 的 AI路径调用次数 为 全局ICE统计 的 AI路径调用次数 加 1。
+    完。
+    若 AI 的 连续host成功数 大于 3 并且 AI 的 历史host成功率 大于 700：
+        AI 的 预测最佳类型 为 ICE_CANDIDATE_HOST。
+    否则若 AI 的 历史srflx成功率 大于 500：
+        AI 的 预测最佳类型 为 ICE_CANDIDATE_SRFLX。
+    否则：
+        AI 的 预测最佳类型 为 ICE_CANDIDATE_RELAY。
+    完。
+    若 AI 的 预测最佳类型 等于 当前类型 并且 成功 等于 真：
+        若 全局ICE统计 不等于 空：
+            全局ICE统计 的 AI路径命中次数 为 全局ICE统计 的 AI路径命中次数 加 1。
+        完。
+    完。
+完。
+
+ICE_打印统计 接受 零参：
+    若 全局ICE统计 等于 空：
+        做 打印 用 「[ICE] 统计未初始化」。
+        返还。
+    完。
+    做 打印 用 「┌──────────────────────────────────────┐」。
+    做 打印 用 「│   ICE候选管理 · 统计报告            │」。
+    做 打印 用 「├──────────────────────────────────────┤」。
+    做 打印 用 做 字符串拼接 用 「│ 候选创建:         」、做 转字符串 用 全局ICE统计 的 候选创建次数。
+    做 打印 用 做 字符串拼接 用 「│ host候选:         」、做 转字符串 用 全局ICE统计 的 host候选数。
+    做 打印 用 做 字符串拼接 用 「│ srflx候选:        」、做 转字符串 用 全局ICE统计 的 srflx候选数。
+    做 打印 用 做 字符串拼接 用 「│ relay候选:        」、做 转字符串 用 全局ICE统计 的 relay候选数。
+    做 打印 用 做 字符串拼接 用 「│ 配对创建:         」、做 转字符串 用 全局ICE统计 的 配对创建次数。
+    做 打印 用 做 字符串拼接 用 「│ 连接检查:         」、做 转字符串 用 全局ICE统计 的 连接检查次数。
+    做 打印 用 做 字符串拼接 用 「│ 检查成功:         」、做 转字符串 用 全局ICE统计 的 检查成功次数。
+    做 打印 用 做 字符串拼接 用 「│ 检查失败:         」、做 转字符串 用 全局ICE统计 的 检查失败次数。
+    做 打印 用 做 字符串拼接 用 「│ STUN请求:         」、做 转字符串 用 全局ICE统计 的 STUN请求次数。
+    做 打印 用 做 字符串拼接 用 「│ STUN响应:         」、做 转字符串 用 全局ICE统计 的 STUN响应次数。
+    做 打印 用 做 字符串拼接 用 「│ STUN超时:         」、做 转字符串 用 全局ICE统计 的 STUN超时次数。
+    做 打印 用 做 字符串拼接 用 「│ SDP序列化:        」、做 转字符串 用 全局ICE统计 的 SDP序列化次数。
+    做 打印 用 做 字符串拼接 用 「│ AI路径调用:       」、做 转字符串 用 全局ICE统计 的 AI路径调用次数。
+    做 打印 用 做 字符串拼接 用 「│ AI路径命中:       」、做 转字符串 用 全局ICE统计 的 AI路径命中次数。
+    做 打印 用 做 字符串拼接 用 「│ 总耗时(μs):       」、做 转字符串 用 全局ICE统计 的 总处理耗时_纳秒 除以 1000。
+    做 打印 用 做 字符串拼接 用 「│ 错误:             」、做 转字符串 用 全局ICE统计 的 错误总数。
+    做 打印 用 「└──────────────────────────────────────┘」。
+完。
+
+ICE_导出诊断 接受 零参：
+    若 全局ICE_AI 等于 空：
+        做 打印 用 「[ICE AI] 未初始化」。
+        返还。
+    完。
+    AI 为 全局ICE_AI。
+    做 打印 用 「[ICE AI] === 诊断 ===」。
+    做 打印 用 做 字符串拼接 用 「  历史host成功率(Q10): 」、做 转字符串 用 AI 的 历史host成功率。
+    做 打印 用 做 字符串拼接 用 「  历史srflx成功率(Q10): 」、做 转字符串 用 AI 的 历史srflx成功率。
+    做 打印 用 做 字符串拼接 用 「  历史relay使用率(Q10): 」、做 转字符串 用 AI 的 历史relay使用率。
+    做 打印 用 做 字符串拼接 用 「  历史平均检查时间(Q10ms): 」、做 转字符串 用 AI 的 历史平均检查时间。
+    做 打印 用 做 字符串拼接 用 「  连续host成功: 」、做 转字符串 用 AI 的 连续host成功数。
+    做 打印 用 做 字符串拼接 用 「  预测最佳类型: 」、做 ICECandidate_获取类型名 用 AI 的 预测最佳类型。
+完。
+
+ICE_获取统计 接受 零参：
+    返还 全局ICE统计。
+完。
+
+ICE_获取AI状态 接受 零参：
+    返还 全局ICE_AI。
+完。
+
+ICE_获取预测最佳类型 接受 零参：
+    若 全局ICE_AI 等于 空：
+        返还 ICE_CANDIDATE_HOST。
+    完。
+    返还 全局ICE_AI 的 预测最佳类型。
+完。
+
+ICE_是否已初始化 接受 零参：
+    返还 全局ICE已初始化。
+完。
+
+ICECandidate_是host 接受 c：
+    若 c 等于 空：
+        返还 假。
+    完。
+    返还 c 的 类型 等于 ICE_CANDIDATE_HOST。
+完。
+
+ICECandidate_是srflx 接受 c：
+    若 c 等于 空：
+        返还 假。
+    完。
+    返还 c 的 类型 等于 ICE_CANDIDATE_SRFLX。
+完。
+
+ICECandidate_是relay 接受 c：
+    若 c 等于 空：
+        返还 假。
+    完。
+    返还 c 的 类型 等于 ICE_CANDIDATE_RELAY。
+完。
+
+ICE候选对_获取RTT 接受 对：
+    若 对 等于 空：
+        返还 0。
+    完。
+    返还 对 的 RTT。
+完。
+
+ICE候选对_是否成功 接受 对：
+    若 对 等于 空：
+        返还 假。
+    完。
+    返还 对 的 状态 等于 ICE对_成功。
+完。
+
+ICE候选对_销毁 接受 对：
+    若 对 等于 空：
+        返还。
+    完。
+    做 堆_释放 用 对。
+完。
+
+ICECandidate_获取IP 接受 c：
+    若 c 等于 空：
+        返还 空。
+    完。
+    返还 c 的 IP地址。
+完。
+
+ICECandidate_获取端口 接受 c：
+    若 c 等于 空：
+        返还 0。
+    完。
+    返还 c 的 端口。
+完。
+
+本章 收束。

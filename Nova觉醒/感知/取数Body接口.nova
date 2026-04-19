@@ -1,0 +1,112 @@
+《取数Body接口》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·Fetch_Headers》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·辅助存根》。
+
+Body 是 一种 事物，含 数据、长度、已消费、contentType、stream。
+
+Body_创建 接受 数据、长度：
+    b 为 做 堆_分配 用 Body。
+    若 数据 不等于 0 并且 长度 大于 0：
+        b 的 数据 为 做 堆_分配 用 长度。
+        做 内存_复制 用 b 的 数据、数据、长度。
+    否则：
+        b 的 数据 为 0。
+    完。
+    b 的 长度 为 长度。
+    b 的 已消费 为 假。
+    b 的 contentType 为 0。
+    b 的 stream 为 0。
+    返还 b。
+完。
+
+Body_text 接受 b：
+    若 b 等于 0 或者 b 的 已消费：
+        返还 0。
+    完。
+    b 的 已消费 为 真。
+    返还 b 的 数据。
+完。
+
+Body_json 接受 b：
+    若 b 等于 0 或者 b 的 已消费：
+        返还 0。
+    完。
+    b 的 已消费 为 真。
+    返还 0。
+完。
+
+Body_arrayBuffer 接受 b：
+    若 b 等于 0 或者 b 的 已消费：
+        返还 0。
+    完。
+    b 的 已消费 为 真。
+    返还 b 的 数据。
+完。
+
+Body_blob 接受 b：
+    若 b 等于 0 或者 b 的 已消费：
+        返还 0。
+    完。
+    b 的 已消费 为 真。
+    blob 为 做 堆_分配 用 Blob对象。
+    blob 的 数据 为 b 的 数据。
+    blob 的 大小 为 b 的 数据大小。
+    blob 的 类型 为 b 的 MIME类型。
+    返还 blob。
+完。
+
+Body_formData 接受 b：
+    若 b 等于 0 或者 b 的 已消费：
+        返还 0。
+    完。
+    b 的 已消费 为 真。
+    返还 0。
+完。
+
+取数Request 是 一种 事物，含 url、method、headers、body、mode、credentials、cache、redirect、referrer、referrerPolicy、integrity、keepalive、signal、priority、已发送。
+
+Request_创建 接受 url、method：
+    req 为 做 堆_分配 用 取数Request。
+    req 的 url 为 做 字符串_复制 用 url。
+    req 的 method 为 method。
+    req 的 headers 为 做 Headers_创建。
+    req 的 body 为 0。
+    req 的 mode 为 MODE_CORS。
+    req 的 credentials 为 CRED_SAME_ORIGIN。
+    req 的 cache 为 CACHE_DEFAULT。
+    req 的 redirect 为 REDIRECT_FOLLOW。
+    req 的 referrer 为 「about:client」。
+    req 的 referrerPolicy 为 0。
+    req 的 integrity 为 0。
+    req 的 keepalive 为 假。
+    req 的 signal 为 0。
+    req 的 priority 为 PRIORITY_AUTO。
+    req 的 已发送 为 假。
+    返还 req。
+完。
+
+Request_clone 接受 req：
+    若 req 等于 0：
+        返还 0。
+    完。
+    新req 为 做 Request_创建 用 req 的 url、req 的 method。
+    新req 的 mode 为 req 的 mode。
+    新req 的 credentials 为 req 的 credentials。
+    新req 的 cache 为 req 的 cache。
+    新req 的 redirect 为 req 的 redirect。
+    新req 的 referrer 为 req 的 referrer。
+    新req 的 keepalive 为 req 的 keepalive。
+    新req 的 signal 为 req 的 signal。
+    新req 的 priority 为 req 的 priority。
+    返还 新req。
+完。
+
+本章 收束。

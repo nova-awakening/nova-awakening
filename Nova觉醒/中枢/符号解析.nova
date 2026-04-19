@@ -1,0 +1,129 @@
+《符号解析》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·哈希函数》。
+
+引用《..·引导·端口IO》。
+
+查找符号 接受 名称：
+    可变 c 为 0。
+    只要 c 小于 做 计数 用 链接器_符号缓存：
+        若 链接器_符号缓存 的 第 c 项 的 第 0 项 等于 名称：
+            返还 链接器_符号缓存 的 第 c 项 的 第 1 项。
+        完。
+        c 为 c 加 1。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 已加载对象列表：
+        obj 为 已加载对象列表 的 第 i 项。
+        addr 为 做 在对象中查找符号 用 obj、名称。
+        若 addr 不等于 0：
+            做 追加 用 链接器_符号缓存、一组：名称、addr。
+            返还 addr。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+在对象中查找符号 接受 obj、名称：
+    若 obj 的 符号表 等于 0 或者 obj 的 字符串表 等于 0：
+        返还 0。
+    完。
+    若 obj 的 GNU哈希表 不等于 0：
+        返还 做 GNU哈希查找 用 obj、名称。
+    完。
+    若 obj 的 哈希表 不等于 0：
+        返还 做 ELF哈希查找 用 obj、名称。
+    完。
+    返还 做 线性查找符号 用 obj、名称。
+完。
+
+ELF哈希查找 接受 obj、名称：
+    nbucket 为 做 内存读32 用 obj 的 哈希表。
+    nchain 为 做 内存读32 用 obj 的 哈希表 加 4。
+    bucket_base 为 obj 的 哈希表 加 8。
+    chain_base 为 bucket_base 加 nbucket 乘 4。
+    h 为 做 elf_hash 用 名称。
+    可变 idx 为 做 内存读32 用 bucket_base 加 h 取余于 nbucket 乘 4。
+    只要 idx 不等于 0 并且 idx 小于 nchain：
+        sym 为 obj 的 符号表 加 idx 乘 24。
+        st_name 为 做 内存读32 用 sym。
+        sym_name 为 做 读取C字符串 用 obj 的 字符串表 加 st_name。
+        若 sym_name 等于 名称：
+            st_value 为 做 内存读64 用 sym 加 8。
+            st_shndx 为 做 内存读16 用 sym 加 6。
+            若 st_shndx 不等于 0 并且 st_value 不等于 0：
+                返还 obj 的 基地址 加 st_value。
+            完。
+        完。
+        idx 为 做 内存读32 用 chain_base 加 idx 乘 4。
+    完。
+    返还 0。
+完。
+
+GNU哈希查找 接受 obj、名称：
+    ght 为 obj 的 GNU哈希表。
+    nbuckets 为 做 内存读32 用 ght。
+    symoffset 为 做 内存读32 用 ght 加 4。
+    bloom_size 为 做 内存读32 用 ght 加 8。
+    bloom_shift 为 做 内存读32 用 ght 加 12。
+    bloom 为 ght 加 16。
+    buckets 为 bloom 加 bloom_size 乘 8。
+    chains 为 buckets 加 nbuckets 乘 4。
+    h 为 做 gnu_hash 用 名称。
+    word 为 做 内存读64 用 bloom 加 h 除以 64 取余于 bloom_size 乘 8。
+    mask 为 1 左移 h 取余于 64 位或 1 左移 (h 右移 bloom_shift) 取余于 64。
+    若 word 位与 mask 不等于 mask：
+        返还 0。
+    完。
+    可变 idx 为 做 内存读32 用 buckets 加 h 取余于 nbuckets 乘 4。
+    若 idx 等于 0：
+        返还 0。
+    完。
+    h1 为 h 位与 按位取反 1。
+    只要 真：
+        chain_val 为 做 内存读32 用 chains 加 (idx 减 symoffset) 乘 4。
+        若 chain_val 位与 按位取反 1 等于 h1：
+            sym 为 obj 的 符号表 加 idx 乘 24。
+            st_name 为 做 内存读32 用 sym。
+            若 做 读取C字符串 用 obj 的 字符串表 加 st_name 等于 名称：
+                st_value 为 做 内存读64 用 sym 加 8。
+                若 st_value 不等于 0：
+                    返还 obj 的 基地址 加 st_value。
+                完。
+            完。
+        完。
+        若 chain_val 位与 1 不等于 0：
+            跳出。
+        完。
+        idx 为 idx 加 1。
+    完。
+    返还 0。
+完。
+
+线性查找符号 接受 obj、名称：
+    可变 idx 为 0。
+    上限 为 10000。
+    只要 idx 小于 上限：
+        sym 为 obj 的 符号表 加 idx 乘 24。
+        st_name 为 做 内存读32 用 sym。
+        若 st_name 不等于 0：
+            sym_name 为 做 读取C字符串 用 obj 的 字符串表 加 st_name。
+            若 sym_name 等于 名称：
+                st_value 为 做 内存读64 用 sym 加 8。
+                st_shndx 为 做 内存读16 用 sym 加 6。
+                若 st_shndx 不等于 0 并且 st_value 不等于 0：
+                    返还 obj 的 基地址 加 st_value。
+                完。
+            完。
+        完。
+        idx 为 idx 加 1。
+    完。
+    返还 0。
+完。
+
+本章 收束。

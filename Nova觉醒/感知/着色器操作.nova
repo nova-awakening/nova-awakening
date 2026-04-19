@@ -1,0 +1,163 @@
+《着色器操作》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·辅助存根》。
+
+GL_createShader 接受 gl、类型：
+    shader 为 做 堆_分配 用 GLShader。
+    shader 的 id 为 gl 的 下一个id。
+    gl 的 下一个id 为 gl 的 下一个id 加 1。
+    shader 的 类型 为 类型。
+    shader 的 已编译 为 假。
+    shader 的 错误日志 为 0。
+    返还 shader。
+完。
+
+GL_shaderSource 接受 gl、shader、源码：
+    若 shader 等于 0：
+        返还。
+    完。
+    shader 的 源码 为 做 字符串_复制 用 源码。
+完。
+
+GL_compileShader 接受 gl、shader：
+    若 shader 等于 0 或者 shader 的 源码 等于 0：
+        返还。
+    完。
+    shader 的 已编译 为 真。
+    shader 的 编译状态 为 做 GLSL_编译 用 shader 的 源码。
+完。
+
+GL_createProgram 接受 gl：
+    prog 为 做 堆_分配 用 GLProgram。
+    prog 的 id 为 gl 的 下一个id。
+    gl 的 下一个id 为 gl 的 下一个id 加 1。
+    prog 的 已链接 为 假。
+    prog 的 uniform列表 为 做 堆_分配_数组 用 64 乘 32。
+    prog 的 uniform数量 为 0。
+    prog 的 attribute列表 为 做 堆_分配_数组 用 16 乘 32。
+    prog 的 attribute数量 为 0。
+    返还 prog。
+完。
+
+GL_attachShader 接受 gl、程序、shader：
+    若 程序 等于 0 或者 shader 等于 0：
+        返还。
+    完。
+    若 shader 的 类型 等于 GL_VERTEX_SHADER：
+        程序 的 顶点着色器 为 shader。
+    否则若 shader 的 类型 等于 GL_FRAGMENT_SHADER：
+        程序 的 片段着色器 为 shader。
+    完。
+完。
+
+GL_linkProgram 接受 gl、程序：
+    若 程序 等于 0：
+        返还。
+    完。
+    若 程序 的 顶点着色器 等于 0 或者 程序 的 片段着色器 等于 0：
+        返还。
+    完。
+    若 非 程序 的 顶点着色器 的 已编译 或者 非 程序 的 片段着色器 的 已编译：
+        返还。
+    完。
+    程序 的 已链接 为 真。
+完。
+
+GL_useProgram 接受 gl、程序：
+    gl 的 当前程序 为 程序。
+完。
+
+GL_getUniformLocation 接受 gl、程序、名称：
+    若 程序 等于 0：
+        返还 负 1。
+    完。
+    可变 i 为 0。
+    只要 i 小于 程序 的 uniform数量：
+        若 做 字符串_相等 用 做 内存_读64 用 程序 的 uniform列表 加 i 乘 32、名称：
+            返还 i。
+        完。
+        i 为 i 加 1。
+    完。
+    若 程序 的 uniform数量 小于 64：
+        idx 为 程序 的 uniform数量。
+        做 内存_写64 用 程序 的 uniform列表 加 idx 乘 32、名称。
+        程序 的 uniform数量 为 idx 加 1。
+        返还 idx。
+    完。
+    返还 负 1。
+完。
+
+GL_getAttribLocation 接受 gl、程序、名称：
+    若 程序 等于 0：
+        返还 负 1。
+    完。
+    可变 i 为 0。
+    只要 i 小于 程序 的 attribute数量：
+        若 做 字符串_相等 用 做 内存_读64 用 程序 的 attribute列表 加 i 乘 32、名称：
+            返还 i。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+GL_uniform1f 接受 gl、位置、v：
+    若 位置 大于或等于 0：
+        gl 的 uniforms 的 第 位置 项 为 一组：v。
+    完。
+完。
+
+GL_uniform2f 接受 gl、位置、v0、v1：
+    若 位置 大于或等于 0：
+        gl 的 uniforms 的 第 位置 项 为 一组：v0、v1。
+    完。
+完。
+
+GL_uniform3f 接受 gl、位置、v0、v1、v2：
+    若 位置 大于或等于 0：
+        gl 的 uniforms 的 第 位置 项 为 一组：v0、v1、v2。
+    完。
+完。
+
+GL_uniform4f 接受 gl、位置、v0、v1、v2、v3：
+    若 位置 大于或等于 0：
+        gl 的 uniforms 的 第 位置 项 为 一组：v0、v1、v2、v3。
+    完。
+完。
+
+GL_uniform1i 接受 gl、位置、v：
+    若 位置 大于或等于 0：
+        gl 的 uniforms 的 第 位置 项 为 一组：v。
+    完。
+完。
+
+GL_uniformMatrix4fv 接受 gl、位置、转置、数据：
+    若 位置 大于或等于 0：
+        gl 的 uniforms 的 第 位置 项 为 数据。
+    完。
+完。
+
+GL_enableVertexAttrib数组 接受 gl、索引：
+    若 gl 的 当前VAO 不等于 0：
+    完。
+完。
+
+GL_vertexAttribPointer 接受 gl、索引、大小、类型、归一化、步长、偏移：
+    若 gl 的 当前VAO 不等于 0 并且 索引 小于 gl 的 当前VAO 的 属性数量：
+        做 内存_写64 用 gl 的 当前VAO 的 属性缓冲 加 索引 乘 8、gl 的 绑定_ARRAY。
+        做 内存_写32 用 gl 的 当前VAO 的 属性偏移 加 索引 乘 4、偏移。
+        做 内存_写32 用 gl 的 当前VAO 的 属性步长 加 索引 乘 4、步长。
+        做 内存_写32 用 gl 的 当前VAO 的 属性类型 加 索引 乘 4、类型。
+        做 内存_写32 用 gl 的 当前VAO 的 属性大小 加 索引 乘 4、大小。
+    完。
+完。
+
+本章 收束。

@@ -1,0 +1,537 @@
+《配置初始化》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·动态调整》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·推理·定点Q算术》。
+
+BrowserConfig 是 一种 事物，含 视口宽、视口高、设备宽、设备高、设备像素比、色彩深度、色域、HDR、屏幕刷新率、目标帧率、帧预算us、vsync、音频采样率、音频声道数、音频位深度、音频缓冲帧数、总物理内存MB、JS堆上限MB、图片缓存MB、图处纹理缓存MB、网络缓存MB、最大并发连接、域名超时ms、连接超时ms、安全会话缓存大小、HTTP2最大流、最大层数、最大纹理尺寸、图处加速、图绘启用、Web图处启用、沙箱启用、站点隔离、HSTS启用、CT启用、AI启用、AI模型路径、AI推理线程数、AI最大内存MB、设备性能评分、省电模式、低端设备。
+
+可变 全局配置 为 0。
+
+Config_初始化 接受 零参：
+    若 全局配置 不等于 0：
+        返还 全局配置。
+    完。
+    cfg 为 做 堆_分配 用 BrowserConfig。
+    cfg 的 视口宽 为 做 平台_检测屏幕宽。
+    cfg 的 视口高 为 做 平台_检测屏幕高。
+    若 cfg 的 视口宽 等于 0：
+        cfg 的 视口宽 为 1920。
+    完。
+    若 cfg 的 视口高 等于 0：
+        cfg 的 视口高 为 1080。
+    完。
+    cfg 的 设备宽 为 cfg 的 视口宽。
+    cfg 的 设备高 为 cfg 的 视口高。
+    cfg 的 设备像素比 为 做 平台_检测DPR。
+    若 cfg 的 设备像素比 等于 0：
+        cfg 的 设备像素比 为 1024。
+    完。
+    cfg 的 色彩深度 为 24。
+    cfg 的 色域 为 0。
+    cfg 的 HDR 为 假。
+    cfg 的 屏幕刷新率 为 做 平台_检测刷新率。
+    若 cfg 的 屏幕刷新率 等于 0：
+        cfg 的 屏幕刷新率 为 60。
+    完。
+    cfg 的 目标帧率 为 cfg 的 屏幕刷新率。
+    cfg 的 帧预算us 为 1000000 除以 cfg 的 目标帧率。
+    cfg 的 vsync 为 真。
+    cfg 的 音频采样率 为 做 平台_检测音频采样率。
+    若 cfg 的 音频采样率 等于 0：
+        cfg 的 音频采样率 为 48000。
+    完。
+    cfg 的 音频声道数 为 2。
+    cfg 的 音频位深度 为 16。
+    cfg 的 音频缓冲帧数 为 512。
+    cfg 的 总物理内存MB 为 做 平台_检测总内存MB。
+    若 cfg 的 总物理内存MB 等于 0：
+        cfg 的 总物理内存MB 为 2048。
+    完。
+    cfg 的 JS堆上限MB 为 cfg 的 总物理内存MB 除以 4。
+    若 cfg 的 JS堆上限MB 大于 4096：
+        cfg 的 JS堆上限MB 为 4096。
+    完。
+    若 cfg 的 JS堆上限MB 小于 128：
+        cfg 的 JS堆上限MB 为 128。
+    完。
+    cfg 的 图片缓存MB 为 cfg 的 总物理内存MB 乘 15 除以 100。
+    若 cfg 的 图片缓存MB 大于 2048：
+        cfg 的 图片缓存MB 为 2048。
+    完。
+    若 cfg 的 图片缓存MB 小于 64：
+        cfg 的 图片缓存MB 为 64。
+    完。
+    cfg 的 图处纹理缓存MB 为 cfg 的 总物理内存MB 除以 10。
+    若 cfg 的 图处纹理缓存MB 大于 1024：
+        cfg 的 图处纹理缓存MB 为 1024。
+    完。
+    若 cfg 的 图处纹理缓存MB 小于 32：
+        cfg 的 图处纹理缓存MB 为 32。
+    完。
+    cfg 的 网络缓存MB 为 cfg 的 总物理内存MB 乘 5 除以 100。
+    若 cfg 的 网络缓存MB 大于 512：
+        cfg 的 网络缓存MB 为 512。
+    完。
+    若 cfg 的 网络缓存MB 小于 16：
+        cfg 的 网络缓存MB 为 16。
+    完。
+    cfg 的 最大并发连接 为 6。
+    cfg 的 域名超时ms 为 5000。
+    cfg 的 连接超时ms 为 10000。
+    cfg 的 安全会话缓存大小 为 256。
+    cfg 的 HTTP2最大流 为 100。
+    cfg 的 最大层数 为 64。
+    cfg 的 最大纹理尺寸 为 8192。
+    cfg 的 图处加速 为 做 平台_检测GPU可用。
+    cfg 的 图绘启用 为 cfg 的 图处加速。
+    cfg 的 Web图处启用 为 cfg 的 图处加速。
+    cfg 的 沙箱启用 为 真。
+    cfg 的 站点隔离 为 真。
+    cfg 的 HSTS启用 为 真。
+    cfg 的 CT启用 为 真。
+    cfg 的 AI启用 为 做 平台_检测AI加速器。
+    cfg 的 AI模型路径 为 0。
+    cfg 的 AI推理线程数 为 2。
+    cfg 的 AI最大内存MB 为 cfg 的 总物理内存MB 除以 8。
+    若 cfg 的 AI最大内存MB 大于 2048：
+        cfg 的 AI最大内存MB 为 2048。
+    完。
+    若 cfg 的 AI最大内存MB 小于 64：
+        cfg 的 AI最大内存MB 为 64。
+    完。
+    cfg 的 设备性能评分 为 50。
+    cfg 的 省电模式 为 假。
+    cfg 的 低端设备 为 假。
+    全局配置 为 cfg。
+    返还 cfg。
+完。
+
+可变 NBCI_初始化次数 为 0。
+
+可变 NBCI_性能评分次数 为 0。
+
+可变 NBCI_动态调整次数 为 0。
+
+可变 NBCI_AI调整次数 为 0。
+
+NBCI_CPU评分 接受 零参：
+    开始 为 做 系统调用_时间戳。
+    可变 sum 为 0。
+    可变 i 为 0。
+    只要 i 小于 100000：
+        sum 为 sum 加 i 乘 i。
+        i 为 i 加 1。
+    完。
+    结束 为 做 系统调用_时间戳。
+    耗时 为 结束 减 开始。
+    若 耗时 等于 0：
+        耗时 为 1。
+    完。
+    score 为 100 减 耗时 除以 10。
+    若 score 小于 0：
+        score 为 0。
+    完。
+    若 score 大于 100：
+        score 为 100。
+    完。
+    返还 score。
+完。
+
+NBCI_内存评分 接受 cfg：
+    mb 为 cfg 的 总物理内存MB。
+    若 mb 大于或等于 16384：
+        返还 100。
+    完。
+    若 mb 大于或等于 8192：
+        返还 85。
+    完。
+    若 mb 大于或等于 4096：
+        返还 70。
+    完。
+    若 mb 大于或等于 2048：
+        返还 50。
+    完。
+    若 mb 大于或等于 1024：
+        返还 30。
+    完。
+    返还 15。
+完。
+
+NBCI_GPU评分 接受 cfg：
+    若 非 cfg 的 图处加速：
+        返还 0。
+    完。
+    maxTex 为 cfg 的 最大纹理尺寸。
+    若 maxTex 大于或等于 16384：
+        返还 100。
+    完。
+    若 maxTex 大于或等于 8192：
+        返还 80。
+    完。
+    若 maxTex 大于或等于 4096：
+        返还 60。
+    完。
+    若 maxTex 大于或等于 2048：
+        返还 40。
+    完。
+    返还 20。
+完。
+
+NBCI_屏幕评分 接受 cfg：
+    pixels 为 cfg 的 设备宽 乘 cfg 的 设备高。
+    若 pixels 大于或等于 8294400：
+        返还 100。
+    完。
+    若 pixels 大于或等于 3686400：
+        返还 80。
+    完。
+    若 pixels 大于或等于 2073600：
+        返还 60。
+    完。
+    若 pixels 大于或等于 921600：
+        返还 40。
+    完。
+    返还 20。
+完。
+
+NBCI_综合评分 接受 cfg：
+    NBCI_性能评分次数 为 NBCI_性能评分次数 加 1。
+    cpu 为 做 NBCI_CPU评分。
+    mem 为 做 NBCI_内存评分 用 cfg。
+    gpu 为 做 NBCI_GPU评分 用 cfg。
+    scr 为 做 NBCI_屏幕评分 用 cfg。
+    score 为 (cpu 乘 30 加 mem 乘 25 加 gpu 乘 30 加 scr 乘 15) 除以 100。
+    cfg 的 设备性能评分 为 score。
+    cfg 的 低端设备 为 score 小于 35。
+    返还 score。
+完。
+
+NBCI_应用低端策略 接受 cfg：
+    cfg 的 最大层数 为 16。
+    cfg 的 最大纹理尺寸 为 2048。
+    cfg 的 目标帧率 为 30。
+    cfg 的 帧预算us 为 33333。
+    cfg 的 JS堆上限MB 为 若 cfg 的 JS堆上限MB 大于 256 则 256 否则 cfg 的 JS堆上限MB。
+    cfg 的 图片缓存MB 为 若 cfg 的 图片缓存MB 大于 128 则 128 否则 cfg 的 图片缓存MB。
+    cfg 的 图处纹理缓存MB 为 若 cfg 的 图处纹理缓存MB 大于 64 则 64 否则 cfg 的 图处纹理缓存MB。
+    cfg 的 网络缓存MB 为 若 cfg 的 网络缓存MB 大于 32 则 32 否则 cfg 的 网络缓存MB。
+    cfg 的 最大并发连接 为 4。
+    cfg 的 HTTP2最大流 为 32。
+    cfg 的 AI启用 为 假。
+    cfg 的 Web图处启用 为 假。
+完。
+
+NBCI_应用中端策略 接受 cfg：
+    cfg 的 最大层数 为 32。
+    cfg 的 最大纹理尺寸 为 4096。
+    cfg 的 目标帧率 为 若 cfg 的 屏幕刷新率 大于或等于 60 则 60 否则 cfg 的 屏幕刷新率。
+    cfg 的 帧预算us 为 1000000 除以 cfg 的 目标帧率。
+    cfg 的 AI推理线程数 为 1。
+完。
+
+NBCI_应用高端策略 接受 cfg：
+    cfg 的 最大层数 为 64。
+    cfg 的 最大纹理尺寸 为 8192。
+    cfg 的 目标帧率 为 cfg 的 屏幕刷新率。
+    cfg 的 帧预算us 为 1000000 除以 cfg 的 目标帧率。
+    cfg 的 AI推理线程数 为 4。
+    cfg 的 HTTP2最大流 为 128。
+完。
+
+NBCI_应用旗舰策略 接受 cfg：
+    cfg 的 最大层数 为 128。
+    cfg 的 最大纹理尺寸 为 16384。
+    cfg 的 目标帧率 为 cfg 的 屏幕刷新率。
+    cfg 的 帧预算us 为 1000000 除以 cfg 的 目标帧率。
+    cfg 的 AI推理线程数 为 8。
+    cfg 的 HTTP2最大流 为 256。
+    cfg 的 最大并发连接 为 8。
+完。
+
+NBCI_应用性能策略 接受 cfg：
+    score 为 cfg 的 设备性能评分。
+    若 score 小于 25：
+        做 NBCI_应用低端策略 用 cfg。
+    否则若 score 小于 55：
+        做 NBCI_应用中端策略 用 cfg。
+    否则若 score 小于 80：
+        做 NBCI_应用高端策略 用 cfg。
+    否则：
+        做 NBCI_应用旗舰策略 用 cfg。
+    完。
+完。
+
+NBCI_帧率反馈调整 接受 cfg、实际帧时间us：
+    NBCI_动态调整次数 为 NBCI_动态调整次数 加 1。
+    预算 为 cfg 的 帧预算us。
+    若 实际帧时间us 大于 预算 乘 120 除以 100：
+        若 cfg 的 最大层数 大于 8：
+            cfg 的 最大层数 为 cfg 的 最大层数 减 4。
+        完。
+        若 cfg 的 最大纹理尺寸 大于 1024：
+            cfg 的 最大纹理尺寸 为 cfg 的 最大纹理尺寸 除以 2。
+        完。
+    完。
+    若 实际帧时间us 小于 预算 乘 80 除以 100：
+        若 cfg 的 最大层数 小于 128：
+            cfg 的 最大层数 为 cfg 的 最大层数 加 4。
+        完。
+        若 cfg 的 最大纹理尺寸 小于 16384：
+            cfg 的 最大纹理尺寸 为 cfg 的 最大纹理尺寸 乘 2。
+        完。
+    完。
+完。
+
+NBCI_内存压力调整 接受 cfg、已用MB、总可MB：
+    NBCI_动态调整次数 为 NBCI_动态调整次数 加 1。
+    若 总可MB 等于 0：
+        返还。
+    完。
+    使用率 为 已用MB 乘 100 除以 总可MB。
+    若 使用率 大于 85：
+        cfg 的 图片缓存MB 为 cfg 的 图片缓存MB 乘 70 除以 100。
+        cfg 的 图处纹理缓存MB 为 cfg 的 图处纹理缓存MB 乘 70 除以 100。
+        cfg 的 网络缓存MB 为 cfg 的 网络缓存MB 乘 70 除以 100。
+        若 cfg 的 图片缓存MB 小于 16：
+            cfg 的 图片缓存MB 为 16。
+        完。
+        若 cfg 的 图处纹理缓存MB 小于 8：
+            cfg 的 图处纹理缓存MB 为 8。
+        完。
+        若 cfg 的 网络缓存MB 小于 4：
+            cfg 的 网络缓存MB 为 4。
+        完。
+    完。
+    若 使用率 小于 50：
+        cfg 的 图片缓存MB 为 cfg 的 总物理内存MB 乘 15 除以 100。
+        若 cfg 的 图片缓存MB 大于 2048：
+            cfg 的 图片缓存MB 为 2048。
+        完。
+        cfg 的 图处纹理缓存MB 为 cfg 的 总物理内存MB 除以 10。
+        若 cfg 的 图处纹理缓存MB 大于 1024：
+            cfg 的 图处纹理缓存MB 为 1024。
+        完。
+        cfg 的 网络缓存MB 为 cfg 的 总物理内存MB 乘 5 除以 100。
+        若 cfg 的 网络缓存MB 大于 512：
+            cfg 的 网络缓存MB 为 512。
+        完。
+    完。
+完。
+
+NBCI_省电模式调整 接受 cfg、启用：
+    cfg 的 省电模式 为 启用。
+    若 启用：
+        cfg 的 目标帧率 为 30。
+        cfg 的 帧预算us 为 33333。
+        cfg 的 最大层数 为 若 cfg 的 最大层数 大于 16 则 16 否则 cfg 的 最大层数。
+        cfg 的 AI启用 为 假。
+    否则：
+        cfg 的 目标帧率 为 cfg 的 屏幕刷新率。
+        cfg 的 帧预算us 为 1000000 除以 cfg 的 目标帧率。
+        做 NBCI_应用性能策略 用 cfg。
+    完。
+完。
+
+Config_获取 接受 零参：
+    若 全局配置 等于 0：
+        做 Config_初始化。
+    完。
+    返还 全局配置。
+完。
+
+Config_获取视口宽 接受 零参：
+    返还 做 Config_获取 的 视口宽。
+完。
+
+Config_获取视口高 接受 零参：
+    返还 做 Config_获取 的 视口高。
+完。
+
+Config_获取DPR 接受 零参：
+    返还 做 Config_获取 的 设备像素比。
+完。
+
+Config_获取帧率 接受 零参：
+    返还 做 Config_获取 的 目标帧率。
+完。
+
+Config_获取帧预算 接受 零参：
+    返还 做 Config_获取 的 帧预算us。
+完。
+
+Config_获取采样率 接受 零参：
+    返还 做 Config_获取 的 音频采样率。
+完。
+
+Config_获取声道数 接受 零参：
+    返还 做 Config_获取 的 音频声道数。
+完。
+
+Config_获取JS堆上限 接受 零参：
+    返还 做 Config_获取 的 JS堆上限MB。
+完。
+
+Config_获取图片缓存 接受 零参：
+    返还 做 Config_获取 的 图片缓存MB。
+完。
+
+Config_有GPU 接受 零参：
+    返还 做 Config_获取 的 图处加速。
+完。
+
+Config_有AI 接受 零参：
+    返还 做 Config_获取 的 AI启用。
+完。
+
+Config_是低端 接受 零参：
+    返还 做 Config_获取 的 低端设备。
+完。
+
+Config_省电中 接受 零参：
+    返还 做 Config_获取 的 省电模式。
+完。
+
+NBCI_AI_自调节 接受 cfg：
+    若 全局AI总线 等于 0 或者 非 cfg 的 AI启用：
+        返还。
+    完。
+    NBCI_AI调整次数 为 NBCI_AI调整次数 加 1。
+    tensor 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 tensor、0、cfg 的 设备性能评分 除以 100.0。
+    做 Tensor_写 用 tensor、1、cfg 的 总物理内存MB 除以 32768.0。
+    做 Tensor_写 用 tensor、2、cfg 的 目标帧率 除以 240.0。
+    做 Tensor_写 用 tensor、3、若 cfg 的 图处加速 则 1.0 否则 0.0。
+    做 Tensor_写 用 tensor、4、若 cfg 的 省电模式 则 0.0 否则 1.0。
+    做 Tensor_写 用 tensor、5、cfg 的 设备宽 乘 cfg 的 设备高 除以 8294400.0。
+    out 为 做 AI总线_推理 用 全局AI总线、「NBCI_调节」、tensor、6。
+    若 out 不等于 0：
+        ai_threads 为 做 Tensor_读 用 out、0 乘 16。
+        若 ai_threads 小于 1：
+            ai_threads 为 1。
+        完。
+        若 ai_threads 大于 16：
+            ai_threads 为 16。
+        完。
+        cfg 的 AI推理线程数 为 ai_threads。
+        ai_mem 为 做 Tensor_读 用 out、1 乘 cfg 的 总物理内存MB 除以 4。
+        若 ai_mem 小于 64：
+            ai_mem 为 64。
+        完。
+        若 ai_mem 大于 4096：
+            ai_mem 为 4096。
+        完。
+        cfg 的 AI最大内存MB 为 ai_mem。
+        做 Tensor_释放 用 out。
+    完。
+    做 Tensor_释放 用 tensor。
+完。
+
+NBCI_打印配置 接受 cfg：
+    若 cfg 等于 0：
+        做 打印 用 「[NBCI] 配置未初始化」。
+        返还。
+    完。
+    做 打印 用 「[NBCI] === 浏览器配置概览 ===」。
+    做 打印 用 「  显示: 」 加 cfg 的 视口宽 加 「x」 加 cfg 的 视口高 加 「 @」 加 cfg 的 目标帧率 加 「fps」。
+    做 打印 用 「  DPR=」 加 cfg 的 设备像素比 加 「 色彩=」 加 cfg 的 色彩深度 加 「bit HDR=」 加 cfg 的 HDR。
+    做 打印 用 「  音频: 」 加 cfg 的 音频采样率 加 「Hz 」 加 cfg 的 音频声道数 加 「ch 」 加 cfg 的 音频位深度 加 「bit」。
+    做 打印 用 「  内存: total=」 加 cfg 的 总物理内存MB 加 「MB JS堆=」 加 cfg 的 JS堆上限MB 加 「MB img=」 加 cfg 的 图片缓存MB 加 「MB」。
+    做 打印 用 「  GPU: accel=」 加 cfg 的 图处加速 加 「 maxTex=」 加 cfg 的 最大纹理尺寸 加 「 layers=」 加 cfg 的 最大层数。
+    做 打印 用 「  网络: conn=」 加 cfg 的 最大并发连接 加 「 h2流=」 加 cfg 的 HTTP2最大流 加 「 cache=」 加 cfg 的 网络缓存MB 加 「MB」。
+    做 打印 用 「  安全: sandbox=」 加 cfg 的 沙箱启用 加 「 isolation=」 加 cfg 的 站点隔离 加 「 HSTS=」 加 cfg 的 HSTS启用。
+    做 打印 用 「  AI: enabled=」 加 cfg 的 AI启用 加 「 threads=」 加 cfg 的 AI推理线程数 加 「 mem=」 加 cfg 的 AI最大内存MB 加 「MB」。
+    做 打印 用 「  性能: score=」 加 cfg 的 设备性能评分 加 「 lowEnd=」 加 cfg 的 低端设备 加 「 powerSave=」 加 cfg 的 省电模式。
+完。
+
+NBCI_运行时统计 接受 零参：
+    做 打印 用 「[NBCI] inits=」 加 做 整数转字符串 用 NBCI_初始化次数 加 「 perfs=」 加 做 整数转字符串 用 NBCI_性能评分次数 加 「 adjusts=」 加 做 整数转字符串 用 NBCI_动态调整次数 加 「 aiAdapt=」 加 做 整数转字符串 用 NBCI_AI调整次数。
+完。
+
+NBCI_序列化配置 接受 cfg：
+    若 cfg 等于 0：
+        返还 空。
+    完。
+    可变 buf 为 「[NBCI_CONFIG]\n」。
+    buf 为 做 字符串拼接 用 buf、「视口宽=」 加 cfg 的 视口宽 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「视口高=」 加 cfg 的 视口高 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「DPR=」 加 cfg 的 设备像素比 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「帧率=」 加 cfg 的 目标帧率 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「采样率=」 加 cfg 的 音频采样率 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「内存MB=」 加 cfg 的 总物理内存MB 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「JS堆MB=」 加 cfg 的 JS堆上限MB 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「GPU=」 加 cfg 的 图处加速 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「AI=」 加 cfg 的 AI启用 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「性能分=」 加 cfg 的 设备性能评分 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「低端=」 加 cfg 的 低端设备 加 「\n」。
+    buf 为 做 字符串拼接 用 buf、「省电=」 加 cfg 的 省电模式 加 「\n」。
+    返还 buf。
+完。
+
+NBCI_保存配置到磁盘 接受 cfg、路径：
+    data 为 做 NBCI_序列化配置 用 cfg。
+    若 data 等于 空：
+        返还 假。
+    完。
+    fd 为 做 系统调用_打开 用 路径、0x241。
+    若 fd 小于 0：
+        返还 假。
+    完。
+    写入结果 为 做 系统调用_写 用 fd、data、做 字符串长度 用 data。
+    若 写入结果 小于 0：
+        做 系统调用_关闭 用 fd。
+        返还 负 1。
+    完。
+    做 系统调用_关闭 用 fd。
+    返还 真。
+完。
+
+NBCI_视口变化 接受 新宽、新高：
+    cfg 为 做 Config_获取。
+    若 cfg 等于 0：
+        返还。
+    完。
+    若 新宽 小于或等于 0 或者 新高 小于或等于 0：
+        返还。
+    完。
+    cfg 的 视口宽 为 新宽。
+    cfg 的 视口高 为 新高。
+    pixels 为 新宽 乘 新高。
+    若 pixels 小于 921600 并且 cfg 的 最大层数 大于 32：
+        cfg 的 最大层数 为 32。
+    完。
+    做 打印 用 「[NBCI] viewport=」 加 新宽 加 「x」 加 新高。
+完。
+
+NBCI_DPR变化 接受 新DPR：
+    cfg 为 做 Config_获取。
+    若 cfg 等于 0 或者 新DPR 小于或等于 0：
+        返还。
+    完。
+    cfg 的 设备像素比 为 新DPR。
+    若 新DPR 大于或等于 2048：
+        cfg 的 图处纹理缓存MB 为 cfg 的 总物理内存MB 除以 6。
+        若 cfg 的 图处纹理缓存MB 大于 2048：
+            cfg 的 图处纹理缓存MB 为 2048。
+        完。
+    完。
+完。
+
+NBCI_完整初始化 接受 零参：
+    NBCI_初始化次数 为 NBCI_初始化次数 加 1。
+    cfg 为 做 Config_初始化。
+    做 NBCI_综合评分 用 cfg。
+    做 NBCI_应用性能策略 用 cfg。
+    做 NBCI_AI_自调节 用 cfg。
+    做 NBCI_打印配置 用 cfg。
+    做 打印 用 「[NBCI] 初始化完成」。
+    返还 cfg。
+完。
+
+本章 收束。

@@ -1,0 +1,239 @@
+《系统部署》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·标准·文件》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·阶段契约》。
+
+引用《..·推理·权重持久》。
+
+引用《.·安装流程》。
+
+引用《..·中枢·应用Bundle》。
+
+引用《..·中枢·设备绑定》。
+
+引用《..·中枢·加密框架》。
+
+部署_构建根 为 「/cdrom/build」。
+
+部署_启动产物目录 为 「/mnt/nova/boot/artifacts」。
+
+部署_启动配置路径 为 「/mnt/nova/boot/boot.cfg」。
+
+部署_产物清单路径 为 「/mnt/nova/boot/artifacts/manifest.cfg」。
+
+部署_桥接清单路径 为 「/mnt/nova/boot/artifacts/bridge.cfg」。
+
+部署_默认版本 为 「1.0.0」。
+
+可变 部署_已安装产物 为 一组：（空）。
+
+安装_写文本 接受 路径、文本：
+    返还 做 文件_写全部 用 路径、文本、做 字串_长度 用 文本。
+完。
+
+安装_确保目录 接受 路径：
+    若 非 做 目录_存在 用 路径：
+        做 目录_创建默认 用 路径。
+    完。
+完。
+
+安装_记录产物 接受 名称、相对路径、阶段、版本：
+    做 追加 用 部署_已安装产物、一组：名称、相对路径、阶段、版本。
+完。
+
+安装_复制构建产物 接受 名称、源路径、相对路径、阶段、版本、必需：
+    目标路径 为 「/mnt/nova」 加 相对路径。
+    若 非 做 文件_存在 用 源路径：
+        若 必需：
+            做 安装_日志 用 「缺失必需构建产物: 」 加 源路径、日志_错误。
+        否则：
+            做 安装_日志 用 「跳过可选构建产物: 」 加 源路径、日志_警告。
+        完。
+        返还 假。
+    完。
+    做 文件_复制 用 源路径、目标路径。
+    做 安装_记录产物 用 名称、相对路径、阶段、版本。
+    做 安装_日志 用 「已部署产物: 」 加 名称 加 「 -> 」 加 相对路径、日志_信息。
+    返还 真。
+完。
+
+安装_部署目录结构 接受 零参：
+    目录列表 为 一组：「/mnt/nova/boot」、「/mnt/nova/boot/efi」、「/mnt/nova/boot/efi/EFI」、「/mnt/nova/boot/efi/EFI/BOOT」、「/mnt/nova/boot/artifacts」、「/mnt/nova/boot/logs」、「/mnt/nova/内核」、「/mnt/nova/内核/核心」、「/mnt/nova/内核/AI」、「/mnt/nova/内核/驱动」、「/mnt/nova/内核/网络」、「/mnt/nova/内核/文件」、「/mnt/nova/内核/内存」、「/mnt/nova/内核/启动」、「/mnt/nova/用户」、「/mnt/nova/配置」、「/mnt/nova/AI模型」、「/mnt/nova/字体」、「/mnt/nova/日志」、「/mnt/nova/临时」、「/mnt/nova/bundles」、「/mnt/nova/bundles/apps」、「/mnt/nova/bundles/services」、「/mnt/nova/bundles/system」、「/mnt/nova/licenses」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 目录列表：
+        做 安装_确保目录 用 目录列表 的 第 i 项。
+        i 为 i 加 1。
+    完。
+完。
+
+安装_部署构建产物 接受 零参：
+    部署_已安装产物 为 一组：（空）。
+    做 安装_复制构建产物 用 「kernel.elf」、部署_构建根 加 「/kernel.elf」、「/boot/artifacts/kernel.elf」、阶段_内核核心、部署_默认版本、真。
+    做 安装_复制构建产物 用 「kernel.bin」、部署_构建根 加 「/kernel.bin」、「/boot/artifacts/kernel.bin」、阶段_内核核心、部署_默认版本、假。
+    EFI源路径 为 部署_构建根 加 「/nova.efi」。
+    若 非 做 文件_存在 用 EFI源路径：
+        EFI源路径 为 「/cdrom/boot/nova.efi」。
+    完。
+    做 安装_复制构建产物 用 「nova.efi」、EFI源路径、「/boot/artifacts/nova.efi」、阶段_boot、部署_默认版本、真。
+    做 安装_复制构建产物 用 「bridge.cfg」、部署_构建根 加 「/bridge/bridge.cfg」、「/boot/artifacts/bridge.cfg」、阶段_外部桥接、部署_默认版本、假。
+    做 安装_复制构建产物 用 「modules.lst」、部署_构建根 加 「/modules.lst」、「/boot/artifacts/modules.lst」、阶段_浏览器外衣、部署_默认版本、假。
+完。
+
+安装_生成产物清单 接受 零参：
+    清单 为 「# NovaOS build artifact manifest\n」。
+    清单 为 清单 加 「artifact.count=」 加 做 整数转字符串 用 做 计数 用 部署_已安装产物 加 「\n」。
+    清单 为 清单 加 「bridge.control=virtio-serial\n」。
+    清单 为 清单 加 「bridge.frame=ivshmem\n」。
+    清单 为 清单 加 「bridge.semantic=dom-diff\n」。
+    清单 为 清单 加 「runtime.default_stage=」 加 阶段_浏览器外衣 加 「\n」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 部署_已安装产物：
+        产物 为 部署_已安装产物 的 第 i 项。
+        索引 为 做 整数转字符串 用 i。
+        清单 为 清单 加 「artifact.」 加 索引 加 「.name=」 加 产物 的 第 0 项 加 「\n」。
+        清单 为 清单 加 「artifact.」 加 索引 加 「.path=」 加 产物 的 第 1 项 加 「\n」。
+        清单 为 清单 加 「artifact.」 加 索引 加 「.stage=」 加 产物 的 第 2 项 加 「\n」。
+        清单 为 清单 加 「artifact.」 加 索引 加 「.version=」 加 产物 的 第 3 项 加 「\n」。
+        i 为 i 加 1。
+    完。
+    做 安装_写文本 用 部署_产物清单路径、清单。
+完。
+
+安装_部署系统 接受 零参：
+    安装 的 阶段消息 为 「正在部署NovaOS...」。
+    安装 的 阶段进度 为 0。
+    做 安装_日志 用 「挂载目标分区...」、日志_信息。
+    做 VFS_挂载 用 「/dev/sda2」、「/mnt/nova」、「ext4」。
+    做 VFS_挂载 用 「/dev/sda1」、「/mnt/nova/boot/efi」、「vfat」。
+    安装 的 阶段进度 为 50。
+    做 安装_日志 用 「创建目录结构...」、日志_信息。
+    做 安装_部署目录结构。
+    安装 的 阶段进度 为 150。
+    做 安装_日志 用 「部署编译产物清单...」、日志_信息。
+    做 安装_部署构建产物。
+    做 安装_生成产物清单。
+    安装 的 总包数 为 做 计数 用 部署_已安装产物。
+    安装 的 已安装包数 为 安装 的 总包数。
+    安装 的 阶段进度 为 320。
+    做 安装_日志 用 「部署引导加载器...」、日志_信息。
+    做 安装_部署引导 用 安装 的 UEFI模式。
+    安装 的 阶段进度 为 500。
+    做 安装_日志 用 「复制龙编译器...」、日志_信息。
+    做 文件_复制 用 「/cdrom/龙编译器」、「/mnt/nova/龙编译器」。
+    安装 的 阶段进度 为 600。
+    做 安装_日志 用 「安装字体 (ASCII 8x16 + HZK16中文)...」、日志_信息。
+    做 文件_复制 用 「/cdrom/字体」、「/mnt/nova/字体」。
+    安装 的 阶段进度 为 650。
+    若 安装 的 安装AI模型：
+        做 安装_日志 用 「部署本地AI模型: 」 加 安装 的 推荐_AI模型 加 「 ...」、日志_信息。
+        安装 的 阶段消息 为 「部署AI模型 (可能需要几分钟)...」。
+        做 文件_复制 用 「/cdrom/AI模型/」 加 安装 的 推荐_AI模型、「/mnt/nova/AI模型/」。
+        做 安装_日志 用 「AI模型部署完成」、日志_信息。
+    否则：
+        做 安装_日志 用 「跳过本地AI模型(使用纯云端模式)」、日志_信息。
+    完。
+    安装 的 阶段进度 为 800。
+    做 安装_日志 用 「采集设备指纹...」、日志_信息。
+    做 设备_采集指纹。
+    做 安装_日志 用 「设备指纹: 」 加 做 设备_指纹转字符串、日志_信息。
+    做 安装_部署系统Bundles。
+    安装 的 阶段进度 为 850。
+    做 安装_日志 用 「生成系统配置...」、日志_信息。
+    做 安装_生成配置。
+    安装 的 阶段进度 为 900。
+    做 安装_日志 用 「写入引导记录...」、日志_信息。
+    做 安装_写入引导记录。
+    安装 的 阶段进度 为 1000。
+    安装 的 阶段消息 为 「系统部署完成!」。
+    做 安装_日志 用 「═══ 系统部署完成 ═══」、日志_信息。
+完。
+
+安装_部署引导 接受 uefi模式：
+    若 uefi模式：
+        若 做 文件_存在 用 「/mnt/nova/boot/artifacts/nova.efi」：
+            做 文件_复制 用 「/mnt/nova/boot/artifacts/nova.efi」、「/mnt/nova/boot/efi/EFI/BOOT/BOOTX64.EFI」。
+            做 安装_日志 用 「UEFI引导已绑定编译产物 nova.efi」、日志_信息。
+        否则：
+            做 安装_日志 用 「缺失 UEFI 产物 nova.efi」、日志_错误。
+        完。
+    否则：
+        若 做 文件_存在 用 「/cdrom/boot/nova_mbr」：
+            做 文件_复制 用 「/cdrom/boot/nova_mbr」、「/mnt/nova/boot/nova_mbr」。
+            做 安装_日志 用 「传统BIOS引导已部署」、日志_信息。
+        否则：
+            做 安装_日志 用 「缺失 BIOS 引导产物 nova_mbr」、日志_警告。
+        完。
+    完。
+完。
+
+安装_生成配置 接受 零参：
+    配置 为 「# NovaOS 系统配置\n」。
+    配置 为 配置 加 「内核.版本=」 加 部署_默认版本 加 「\n」。
+    配置 为 配置 加 「内核.内存=」 加 做 整数转字符串 用 安装 的 推荐_内存分配 加 「\n」。
+    配置 为 配置 加 「内核.镜像=/boot/artifacts/kernel.elf\n」。
+    配置 为 配置 加 「内核.镜像备份=/boot/artifacts/kernel.bin\n」。
+    配置 为 配置 加 「显示.分辨率=」 加 安装 的 推荐_分辨率 加 「\n」。
+    配置 为 配置 加 「AI.模型=」 加 安装 的 推荐_AI模型 加 「\n」。
+    配置 为 配置 加 「AI.云端=启用\n」。
+    配置 为 配置 加 「运行时.默认阶段=」 加 阶段_浏览器外衣 加 「\n」。
+    配置 为 配置 加 「桥接.控制=virtio-serial\n」。
+    配置 为 配置 加 「桥接.视觉=ivshmem\n」。
+    配置 为 配置 加 「桥接.语义=dom-diff\n」。
+    配置 为 配置 加 「桥接.清单=/boot/artifacts/manifest.cfg\n」。
+    配置 为 配置 加 「用户.名称=」 加 安装 的 用户名 加 「\n」。
+    配置 为 配置 加 「用户.语言=」 加 安装 的 语言 加 「\n」。
+    配置 为 配置 加 「用户.时区=」 加 安装 的 时区 加 「\n」。
+    做 安装_写文本 用 「/mnt/nova/配置/系统.conf」、配置。
+完。
+
+安装_写入引导记录 接受 零参：
+    引导配置 为 「default NovaOS\ntimeout 3\n\n」。
+    引导配置 为 引导配置 加 「label NovaOS\n」。
+    引导配置 为 引导配置 加 「  kernel /boot/artifacts/kernel.elf\n」。
+    引导配置 为 引导配置 加 「  append root=/dev/sda2 ai=auto stage=」 加 阶段_AI运行时 加 「 manifest=/boot/artifacts/manifest.cfg bridge_control=virtio-serial bridge_frame=ivshmem bridge_semantic=dom-diff\n」。
+    若 做 文件_存在 用 「/mnt/nova/boot/artifacts/modules.lst」：
+        引导配置 为 引导配置 加 「  module /boot/artifacts/modules.lst\n」。
+    完。
+    若 做 文件_存在 用 部署_桥接清单路径：
+        引导配置 为 引导配置 加 「  module /boot/artifacts/bridge.cfg\n」。
+    完。
+    做 安装_写文本 用 部署_启动配置路径、引导配置。
+完。
+
+安装_部署系统Bundles 接受 零参：
+    做 安装_日志 用 「部署系统Bundle...」、日志_信息。
+    bundle清单 为 一组：一组：「龙壳.nsys」、「/bundles/system/龙壳.nsys」、「系统终端」、一组：「龙仓.nsys」、「/bundles/system/龙仓.nsys」、「包管理器」、一组：「龙编译器.nsys」、「/bundles/system/龙编译器.nsys」、「Nova编译器」、一组：「龙审.nsys」、「/bundles/system/龙审.nsys」、「代码检查器」、一组：「龙调.nsys」、「/bundles/system/龙调.nsys」、「调试器」。
+    可变 已部署 为 0。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 bundle清单：
+        项 为 bundle清单 的 第 i 项。
+        源 为 部署_构建根 加 「/bundles/」 加 项 的 第 0 项。
+        目标 为 「/mnt/nova」 加 项 的 第 1 项。
+        若 做 文件_存在 用 源：
+            做 文件_复制 用 源、目标。
+            做 安装_记录产物 用 项 的 第 2 项、项 的 第 1 项、「bundle」、部署_默认版本。
+            做 安装_日志 用 「  Bundle: 」 加 项 的 第 2 项 加 「 -> 」 加 项 的 第 1 项、日志_信息。
+            已部署 为 已部署 加 1。
+        否则：
+            做 安装_日志 用 「  跳过(未找到): 」 加 项 的 第 0 项、日志_警告。
+        完。
+        i 为 i 加 1。
+    完。
+    可变 注册表 为 「# NovaOS Bundle Registry\n」。
+    注册表 为 注册表 加 「bundle.count=」 加 做 整数转字符串 用 已部署 加 「\n」。
+    注册表 为 注册表 加 「bundle.format=napp-v1\n」。
+    注册表 为 注册表 加 「bundle.signing=HMAC-SHA256\n」。
+    注册表 为 注册表 加 「bundle.encryption=AES-256-CBC\n」。
+    注册表 为 注册表 加 「device.fingerprint=」 加 做 设备_指纹转字符串 加 「\n」。
+    做 安装_写文本 用 「/mnt/nova/bundles/registry.cfg」、注册表。
+    做 安装_日志 用 「Bundle部署完成: 」 加 做 整数转字符串 用 已部署 加 「 个」、日志_信息。
+完。
+
+本章 收束。

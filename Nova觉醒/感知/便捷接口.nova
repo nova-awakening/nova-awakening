@@ -1,0 +1,143 @@
+《便捷接口》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·文档事件》。
+
+事件Dispatch_click 接受 target、x、y：
+    evt 为 做 Mouse事件_创建 用 「click」、x、y、0、0。
+    evt 的 基类 的 是可信的 为 真。
+    et 为 做 堆_分配 用 事件Target。
+    et 的 节点 为 target。
+    et 的 监听器Map 为 0。
+    若 target 不等于 0：
+        et 的 监听器Map 为 target 的 事件监听器数据。
+    完。
+    做 事件Dispatch_分发 用 et、evt 的 基类。
+    做 堆_释放 用 et。
+完。
+
+事件Dispatch_keydown 接受 target、key、code、keyCode、修饰键：
+    evt 为 做 Keyboard事件_创建 用 「keydown」、key、code、keyCode、修饰键。
+    evt 的 基类 的 是可信的 为 真。
+    et 为 做 堆_分配 用 事件Target。
+    et 的 节点 为 target。
+    et 的 监听器Map 为 0。
+    若 target 不等于 0：
+        et 的 监听器Map 为 target 的 事件监听器数据。
+    完。
+    允许默认 为 做 事件Dispatch_分发 用 et、evt 的 基类。
+    做 堆_释放 用 et。
+    若 允许默认 并且 keyCode 等于 9 并且 target 不等于 0：
+        起点 为 当前焦点元素。
+        若 起点 等于 0：
+            起点 为 target。
+        完。
+        做 Focus_Tab处理 用 起点、修饰键 位与 MOD_SHIFT 不等于 0。
+    完。
+    返还 允许默认。
+完。
+
+事件Dispatch_keyup 接受 target、key、code、keyCode、修饰键：
+    evt 为 做 Keyboard事件_创建 用 「keyup」、key、code、keyCode、修饰键。
+    evt 的 基类 的 是可信的 为 真。
+    et 为 做 堆_分配 用 事件Target。
+    et 的 节点 为 target。
+    et 的 监听器Map 为 0。
+    若 target 不等于 0：
+        et 的 监听器Map 为 target 的 事件监听器数据。
+    完。
+    _r 为 做 事件Dispatch_分发 用 et、evt 的 基类。
+    做 堆_释放 用 et。
+    返还 _r。
+完。
+
+事件Dispatch_scroll 接受 target、deltaX、deltaY：
+    evt 为 做 事件_创建2 用 「scroll」、假、假。
+    evt 的 是可信的 为 真。
+    et 为 做 堆_分配 用 事件Target。
+    et 的 节点 为 target。
+    et 的 监听器Map 为 0。
+    若 target 不等于 0：
+        et 的 监听器Map 为 target 的 事件监听器数据。
+    完。
+    做 事件Dispatch_分发 用 et、evt。
+    做 堆_释放 用 et。
+完。
+
+事件Dispatch_自定义事件 接受 target、类型、detail：
+    evt 为 做 堆_分配 用 Custom事件。
+    evt 的 基类 为 做 事件_创建2 用 类型、真、真。
+    evt 的 detail 为 detail。
+    et 为 做 堆_分配 用 事件Target。
+    et 的 节点 为 target。
+    et 的 监听器Map 为 0。
+    若 target 不等于 0：
+        et 的 监听器Map 为 target 的 事件监听器数据。
+    完。
+    做 事件Dispatch_分发 用 et、evt 的 基类。
+    做 堆_释放 用 et。
+    做 堆_释放 用 evt。
+完。
+
+事件Throttle 是 一种 事物，含 最小间隔、上次触发、待处理事件、事件类型ID。
+
+可变 scroll节流 为 0。
+
+可变 mousemove节流 为 0。
+
+事件Throttle_创建 接受 间隔ms、类型ID：
+    t 为 做 堆_分配 用 事件Throttle。
+    t 的 最小间隔 为 间隔ms。
+    t 的 上次触发 为 0。
+    t 的 待处理事件 为 0。
+    t 的 事件类型ID 为 类型ID。
+    返还 t。
+完。
+
+事件Throttle_应该触发 接受 throttle、当前时间：
+    若 throttle 等于 0：
+        返还 真。
+    完。
+    若 当前时间 减 throttle 的 上次触发 大于或等于 throttle 的 最小间隔：
+        throttle 的 上次触发 为 当前时间。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+事件Throttle_初始化 接受 零参：
+    scroll节流 为 做 事件Throttle_创建 用 16、EVT_SCROLL。
+    mousemove节流 为 做 事件Throttle_创建 用 8、EVT_MOUSEMOVE。
+完。
+
+HitTest_在点 接受 document、x、y：
+    若 document 等于 0：
+        返还 0。
+    完。
+    可变 结果 为 0。
+    可变 最高z 为 负 999999。
+    做 HitTest_递归 用 document、x、y、结果、最高z。
+    返还 结果。
+完。
+
+HitTest_递归 接受 节点、x、y、结果、最高z：
+    若 节点 等于 0：
+        返还。
+    完。
+    若 节点 的 布局对象 不等于 0：
+        lo 为 节点 的 布局对象。
+        若 x 大于或等于 lo 的 x 并且 x 小于 lo 的 x 加 lo 的 宽度 并且 y 大于或等于 lo 的 y 并且 y 小于 lo 的 y 加 lo 的 高度：
+            结果 为 节点。
+        完。
+    完。
+    可变 child 为 节点 的 第一子节点。
+    只要 child 不等于 0：
+        做 HitTest_递归 用 child、x、y、结果、最高z。
+        child 为 child 的 后一兄弟。
+    完。
+完。
+
+本章 收束。

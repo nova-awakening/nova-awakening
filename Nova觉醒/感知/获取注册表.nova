@@ -1,0 +1,184 @@
+《获取注册表》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·自定元素生命》。
+
+引用《.·取数网络请》。
+
+CE_STATE_UNDEFINED 为 0。
+
+CE_STATE_FAILED 为 1。
+
+CE_STATE_UNCUSTOMIZED 为 2。
+
+CE_STATE_CUSTOM 为 3。
+
+CE_STATE_PRECUSTOMIZED 为 4。
+
+SHADOW_OPEN 为 0。
+
+SHADOW_CLOSED 为 1。
+
+SLOT_CHANGE_ASSIGN 为 0。
+
+SLOT_CHANGE_REMOVE 为 1。
+
+Custom元素Definition 是 一种 事物，含 名称、构造器、connectedCallback、disconnectedCallback、attributeChangedCallback、adoptedCallback、formAssociatedCallback、formResetCallback、formDisabledCallback、formStateRestoreCallback、观察属性、观察属性数、extends、formAssociated、disableInternals、disableShadow。
+
+Custom元素Registry 是 一种 事物，含 定义列表、定义数、定义容量、等待列表、等待数。
+
+可变 全局CE注册表 为 0。
+
+CE_获取注册表 接受 零参：
+    若 全局CE注册表 等于 0：
+        全局CE注册表 为 做 堆_分配 用 Custom元素Registry。
+        全局CE注册表 的 定义容量 为 256。
+        全局CE注册表 的 定义列表 为 做 堆_分配_数组 用 256 乘 8。
+        全局CE注册表 的 定义数 为 0。
+        全局CE注册表 的 等待列表 为 0。
+        全局CE注册表 的 等待数 为 0。
+    完。
+    返还 全局CE注册表。
+完。
+
+CE_define 接受 名称、构造器、extends_tag：
+    reg 为 做 CE_获取注册表。
+    若 reg 等于 0 或者 名称 等于 0 或者 构造器 等于 0：
+        返还。
+    完。
+    若 非 做 CE_验证名称 用 名称：
+        返还。
+    完。
+    若 做 CE_get 用 名称 不等于 0：
+        返还。
+    完。
+    def 为 做 堆_分配 用 Custom元素Definition。
+    def 的 名称 为 做 字符串_复制 用 名称。
+    def 的 构造器 为 构造器。
+    def 的 extends 为 extends_tag。
+    def 的 connectedCallback 为 0。
+    def 的 disconnectedCallback 为 0。
+    def 的 attributeChangedCallback 为 0。
+    def 的 adoptedCallback 为 0。
+    def 的 formAssociatedCallback 为 0。
+    def 的 观察属性 为 0。
+    def 的 观察属性数 为 0。
+    def 的 formAssociated 为 假。
+    def 的 disableInternals 为 假。
+    def 的 disableShadow 为 假。
+    若 reg 的 定义数 小于 reg 的 定义容量：
+        做 内存_写64 用 reg 的 定义列表 加 reg 的 定义数 乘 8、def。
+        reg 的 定义数 为 reg 的 定义数 加 1。
+    完。
+    做 CE_升级已有元素 用 def。
+    做 CE_解决等待 用 名称。
+完。
+
+CE_get 接受 名称：
+    reg 为 做 CE_获取注册表。
+    若 reg 等于 0 或者 名称 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 reg 的 定义数：
+        def 为 做 内存_读64 用 reg 的 定义列表 加 i 乘 8。
+        若 def 不等于 0 并且 做 字符串_相等 用 def 的 名称、名称：
+            返还 def 的 构造器。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+CE_getName 接受 构造器：
+    reg 为 做 CE_获取注册表。
+    若 reg 等于 0 或者 构造器 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 reg 的 定义数：
+        def 为 做 内存_读64 用 reg 的 定义列表 加 i 乘 8。
+        若 def 不等于 0 并且 def 的 构造器 等于 构造器：
+            返还 def 的 名称。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+CE_查找定义 接受 名称：
+    reg 为 做 CE_获取注册表。
+    若 reg 等于 0 或者 名称 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 reg 的 定义数：
+        def 为 做 内存_读64 用 reg 的 定义列表 加 i 乘 8。
+        若 def 不等于 0 并且 做 字符串_相等 用 def 的 名称、名称：
+            返还 def。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+CE_验证名称 接受 名称：
+    若 名称 等于 0：
+        返还 假。
+    完。
+    len 为 做 字节长度 用 名称。
+    若 len 等于 0：
+        返还 假。
+    完。
+    可变 有连字符 为 假。
+    可变 i 为 0。
+    只要 i 小于 len：
+        若 做 字节取 用 名称、i 等于 45：
+            有连字符 为 真。
+        完。
+        i 为 i 加 1。
+    完。
+    若 非 有连字符：
+        返还 假。
+    完。
+    首字符 为 做 字节取 用 名称、0。
+    若 首字符 小于 97 或者 首字符 大于 122：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+CE_解决等待 接受 名称：
+    reg 为 做 CE_获取注册表。
+    若 reg 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 reg 的 等待数量：
+        entry 为 做 内存_读64 用 reg 的 等待列表 加 i 乘 16。
+        promise 为 做 内存_读64 用 reg 的 等待列表 加 i 乘 16 加 8。
+        若 做 字符串_相等 用 entry、名称：
+            def 为 做 CE_查找定义 用 名称。
+            若 def 不等于 0 并且 promise 不等于 0：
+                做 Nova承诺_resolve 用 0、promise、def 的 构造器。
+            完。
+            做 内存_复制 用 reg 的 等待列表 加 i 乘 16、reg 的 等待列表 加 (i 加 1) 乘 16、(reg 的 等待数量 减 i 减 1) 乘 16。
+            reg 的 等待数量 为 reg 的 等待数量 减 1。
+        否则：
+            i 为 i 加 1。
+        完。
+    完。
+完。
+
+本章 收束。

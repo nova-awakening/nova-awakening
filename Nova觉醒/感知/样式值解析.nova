@@ -1,0 +1,106 @@
+《样式值解析》
+
+引用《..·中枢·类型定义》。
+引用《..·执行·配置获取》。
+
+    若 style.height 不小于 0 并且 style.height 不等于 -1：
+        内容高 为 做 CSS值_解析为像素 用 style.height、包含块高。
+        若 style.box_sizing 等于 1：
+            内容高 为 内容高 减 layout.padding_top 减 layout.padding_bottom。
+                     - layout.border_top 减 layout.border_bottom。
+            若 内容高 小于 0：
+        完。
+        layout.高度 为 内容高。
+        layout.高度已确定 为 真。
+    完。
+
+    若 style.margin_left 等于 -1 并且 style.margin_right 等于 -1 并且 宽度指定 不小于 0：
+        ※ 两侧auto: 水平居中
+        总宽 为 内容宽 加 layout.padding_left 加 layout.padding_right。
+                   + layout.border_left 加 layout.border_right。
+        剩余 为 包含块宽 减 总宽。
+        若 剩余 大于 0：
+            layout.margin_left 为 剩余 除以 2。
+            layout.margin_right 为 剩余 减 layout.margin_left。
+        否则：
+            layout.margin_left 为 0。
+            layout.margin_right 为 0。
+        完。
+    否则若 style.margin_left 等于 -1：
+        layout.margin_left 为 0。
+    否则若 style.margin_right 等于 -1：
+        layout.margin_right 为 0。
+    完。
+完。
+
+CSS值_解析为像素 接受 值、参照)：
+    ※ 值的编码: 正数=px×100, 负数特殊含义
+    ※ 百分比编码: 值 = -(百分比×100 + 10000)
+    ※ em编码: 值 = -(em值×100 + 20000)
+    若 值 不小于 0：
+    若 值 等于 -1：
+
+    编码 为 0 减 值。
+    若 编码 不小于 10000 并且 编码 小于 20000：
+        ※ 百分比
+        百分比 为 编码 减 10000。
+        返还 参照 乘 百分比 除以 10000。
+    完。
+    若 编码 不小于 20000 并且 编码 小于 30000：
+        ※ em (相对于元素计算后字号)
+        em值 为 编码 减 20000。
+        ※ 从元素样式获取计算后字号, 默认回退1600 (16px×100)
+        font_size 为 1600
+        ※ 实际应从当前元素的Computed样式.font_size获取
+        返还 em值 乘 font_size 除以 10000。
+    完。
+    若 编码 不小于 30000 并且 编码 小于 40000：
+        ※ rem (相对于根字号)
+        rem值 为 编码 减 30000。
+        返还 rem值 乘 16。
+    完。
+    若 编码 不小于 40000 并且 编码 小于 50000：
+        ※ vw (相对于视口宽度)
+        vw值 为 编码 减 40000。
+        ※ 从配置系统获取实际视口宽度
+        视口宽 为 做 Config_视口宽 乘 100
+        返还 视口宽 乘 vw值 除以 10000。
+    完。
+
+    返还 0。
+完。
+
+CSS值_解析margin 接受 值、参照)：
+    若 值 等于 -1：
+    返还 做 CSS值_解析为像素 用 值、参照。
+完。
+
+CSS值_解析边框宽 接受 值)：
+    若 值 等于 0：
+    若 值 等于 -10：
+    若 值 等于 -20：
+    若 值 等于 -30：
+    返还 值
+完。
+
+※ §2 块级 Flow 布局 — 块级布局主算法
+※ (对应 布局块级Flow::布局Children + 布局块级::布局Child)
+※ 算法:
+※ 1. 遍历所有子节点
+※ 2. 每个子节点解析盒模型
+※ 3. 处理margin折叠
+※ 4. 处理浮动(float)
+※ 5. 定位子节点(y += 子高度 + margin)
+※ 6. 计算自身高度
+
+布局块级Flow_布局 接受 layout)：
+    若 layout 等于 0：
+    style 为 layout.样式。
+    若 style 等于 0：
+
+    ※ 包含块尺寸
+    包含块宽 为 layout.宽度。
+    包含块高 为 layout.高度。
+    若 包含块高 等于 0：
+
+本章 收束。

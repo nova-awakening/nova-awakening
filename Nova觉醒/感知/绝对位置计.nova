@@ -1,0 +1,119 @@
+《绝对位置计》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·创建销毁》。
+
+引用《.·AI布局决策》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·文档节点》。
+
+引用《.·文档接口属》。
+
+引用《.·计算长度零》。
+
+引用《.·样式继承》。
+
+引用《.·应用样式声明》。
+
+引用《.·ComputedStyle创建》。
+
+布局Object_计算绝对位置 接受 lo：
+    若 lo 的 父 不等于 0：
+        lo 的 绝对x 为 lo 的 父 的 绝对x 加 lo 的 x。
+        lo 的 绝对y 为 lo 的 父 的 绝对y 加 lo 的 y。
+    否则：
+        lo 的 绝对x 为 lo 的 x。
+        lo 的 绝对y 为 lo 的 y。
+    完。
+    可变 子 为 lo 的 第一子。
+    只要 子 不等于 0：
+        做 布局Object_计算绝对位置 用 子。
+        子 为 子 的 后兄。
+    完。
+完。
+
+布局Object_获取客户端矩形 接受 lo：
+    返还 一组：lo 的 绝对x、lo 的 绝对y、做 布局Object_边框盒宽 用 lo、做 布局Object_边框盒高 用 lo。
+完。
+
+布局Tree_构建 接受 文档、视口宽、视口高：
+    根样式 为 做 Computed样式_创建。
+    根样式 的 display 为 Display_block。
+    根样式 的 width 为 做 计算长度_px 用 视口宽。
+    根样式 的 height 为 做 计算长度_px 用 视口高。
+    根 为 做 布局Object_创建 用 布局类型_视图、文档、根样式。
+    根 的 内容宽 为 视口宽。
+    根 的 内容高 为 视口高。
+    html 为 做 Document_document元素 用 文档。
+    若 html 不等于 0：
+        做 布局Tree_构建递归 用 根、html。
+    完。
+    返还 根。
+完。
+
+布局Tree_构建递归 接受 父lo、dom节点：
+    若 dom节点 等于 0：
+        返还。
+    完。
+    若 dom节点 的 节点类型 等于 TEXT_节点：
+        文本 为 做 CharacterData_data 用 dom节点。
+        若 文本 不等于 0 并且 做 字符串_长度 用 文本 大于 0：
+            文本样式 为 做 Computed样式_创建。
+            若 父lo 的 样式 不等于 0：
+                做 Computed样式_继承 用 文本样式、父lo 的 样式。
+            完。
+            文本lo 为 做 布局Object_创建 用 布局类型_文本、dom节点、文本样式。
+            做 布局Object_添加子 用 父lo、文本lo。
+        完。
+        返还。
+    完。
+    若 dom节点 的 节点类型 等于 元素_节点：
+        扩展 为 做 元素_获取扩展 用 dom节点。
+        若 扩展 等于 0：
+            返还。
+        完。
+        样式 为 扩展 的 计算样式。
+        若 样式 等于 0：
+            样式 为 做 Computed样式_创建。
+            做 Computed样式_应用UA默认 用 样式、扩展 的 标签名原子。
+            若 父lo 的 样式 不等于 0：
+                做 Computed样式_继承 用 样式、父lo 的 样式。
+            完。
+            扩展 的 计算样式 为 样式。
+        完。
+        若 样式 的 display 等于 Display_none：
+            返还。
+        完。
+        可变 类型 为 布局类型_块。
+        若 样式 的 display 等于 Display_inline：
+            类型 为 布局类型_内联。
+        否则若 样式 的 display 等于 Display_inline_block：
+            类型 为 布局类型_块。
+        否则若 样式 的 display 等于 Display_flex 或者 样式 的 display 等于 Display_inline_flex：
+            类型 为 布局类型_弹性。
+        否则若 样式 的 display 等于 Display_grid 或者 样式 的 display 等于 Display_inline_grid：
+            类型 为 布局类型_网格。
+        否则若 样式 的 display 等于 Display_table：
+            类型 为 布局类型_表格。
+        否则若 样式 的 display 等于 Display_table_row：
+            类型 为 布局类型_表格行。
+        否则若 样式 的 display 等于 Display_table_cell：
+            类型 为 布局类型_表格单元。
+        完。
+        lo 为 做 布局Object_创建 用 类型、dom节点、样式。
+        做 布局Object_添加子 用 父lo、lo。
+        做 AI布局_设置语义优先级 用 lo、dom节点。
+        可变 子 为 dom节点 的 第一子节点。
+        只要 子 不等于 0：
+            做 布局Tree_构建递归 用 lo、子。
+            子 为 子 的 后一兄弟。
+        完。
+    完。
+完。
+
+本章 收束。

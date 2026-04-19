@@ -1,0 +1,201 @@
+《AHCI集成驱动》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《.·E1000收发初始化》。
+
+引用《.·AHCI驱动辅助》。
+
+引用《..·中枢·APIC任务优先级》。
+
+引用《..·引导·端口IO》。
+
+引用《.·AHCI驱动全局》。
+
+引用《.·中断处理》。
+
+引用《..·中枢·整数转字符串》。
+
+AHCI_识别设备 接受 port：
+    缓冲 为 做 直传_分配 用 512。
+    做 内存填零 用 缓冲、512。
+    slot 为 做 AHCI_查找空闲槽 用 port。
+    若 slot 小于 0：
+        返还。
+    完。
+    cmd_header 为 port 的 命令列表 加 slot 乘 32。
+    做 内存写32 用 cmd_header、5。
+    做 内存写32 用 cmd_header 加 4、0。
+    cmd_table 为 port 的 命令表 的 第 slot 项。
+    做 内存填零 用 cmd_table、256。
+    做 内存写8 用 cmd_table 加 0、FIS_TYPE_REG_H2D。
+    做 内存写8 用 cmd_table 加 1、0x80。
+    做 内存写8 用 cmd_table 加 2、ATA_CMD_IDENTIFY。
+    做 内存写8 用 cmd_table 加 3、0。
+    prdt 为 cmd_table 加 0x80。
+    做 内存写32 用 prdt 加 0、缓冲 位与 0xFFFFFFFF。
+    做 内存写32 用 prdt 加 4、缓冲 右移 32 位与 0xFFFFFFFF。
+    做 内存写32 用 prdt 加 8、0。
+    做 内存写32 用 prdt 加 12、511。
+    dw0 为 做 内存读32 用 cmd_header。
+    做 内存写32 用 cmd_header、dw0 位或 1 左移 16。
+    做 MMIO写32 用 port 的 端口基址 加 PORT_CI、1 左移 slot。
+    若 非 做 AHCI_等待完成 用 port、slot：
+        做 内核警告 用 「AHCI: IDENTIFY超时」。
+        返还。
+    完。
+    port 的 设备信息 为 新建 SATA设备信息。
+    port 的 设备信息 的 型号 为 做 AHCI_读ATA字符串 用 缓冲、27、46。
+    port 的 设备信息 的 序列号 为 做 AHCI_读ATA字符串 用 缓冲、10、19。
+    port 的 设备信息 的 固件版本 为 做 AHCI_读ATA字符串 用 缓冲、23、26。
+    lba_low 为 做 内存读32 用 缓冲 加 100 乘 2。
+    lba_high 为 做 内存读32 用 缓冲 加 102 乘 2。
+    port 的 设备信息 的 扇区数 为 lba_low 位或 lba_high 左移 32。
+    w106 为 做 内存读16 用 缓冲 加 106 乘 2。
+    若 w106 位与 0x4000 不等于 0 并且 w106 位与 0x1000 不等于 0：
+        logical_per_phys 为 1 左移 (w106 位与 0xF)。
+        port 的 设备信息 的 扇区大小 为 logical_per_phys 乘 512。
+    否则：
+        port 的 设备信息 的 扇区大小 为 512。
+    完。
+    w83 为 做 内存读16 用 缓冲 加 83 乘 2。
+    port 的 设备信息 的 支持48位LBA 为 w83 右移 10 位与 1 不等于 0。
+    w76 为 做 内存读16 用 缓冲 加 76 乘 2。
+    port 的 设备信息 的 支持NCQ 为 w76 右移 8 位与 1 不等于 0。
+    w169 为 做 内存读16 用 缓冲 加 169 乘 2。
+    port 的 设备信息 的 支持TRIM 为 w169 位与 1 不等于 0。
+    rpm 为 做 内存读16 用 缓冲 加 217 乘 2。
+    port 的 设备信息 的 转速 为 rpm。
+    容量MB 为 port 的 设备信息 的 扇区数 乘 port 的 设备信息 的 扇区大小 除以 1048576。
+    类型 为 「HDD」。
+    若 rpm 等于 1 或者 rpm 等于 0：
+        类型 为 「SSD」。
+    完。
+    做 内核信息 用 「AHCI: 」 加 类型 加 「 」 加 port 的 设备信息 的 型号 加 「 容量=」 加 做 整数转字符串 用 容量MB 加 「MB」 加 「 扇区=」 加 做 整数转字符串 用 port 的 设备信息 的 扇区大小 加 「B」 加 「 NCQ=」 加 若 port 的 设备信息 的 支持NCQ 则 「是」 否则 「否」 加 「 TRIM=」 加 若 port 的 设备信息 的 支持TRIM 则 「是」 否则 「否」。
+完。
+
+AHCI_读扇区 接受 port、LBA、扇区数、缓冲：
+    若 非 port 的 已连接：
+        返还 错误_设备。
+    完。
+    若 扇区数 等于 0：
+        返还 0。
+    完。
+    slot 为 做 AHCI_查找空闲槽 用 port。
+    若 slot 小于 0：
+        返还 错误_设备忙。
+    完。
+    cmd_header 为 port 的 命令列表 加 slot 乘 32。
+    做 内存写32 用 cmd_header、5 位或 1 左移 16。
+    做 内存写32 用 cmd_header 加 4、0。
+    cmd_table 为 port 的 命令表 的 第 slot 项。
+    做 内存填零 用 cmd_table、256。
+    做 内存写8 用 cmd_table 加 0、FIS_TYPE_REG_H2D。
+    做 内存写8 用 cmd_table 加 1、0x80。
+    做 内存写8 用 cmd_table 加 2、ATA_CMD_READ_直传_EXT。
+    做 内存写8 用 cmd_table 加 3、0。
+    做 内存写8 用 cmd_table 加 4、LBA 位与 0xFF。
+    做 内存写8 用 cmd_table 加 5、LBA 右移 8 位与 0xFF。
+    做 内存写8 用 cmd_table 加 6、LBA 右移 16 位与 0xFF。
+    做 内存写8 用 cmd_table 加 7、0x40。
+    做 内存写8 用 cmd_table 加 8、LBA 右移 24 位与 0xFF。
+    做 内存写8 用 cmd_table 加 9、LBA 右移 32 位与 0xFF。
+    做 内存写8 用 cmd_table 加 10、LBA 右移 40 位与 0xFF。
+    做 内存写8 用 cmd_table 加 12、扇区数 位与 0xFF。
+    做 内存写8 用 cmd_table 加 13、扇区数 右移 8 位与 0xFF。
+    prdt 为 cmd_table 加 0x80。
+    字节数 为 扇区数 乘 port 的 设备信息 的 扇区大小。
+    做 内存写32 用 prdt 加 0、缓冲 位与 0xFFFFFFFF。
+    做 内存写32 用 prdt 加 4、缓冲 右移 32 位与 0xFFFFFFFF。
+    做 内存写32 用 prdt 加 8、0。
+    做 内存写32 用 prdt 加 12、字节数 减 1 位或 0x80000000。
+    做 MMIO写32 用 port 的 端口基址 加 PORT_CI、1 左移 slot。
+    若 非 做 AHCI_等待完成 用 port、slot：
+        做 内核警告 用 「AHCI: 读超时 LBA=」 加 做 整数转字符串 用 LBA。
+        返还 错误_IO。
+    完。
+    AHCI_读扇区总数 为 AHCI_读扇区总数 加 扇区数。
+    返还 0。
+完。
+
+AHCI_写扇区 接受 port、LBA、扇区数、数据：
+    若 非 port 的 已连接：
+        返还 错误_设备。
+    完。
+    若 扇区数 等于 0：
+        返还 0。
+    完。
+    slot 为 做 AHCI_查找空闲槽 用 port。
+    若 slot 小于 0：
+        返还 错误_设备忙。
+    完。
+    cmd_header 为 port 的 命令列表 加 slot 乘 32。
+    做 内存写32 用 cmd_header、5 位或 1 左移 16 位或 1 左移 6。
+    做 内存写32 用 cmd_header 加 4、0。
+    cmd_table 为 port 的 命令表 的 第 slot 项。
+    做 内存填零 用 cmd_table、256。
+    做 内存写8 用 cmd_table 加 0、FIS_TYPE_REG_H2D。
+    做 内存写8 用 cmd_table 加 1、0x80。
+    做 内存写8 用 cmd_table 加 2、ATA_CMD_WRITE_直传_EXT。
+    做 内存写8 用 cmd_table 加 4、LBA 位与 0xFF。
+    做 内存写8 用 cmd_table 加 5、LBA 右移 8 位与 0xFF。
+    做 内存写8 用 cmd_table 加 6、LBA 右移 16 位与 0xFF。
+    做 内存写8 用 cmd_table 加 7、0x40。
+    做 内存写8 用 cmd_table 加 8、LBA 右移 24 位与 0xFF。
+    做 内存写8 用 cmd_table 加 9、LBA 右移 32 位与 0xFF。
+    做 内存写8 用 cmd_table 加 10、LBA 右移 40 位与 0xFF。
+    做 内存写8 用 cmd_table 加 12、扇区数 位与 0xFF。
+    做 内存写8 用 cmd_table 加 13、扇区数 右移 8 位与 0xFF。
+    prdt 为 cmd_table 加 0x80。
+    字节数 为 扇区数 乘 port 的 设备信息 的 扇区大小。
+    做 内存写32 用 prdt 加 0、数据 位与 0xFFFFFFFF。
+    做 内存写32 用 prdt 加 4、数据 右移 32 位与 0xFFFFFFFF。
+    做 内存写32 用 prdt 加 8、0。
+    做 内存写32 用 prdt 加 12、字节数 减 1 位或 0x80000000。
+    做 MMIO写32 用 port 的 端口基址 加 PORT_CI、1 左移 slot。
+    若 非 做 AHCI_等待完成 用 port、slot：
+        做 内核警告 用 「AHCI: 写超时 LBA=」 加 做 整数转字符串 用 LBA。
+        返还 错误_IO。
+    完。
+    AHCI_写扇区总数 为 AHCI_写扇区总数 加 扇区数。
+    返还 0。
+完。
+
+AHCI_刷新缓存 接受 port：
+    slot 为 做 AHCI_查找空闲槽 用 port。
+    若 slot 小于 0：
+        返还。
+    完。
+    cmd_table 为 port 的 命令表 的 第 slot 项。
+    做 内存填零 用 cmd_table、256。
+    做 内存写8 用 cmd_table 加 0、FIS_TYPE_REG_H2D。
+    做 内存写8 用 cmd_table 加 1、0x80。
+    做 内存写8 用 cmd_table 加 2、ATA_CMD_FLUSH_CACHE_EXT。
+    cmd_header 为 port 的 命令列表 加 slot 乘 32。
+    做 内存写32 用 cmd_header、5。
+    做 MMIO写32 用 port 的 端口基址 加 PORT_CI、1 左移 slot。
+    做 AHCI_等待完成 用 port、slot。
+完。
+
+可变 AI_集成开发_故障预警数 为 0。
+
+AI_集成开发_设备健康 接受 错误率、响应时间、温度：
+    可变 分 为 1000。
+    若 错误率 大于 10：
+        分 为 分 减 错误率 乘 5。
+    完。
+    若 响应时间 大于 1000：
+        分 为 分 减 200。
+    完。
+    若 温度 大于 80：
+        分 为 分 减 300。
+    完。
+    若 分 小于 300：
+        AI_集成开发_故障预警数 为 AI_集成开发_故障预警数 加 1。
+    完。
+    返还 分。
+完。
+
+本章 收束。

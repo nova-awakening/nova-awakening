@@ -1,0 +1,162 @@
+《ASN1证书解析》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·感知·内核直连层》。
+
+ASN1_BOOLEAN 为 0x01。
+
+ASN1_INTEGER 为 0x02。
+
+ASN1_BIT_STRING 为 0x03。
+
+ASN1_OCTET_STRING 为 0x04。
+
+ASN1_NULL 为 0x05。
+
+ASN1_OID 为 0x06。
+
+ASN1_UTF8STRING 为 0x0C。
+
+ASN1_PRINTABLESTRING 为 0x13。
+
+ASN1_IA5STRING 为 0x16。
+
+ASN1_UTCTIME 为 0x17。
+
+ASN1_GENERALIZEDTIME 为 0x18。
+
+ASN1_SEQUENCE 为 0x30。
+
+ASN1_SET 为 0x31。
+
+ASN1_CONTEXT_0 为 0xA0。
+
+ASN1_CONTEXT_1 为 0xA1。
+
+ASN1_CONTEXT_2 为 0xA2。
+
+ASN1_CONTEXT_3 为 0xA3。
+
+ASN1元素 是 一种 事物，含 标签、长度、值偏移、总长度。
+
+ASN1_解析元素 接受 数据、偏移、数据长度：
+    若 偏移 大于或等于 数据长度：
+        返还 0。
+    完。
+    elem 为 做 堆_分配 用 ASN1元素。
+    可变 pos 为 偏移。
+    elem 的 标签 为 做 内存_读8 用 数据 加 pos。
+    pos 为 pos 加 1。
+    若 pos 大于或等于 数据长度：
+        做 堆_释放 用 elem。
+        返还 0。
+    完。
+    len_byte 为 做 内存_读8 用 数据 加 pos。
+    pos 为 pos 加 1。
+    若 len_byte 小于 0x80：
+        elem 的 长度 为 len_byte。
+    否则若 len_byte 等于 0x81：
+        若 pos 大于或等于 数据长度：
+            做 堆_释放 用 elem。
+            返还 0。
+        完。
+        elem 的 长度 为 做 内存_读8 用 数据 加 pos。
+        pos 为 pos 加 1。
+    否则若 len_byte 等于 0x82：
+        若 pos 加 1 大于或等于 数据长度：
+            做 堆_释放 用 elem。
+            返还 0。
+        完。
+        elem 的 长度 为 做 内存_读8 用 数据 加 pos 左移 8 位或 做 内存_读8 用 数据 加 pos 加 1。
+        pos 为 pos 加 2。
+    否则若 len_byte 等于 0x83：
+        若 pos 加 2 大于或等于 数据长度：
+            做 堆_释放 用 elem。
+            返还 0。
+        完。
+        elem 的 长度 为 做 内存_读8 用 数据 加 pos 左移 16 位或 做 内存_读8 用 数据 加 pos 加 1 左移 8 位或 做 内存_读8 用 数据 加 pos 加 2。
+        pos 为 pos 加 3。
+    否则若 len_byte 等于 0x84：
+        若 pos 加 3 大于或等于 数据长度：
+            做 堆_释放 用 elem。
+            返还 0。
+        完。
+        elem 的 长度 为 做 内存_读8 用 数据 加 pos 左移 24 位或 做 内存_读8 用 数据 加 pos 加 1 左移 16 位或 做 内存_读8 用 数据 加 pos 加 2 左移 8 位或 做 内存_读8 用 数据 加 pos 加 3。
+        pos 为 pos 加 4。
+    否则：
+        elem 的 长度 为 0。
+    完。
+    elem 的 值偏移 为 pos。
+    elem 的 总长度 为 pos 减 偏移 加 elem 的 长度。
+    返还 elem。
+完。
+
+ASN1_读整数 接受 数据、elem：
+    可变 值 为 0。
+    可变 i 为 0。
+    len 为 elem 的 长度。
+    若 len 大于 8：
+        len 为 8。
+    完。
+    只要 i 小于 len：
+        值 为 值 左移 8 位或 做 内存_读8 用 数据 加 elem 的 值偏移 加 i。
+        i 为 i 加 1。
+    完。
+    返还 值。
+完。
+
+ASN1_读OID 接受 数据、elem、输出、最大长度：
+    可变 pos 为 0。
+    可变 out_pos 为 0。
+    oid_data 为 数据 加 elem 的 值偏移。
+    oid_len 为 elem 的 长度。
+    若 oid_len 大于 0：
+        first 为 做 内存_读8 用 oid_data。
+        out_pos 为 out_pos 加 做 整数_写入 用 输出 加 out_pos、first 除以 40。
+        做 内存_写8 用 输出 加 out_pos、0x2E。
+        out_pos 为 out_pos 加 1。
+        out_pos 为 out_pos 加 做 整数_写入 用 输出 加 out_pos、first 取余于 40。
+        pos 为 1。
+    完。
+    只要 pos 小于 oid_len 并且 out_pos 小于 最大长度 减 10：
+        做 内存_写8 用 输出 加 out_pos、0x2E。
+        out_pos 为 out_pos 加 1。
+        可变 comp 为 0。
+        只要 pos 小于 oid_len：
+            b 为 做 内存_读8 用 oid_data 加 pos。
+            pos 为 pos 加 1。
+            comp 为 comp 左移 7 位或 b 位与 0x7F。
+            若 非 (b 位与 0x80)：
+                跳出。
+            完。
+        完。
+        out_pos 为 out_pos 加 做 整数_写入 用 输出 加 out_pos、comp。
+    完。
+    做 内存_写8 用 输出 加 out_pos、0。
+    返还 out_pos。
+完。
+
+整数_写入 接受 buf、值：
+    若 值 等于 0：
+        做 内存_写8 用 buf、0x30。
+        返还 1。
+    完。
+    可变 digits 为 0。
+    可变 tmp 为 值。
+    只要 tmp 大于 0：
+        digits 为 digits 加 1。
+        tmp 为 tmp 除以 10。
+    完。
+    可变 i 为 digits 减 1。
+    只要 i 大于或等于 0：
+        做 内存_写8 用 buf 加 i、0x30 加 值 取余于 10。
+        值 为 值 除以 10。
+        i 为 i 减 1。
+    完。
+    返还 digits。
+完。
+
+本章 收束。

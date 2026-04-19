@@ -1,0 +1,416 @@
+《删除接口扩》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·外联·URL解析辅助》。
+
+引用《..·中枢·整数转字符串》。
+
+GL_TEXTURE_COMPARE_MODE 为 0x884C。
+
+GL_TEXTURE_COMPARE_FUNC 为 0x884D。
+
+GL_TEXTURE_MIN_FILTER 为 0x2801。
+
+GL_TEXTURE_MAG_FILTER 为 0x2800。
+
+GL_TEXTURE_WRAP_S 为 0x2802。
+
+GL_TEXTURE_WRAP_T 为 0x2803。
+
+GL_TEXTURE_WRAP_R 为 0x8072。
+
+GL_TEXTURE_MIN_LOD 为 0x813A。
+
+GL_TEXTURE_MAX_LOD 为 0x813B。
+
+GL_QUERY_RESULT 为 0x8866。
+
+GL_QUERY_RESULT_AVAILABLE 为 0x8867。
+
+GL_ANY_SAMPLES_PASSED 为 0x8C2F。
+
+GL_TRANSFORM_FEEDBACK_PRIMITIVES_WRITTEN 为 0x8C88。
+
+GL_SYNC_GPU_COMMANDS_COMPLETE 为 0x9117。
+
+GL_ALREADY_SIGNALED 为 0x911A。
+
+GL_CONDITION_SATISFIED 为 0x911C。
+
+GL_WAIT_FAILED 为 0x911D。
+
+GL资源跟踪 是 一种 事物，含 纹理创建数、纹理删除数、缓冲创建数、缓冲删除数、着色器创建数、着色器删除数、帧缓冲创建数、帧缓冲删除数。
+
+可变 GL跟踪 为 0。
+
+图绘2_uniform1ui 接受 location、v0：
+    做 GL_uniform写入 用 location、v0、0、0、0、1。
+完。
+
+图绘2_uniform2ui 接受 location、v0、v1：
+    做 GL_uniform写入 用 location、v0、v1、0、0、2。
+完。
+
+图绘2_uniform3ui 接受 location、v0、v1、v2：
+    做 GL_uniform写入 用 location、v0、v1、v2、0、3。
+完。
+
+图绘2_uniform4ui 接受 location、v0、v1、v2、v3：
+    做 GL_uniform写入 用 location、v0、v1、v2、v3、4。
+完。
+
+图绘2_uniform1uiv 接受 location、data、count：
+    可变 i 为 0。
+    只要 i 小于 count：
+        做 GL_uniform写入 用 location 加 i、data 的 第 i 项、0、0、0、1。
+        i 为 i 加 1。
+    完。
+完。
+
+图绘2_uniform2uiv 接受 location、data、count：
+    可变 i 为 0。
+    只要 i 小于 count：
+        做 GL_uniform写入 用 location 加 i、data 的 第 i 乘 2 项、data 的 第 i 乘 2 加 1 项、0、0、2。
+        i 为 i 加 1。
+    完。
+完。
+
+图绘2_uniform3uiv 接受 location、data、count：
+    可变 i 为 0。
+    只要 i 小于 count：
+        做 GL_uniform写入 用 location 加 i、data 的 第 i 乘 3 项、data 的 第 i 乘 3 加 1 项、data 的 第 i 乘 3 加 2 项、0、3。
+        i 为 i 加 1。
+    完。
+完。
+
+图绘2_uniform4uiv 接受 location、data、count：
+    可变 i 为 0。
+    只要 i 小于 count：
+        做 GL_uniform写入 用 location 加 i、data 的 第 i 乘 4 项、data 的 第 i 乘 4 加 1 项、data 的 第 i 乘 4 加 2 项、data 的 第 i 乘 4 加 3 项、4。
+        i 为 i 加 1。
+    完。
+完。
+
+图绘2_uniformMatrix2x3fv 接受 location、transpose、value：
+    做 GL_uniformMatrix写入 用 location、2、3、transpose、value。
+完。
+
+图绘2_uniformMatrix3x2fv 接受 location、transpose、value：
+    做 GL_uniformMatrix写入 用 location、3、2、transpose、value。
+完。
+
+图绘2_uniformMatrix2x4fv 接受 location、transpose、value：
+    做 GL_uniformMatrix写入 用 location、2、4、transpose、value。
+完。
+
+图绘2_uniformMatrix4x2fv 接受 location、transpose、value：
+    做 GL_uniformMatrix写入 用 location、4、2、transpose、value。
+完。
+
+图绘2_uniformMatrix3x4fv 接受 location、transpose、value：
+    做 GL_uniformMatrix写入 用 location、3、4、transpose、value。
+完。
+
+图绘2_uniformMatrix4x3fv 接受 location、transpose、value：
+    做 GL_uniformMatrix写入 用 location、4、3、transpose、value。
+完。
+
+图绘2_uniformBlockBinding 接受 program、blockIndex、bindingPoint：
+    若 program 等于 0：
+        返还。
+    完。
+    做 GL_uniformBlock绑定 用 program、blockIndex、bindingPoint。
+完。
+
+图绘2_getUniformBlockIndex 接受 program、blockName：
+    若 program 等于 0 或者 blockName 等于 0：
+        返还 负 1。
+    完。
+    返还 做 GL_获取uniformBlock索引 用 program、blockName。
+完。
+
+图绘2_getActiveUniformBlockName 接受 program、blockIndex：
+    若 program 等于 0：
+        返还 0。
+    完。
+    返还 做 GL_获取activeUniformBlock名 用 program、blockIndex。
+完。
+
+图绘2_createSampler 接受 零参：
+    返还 做 GL_创建采样器。
+完。
+
+图绘2_deleteSampler 接受 sampler：
+    若 sampler 等于 0：
+        返还。
+    完。
+    做 GL_删除采样器 用 sampler。
+完。
+
+图绘2_bindSampler 接受 unit、sampler：
+    做 GL_绑定采样器 用 unit、sampler。
+完。
+
+图绘2_samplerParameteri 接受 sampler、pname、param：
+    若 sampler 等于 0：
+        返还。
+    完。
+    做 GL_采样器参数i 用 sampler、pname、param。
+完。
+
+图绘2_samplerParameterf 接受 sampler、pname、param：
+    若 sampler 等于 0：
+        返还。
+    完。
+    做 GL_采样器参数f 用 sampler、pname、param。
+完。
+
+图绘2_createQuery 接受 零参：
+    返还 做 GL_创建查询。
+完。
+
+图绘2_deleteQuery 接受 query：
+    若 query 等于 0：
+        返还。
+    完。
+    做 GL_删除查询 用 query。
+完。
+
+图绘2_beginQuery 接受 target、query：
+    若 query 等于 0：
+        返还。
+    完。
+    做 GL_开始查询 用 target、query。
+完。
+
+图绘2_endQuery 接受 target：
+    做 GL_结束查询 用 target。
+完。
+
+图绘2_getQueryParameter 接受 query、pname：
+    若 query 等于 0：
+        返还 0。
+    完。
+    返还 做 GL_获取查询参数 用 query、pname。
+完。
+
+图绘2_createTransformFeedback 接受 零参：
+    返还 做 GL_创建变换反馈。
+完。
+
+图绘2_deleteTransformFeedback 接受 tf：
+    若 tf 等于 0：
+        返还。
+    完。
+    做 GL_删除变换反馈 用 tf。
+完。
+
+图绘2_bindTransformFeedback 接受 target、tf：
+    做 GL_绑定变换反馈 用 target、tf。
+完。
+
+图绘2_beginTransformFeedback 接受 primitiveMode：
+    做 GL_开始变换反馈 用 primitiveMode。
+完。
+
+图绘2_endTransformFeedback 接受 零参：
+    做 GL_结束变换反馈。
+完。
+
+图绘2_transformFeedbackVaryings 接受 program、varyings、count、bufferMode：
+    若 program 等于 0 或者 varyings 等于 0：
+        返还。
+    完。
+    做 GL_变换反馈输出 用 program、varyings、count、bufferMode。
+完。
+
+图绘2_fenceSync 接受 零参：
+    返还 做 GL_创建同步 用 GL_SYNC_GPU_COMMANDS_COMPLETE、0。
+完。
+
+图绘2_deleteSync 接受 sync：
+    若 sync 等于 0：
+        返还。
+    完。
+    做 GL_删除同步 用 sync。
+完。
+
+图绘2_clientWaitSync 接受 sync、flags、timeout：
+    若 sync 等于 0：
+        返还 GL_WAIT_FAILED。
+    完。
+    返还 做 GL_客户端等待同步 用 sync、flags、timeout。
+完。
+
+图绘2_getSyncParameter 接受 sync、pname：
+    若 sync 等于 0：
+        返还 0。
+    完。
+    返还 做 GL_获取同步参数 用 sync、pname。
+完。
+
+图绘_获取字节每像素 接受 format、type：
+    若 type 等于 0x1401：
+        返还 4。
+    完。
+    若 type 等于 0x1406：
+        返还 16。
+    完。
+    若 type 等于 0x8D61：
+        返还 2。
+    完。
+    若 type 等于 0x8363：
+        返还 2。
+    完。
+    若 type 等于 0x8033：
+        返还 2。
+    完。
+    若 type 等于 0x8034：
+        返还 2。
+    完。
+    返还 4。
+完。
+
+图绘_初始化资源跟踪 接受 零参：
+    GL跟踪 为 做 堆_分配 用 GL资源跟踪。
+    GL跟踪 的 纹理创建数 为 0。
+    GL跟踪 的 纹理删除数 为 0。
+    GL跟踪 的 缓冲创建数 为 0。
+    GL跟踪 的 缓冲删除数 为 0。
+    GL跟踪 的 着色器创建数 为 0。
+    GL跟踪 的 着色器删除数 为 0。
+    GL跟踪 的 帧缓冲创建数 为 0。
+    GL跟踪 的 帧缓冲删除数 为 0。
+完。
+
+图绘_记录创建 接受 资源类型：
+    若 GL跟踪 等于 0：
+        返还。
+    完。
+    若 资源类型 等于 0：
+        GL跟踪 的 纹理创建数 为 GL跟踪 的 纹理创建数 加 1。
+    完。
+    若 资源类型 等于 1：
+        GL跟踪 的 缓冲创建数 为 GL跟踪 的 缓冲创建数 加 1。
+    完。
+    若 资源类型 等于 2：
+        GL跟踪 的 着色器创建数 为 GL跟踪 的 着色器创建数 加 1。
+    完。
+    若 资源类型 等于 3：
+        GL跟踪 的 帧缓冲创建数 为 GL跟踪 的 帧缓冲创建数 加 1。
+    完。
+完。
+
+图绘_记录删除 接受 资源类型：
+    若 GL跟踪 等于 0：
+        返还。
+    完。
+    若 资源类型 等于 0：
+        GL跟踪 的 纹理删除数 为 GL跟踪 的 纹理删除数 加 1。
+    完。
+    若 资源类型 等于 1：
+        GL跟踪 的 缓冲删除数 为 GL跟踪 的 缓冲删除数 加 1。
+    完。
+    若 资源类型 等于 2：
+        GL跟踪 的 着色器删除数 为 GL跟踪 的 着色器删除数 加 1。
+    完。
+    若 资源类型 等于 3：
+        GL跟踪 的 帧缓冲删除数 为 GL跟踪 的 帧缓冲删除数 加 1。
+    完。
+完。
+
+智能_图绘_着色器优化建议 接受 shaderSource：
+    若 shaderSource 等于 0：
+        返还 0。
+    完。
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 0。
+    完。
+    可变 建议列表 为 一组：（空）。
+    若 做 字符串查找 用 shaderSource、「texture2D」 大于或等于 0：
+        依赖读取 为 做 智能_图绘_检测依赖纹理读 用 shaderSource。
+        若 依赖读取 大于 0：
+            做 追加 用 建议列表、「检测到」 加 做 整数转字符串 用 依赖读取 加 「处依赖纹理读取, 会导致流水线停顿」。
+        完。
+    完。
+    若 做 字符串查找 用 shaderSource、「highp」 大于或等于 0：
+        可降级 为 做 智能_图绘_检查精度降级 用 shaderSource。
+        若 可降级 大于 0：
+            做 追加 用 建议列表、做 整数转字符串 用 可降级 加 「处highp可安全降为mediump, 提升移动端性能」。
+        完。
+    完。
+    未使用 为 做 智能_图绘_检测未用变量 用 shaderSource。
+    若 未使用 大于 0：
+        做 追加 用 建议列表、做 整数转字符串 用 未使用 加 「个未使用的uniform/varying, 建议移除」。
+    完。
+    返还 建议列表。
+完。
+
+智能_图绘_检测依赖纹理读 接受 源码：
+    可变 计数 为 0。
+    可变 位置 为 0。
+    只要 位置 大于或等于 0：
+        位置 为 做 字符串查找 用 源码、「texture2D」。
+        若 位置 大于或等于 0：
+            计数 为 计数 加 1。
+            位置 为 位置 加 9。
+        完。
+    完。
+    返还 计数。
+完。
+
+智能_图绘_检查精度降级 接受 源码：
+    可变 可降级 为 0。
+    若 做 字符串查找 用 源码、「highp float」 大于或等于 0：
+        可降级 为 可降级 加 1。
+    完。
+    若 做 字符串查找 用 源码、「highp vec2」 大于或等于 0：
+        可降级 为 可降级 加 1。
+    完。
+    若 做 字符串查找 用 源码、「highp vec3」 大于或等于 0：
+        可降级 为 可降级 加 1。
+    完。
+    返还 可降级。
+完。
+
+智能_图绘_检测未用变量 接受 源码：
+    返还 0。
+    返还 0。
+完。
+
+智能_图绘_内存泄漏检测 接受 零参：
+    若 GL跟踪 等于 0：
+        返还 0。
+    完。
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 0。
+    完。
+    可变 泄漏列表 为 一组：（空）。
+    纹理泄漏 为 GL跟踪 的 纹理创建数 减 GL跟踪 的 纹理删除数。
+    若 纹理泄漏 大于 10：
+        做 追加 用 泄漏列表、「纹理泄漏: 」 加 做 整数转字符串 用 纹理泄漏 加 「个未释放」。
+    完。
+    缓冲泄漏 为 GL跟踪 的 缓冲创建数 减 GL跟踪 的 缓冲删除数。
+    若 缓冲泄漏 大于 10：
+        做 追加 用 泄漏列表、「缓冲泄漏: 」 加 做 整数转字符串 用 缓冲泄漏 加 「个未释放」。
+    完。
+    着色器泄漏 为 GL跟踪 的 着色器创建数 减 GL跟踪 的 着色器删除数。
+    若 着色器泄漏 大于 5：
+        做 追加 用 泄漏列表、「着色器泄漏: 」 加 做 整数转字符串 用 着色器泄漏 加 「个未释放」。
+    完。
+    返还 泄漏列表。
+完。
+
+GL资源_自动回收 接受 零参：
+    泄漏 为 做 GL资源_检测泄漏。
+    若 做 计数 用 泄漏 大于 0：
+        做 内核警告 用 「GL资源泄漏检测: 」 加 做 整数转字符串 用 做 计数 用 泄漏 加 「项」。
+    完。
+完。
+
+本章 收束。

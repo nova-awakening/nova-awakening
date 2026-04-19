@@ -1,0 +1,546 @@
+《权限接口权限》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内容可见性》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·AI文档摘要》。
+
+引用《..·中枢·时钟中枢》。
+
+PERM_STATE_GRANTED 为 0。
+
+PERM_STATE_DENIED 为 1。
+
+PERM_STATE_PROMPT 为 2。
+
+PermissionStatus 是 一种 事物，含 名称、状态、onchange。
+
+Permissions_query 接受 Nova运行时实例、名称：
+    ps 为 做 堆_分配 用 PermissionStatus。
+    ps 的 名称 为 做 字符串_复制 用 名称。
+    ps 的 状态 为 PERM_STATE_PROMPT。
+    ps 的 onchange 为 0。
+    若 做 字符串_相等 用 名称、「notifications」：
+        若 通知权限 等于 NOTIF_PERM_GRANTED：
+            ps 的 状态 为 PERM_STATE_GRANTED。
+        否则若 通知权限 等于 NOTIF_PERM_DENIED：
+            ps 的 状态 为 PERM_STATE_DENIED。
+        完。
+    完。
+    返还 ps。
+完。
+
+平台_剪贴板_读取文本 接受 零参：
+    若 全局_剪贴板_文本 不等于 0：
+        返还 全局_剪贴板_文本。
+    完。
+    返还 0。
+完。
+
+平台_剪贴板_写入文本 接受 t：
+    做 GUI_剪贴板_设置 用 t。
+完。
+
+平台_剪贴板_读取图片 接受 零参：
+    若 全局_剪贴板_图片 不等于 0：
+        返还 全局_剪贴板_图片。
+    完。
+    返还 0。
+完。
+
+平台_进入全屏 接受 零参：
+    做 GUI_窗口_全屏 用 做 GUI_获取焦点窗口、真。
+完。
+
+平台_退出全屏 接受 零参：
+    做 GUI_窗口_全屏 用 做 GUI_获取焦点窗口、假。
+完。
+
+平台_请求屏幕唤醒 接受 零参：
+    做 电源管理_阻止休眠 用 「screen-wake-lock」。
+完。
+
+平台_释放屏幕唤醒 接受 零参：
+    做 电源管理_允许休眠 用 「screen-wake-lock」。
+完。
+
+平台_振动 接受 ms：
+    若 ms 大于 0 并且 ms 小于 10000：
+        做 输入设备_振动 用 ms。
+    完。
+完。
+
+平台_取消振动 接受 零参：
+    做 输入设备_振动 用 0。
+完。
+
+平台_等待 接受 ms：
+    开始 为 做 读取纳秒。
+    只要 做 读取纳秒 减 开始 小于 ms 乘 1000000：
+        做 内联汇编 用 「pause」。
+    完。
+完。
+
+平台_显示通知 接受 标题、正文、图标：
+    做 GUI_通知_显示 用 标题、正文、图标、5000。
+完。
+
+平台_关闭通知 接受 n：
+    若 n 不等于 0：
+        做 GUI_通知_关闭 用 n。
+    完。
+完。
+
+智能_接口统计 是 一种 事物，含 剪贴板读次数、剪贴板写次数、全屏次数、通知次数、唤醒锁次数、振动次数、可见性变化次数、权限拒绝次数。
+
+可变 智能_接口全局统计 为 0。
+
+智能_接口_初始化 接受 零参：
+    智能_接口全局统计 为 做 堆_分配 用 智能_接口统计。
+    智能_接口全局统计 的 剪贴板读次数 为 0。
+    智能_接口全局统计 的 剪贴板写次数 为 0。
+    智能_接口全局统计 的 全屏次数 为 0。
+    智能_接口全局统计 的 通知次数 为 0。
+    智能_接口全局统计 的 唤醒锁次数 为 0。
+    智能_接口全局统计 的 振动次数 为 0。
+    智能_接口全局统计 的 可见性变化次数 为 0。
+    智能_接口全局统计 的 权限拒绝次数 为 0。
+完。
+
+智能_接口_智能权限 接受 文档、接口名称：
+    摘要 为 做 AI文档_生成摘要 用 文档。
+    若 摘要 不等于 0 并且 摘要 的 广告区数量 大于 3：
+        若 做 字符串_相等 用 接口名称、「notifications」 或者 做 字符串_相等 用 接口名称、「vibration」：
+            若 智能_接口全局统计 不等于 0：
+                智能_接口全局统计 的 权限拒绝次数 为 智能_接口全局统计 的 权限拒绝次数 加 1。
+            完。
+            返还 假。
+        完。
+    完。
+    返还 真。
+完。
+
+NPMS_PERM_GEOLOCATION 为 0。
+
+NPMS_PERM_NOTIFICATIONS 为 1。
+
+NPMS_PERM_CAMERA 为 2。
+
+NPMS_PERM_MICROPHONE 为 3。
+
+NPMS_PERM_CLIPBOARD_READ 为 4。
+
+NPMS_PERM_CLIPBOARD_WRITE 为 5。
+
+NPMS_PERM_FULLSCREEN 为 6。
+
+NPMS_PERM_WAKE_LOCK 为 7。
+
+NPMS_PERM_VIBRATION 为 8。
+
+NPMS_PERM_MIDI 为 9。
+
+NPMS_PERM_BLUETOOTH 为 10。
+
+NPMS_PERM_USB 为 11。
+
+NPMS_PERM_STORAGE 为 12。
+
+NPMS_最大权限类型 为 16。
+
+NPMS_权限名称转ID 接受 名称：
+    若 做 字符串_相等 用 名称、「geolocation」：
+        返还 NPMS_PERM_GEOLOCATION。
+    完。
+    若 做 字符串_相等 用 名称、「notifications」：
+        返还 NPMS_PERM_NOTIFICATIONS。
+    完。
+    若 做 字符串_相等 用 名称、「camera」：
+        返还 NPMS_PERM_CAMERA。
+    完。
+    若 做 字符串_相等 用 名称、「microphone」：
+        返还 NPMS_PERM_MICROPHONE。
+    完。
+    若 做 字符串_相等 用 名称、「clipboard-read」：
+        返还 NPMS_PERM_CLIPBOARD_READ。
+    完。
+    若 做 字符串_相等 用 名称、「clipboard-write」：
+        返还 NPMS_PERM_CLIPBOARD_WRITE。
+    完。
+    若 做 字符串_相等 用 名称、「fullscreen」：
+        返还 NPMS_PERM_FULLSCREEN。
+    完。
+    若 做 字符串_相等 用 名称、「wake-lock」：
+        返还 NPMS_PERM_WAKE_LOCK。
+    完。
+    若 做 字符串_相等 用 名称、「midi」：
+        返还 NPMS_PERM_MIDI。
+    完。
+    若 做 字符串_相等 用 名称、「bluetooth」：
+        返还 NPMS_PERM_BLUETOOTH。
+    完。
+    若 做 字符串_相等 用 名称、「usb」：
+        返还 NPMS_PERM_USB。
+    完。
+    若 做 字符串_相等 用 名称、「persistent-storage」：
+        返还 NPMS_PERM_STORAGE。
+    完。
+    返还 负 1。
+完。
+
+NPMS_最大来源 为 128。
+
+NPMS_来源策略 是 一种 事物，含 来源哈希 为 0、权限表 为 0、上次访问时间 为 0、访问次数 为 0、信任分 为 0。
+
+可变 NPMS_策略表 为 0。
+
+可变 NPMS_策略数 为 0。
+
+NPMS_策略初始化 接受 零参：
+    NPMS_策略表 为 做 堆_分配_数组 用 做 大小为 用 NPMS_来源策略 乘 NPMS_最大来源。
+    NPMS_策略数 为 0。
+完。
+
+NPMS_哈希计算 接受 字符串指针：
+    可变 hash 为 5381。
+    len 为 做 字符串_长度 用 字符串指针。
+    可变 i 为 0。
+    只要 i 小于 len：
+        hash 为 hash 乘 33 加 字符串指针 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    返还 hash。
+完。
+
+NPMS_查找来源 接受 来源：
+    h 为 做 NPMS_哈希计算 用 来源。
+    可变 i 为 0。
+    只要 i 小于 NPMS_策略数：
+        若 NPMS_策略表 的 第 i 项 的 来源哈希 等于 h：
+            返还 i。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+NPMS_获取或创建来源 接受 来源：
+    idx 为 做 NPMS_查找来源 用 来源。
+    若 idx 大于或等于 0：
+        返还 idx。
+    完。
+    若 NPMS_策略数 大于或等于 NPMS_最大来源：
+        返还 负 1。
+    完。
+    idx 为 NPMS_策略数。
+    NPMS_策略表 的 第 idx 项 的 来源哈希 为 做 NPMS_哈希计算 用 来源。
+    NPMS_策略表 的 第 idx 项 的 权限表 为 做 堆_分配_数组 用 NPMS_最大权限类型。
+    可变 j 为 0。
+    只要 j 小于 NPMS_最大权限类型：
+        NPMS_策略表 的 第 idx 项 的 权限表 的 第 j 项 为 PERM_STATE_PROMPT。
+        j 为 j 加 1。
+    完。
+    NPMS_策略表 的 第 idx 项 的 上次访问时间 为 0。
+    NPMS_策略表 的 第 idx 项 的 访问次数 为 0。
+    NPMS_策略表 的 第 idx 项 的 信任分 为 50。
+    NPMS_策略数 为 NPMS_策略数 加 1。
+    返还 idx。
+完。
+
+NPMS_查询权限 接受 来源、权限名：
+    perm_id 为 做 NPMS_权限名称转ID 用 权限名。
+    若 perm_id 小于 0：
+        返还 PERM_STATE_DENIED。
+    完。
+    idx 为 做 NPMS_查找来源 用 来源。
+    若 idx 小于 0：
+        返还 PERM_STATE_PROMPT。
+    完。
+    NPMS_策略表 的 第 idx 项 的 访问次数 为 NPMS_策略表 的 第 idx 项 的 访问次数 加 1。
+    NPMS_策略表 的 第 idx 项 的 上次访问时间 为 做 平台_获取高精度时间。
+    返还 NPMS_策略表 的 第 idx 项 的 权限表 的 第 perm_id 项。
+完。
+
+NPMS_设置权限 接受 来源、权限名、状态：
+    perm_id 为 做 NPMS_权限名称转ID 用 权限名。
+    若 perm_id 小于 0：
+        返还 假。
+    完。
+    idx 为 做 NPMS_获取或创建来源 用 来源。
+    若 idx 小于 0：
+        返还 假。
+    完。
+    NPMS_策略表 的 第 idx 项 的 权限表 的 第 perm_id 项 为 状态。
+    做 NPMS_触发变更事件 用 来源、权限名、状态。
+    返还 真。
+完。
+
+NPMS_最大监听 为 64。
+
+NPMS_监听器 是 一种 事物，含 来源哈希 为 0、权限ID 为 0、回调函数 为 0、上下文 为 0。
+
+可变 NPMS_监听表 为 0。
+
+可变 NPMS_监听数 为 0。
+
+NPMS_监听初始化 接受 零参：
+    NPMS_监听表 为 做 堆_分配_数组 用 做 大小为 用 NPMS_监听器 乘 NPMS_最大监听。
+    NPMS_监听数 为 0。
+完。
+
+NPMS_注册监听 接受 来源、权限名、回调、ctx：
+    若 NPMS_监听数 大于或等于 NPMS_最大监听：
+        返还 假。
+    完。
+    idx 为 NPMS_监听数。
+    NPMS_监听表 的 第 idx 项 的 来源哈希 为 做 NPMS_哈希计算 用 来源。
+    NPMS_监听表 的 第 idx 项 的 权限ID 为 做 NPMS_权限名称转ID 用 权限名。
+    NPMS_监听表 的 第 idx 项 的 回调函数 为 回调。
+    NPMS_监听表 的 第 idx 项 的 上下文 为 ctx。
+    NPMS_监听数 为 NPMS_监听数 加 1。
+    返还 真。
+完。
+
+NPMS_触发变更事件 接受 来源、权限名、新状态：
+    oh 为 做 NPMS_哈希计算 用 来源。
+    pid 为 做 NPMS_权限名称转ID 用 权限名。
+    可变 i 为 0。
+    只要 i 小于 NPMS_监听数：
+        若 NPMS_监听表 的 第 i 项 的 来源哈希 等于 oh 并且 NPMS_监听表 的 第 i 项 的 权限ID 等于 pid：
+            若 NPMS_监听表 的 第 i 项 的 回调函数 不等于 0：
+                做 间接调用 用 NPMS_监听表 的 第 i 项 的 回调函数、NPMS_监听表 的 第 i 项 的 上下文、新状态。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NPMS_计算信任分 接受 来源：
+    idx 为 做 NPMS_查找来源 用 来源。
+    若 idx 小于 0：
+        返还 50。
+    完。
+    可变 gc 为 0。
+    可变 dc 为 0。
+    可变 j 为 0。
+    只要 j 小于 NPMS_最大权限类型：
+        若 NPMS_策略表 的 第 idx 项 的 权限表 的 第 j 项 等于 PERM_STATE_GRANTED：
+            gc 为 gc 加 1。
+        否则若 NPMS_策略表 的 第 idx 项 的 权限表 的 第 j 项 等于 PERM_STATE_DENIED：
+            dc 为 dc 加 1。
+        完。
+        j 为 j 加 1。
+    完。
+    score 为 50 加 gc 乘 5 减 dc 乘 10。
+    若 score 小于 0：
+        score 为 0。
+    完。
+    若 score 大于 100：
+        score 为 100。
+    完。
+    NPMS_策略表 的 第 idx 项 的 信任分 为 score。
+    返还 score。
+完。
+
+可变 NPMS_总查询数 为 0。
+
+可变 NPMS_总授权数 为 0。
+
+可变 NPMS_总拒绝数 为 0。
+
+NPMS_AI权限预测 接受 来源、权限名：
+    tensor 为 做 Tensor_创建 用 6。
+    pid 为 做 NPMS_权限名称转ID 用 权限名。
+    idx 为 做 NPMS_查找来源 用 来源。
+    trust 为 50。
+    若 idx 大于或等于 0：
+        trust 为 NPMS_策略表 的 第 idx 项 的 信任分。
+    完。
+    做 Tensor_写 用 tensor、0、pid。
+    做 Tensor_写 用 tensor、1、trust。
+    做 Tensor_写 用 tensor、2、NPMS_总查询数。
+    做 Tensor_写 用 tensor、3、NPMS_总授权数。
+    做 Tensor_写 用 tensor、4、NPMS_总拒绝数。
+    做 Tensor_写 用 tensor、5、NPMS_策略数。
+    结果 为 做 AI总线_推理 用 tensor、「NPMS_权限风险」。
+    做 Tensor_释放 用 tensor。
+    返还 结果。
+完。
+
+NPMS_AI异常检测 接受 零参：
+    tensor 为 做 Tensor_创建 用 4。
+    做 Tensor_写 用 tensor、0、NPMS_总查询数。
+    做 Tensor_写 用 tensor、1、NPMS_总授权数。
+    做 Tensor_写 用 tensor、2、NPMS_总拒绝数。
+    做 Tensor_写 用 tensor、3、NPMS_监听数。
+    异常 为 做 AI总线_异常检测 用 tensor、「NPMS_权限异常」。
+    做 Tensor_释放 用 tensor。
+    返还 异常。
+完。
+
+NPMS_全局初始化 接受 零参：
+    做 NPMS_策略初始化。
+    做 NPMS_监听初始化。
+    做 智能_接口_初始化。
+    NPMS_总查询数 为 0。
+    NPMS_总授权数 为 0。
+    NPMS_总拒绝数 为 0。
+完。
+
+NPMS_获取统计 接受 零参：
+    返还 NPMS_总查询数 乘 65536 加 NPMS_总授权数。
+完。
+
+NPMS_重置统计 接受 零参：
+    NPMS_总查询数 为 0。
+    NPMS_总授权数 为 0。
+    NPMS_总拒绝数 为 0。
+完。
+
+NPMS_最大临时授权 为 64。
+
+NPMS_临时授权 是 一种 事物，含 来源哈希 为 0、权限ID 为 0、授权时间 为 0、过期时间 为 0、已过期 为 假。
+
+可变 NPMS_临时表 为 0。
+
+可变 NPMS_临时数 为 0。
+
+NPMS_临时初始化 接受 零参：
+    NPMS_临时表 为 做 堆_分配_数组 用 做 大小为 用 NPMS_临时授权 乘 NPMS_最大临时授权。
+    NPMS_临时数 为 0。
+完。
+
+NPMS_授予临时权限 接受 来源、权限名、时长_毫秒：
+    若 NPMS_临时数 大于或等于 NPMS_最大临时授权：
+        做 NPMS_清理过期授权。
+        若 NPMS_临时数 大于或等于 NPMS_最大临时授权：
+            返还 假。
+        完。
+    完。
+    now 为 做 平台_获取高精度时间。
+    idx 为 NPMS_临时数。
+    NPMS_临时表 的 第 idx 项 的 来源哈希 为 做 NPMS_哈希计算 用 来源。
+    NPMS_临时表 的 第 idx 项 的 权限ID 为 做 NPMS_权限名称转ID 用 权限名。
+    NPMS_临时表 的 第 idx 项 的 授权时间 为 now。
+    NPMS_临时表 的 第 idx 项 的 过期时间 为 now 加 时长_毫秒。
+    NPMS_临时表 的 第 idx 项 的 已过期 为 假。
+    NPMS_临时数 为 NPMS_临时数 加 1。
+    做 NPMS_设置权限 用 来源、权限名、PERM_STATE_GRANTED。
+    NPMS_总授权数 为 NPMS_总授权数 加 1。
+    返还 真。
+完。
+
+NPMS_检查临时权限 接受 来源、权限名：
+    oh 为 做 NPMS_哈希计算 用 来源。
+    pid 为 做 NPMS_权限名称转ID 用 权限名。
+    now 为 做 平台_获取高精度时间。
+    可变 i 为 0。
+    只要 i 小于 NPMS_临时数：
+        若 NPMS_临时表 的 第 i 项 的 来源哈希 等于 oh 并且 NPMS_临时表 的 第 i 项 的 权限ID 等于 pid：
+            若 now 小于 NPMS_临时表 的 第 i 项 的 过期时间：
+                返还 真。
+            否则：
+                NPMS_临时表 的 第 i 项 的 已过期 为 真。
+                做 NPMS_设置权限 用 来源、权限名、PERM_STATE_PROMPT。
+                返还 假。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+NPMS_清理过期授权 接受 零参：
+    now 为 做 平台_获取高精度时间。
+    可变 写位 为 0。
+    可变 i 为 0。
+    只要 i 小于 NPMS_临时数：
+        若 now 小于 NPMS_临时表 的 第 i 项 的 过期时间：
+            若 写位 不等于 i：
+                NPMS_临时表 的 第 写位 项 为 NPMS_临时表 的 第 i 项。
+            完。
+            写位 为 写位 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    NPMS_临时数 为 写位。
+完。
+
+NPMS_最大委托 为 32。
+
+NPMS_委托条目 是 一种 事物，含 父来源哈希 为 0、子来源哈希 为 0、权限ID 为 0、允许 为 假。
+
+可变 NPMS_委托表 为 0。
+
+可变 NPMS_委托数 为 0。
+
+NPMS_委托初始化 接受 零参：
+    NPMS_委托表 为 做 堆_分配_数组 用 做 大小为 用 NPMS_委托条目 乘 NPMS_最大委托。
+    NPMS_委托数 为 0。
+完。
+
+NPMS_添加委托 接受 父来源、子来源、权限名：
+    若 NPMS_委托数 大于或等于 NPMS_最大委托：
+        返还 假。
+    完。
+    idx 为 NPMS_委托数。
+    NPMS_委托表 的 第 idx 项 的 父来源哈希 为 做 NPMS_哈希计算 用 父来源。
+    NPMS_委托表 的 第 idx 项 的 子来源哈希 为 做 NPMS_哈希计算 用 子来源。
+    NPMS_委托表 的 第 idx 项 的 权限ID 为 做 NPMS_权限名称转ID 用 权限名。
+    NPMS_委托表 的 第 idx 项 的 允许 为 真。
+    NPMS_委托数 为 NPMS_委托数 加 1。
+    返还 真。
+完。
+
+NPMS_检查委托 接受 父来源、子来源、权限名：
+    ph 为 做 NPMS_哈希计算 用 父来源。
+    ch 为 做 NPMS_哈希计算 用 子来源。
+    pid 为 做 NPMS_权限名称转ID 用 权限名。
+    可变 i 为 0。
+    只要 i 小于 NPMS_委托数：
+        若 NPMS_委托表 的 第 i 项 的 父来源哈希 等于 ph 并且 NPMS_委托表 的 第 i 项 的 子来源哈希 等于 ch 并且 NPMS_委托表 的 第 i 项 的 权限ID 等于 pid：
+            返还 NPMS_委托表 的 第 i 项 的 允许。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+NPMS_审计最大 为 256。
+
+NPMS_审计条目 是 一种 事物，含 时间戳 为 0、来源哈希 为 0、权限ID 为 0、操作 为 0、结果 为 0。
+
+可变 NPMS_审计表 为 0。
+
+可变 NPMS_审计数 为 0。
+
+NPMS_审计初始化 接受 零参：
+    NPMS_审计表 为 做 堆_分配_数组 用 做 大小为 用 NPMS_审计条目 乘 NPMS_审计最大。
+    NPMS_审计数 为 0。
+完。
+
+NPMS_记录审计 接受 来源、权限名、操作、结果：
+    若 NPMS_审计数 大于或等于 NPMS_审计最大：
+        NPMS_审计数 为 0。
+    完。
+    idx 为 NPMS_审计数。
+    NPMS_审计表 的 第 idx 项 的 时间戳 为 做 平台_获取高精度时间。
+    NPMS_审计表 的 第 idx 项 的 来源哈希 为 做 NPMS_哈希计算 用 来源。
+    NPMS_审计表 的 第 idx 项 的 权限ID 为 做 NPMS_权限名称转ID 用 权限名。
+    NPMS_审计表 的 第 idx 项 的 操作 为 操作。
+    NPMS_审计表 的 第 idx 项 的 结果 为 结果。
+    NPMS_审计数 为 NPMS_审计数 加 1。
+完。
+
+本章 收束。

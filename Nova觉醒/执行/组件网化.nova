@@ -1,0 +1,289 @@
+《组件网化》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·硬链接》。
+
+引用《.·节点操作》。
+
+引用《.·标签处理》。
+
+引用《..·中枢·整数转字符串》。
+
+类型_容器 为 「容器」。
+
+类型_文本 为 「文本」。
+
+类型_按钮 为 「按钮」。
+
+类型_输入 为 「输入」。
+
+类型_图片 为 「图片」。
+
+类型_列表 为 「列表」。
+
+类型_滑块 为 「滑块」。
+
+浏览器壳组件节点 是 一种 事物，含 ID、类型、标签、x、y、宽、高、文本。
+
+组件映射 是 一种 事物，含 组件类型、HTML标签、CSS类名、双向绑定。
+
+Web化桥接 是 一种 事物，含 映射表、活跃绑定、事件转发、样式缓存。
+
+可变 Web化_桥接 为 空。
+
+可变 Web化_已初始化 为 假。
+
+可变 Web化_下一个组件ID 为 1。
+
+元素_创建 接受 类型、标签、x、y、宽、高：
+    元素 为 新建 浏览器壳组件节点。
+    元素 的 ID 为 Web化_下一个组件ID。
+    Web化_下一个组件ID 为 Web化_下一个组件ID 加 1。
+    元素 的 类型 为 类型。
+    元素 的 标签 为 标签。
+    元素 的 x 为 x。
+    元素 的 y 为 y。
+    元素 的 宽 为 宽。
+    元素 的 高 为 高。
+    元素 的 文本 为 「」。
+    返还 元素。
+完。
+
+元素_获取属性 接受 元素、键：
+    若 元素 等于 空：
+        返还 「」。
+    完。
+    若 键 等于 「文字」：
+        返还 元素 的 文本。
+    完。
+    若 键 等于 「背景色」：
+        返还 0。
+    完。
+    返还 「」。
+完。
+
+元素_设置属性 接受 元素、键、值：
+    若 元素 等于 空：
+        返还。
+    完。
+    若 键 等于 「文字」：
+        元素 的 文本 为 值。
+    完。
+完。
+
+事件_触发 接受 元素ID、事件名、数据：
+    若 元素ID 等于 0 或者 事件名 等于 空：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 Web化_桥接 的 事件转发：
+        绑定 为 Web化_桥接 的 事件转发 的 第 i 项。
+        若 绑定 的 元素ID 等于 元素ID 并且 绑定 的 事件名 等于 事件名：
+            若 绑定 的 回调 不等于 空：
+                做 绑定 的 回调 用 元素ID、事件名、数据。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+组件Web化_初始化 接受 零参：
+    Web化_桥接 为 新建 Web化桥接。
+    Web化_桥接 的 映射表 为 一组：（空）。
+    Web化_桥接 的 活跃绑定 为 一组：（空）。
+    Web化_桥接 的 事件转发 为 一组：（空）。
+    Web化_桥接 的 样式缓存 为 一组：（空）。
+    做 组件Web化_注册 用 类型_容器、「div」、「nova-container」、假。
+    做 组件Web化_注册 用 类型_文本、「span」、「nova-text」、假。
+    做 组件Web化_注册 用 类型_按钮、「button」、「nova-button」、真。
+    做 组件Web化_注册 用 类型_输入、「input」、「nova-input」、真。
+    做 组件Web化_注册 用 类型_图片、「img」、「nova-image」、假。
+    做 组件Web化_注册 用 类型_列表、「ul」、「nova-list」、假。
+    做 组件Web化_注册 用 类型_滑块、「input」、「nova-slider」、真。
+    做 组件Web化_注册事件 用 「click」、「点击」。
+    做 组件Web化_注册事件 用 「input」、「输入变更」。
+    做 组件Web化_注册事件 用 「focus」、「获焦」。
+    做 组件Web化_注册事件 用 「blur」、「失焦」。
+    做 组件Web化_注册事件 用 「mouseover」、「悬停」。
+    做 组件Web化_注册事件 用 「keydown」、「按键按下」。
+    做 组件Web化_注册事件 用 「scroll」、「滚动」。
+    Web化_已初始化 为 真。
+    做 内核信息 用 「GUI组件Web化: 浏览器壳组件 ↔ HTML桥接就绪」。
+完。
+
+组件Web化_注册 接受 gui类型、html标签、css类、双向：
+    映射 为 新建 组件映射。
+    映射 的 组件类型 为 gui类型。
+    映射 的 HTML标签 为 html标签。
+    映射 的 CSS类名 为 css类。
+    映射 的 双向绑定 为 双向。
+    做 追加 用 Web化_桥接 的 映射表、映射。
+完。
+
+组件Web化_注册事件 接受 dom事件、gui事件：
+    做 追加 用 Web化_桥接 的 事件转发、一组：dom事件、gui事件。
+完。
+
+组件Web化_元素转DOM 接受 文档、gui元素：
+    映射 为 做 组件Web化_查找映射 用 gui元素 的 类型。
+    若 映射 等于 空：
+        返还 空。
+    完。
+    标签ID 为 做 DOM_标签名到ID 用 映射 的 HTML标签。
+    节点 为 做 DOM_创建节点 用 文档、节点_元素、映射 的 HTML标签、标签ID。
+    做 DOM_设置属性 用 文档、节点 的 ID、「class」、映射 的 CSS类名。
+    做 组件Web化_转换属性 用 文档、节点、gui元素。
+    做 追加 用 Web化_桥接 的 活跃绑定、一组：gui元素 的 ID、节点 的 ID。
+    返还 节点。
+完。
+
+组件Web化_转换属性 接受 文档、节点、gui元素：
+    背景色 为 做 元素_获取属性 用 gui元素、「背景色」。
+    若 背景色 不等于 空 并且 背景色 不等于 0：
+        颜色串 为 做 组件Web化_颜色转CSS 用 背景色。
+        样式 为 「background-color:」 加 颜色串。
+        做 DOM_设置属性 用 文档、节点 的 ID、「style」、样式。
+    完。
+    文字 为 做 元素_获取属性 用 gui元素、「文字」。
+    若 文字 不等于 空 并且 做 字符串长度 用 文字 大于 0：
+        若 gui元素 的 类型 等于 类型_输入：
+            做 DOM_设置属性 用 文档、节点 的 ID、「value」、文字。
+        否则：
+            节点 的 文本内容 为 文字。
+        完。
+    完。
+    可变 css 为 「」。
+    若 gui元素 的 x 大于 0：
+        css 为 css 加 「left:」 加 做 整数转字符串 用 gui元素 的 x 加 「px;」。
+    完。
+    若 gui元素 的 y 大于 0：
+        css 为 css 加 「top:」 加 做 整数转字符串 用 gui元素 的 y 加 「px;」。
+    完。
+    若 gui元素 的 宽 大于 0：
+        css 为 css 加 「width:」 加 做 整数转字符串 用 gui元素 的 宽 加 「px;」。
+    完。
+    若 gui元素 的 高 大于 0：
+        css 为 css 加 「height:」 加 做 整数转字符串 用 gui元素 的 高 加 「px;」。
+    完。
+    若 做 字符串长度 用 css 大于 0：
+        已有样式 为 做 DOM_获取属性 用 文档、节点 的 ID、「style」。
+        做 DOM_设置属性 用 文档、节点 的 ID、「style」、已有样式 加 css。
+    完。
+完。
+
+组件Web化_查找映射 接受 gui类型：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 Web化_桥接 的 映射表：
+        若 Web化_桥接 的 映射表 的 第 i 项 的 组件类型 等于 gui类型：
+            返还 Web化_桥接 的 映射表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+组件Web化_DOM转元素 接受 dom节点：
+    gui类型 为 类型_容器。
+    若 dom节点 的 标签名 等于 「button」：
+        gui类型 为 类型_按钮。
+    否则若 dom节点 的 标签名 等于 「input」：
+        gui类型 为 类型_输入。
+    否则若 dom节点 的 标签名 等于 「span」 或者 dom节点 的 标签名 等于 「p」：
+        gui类型 为 类型_文本。
+    否则若 dom节点 的 标签名 等于 「img」：
+        gui类型 为 类型_图片。
+    否则若 dom节点 的 标签名 等于 「ul」 或者 dom节点 的 标签名 等于 「ol」：
+        gui类型 为 类型_列表。
+    完。
+    元素 为 做 元素_创建 用 gui类型、dom节点 的 标签名、0、0、100、30。
+    若 dom节点 的 文本内容 不等于 「」 并且 dom节点 的 文本内容 不等于 空：
+        做 元素_设置属性 用 元素、「文字」、dom节点 的 文本内容。
+    完。
+    返还 元素。
+完。
+
+组件Web化_转发DOM事件 接受 dom事件名、dom节点ID：
+    gui元素ID 为 做 组件Web化_查找GUI绑定 用 dom节点ID。
+    若 gui元素ID 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 Web化_桥接 的 事件转发：
+        若 Web化_桥接 的 事件转发 的 第 i 项 的 第 0 项 等于 dom事件名：
+            做 事件_触发 用 gui元素ID、Web化_桥接 的 事件转发 的 第 i 项 的 第 1 项、空。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+组件Web化_查找GUI绑定 接受 dom节点ID：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 Web化_桥接 的 活跃绑定：
+        若 Web化_桥接 的 活跃绑定 的 第 i 项 的 第 1 项 等于 dom节点ID：
+            返还 Web化_桥接 的 活跃绑定 的 第 i 项 的 第 0 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+组件Web化_生成主题CSS 接受 零参：
+    可变 css 为 「:root{\n」。
+    css 为 css 加 「  --nova-bg-primary: #edf3fa;\n」。
+    css 为 css 加 「  --nova-bg-surface: rgba(255,255,255,0.78);\n」。
+    css 为 css 加 「  --nova-bg-input: rgba(255,255,255,0.82);\n」。
+    css 为 css 加 「  --nova-text-primary: #10233f;\n」。
+    css 为 css 加 「  --nova-text-secondary: #617894;\n」。
+    css 为 css 加 「  --nova-accent: #60a5fa;\n」。
+    css 为 css 加 「  --nova-success: #22c55e;\n」。
+    css 为 css 加 「  --nova-warning: #f59e0b;\n」。
+    css 为 css 加 「  --nova-error: #ef4444;\n」。
+    css 为 css 加 「  --nova-radius: 14px;\n」。
+    css 为 css 加 「  --nova-font: 'Nova Sans', system-ui, sans-serif;\n」。
+    css 为 css 加 「}\n」。
+    css 为 css 加 「.nova-button{background:linear-gradient(135deg,#ffffff,#dbeafe 52%,#ccfbf1);color:#133b69;border:1px solid rgba(191,219,254,0.92);border-radius:var(--nova-radius);padding:8px 16px;cursor:pointer;font-family:var(--nova-font);font-weight:700;box-shadow:0 12px 24px rgba(148,163,184,0.16)}\n」。
+    css 为 css 加 「.nova-input{background:var(--nova-bg-input);color:var(--nova-text-primary);border:1px solid rgba(226,232,240,0.92);border-radius:var(--nova-radius);padding:8px 12px;font-family:var(--nova-font);box-shadow:inset 0 1px 0 rgba(255,255,255,0.96)}\n」。
+    css 为 css 加 「.nova-container{display:flex;flex-direction:column}\n」。
+    css 为 css 加 「.nova-text{color:var(--nova-text-primary);font-family:var(--nova-font)}\n」。
+    返还 css。
+完。
+
+组件Web化_颜色转CSS 接受 颜色值：
+    r 为 颜色值 右移 16 位与 0xFF。
+    g 为 颜色值 右移 8 位与 0xFF。
+    b 为 颜色值 位与 0xFF。
+    返还 「rgb(」 加 做 整数转字符串 用 r 加 「,」 加 做 整数转字符串 用 g 加 「,」 加 做 整数转字符串 用 b 加 「)」。
+完。
+
+组件Web化_统计 接受 零参：
+    返还 一组：做 计数 用 Web化_桥接 的 映射表、做 计数 用 Web化_桥接 的 活跃绑定、做 计数 用 Web化_桥接 的 事件转发。
+完。
+
+可变 AI_组件网化_热节点缓存 为 0。
+
+AI_组件网化_节点热度 接受 节点、操作类型：
+    若 操作类型 等于 「查询」：
+        返还 「缓存」。
+    完。
+    若 操作类型 等于 「修改」：
+        AI_组件网化_热节点缓存 为 0。
+        返还 「失效」。
+    完。
+    返还 「普通」。
+完。
+
+AI_组件网化_批量DOM优化 接受 操作数：
+    若 操作数 大于 100：
+        返还 「延迟重排」。
+    完。
+    若 操作数 大于 10：
+        返还 「批量重排」。
+    完。
+    返还 「即时重排」。
+完。
+
+本章 收束。

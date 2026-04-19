@@ -1,0 +1,206 @@
+《proc_seq_file》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·中枢·整数转字符串》。
+
+seq_file 是 一种 事物，含 buf、size、count、index、read_pos、私有、操作。
+
+seq_操作 是 一种 事物，含 start、stop、next、show。
+
+SEQ_BUF_SIZE 为 4096。
+
+seq_open 接受 操作、私有数据：
+    sf 为 新建 seq_file。
+    sf 的 buf 为 「」。
+    sf 的 size 为 SEQ_BUF_SIZE。
+    sf 的 count 为 0。
+    sf 的 index 为 0。
+    sf 的 read_pos 为 0。
+    sf 的 私有 为 私有数据。
+    sf 的 操作 为 操作。
+    返还 sf。
+完。
+
+seq_read 接受 sf：
+    若 sf 等于 空 或者 sf 的 操作 等于 空：
+        返还 「」。
+    完。
+    ops 为 sf 的 操作。
+    sf 的 buf 为 「」。
+    sf 的 count 为 0。
+    可变 iter 为 空。
+    若 ops 的 start 不等于 空：
+        iter 为 做 ops 的 start 用 sf、sf 的 index。
+    完。
+    只要 iter 不等于 空：
+        若 ops 的 show 不等于 空：
+            做 ops 的 show 用 sf、iter。
+        完。
+        sf 的 index 为 sf 的 index 加 1。
+        若 ops 的 next 不等于 空：
+            iter 为 做 ops 的 next 用 sf、iter、sf 的 index。
+        否则：
+            iter 为 空。
+        完。
+        若 做 字符串长度 用 sf 的 buf 大于或等于 sf 的 size：
+            中断。
+        完。
+    完。
+    若 ops 的 stop 不等于 空：
+        做 ops 的 stop 用 sf、iter。
+    完。
+    返还 sf 的 buf。
+完。
+
+seq_printf 接受 sf、格式、值：
+    sf 的 buf 为 sf 的 buf 加 格式。
+    sf 的 count 为 做 字符串长度 用 sf 的 buf。
+完。
+
+seq_puts 接受 sf、文本：
+    sf 的 buf 为 sf 的 buf 加 文本。
+    sf 的 count 为 做 字符串长度 用 sf 的 buf。
+完。
+
+seq_putc 接受 sf、字符：
+    sf 的 buf 为 sf 的 buf 加 字符。
+    sf 的 count 为 sf 的 count 加 1。
+完。
+
+seq_put_decimal 接受 sf、前缀、值：
+    sf 的 buf 为 sf 的 buf 加 前缀 加 做 整数转字符串 用 值。
+    sf 的 count 为 做 字符串长度 用 sf 的 buf。
+完。
+
+seq_换行 接受 sf：
+    sf 的 buf 为 sf 的 buf 加 「\n」。
+    sf 的 count 为 sf 的 count 加 1。
+完。
+
+single_open 接受 show函数、私有数据：
+    ops 为 新建 seq_操作。
+    ops 的 start 为 single_start。
+    ops 的 stop 为 single_stop。
+    ops 的 next 为 single_next。
+    ops 的 show 为 show函数。
+    返还 做 seq_open 用 ops、私有数据。
+完。
+
+single_start 接受 sf、pos：
+    若 pos 等于 0：
+        返还 1。
+    完。
+    返还 空。
+完。
+
+single_next 接受 sf、iter、pos：
+    返还 空。
+完。
+
+single_stop 接受 sf、iter：
+    若 iter 不等于 空：
+        iter 的 位置 为 0。
+    完。
+完。
+
+seq_printf_kv 接受 sf、键、值_kb：
+    键填充 为 做 字符串右填充 用 键 加 「:」、16、「 」。
+    sf 的 buf 为 sf 的 buf 加 键填充 加 做 字符串左填充 用 做 整数转字符串 用 值_kb、8、「 」 加 「 kB\n」。
+    sf 的 count 为 做 字符串长度 用 sf 的 buf。
+完。
+
+seq_printf_行 接受 sf、内容：
+    sf 的 buf 为 sf 的 buf 加 内容 加 「\n」。
+    sf 的 count 为 做 字符串长度 用 sf 的 buf。
+完。
+
+字符串右填充 接受 s、长度、填充字符：
+    可变 结果 为 s。
+    只要 做 字符串长度 用 结果 小于 长度：
+        结果 为 结果 加 填充字符。
+    完。
+    返还 结果。
+完。
+
+seq_字符串左填充 接受 s、长度、填充字符：
+    可变 结果 为 s。
+    只要 做 字符串长度 用 结果 小于 长度：
+        结果 为 填充字符 加 结果。
+    完。
+    返还 结果。
+完。
+
+seq_has_overflowed 接受 sf：
+    返还 sf 的 count 大于或等于 sf 的 size。
+完。
+
+seq_setwidth 接受 sf、宽度：
+    sf 的 size 为 宽度。
+完。
+
+seq_put_hex 接受 sf、前缀、值：
+    可变 hex 为 「」。
+    可变 v 为 值。
+    若 v 等于 0：
+        hex 为 「0」。
+    完。
+    只要 v 大于 0：
+        d 为 v 位与 0xF。
+        若 d 小于 10：
+            hex 为 做 字符 用 48 加 d 加 hex。
+        否则：
+            hex 为 做 字符 用 87 加 d 加 hex。
+        完。
+        v 为 v 右移 4。
+    完。
+    sf 的 buf 为 sf 的 buf 加 前缀 加 「0x」 加 hex。
+    sf 的 count 为 做 字符串长度 用 sf 的 buf。
+完。
+
+seq_put_decimal_ull 接受 sf、前缀、值：
+    sf 的 buf 为 sf 的 buf 加 前缀 加 做 整数转字符串 用 值。
+    sf 的 count 为 做 字符串长度 用 sf 的 buf。
+完。
+
+seq_lseek 接受 sf、偏移：
+    sf 的 read_pos 为 偏移。
+    sf 的 index 为 0。
+完。
+
+seq_file_使用率 接受 sf：
+    若 sf 的 size 等于 0：
+        返还 0。
+    完。
+    返还 sf 的 count 乘 100 除以 sf 的 size。
+完。
+
+seq_file_统计 接受 sf：
+    返还 一组：sf 的 count、sf 的 size、sf 的 index、做 seq_file_使用率 用 sf。
+完。
+
+seq_file_完整统计 接受 零参：
+    返还 一组：seq_读次数。
+完。
+
+可变 AI_记忆丁_操作热度 为 0。
+
+AI_记忆丁_最优算法 接受 数据量、已排序：
+    AI_记忆丁_操作热度 为 AI_记忆丁_操作热度 加 1。
+    若 数据量 小于 16：
+        返还 「插入排序」。
+    完。
+    若 已排序：
+        返还 「二分查找」。
+    完。
+    若 数据量 小于 10000：
+        返还 「快速排序」。
+    完。
+    返还 「归并排序」。
+完。
+
+本章 收束。

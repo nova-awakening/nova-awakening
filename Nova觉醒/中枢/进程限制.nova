@@ -1,0 +1,307 @@
+《进程限制》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·进程标识分》。
+
+引用《.·内核打印》。
+
+引用《.·每处理器》。
+
+引用《.·整数转字符串》。
+
+RLIMIT_CPU 为 0。
+
+RLIMIT_FSIZE 为 1。
+
+RLIMIT_DATA 为 2。
+
+RLIMIT_STACK 为 3。
+
+RLIMIT_CORE 为 4。
+
+RLIMIT_RSS 为 5。
+
+RLIMIT_NPROC 为 6。
+
+RLIMIT_NOFILE 为 7。
+
+RLIMIT_MEMLOCK 为 8。
+
+RLIMIT_AS 为 9。
+
+RLIMIT_LOCKS 为 10。
+
+RLIMIT_SIGPENDING 为 11。
+
+RLIMIT_MSGQUEUE 为 12。
+
+RLIMIT_NICE 为 13。
+
+RLIMIT_RTPRIO 为 14。
+
+RLIM_NLIMITS 为 16。
+
+RLIM_INFINITY 为 0xFFFFFFFFFFFFFFFF。
+
+资源限制 是 一种 事物，含 soft、hard。
+
+默认资源限制 接受 零参：
+    可变 限制 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 RLIM_NLIMITS：
+        rl 为 新建 资源限制。
+        rl 的 soft 为 RLIM_INFINITY。
+        rl 的 hard 为 RLIM_INFINITY。
+        做 追加 用 限制、rl。
+        i 为 i 加 1。
+    完。
+    限制 的 第 RLIMIT_NOFILE 项 的 soft 为 1024。
+    限制 的 第 RLIMIT_NOFILE 项 的 hard 为 4096。
+    限制 的 第 RLIMIT_NPROC 项 的 soft 为 4096。
+    限制 的 第 RLIMIT_NPROC 项 的 hard 为 4096。
+    限制 的 第 RLIMIT_STACK 项 的 soft 为 8388608。
+    限制 的 第 RLIMIT_STACK 项 的 hard 为 RLIM_INFINITY。
+    限制 的 第 RLIMIT_CORE 项 的 soft 为 0。
+    限制 的 第 RLIMIT_CORE 项 的 hard 为 RLIM_INFINITY。
+    返还 限制。
+完。
+
+sys_getrlimit 接受 资源、限制列表：
+    若 资源 大于或等于 RLIM_NLIMITS：
+        返还 错误_无效参数。
+    完。
+    返还 限制列表 的 第 资源 项。
+完。
+
+sys_setrlimit 接受 资源、新soft、新hard、限制列表、是root：
+    若 资源 大于或等于 RLIM_NLIMITS：
+        返还 错误_无效参数。
+    完。
+    rl 为 限制列表 的 第 资源 项。
+    若 新soft 大于 新hard：
+        返还 错误_无效参数。
+    完。
+    若 非 是root 并且 新hard 大于 rl 的 hard：
+        返还 错误_权限。
+    完。
+    rl 的 soft 为 新soft。
+    rl 的 hard 为 新hard。
+    返还 成功。
+完。
+
+检查文件数限制 接受 限制列表、当前打开数：
+    返还 当前打开数 小于 限制列表 的 第 RLIMIT_NOFILE 项 的 soft。
+完。
+
+检查进程数限制 接受 限制列表、当前进程数：
+    返还 当前进程数 小于 限制列表 的 第 RLIMIT_NPROC 项 的 soft。
+完。
+
+获取栈大小限制 接受 限制列表：
+    返还 限制列表 的 第 RLIMIT_STACK 项 的 soft。
+完。
+
+检查虚拟内存限制 接受 限制列表、请求大小、当前使用：
+    限制 为 限制列表 的 第 RLIMIT_AS 项 的 soft。
+    若 限制 等于 RLIM_INFINITY：
+        返还 真。
+    完。
+    返还 当前使用 加 请求大小 小于或等于 限制。
+完。
+
+检查CPU时间限制 接受 限制列表、已用秒：
+    限制 为 限制列表 的 第 RLIMIT_CPU 项 的 soft。
+    若 限制 等于 RLIM_INFINITY：
+        返还 真。
+    完。
+    返还 已用秒 小于 限制。
+完。
+
+检查文件大小限制 接受 限制列表、文件大小：
+    限制 为 限制列表 的 第 RLIMIT_FSIZE 项 的 soft。
+    若 限制 等于 RLIM_INFINITY：
+        返还 真。
+    完。
+    返还 文件大小 小于或等于 限制。
+完。
+
+检查锁定内存限制 接受 限制列表、请求大小、已锁定：
+    限制 为 限制列表 的 第 RLIMIT_MEMLOCK 项 的 soft。
+    若 限制 等于 RLIM_INFINITY：
+        返还 真。
+    完。
+    返还 已锁定 加 请求大小 小于或等于 限制。
+完。
+
+检查信号队列限制 接受 限制列表、当前挂起数：
+    限制 为 限制列表 的 第 RLIMIT_SIGPENDING 项 的 soft。
+    若 限制 等于 RLIM_INFINITY：
+        返还 真。
+    完。
+    返还 当前挂起数 小于 限制。
+完。
+
+检查消息队列限制 接受 限制列表、请求大小、已用大小：
+    限制 为 限制列表 的 第 RLIMIT_MSGQUEUE 项 的 soft。
+    若 限制 等于 RLIM_INFINITY：
+        返还 真。
+    完。
+    返还 已用大小 加 请求大小 小于或等于 限制。
+完。
+
+sys_prlimit64 接受 pid、资源、新限制、旧限制输出：
+    若 资源 大于或等于 RLIM_NLIMITS：
+        返还 错误_无效参数。
+    完。
+    目标 为 空。
+    若 pid 等于 0：
+        目标 为 做 获取当前进程。
+    否则：
+        目标 为 做 进程_按PID查找 用 pid。
+    完。
+    若 目标 等于 空：
+        返还 错误_不存在。
+    完。
+    限制列表 为 目标 的 资源限制。
+    若 限制列表 等于 空：
+        返还 错误_无效参数。
+    完。
+    若 旧限制输出 不等于 空：
+        旧限制输出 的 soft 为 限制列表 的 第 资源 项 的 soft。
+        旧限制输出 的 hard 为 限制列表 的 第 资源 项 的 hard。
+    完。
+    若 新限制 不等于 空：
+        若 新限制 的 soft 大于 新限制 的 hard：
+            返还 错误_无效参数。
+        完。
+        是root 为 目标 的 euid 等于 0。
+        若 非 是root 并且 新限制 的 hard 大于 限制列表 的 第 资源 项 的 hard：
+            返还 错误_权限。
+        完。
+        限制列表 的 第 资源 项 的 soft 为 新限制 的 soft。
+        限制列表 的 第 资源 项 的 hard 为 新限制 的 hard。
+        若 资源 等于 RLIMIT_CPU：
+            做 rlimit_CPU_更新定时器 用 目标。
+        完。
+    完。
+    返还 成功。
+完。
+
+rlimit_CPU_更新定时器 接受 进程：
+    若 进程 等于 空 或者 进程 的 资源限制 等于 空：
+        返还。
+    完。
+    限制 为 进程 的 资源限制 的 第 RLIMIT_CPU 项。
+    若 限制 的 soft 等于 RLIM_INFINITY：
+        返还。
+    完。
+    做 内核调试 用 「RLIMIT_CPU: PID=」 加 做 整数转字符串 用 进程 的 pid 加 「 soft=」 加 做 整数转字符串 用 限制 的 soft 加 「s」。
+完。
+
+rlimit_检查CPU时间 接受 进程、已用秒：
+    若 进程 等于 空 或者 进程 的 资源限制 等于 空：
+        返还。
+    完。
+    限制 为 进程 的 资源限制 的 第 RLIMIT_CPU 项。
+    若 限制 的 hard 不等于 RLIM_INFINITY 并且 已用秒 大于或等于 限制 的 hard：
+        做 内核警告 用 「RLIMIT_CPU: PID=」 加 做 整数转字符串 用 进程 的 pid 加 「 超过hard limit, SIGKILL」。
+        做 发送信号 用 进程、9。
+        返还。
+    完。
+    若 限制 的 soft 不等于 RLIM_INFINITY 并且 已用秒 大于或等于 限制 的 soft：
+        做 内核信息 用 「RLIMIT_CPU: PID=」 加 做 整数转字符串 用 进程 的 pid 加 「 超过soft limit, SIGXCPU」。
+        做 发送信号 用 进程、24。
+        限制 的 soft 为 限制 的 soft 加 1。
+    完。
+完。
+
+rlimit_继承 接受 父进程、子进程：
+    若 父进程 等于 空 或者 父进程 的 资源限制 等于 空：
+        子进程 的 资源限制 为 做 默认资源限制。
+        返还。
+    完。
+    可变 新限制 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 RLIM_NLIMITS：
+        rl 为 新建 资源限制。
+        若 i 小于 做 计数 用 父进程 的 资源限制：
+            rl 的 soft 为 父进程 的 资源限制 的 第 i 项 的 soft。
+            rl 的 hard 为 父进程 的 资源限制 的 第 i 项 的 hard。
+        否则：
+            rl 的 soft 为 RLIM_INFINITY。
+            rl 的 hard 为 RLIM_INFINITY。
+        完。
+        做 追加 用 新限制、rl。
+        i 为 i 加 1。
+    完。
+    子进程 的 资源限制 为 新限制。
+完。
+
+可变 rlimit_名称 为 一组：「CPU时间(秒)」、「文件大小」、「数据段」、「栈大小」、「Core大小」、「RSS」、「进程数」、「打开文件数」、「锁定内存」、「虚拟地址空间」、「文件锁」、「挂起信号」、「消息队列」、「Nice值」、「RT优先级」、「保留」。
+
+rlimit_格式化 接受 限制列表：
+    可变 结果 为 「资源                 Soft Limit       Hard Limit\n」。
+    可变 i 为 0。
+    只要 i 小于 RLIM_NLIMITS 并且 i 小于 做 计数 用 限制列表：
+        名称 为 rlimit_名称 的 第 i 项。
+        soft 为 限制列表 的 第 i 项 的 soft。
+        hard 为 限制列表 的 第 i 项 的 hard。
+        soft_str 为 「unlimited」。
+        hard_str 为 「unlimited」。
+        若 soft 不等于 RLIM_INFINITY：
+            soft_str 为 做 整数转字符串 用 soft。
+        完。
+        若 hard 不等于 RLIM_INFINITY：
+            hard_str 为 做 整数转字符串 用 hard。
+        完。
+        结果 为 结果 加 名称 加 「  」 加 soft_str 加 「  」 加 hard_str 加 「\n」。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+进程限制_完整统计 接受 零参：
+    返还 一组：RLIM_NLIMITS。
+完。
+
+进程限制_检查文件数 接受 进程、新增：
+    当前 为 进程 的 打开文件数。
+    限制 为 进程 的 限制 的 第 RLIMIT_NOFILE 项 的 软限制。
+    若 当前 加 新增 大于 限制：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+进程限制_检查内存 接受 进程、请求大小：
+    当前 为 进程 的 虚拟内存大小。
+    限制 为 进程 的 限制 的 第 RLIMIT_AS 项 的 软限制。
+    若 限制 等于 RLIM_INFINITY：
+        返还 真。
+    完。
+    若 当前 加 请求大小 大于 限制：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+RLIM_INFINITY 为 0xFFFFFFFFFFFFFFFF。
+
+可变 AI_进程限制_运行指标 为 0。
+
+可变 AI_进程限制_异常指标 为 0。
+
+AI_进程限制_自诊断 接受 零参：
+    AI_进程限制_运行指标 为 0。
+    返还 AI_进程限制_运行指标。
+完。
+
+AI_进程限制_优化建议 接受 零参：
+    指标 为 做 AI_进程限制_自诊断。
+    返还 「进程限制状态正常」。
+完。
+
+本章 收束。

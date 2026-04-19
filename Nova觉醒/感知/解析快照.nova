@@ -1,0 +1,870 @@
+《解析快照》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·公平调度唤醒》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·主循环》。
+
+引用《..·中枢·字符串替换》。
+
+ScrollSnap_解析类型 接受 值字符串：
+    若 值字符串 等于 0 或者 做 字符串_相等 用 值字符串、「none」：
+        返还 一组：SNAP_AXIS_NONE、SNAP_STRICT_NONE。
+    完。
+    可变 轴 为 SNAP_AXIS_NONE。
+    可变 严格 为 SNAP_STRICT_PROXIMITY。
+    若 做 字符串_包含 用 值字符串、「x」：
+        轴 为 SNAP_AXIS_X。
+    否则若 做 字符串_包含 用 值字符串、「y」：
+        轴 为 SNAP_AXIS_Y。
+    否则若 做 字符串_包含 用 值字符串、「both」：
+        轴 为 SNAP_AXIS_BOTH。
+    否则若 做 字符串_包含 用 值字符串、「block」：
+        轴 为 SNAP_AXIS_BLOCK。
+    否则若 做 字符串_包含 用 值字符串、「inline」：
+        轴 为 SNAP_AXIS_INLINE。
+    完。
+    若 做 字符串_包含 用 值字符串、「mandatory」：
+        严格 为 SNAP_STRICT_MANDATORY。
+    否则若 做 字符串_包含 用 值字符串、「proximity」：
+        严格 为 SNAP_STRICT_PROXIMITY。
+    完。
+    返还 一组：轴、严格。
+完。
+
+ScrollSnap_解析对齐 接受 值字符串：
+    若 值字符串 等于 0 或者 做 字符串_相等 用 值字符串、「none」：
+        返还 一组：SNAP_ALIGN_NONE、SNAP_ALIGN_NONE。
+    完。
+    可变 x对齐 为 SNAP_ALIGN_NONE。
+    可变 y对齐 为 SNAP_ALIGN_NONE。
+    若 做 字符串_相等 用 值字符串、「start」：
+        x对齐 为 SNAP_ALIGN_START。
+        y对齐 为 SNAP_ALIGN_START。
+    否则若 做 字符串_相等 用 值字符串、「center」：
+        x对齐 为 SNAP_ALIGN_CENTER。
+        y对齐 为 SNAP_ALIGN_CENTER。
+    否则若 做 字符串_相等 用 值字符串、「end」：
+        x对齐 为 SNAP_ALIGN_END。
+        y对齐 为 SNAP_ALIGN_END。
+    完。
+    返还 一组：x对齐、y对齐。
+完。
+
+ScrollSnap_收集snap点 接受 ssc、容器元素：
+    若 ssc 等于 0 或者 容器元素 等于 0：
+        返还。
+    完。
+    ssc 的 snap点数量 为 0。
+    做 ScrollSnap_收集递归 用 ssc、容器元素。
+完。
+
+ScrollSnap_收集递归 接受 ssc、元素：
+    若 元素 等于 0：
+        返还。
+    完。
+    可变 子 为 元素 的 第一子节点。
+    只要 子 不等于 0：
+        若 子 的 节点类型 等于 1：
+            布局 为 子 的 布局对象。
+            样式 为 若 布局 不等于 0 则 布局 的 计算样式 否则 0。
+            若 样式 不等于 0 并且 样式 的 scroll_snap_align 不等于 0：
+                对齐 为 做 ScrollSnap_解析对齐 用 样式 的 scroll_snap_align。
+                若 对齐 的 第 0 项 不等于 SNAP_ALIGN_NONE 或者 对齐 的 第 1 项 不等于 SNAP_ALIGN_NONE：
+                    sp 为 做 堆_分配 用 SnapPoint。
+                    sp 的 对齐x 为 对齐 的 第 0 项。
+                    sp 的 对齐y 为 对齐 的 第 1 项。
+                    sp 的 元素 为 子。
+                    若 样式 的 scroll_snap_stop 不等于 0 并且 做 字符串_相等 用 样式 的 scroll_snap_stop、「always」：
+                        sp 的 停止 为 SNAP_STOP_ALWAYS。
+                    否则：
+                        sp 的 停止 为 SNAP_STOP_NORMAL。
+                    完。
+                    可变 margin 为 0。
+                    若 样式 的 scroll_margin 不等于 0：
+                        margin 为 样式 的 scroll_margin_值。
+                    完。
+                    若 sp 的 对齐x 等于 SNAP_ALIGN_START：
+                        sp 的 x 为 布局 的 x 减 ssc 的 padding_左 减 margin。
+                    否则若 sp 的 对齐x 等于 SNAP_ALIGN_CENTER：
+                        sp 的 x 为 布局 的 x 加 布局 的 宽 除以 2 减 ssc 的 视口宽 除以 2。
+                    否则若 sp 的 对齐x 等于 SNAP_ALIGN_END：
+                        sp 的 x 为 布局 的 x 加 布局 的 宽 减 ssc 的 视口宽 加 ssc 的 padding_右 加 margin。
+                    完。
+                    若 sp 的 对齐y 等于 SNAP_ALIGN_START：
+                        sp 的 y 为 布局 的 y 减 ssc 的 padding_上 减 margin。
+                    否则若 sp 的 对齐y 等于 SNAP_ALIGN_CENTER：
+                        sp 的 y 为 布局 的 y 加 布局 的 高 除以 2 减 ssc 的 视口高 除以 2。
+                    否则若 sp 的 对齐y 等于 SNAP_ALIGN_END：
+                        sp 的 y 为 布局 的 y 加 布局 的 高 减 ssc 的 视口高 加 ssc 的 padding_下 加 margin。
+                    完。
+                    若 ssc 的 snap点数量 小于 ssc 的 snap点容量：
+                        做 内存_写64 用 ssc 的 snap点列表 加 ssc 的 snap点数量 乘 8、sp。
+                        ssc 的 snap点数量 为 ssc 的 snap点数量 加 1。
+                    完。
+                完。
+            完。
+            若 样式 等于 0 或者 样式 的 scroll_snap_type 等于 0 或者 做 字符串_相等 用 样式 的 scroll_snap_type、「none」：
+                做 ScrollSnap_收集递归 用 ssc、子。
+            完。
+        完。
+        子 为 子 的 后一兄弟。
+    完。
+完。
+
+SNAP_AXIS_NONE 为 0。
+
+SNAP_AXIS_X 为 1。
+
+SNAP_AXIS_Y 为 2。
+
+SNAP_AXIS_BOTH 为 3。
+
+SNAP_AXIS_BLOCK 为 4。
+
+SNAP_AXIS_INLINE 为 5。
+
+SNAP_STRICT_NONE 为 0。
+
+SNAP_STRICT_PROXIMITY 为 1。
+
+SNAP_STRICT_MANDATORY 为 2。
+
+SNAP_ALIGN_NONE 为 0。
+
+SNAP_ALIGN_START 为 1。
+
+SNAP_ALIGN_CENTER 为 2。
+
+SNAP_ALIGN_END 为 3。
+
+SNAP_STOP_NORMAL 为 0。
+
+SNAP_STOP_ALWAYS 为 1。
+
+SNAP_最大点数 为 4096。
+
+SNAP_默认阈值 为 48。
+
+SnapPoint 是 一种 事物，含 x、y、对齐x、对齐y、停止、元素。
+
+ScrollSnapContext 是 一种 事物，含 轴、严格、snap点列表、snap点数量、snap点容量、视口宽、视口高、padding_上、padding_右、padding_下、padding_左、当前滚动x、当前滚动y、速度x、速度y、上次目标x、上次目标y、动画中。
+
+可变 NSSP_解析总数 为 0。
+
+可变 NSSP_收集总数 为 0。
+
+可变 NSSP_命中总数 为 0。
+
+可变 NSSP_强制捕捉总数 为 0。
+
+可变 NSSP_AI预测总数 为 0。
+
+NSSP_去首尾空白 接受 文本：
+    若 文本 等于 0：
+        返还 0。
+    完。
+    起 为 0。
+    长 为 做 字符串_长度 用 文本。
+    可变 终 为 长 减 1。
+    只要 起 小于 长 并且 做 NSSP_是空白 用 做 内存_读8 用 文本 加 起：
+        起 为 起 加 1。
+    完。
+    只要 终 大于或等于 起 并且 做 NSSP_是空白 用 做 内存_读8 用 文本 加 终：
+        终 为 终 减 1。
+    完。
+    若 终 小于 起：
+        返还 「」。
+    完。
+    返还 做 字符串_子串 用 文本、起、终 减 起 加 1。
+完。
+
+NSSP_是空白 接受 ch：
+    若 ch 等于 0x20：
+        返还 真。
+    完。
+    若 ch 等于 0x09：
+        返还 真。
+    完。
+    若 ch 等于 0x0A：
+        返还 真。
+    完。
+    若 ch 等于 0x0D：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+NSSP_转小写 接受 文本：
+    若 文本 等于 0：
+        返还 0。
+    完。
+    长 为 做 字符串_长度 用 文本。
+    out 为 做 堆_分配 用 长 加 1。
+    可变 i 为 0。
+    只要 i 小于 长：
+        ch 为 做 内存_读8 用 文本 加 i。
+        若 ch 大于或等于 0x41 并且 ch 小于或等于 0x5A：
+            ch 为 ch 加 32。
+        完。
+        做 内存_写8 用 out 加 i、ch。
+        i 为 i 加 1。
+    完。
+    做 内存_写8 用 out 加 长、0。
+    返还 out。
+完。
+
+NSSP_令牌化 接受 值字符串：
+    tokens 为 做 堆_分配 用 4 乘 8。
+    可变 数量 为 0。
+    规范 为 做 NSSP_去首尾空白 用 值字符串。
+    若 规范 等于 0：
+        返还 一组：tokens、0。
+    完。
+    长 为 做 字符串_长度 用 规范。
+    可变 i 为 0。
+    只要 i 小于 长 并且 数量 小于 4：
+        只要 i 小于 长 并且 做 NSSP_是空白 用 做 内存_读8 用 规范 加 i：
+            i 为 i 加 1。
+        完。
+        若 i 大于或等于 长：
+            断开。
+        完。
+        开始 为 i。
+        只要 i 小于 长 并且 非 做 NSSP_是空白 用 做 内存_读8 用 规范 加 i：
+            i 为 i 加 1。
+        完。
+        tok 为 做 字符串_子串 用 规范、开始、i 减 开始。
+        tok 为 做 NSSP_转小写 用 tok。
+        做 内存_写64 用 tokens 加 数量 乘 8、tok。
+        数量 为 数量 加 1。
+    完。
+    返还 一组：tokens、数量。
+完。
+
+NSSP_释放令牌 接受 令牌数组、数量：
+    若 令牌数组 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        t 为 做 内存_读64 用 令牌数组 加 i 乘 8。
+        若 t 不等于 0：
+            做 堆_释放 用 t。
+        完。
+        i 为 i 加 1。
+    完。
+    做 堆_释放 用 令牌数组。
+完。
+
+NSSP_解析类型_健壮 接受 值字符串：
+    结果 为 一组：SNAP_AXIS_NONE、SNAP_STRICT_NONE。
+    若 值字符串 等于 0：
+        返还 结果。
+    完。
+    若 做 字符串_相等 用 值字符串、「none」：
+        返还 结果。
+    完。
+    tk 为 做 NSSP_令牌化 用 值字符串。
+    数组 为 tk 的 第 0 项。
+    数量 为 tk 的 第 1 项。
+    可变 i 为 0。
+    可变 轴 为 SNAP_AXIS_NONE。
+    可变 严格 为 SNAP_STRICT_PROXIMITY。
+    只要 i 小于 数量：
+        t 为 做 内存_读64 用 数组 加 i 乘 8。
+        若 做 字符串_相等 用 t、「x」：
+            轴 为 SNAP_AXIS_X。
+        否则若 做 字符串_相等 用 t、「y」：
+            轴 为 SNAP_AXIS_Y。
+        否则若 做 字符串_相等 用 t、「both」：
+            轴 为 SNAP_AXIS_BOTH。
+        否则若 做 字符串_相等 用 t、「block」：
+            轴 为 SNAP_AXIS_BLOCK。
+        否则若 做 字符串_相等 用 t、「inline」：
+            轴 为 SNAP_AXIS_INLINE。
+        否则若 做 字符串_相等 用 t、「mandatory」：
+            严格 为 SNAP_STRICT_MANDATORY。
+        否则若 做 字符串_相等 用 t、「proximity」：
+            严格 为 SNAP_STRICT_PROXIMITY。
+        完。
+        i 为 i 加 1。
+    完。
+    做 NSSP_释放令牌 用 数组、数量。
+    NSSP_解析总数 为 NSSP_解析总数 加 1。
+    返还 一组：轴、严格。
+完。
+
+ScrollSnap_创建上下文 接受 视口宽、视口高：
+    s 为 做 堆_分配 用 ScrollSnapContext。
+    若 s 等于 0：
+        返还 0。
+    完。
+    s 的 轴 为 SNAP_AXIS_NONE。
+    s 的 严格 为 SNAP_STRICT_NONE。
+    s 的 视口宽 为 视口宽。
+    s 的 视口高 为 视口高。
+    s 的 padding_上 为 0。
+    s 的 padding_右 为 0。
+    s 的 padding_下 为 0。
+    s 的 padding_左 为 0。
+    s 的 当前滚动x 为 0。
+    s 的 当前滚动y 为 0。
+    s 的 速度x 为 0。
+    s 的 速度y 为 0。
+    s 的 上次目标x 为 0。
+    s 的 上次目标y 为 0。
+    s 的 动画中 为 假。
+    s 的 snap点容量 为 256。
+    s 的 snap点数量 为 0。
+    s 的 snap点列表 为 做 堆_分配 用 s 的 snap点容量 乘 8。
+    返还 s。
+完。
+
+ScrollSnap_释放上下文 接受 ssc：
+    若 ssc 等于 0：
+        返还。
+    完。
+    做 ScrollSnap_清空snap点 用 ssc。
+    若 ssc 的 snap点列表 不等于 0：
+        做 堆_释放 用 ssc 的 snap点列表。
+    完。
+    做 堆_释放 用 ssc。
+完。
+
+ScrollSnap_清空snap点 接受 ssc：
+    若 ssc 等于 0 或者 ssc 的 snap点列表 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 ssc 的 snap点数量：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        若 sp 不等于 0：
+            做 堆_释放 用 sp。
+        完。
+        i 为 i 加 1。
+    完。
+    ssc 的 snap点数量 为 0。
+完。
+
+NSSP_确保容量 接受 ssc：
+    若 ssc 的 snap点数量 小于 ssc 的 snap点容量：
+        返还。
+    完。
+    新容量 为 ssc 的 snap点容量 乘 2。
+    若 新容量 大于 SNAP_最大点数：
+        新容量 为 SNAP_最大点数。
+    完。
+    若 新容量 小于或等于 ssc 的 snap点容量：
+        返还。
+    完。
+    新列表 为 做 堆_分配 用 新容量 乘 8。
+    做 内存_拷贝 用 新列表、ssc 的 snap点列表、ssc 的 snap点容量 乘 8。
+    做 堆_释放 用 ssc 的 snap点列表。
+    ssc 的 snap点列表 为 新列表。
+    ssc 的 snap点容量 为 新容量。
+完。
+
+NSSP_排序snap点 接受 ssc：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 小于或等于 1：
+        返还。
+    完。
+    可变 i 为 1。
+    只要 i 小于 ssc 的 snap点数量：
+        key 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        可变 j 为 i 减 1。
+        只要 j 大于或等于 0：
+            a 为 做 内存_读64 用 ssc 的 snap点列表 加 j 乘 8。
+            可变 av 为 0。
+            可变 kv 为 0。
+            若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+                av 为 a 的 x。
+                kv 为 key 的 x。
+            否则：
+                av 为 a 的 y。
+                kv 为 key 的 y。
+            完。
+            若 av 小于或等于 kv：
+                断开。
+            完。
+            做 内存_写64 用 ssc 的 snap点列表 加 (j 加 1) 乘 8、a。
+            j 为 j 减 1。
+        完。
+        做 内存_写64 用 ssc 的 snap点列表 加 (j 加 1) 乘 8、key。
+        i 为 i 加 1。
+    完。
+完。
+
+NSSP_去重snap点 接受 ssc、最小间距：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 小于或等于 1：
+        返还。
+    完。
+    可变 写 为 0。
+    可变 i 为 0。
+    可变 上个值 为 负 2147483648。
+    只要 i 小于 ssc 的 snap点数量：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        可变 值 为 0。
+        若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+            值 为 sp 的 x。
+        否则：
+            值 为 sp 的 y。
+        完。
+        若 写 等于 0 或者 做 绝对值 用 值 减 上个值 大于或等于 最小间距：
+            做 内存_写64 用 ssc 的 snap点列表 加 写 乘 8、sp。
+            写 为 写 加 1。
+            上个值 为 值。
+        否则：
+            做 堆_释放 用 sp。
+        完。
+        i 为 i 加 1。
+    完。
+    ssc 的 snap点数量 为 写。
+完。
+
+NSSP_裁剪不可达点 接受 ssc、最大滚动x、最大滚动y：
+    若 ssc 等于 0：
+        返还。
+    完。
+    可变 写 为 0。
+    可变 i 为 0。
+    只要 i 小于 ssc 的 snap点数量：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        可变 有效 为 真。
+        若 sp 的 x 小于 0 或者 sp 的 x 大于 最大滚动x：
+            sp 的 x 为 做 限制范围 用 sp 的 x、0、最大滚动x。
+        完。
+        若 sp 的 y 小于 0 或者 sp 的 y 大于 最大滚动y：
+            sp 的 y 为 做 限制范围 用 sp 的 y、0、最大滚动y。
+        完。
+        若 有效：
+            做 内存_写64 用 ssc 的 snap点列表 加 写 乘 8、sp。
+            写 为 写 加 1。
+        否则：
+            做 堆_释放 用 sp。
+        完。
+        i 为 i 加 1。
+    完。
+    ssc 的 snap点数量 为 写。
+完。
+
+限制范围 接受 v、最小、最大：
+    若 v 小于 最小：
+        返还 最小。
+    完。
+    若 v 大于 最大：
+        返还 最大。
+    完。
+    返还 v。
+完。
+
+NSSP_计算距离平方 接受 dx、dy：
+    返还 dx 乘 dx 加 dy 乘 dy。
+完。
+
+NSSP_寻找最近点 接受 ssc、目标x、目标y：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 等于 0：
+        返还 0。
+    完。
+    可变 最优 为 0。
+    可变 最优分数 为 2147483647。
+    可变 i 为 0。
+    只要 i 小于 ssc 的 snap点数量：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        dx 为 sp 的 x 减 目标x。
+        dy 为 sp 的 y 减 目标y。
+        分数 为 做 NSSP_计算距离平方 用 dx、dy。
+        若 sp 的 停止 等于 SNAP_STOP_ALWAYS：
+            分数 为 分数 乘 3 除以 4。
+        完。
+        若 分数 小于 最优分数：
+            最优分数 为 分数。
+            最优 为 sp。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 最优。
+完。
+
+NSSP_寻找主轴最近点 接受 ssc、目标值：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 等于 0：
+        返还 0。
+    完。
+    可变 最优 为 0。
+    可变 最小距离 为 2147483647。
+    可变 i 为 0。
+    只要 i 小于 ssc 的 snap点数量：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        可变 v 为 0。
+        若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+            v 为 sp 的 x。
+        否则：
+            v 为 sp 的 y。
+        完。
+        d 为 做 绝对值 用 v 减 目标值。
+        若 d 小于 最小距离：
+            最小距离 为 d。
+            最优 为 sp。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 最优。
+完。
+
+NSSP_应当捕捉 接受 ssc、当前x、当前y、候选点：
+    若 ssc 等于 0 或者 候选点 等于 0：
+        返还 假。
+    完。
+    若 ssc 的 严格 等于 SNAP_STRICT_NONE：
+        返还 假。
+    完。
+    阈值 为 SNAP_默认阈值。
+    若 ssc 的 严格 等于 SNAP_STRICT_MANDATORY：
+        阈值 为 阈值 乘 4。
+    完。
+    速度 为 做 绝对值 用 ssc 的 速度x 加 做 绝对值 用 ssc 的 速度y。
+    若 速度 大于 100：
+        阈值 为 阈值 加 24。
+    完。
+    若 速度 大于 300：
+        阈值 为 阈值 加 36。
+    完。
+    dx 为 做 绝对值 用 候选点 的 x 减 当前x。
+    dy 为 做 绝对值 用 候选点 的 y 减 当前y。
+    若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+        返还 dx 小于或等于 阈值 或者 ssc 的 严格 等于 SNAP_STRICT_MANDATORY。
+    完。
+    若 ssc 的 轴 等于 SNAP_AXIS_Y 或者 ssc 的 轴 等于 SNAP_AXIS_BLOCK：
+        返还 dy 小于或等于 阈值 或者 ssc 的 严格 等于 SNAP_STRICT_MANDATORY。
+    完。
+    返还 dx 小于或等于 阈值 并且 dy 小于或等于 阈值 或者 ssc 的 严格 等于 SNAP_STRICT_MANDATORY。
+完。
+
+ScrollSnap_应用捕捉 接受 ssc、当前x、当前y、目标x、目标y：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 等于 0：
+        返还 一组：目标x、目标y、假。
+    完。
+    候选 为 做 NSSP_寻找最近点 用 ssc、目标x、目标y。
+    若 候选 等于 0：
+        返还 一组：目标x、目标y、假。
+    完。
+    若 非 做 NSSP_应当捕捉 用 ssc、当前x、当前y、候选：
+        返还 一组：目标x、目标y、假。
+    完。
+    可变 nx 为 目标x。
+    可变 ny 为 目标y。
+    若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+        nx 为 候选 的 x。
+    否则若 ssc 的 轴 等于 SNAP_AXIS_Y 或者 ssc 的 轴 等于 SNAP_AXIS_BLOCK：
+        ny 为 候选 的 y。
+    否则：
+        nx 为 候选 的 x。
+        ny 为 候选 的 y。
+    完。
+    NSSP_命中总数 为 NSSP_命中总数 加 1。
+    若 ssc 的 严格 等于 SNAP_STRICT_MANDATORY：
+        NSSP_强制捕捉总数 为 NSSP_强制捕捉总数 加 1。
+    完。
+    ssc 的 上次目标x 为 nx。
+    ssc 的 上次目标y 为 ny。
+    返还 一组：nx、ny、真。
+完。
+
+NSSP_惯性目标 接受 位置、速度：
+    偏移 为 速度 乘 35 除以 100。
+    返还 位置 加 偏移。
+完。
+
+ScrollSnap_按速度预测目标 接受 ssc、当前x、当前y、速度x、速度y：
+    若 ssc 等于 0：
+        返还 一组：当前x、当前y。
+    完。
+    ssc 的 速度x 为 速度x。
+    ssc 的 速度y 为 速度y。
+    tx 为 做 NSSP_惯性目标 用 当前x、速度x。
+    ty 为 做 NSSP_惯性目标 用 当前y、速度y。
+    返还 一组：tx、ty。
+完。
+
+ScrollSnap_下一点 接受 ssc、当前x、当前y：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 等于 0：
+        返还 一组：当前x、当前y。
+    完。
+    做 NSSP_排序snap点 用 ssc。
+    可变 i 为 0。
+    只要 i 小于 ssc 的 snap点数量：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+            若 sp 的 x 大于 当前x 加 1：
+                返还 一组：sp 的 x、当前y。
+            完。
+        否则：
+            若 sp 的 y 大于 当前y 加 1：
+                返还 一组：当前x、sp 的 y。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 一组：当前x、当前y。
+完。
+
+ScrollSnap_上一点 接受 ssc、当前x、当前y：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 等于 0：
+        返还 一组：当前x、当前y。
+    完。
+    做 NSSP_排序snap点 用 ssc。
+    可变 i 为 ssc 的 snap点数量 减 1。
+    只要 i 大于或等于 0：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+            若 sp 的 x 小于 当前x 减 1：
+                返还 一组：sp 的 x、当前y。
+            完。
+        否则：
+            若 sp 的 y 小于 当前y 减 1：
+                返还 一组：当前x、sp 的 y。
+            完。
+        完。
+        i 为 i 减 1。
+    完。
+    返还 一组：当前x、当前y。
+完。
+
+NSSP_缓动_三次 接受 t：
+    u 为 1000 减 t。
+    u2 为 u 乘 u 除以 1000。
+    u3 为 u2 乘 u 除以 1000。
+    返还 1000 减 u3。
+完。
+
+ScrollSnap_动画到 接受 ssc、scroller、目标x、目标y、时长毫秒：
+    若 ssc 等于 0 或者 scroller 等于 0：
+        返还。
+    完。
+    若 时长毫秒 小于或等于 0：
+        scroller 的 scrollLeft 为 目标x。
+        scroller 的 scrollTop 为 目标y。
+        返还。
+    完。
+    起始x 为 scroller 的 scrollLeft。
+    起始y 为 scroller 的 scrollTop。
+    开始时间 为 做 时间_当前毫秒。
+    ssc 的 动画中 为 真。
+    只要 真：
+        现在 为 做 时间_当前毫秒。
+        经过 为 现在 减 开始时间。
+        若 经过 大于或等于 时长毫秒：
+            断开。
+        完。
+        t 为 经过 乘 1000 除以 时长毫秒。
+        e 为 做 NSSP_缓动_三次 用 t。
+        scroller 的 scrollLeft 为 起始x 加 (目标x 减 起始x) 乘 e 除以 1000。
+        scroller 的 scrollTop 为 起始y 加 (目标y 减 起始y) 乘 e 除以 1000。
+        做 调度_让出。
+    完。
+    scroller 的 scrollLeft 为 目标x。
+    scroller 的 scrollTop 为 目标y。
+    ssc 的 动画中 为 假。
+完。
+
+ScrollSnap_处理滚动结束 接受 ssc、scroller、当前x、当前y、速度x、速度y：
+    若 ssc 等于 0 或者 scroller 等于 0：
+        返还 一组：当前x、当前y、假。
+    完。
+    预测 为 做 ScrollSnap_按速度预测目标 用 ssc、当前x、当前y、速度x、速度y。
+    snap 为 做 ScrollSnap_应用捕捉 用 ssc、当前x、当前y、预测 的 第 0 项、预测 的 第 1 项。
+    若 非 snap 的 第 2 项：
+        返还 snap。
+    完。
+    做 ScrollSnap_动画到 用 ssc、scroller、snap 的 第 0 项、snap 的 第 1 项、180。
+    返还 snap。
+完。
+
+NSSP_点是否在可视附近 接受 ssc、sp、当前x、当前y、范围：
+    若 ssc 等于 0 或者 sp 等于 0：
+        返还 假。
+    完。
+    dx 为 做 绝对值 用 sp 的 x 减 当前x。
+    dy 为 做 绝对值 用 sp 的 y 减 当前y。
+    若 ssc 的 轴 等于 SNAP_AXIS_X 或者 ssc 的 轴 等于 SNAP_AXIS_INLINE：
+        返还 dx 小于或等于 范围。
+    完。
+    若 ssc 的 轴 等于 SNAP_AXIS_Y 或者 ssc 的 轴 等于 SNAP_AXIS_BLOCK：
+        返还 dy 小于或等于 范围。
+    完。
+    返还 dx 小于或等于 范围 并且 dy 小于或等于 范围。
+完。
+
+NSSP_标记优先级 接受 ssc、当前x、当前y：
+    若 ssc 等于 0：
+        返还。
+    完。
+    可变 写 为 0。
+    临时 为 做 堆_分配 用 ssc 的 snap点数量 乘 8。
+    可变 i 为 0。
+    只要 i 小于 ssc 的 snap点数量：
+        sp 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        若 sp 的 停止 等于 SNAP_STOP_ALWAYS 并且 做 NSSP_点是否在可视附近 用 ssc、sp、当前x、当前y、3 乘 SNAP_默认阈值：
+            做 内存_写64 用 临时 加 写 乘 8、sp。
+            写 为 写 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 ssc 的 snap点数量：
+        sp2 为 做 内存_读64 用 ssc 的 snap点列表 加 i 乘 8。
+        若 非 (sp2 的 停止 等于 SNAP_STOP_ALWAYS 并且 做 NSSP_点是否在可视附近 用 ssc、sp2、当前x、当前y、3 乘 SNAP_默认阈值)：
+            做 内存_写64 用 临时 加 写 乘 8、sp2。
+            写 为 写 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    做 内存_拷贝 用 ssc 的 snap点列表、临时、ssc 的 snap点数量 乘 8。
+    做 堆_释放 用 临时。
+完。
+
+NSSP_AI提取特征 接受 ssc、当前x、当前y：
+    t 为 做 Tensor_创建 用 12。
+    若 t 等于 0：
+        返还 0。
+    完。
+    做 Tensor_写 用 t、0、ssc 的 轴。
+    做 Tensor_写 用 t、1、ssc 的 严格。
+    做 Tensor_写 用 t、2、ssc 的 snap点数量。
+    做 Tensor_写 用 t、3、ssc 的 视口宽。
+    做 Tensor_写 用 t、4、ssc 的 视口高。
+    做 Tensor_写 用 t、5、当前x。
+    做 Tensor_写 用 t、6、当前y。
+    做 Tensor_写 用 t、7、ssc 的 速度x。
+    做 Tensor_写 用 t、8、ssc 的 速度y。
+    做 Tensor_写 用 t、9、ssc 的 上次目标x。
+    做 Tensor_写 用 t、10、ssc 的 上次目标y。
+    做 Tensor_写 用 t、11、NSSP_命中总数。
+    返还 t。
+完。
+
+NSSP_AI预测阈值 接受 ssc、当前x、当前y：
+    t 为 做 NSSP_AI提取特征 用 ssc、当前x、当前y。
+    若 t 等于 0：
+        返还 SNAP_默认阈值。
+    完。
+    速度 为 做 绝对值 用 做 Tensor_读 用 t、7 加 做 绝对值 用 做 Tensor_读 用 t、8。
+    点数 为 做 Tensor_读 用 t、2。
+    可变 阈值 为 SNAP_默认阈值。
+    若 速度 大于 200：
+        阈值 为 阈值 加 20。
+    完。
+    若 速度 大于 400：
+        阈值 为 阈值 加 30。
+    完。
+    若 点数 大于 100：
+        阈值 为 阈值 减 8。
+    完。
+    若 点数 大于 300：
+        阈值 为 阈值 减 12。
+    完。
+    阈值 为 做 限制范围 用 阈值、16、160。
+    做 全局AI总线 的 发布 用 「nssp_threshold」、「predict」、阈值。
+    做 Tensor_释放 用 t。
+    NSSP_AI预测总数 为 NSSP_AI预测总数 加 1。
+    返还 阈值。
+完。
+
+NSSP_AI预测目标点 接受 ssc、当前x、当前y：
+    若 ssc 等于 0 或者 ssc 的 snap点数量 等于 0：
+        返还 一组：当前x、当前y。
+    完。
+    候选 为 做 NSSP_寻找最近点 用 ssc、当前x 加 ssc 的 速度x 除以 2、当前y 加 ssc 的 速度y 除以 2。
+    若 候选 等于 0：
+        返还 一组：当前x、当前y。
+    完。
+    返还 一组：候选 的 x、候选 的 y。
+完。
+
+NSSP_获取统计 接受 零参：
+    返还 一组：NSSP_解析总数、NSSP_收集总数、NSSP_命中总数、NSSP_强制捕捉总数、NSSP_AI预测总数。
+完。
+
+NSSP_重置统计 接受 零参：
+    NSSP_解析总数 为 0。
+    NSSP_收集总数 为 0。
+    NSSP_命中总数 为 0。
+    NSSP_强制捕捉总数 为 0。
+    NSSP_AI预测总数 为 0。
+完。
+
+ScrollSnap_从样式初始化 接受 ssc、样式：
+    若 ssc 等于 0 或者 样式 等于 0：
+        返还。
+    完。
+    t 为 做 NSSP_解析类型_健壮 用 样式 的 scroll_snap_type。
+    ssc 的 轴 为 t 的 第 0 项。
+    ssc 的 严格 为 t 的 第 1 项。
+    ssc 的 padding_上 为 样式 的 scroll_padding_top。
+    ssc 的 padding_右 为 样式 的 scroll_padding_right。
+    ssc 的 padding_下 为 样式 的 scroll_padding_bottom。
+    ssc 的 padding_左 为 样式 的 scroll_padding_left。
+完。
+
+ScrollSnap_重建并排序 接受 ssc、容器元素、最大滚动x、最大滚动y：
+    若 ssc 等于 0 或者 容器元素 等于 0：
+        返还。
+    完。
+    做 ScrollSnap_清空snap点 用 ssc。
+    做 ScrollSnap_收集snap点 用 ssc、容器元素。
+    NSSP_收集总数 为 NSSP_收集总数 加 ssc 的 snap点数量。
+    做 NSSP_排序snap点 用 ssc。
+    做 NSSP_去重snap点 用 ssc、2。
+    做 NSSP_裁剪不可达点 用 ssc、最大滚动x、最大滚动y。
+完。
+
+ScrollSnap_页下滚 接受 ssc、scroller：
+    当前位置x 为 scroller 的 scrollLeft。
+    当前位置y 为 scroller 的 scrollTop。
+    下个 为 做 ScrollSnap_下一点 用 ssc、当前位置x、当前位置y。
+    做 ScrollSnap_动画到 用 ssc、scroller、下个 的 第 0 项、下个 的 第 1 项、160。
+完。
+
+ScrollSnap_页上滚 接受 ssc、scroller：
+    当前位置x 为 scroller 的 scrollLeft。
+    当前位置y 为 scroller 的 scrollTop。
+    上个 为 做 ScrollSnap_上一点 用 ssc、当前位置x、当前位置y。
+    做 ScrollSnap_动画到 用 ssc、scroller、上个 的 第 0 项、上个 的 第 1 项、160。
+完。
+
+NSSP_自检 接受 零参：
+    c 为 做 ScrollSnap_创建上下文 用 800、600。
+    c 的 轴 为 SNAP_AXIS_Y。
+    c 的 严格 为 SNAP_STRICT_PROXIMITY。
+    可变 i 为 0。
+    只要 i 小于 5：
+        sp 为 做 堆_分配 用 SnapPoint。
+        sp 的 x 为 0。
+        sp 的 y 为 i 乘 200。
+        sp 的 对齐x 为 SNAP_ALIGN_NONE。
+        sp 的 对齐y 为 SNAP_ALIGN_START。
+        sp 的 停止 为 SNAP_STOP_NORMAL。
+        sp 的 元素 为 0。
+        做 内存_写64 用 c 的 snap点列表 加 c 的 snap点数量 乘 8、sp。
+        c 的 snap点数量 为 c 的 snap点数量 加 1。
+        i 为 i 加 1。
+    完。
+    r 为 做 ScrollSnap_应用捕捉 用 c、0、180、0、210。
+    正确 为 假。
+    若 r 的 第 2 项 并且 r 的 第 1 项 等于 200：
+        正确 为 真。
+    完。
+    做 ScrollSnap_释放上下文 用 c。
+    返还 正确。
+完。
+
+本章 收束。

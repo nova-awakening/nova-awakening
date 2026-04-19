@@ -1,0 +1,666 @@
+《系统调用号定义》
+
+引用《.·日志中枢》。
+
+引用《.·系统调用表》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·内核打印》。
+
+引用《.·时钟中枢》。
+
+引用《.·哈希函数》。
+
+引用《..·感知·内核直连层》。
+
+SYS_timer_create 为 222。
+
+SYS_timer_settime 为 223。
+
+SYS_timer_gettime 为 224。
+
+SYS_timer_getoverrun 为 225。
+
+SYS_timer_delete 为 226。
+
+SYS_clock_settime 为 227。
+
+SYS_clock_nanosleep 为 230。
+
+SYS_timerfd_create 为 283。
+
+SYS_timerfd_settime 为 286。
+
+SYS_timerfd_gettime 为 287。
+
+SYS_事件fd2 为 290。
+
+SYS_signalfd4 为 289。
+
+SYS_sendfile 为 40。
+
+SYS_splice 为 275。
+
+SYS_tee 为 276。
+
+SYS_vmsplice 为 278。
+
+SYS_fallocate 为 285。
+
+SYS_inotify_init1 为 294。
+
+SYS_inotify_add_watch 为 254。
+
+SYS_inotify_rm_watch 为 255。
+
+SYS_readahead 为 187。
+
+SYS_fadvise64 为 221。
+
+SYS_sync 为 162。
+
+SYS_synNova公平调度 为 306。
+
+SYS_statfs 为 137。
+
+SYS_fstatfs 为 138。
+
+SYS_utimensat 为 280。
+
+SYS_renameat2 为 316。
+
+SYS_copy_file_range 为 326。
+
+SYS_preadv 为 295。
+
+SYS_pwritev 为 296。
+
+SYS_lstat 为 6。
+
+SYS_newfstatat 为 262。
+
+SYS_faccessat 为 269。
+
+SYS_fchmodat 为 268。
+
+SYS_fchownat 为 260。
+
+SYS_mkdirat 为 258。
+
+SYS_mknodat 为 259。
+
+SYS_unlinkat 为 263。
+
+SYS_symlinkat 为 266。
+
+SYS_readlinkat 为 267。
+
+SYS_linkat 为 265。
+
+SYS_waitid 为 247。
+
+SYS_set_tid_address 为 218。
+
+SYS_gettid 为 186。
+
+SYS_tgkill 为 234。
+
+SYS_sched_yield 为 24。
+
+SYS_sched_getaffinity 为 204。
+
+SYS_sched_setaffinity 为 203。
+
+SYS_sched_getscheduler 为 145。
+
+SYS_sched_setscheduler 为 144。
+
+SYS_sched_getparam 为 143。
+
+SYS_sched_setparam 为 142。
+
+SYS_getrusage 为 98。
+
+SYS_getrlimit 为 97。
+
+SYS_setrlimit 为 160。
+
+SYS_prlimit64 为 302。
+
+SYS_prctl 为 157。
+
+SYS_arch_prctl 为 158。
+
+SYS_capget 为 125。
+
+SYS_capset 为 126。
+
+SYS_umask 为 95。
+
+SYS_getgroups 为 115。
+
+SYS_setgroups 为 116。
+
+SYS_setreuid 为 113。
+
+SYS_setregid 为 114。
+
+SYS_setresuid 为 117。
+
+SYS_getresuid 为 118。
+
+SYS_setresgid 为 119。
+
+SYS_getresgid 为 120。
+
+SYS_clone3 为 435。
+
+SYS_pidfd_open 为 434。
+
+SYS_pidfd_send_signal 为 424。
+
+SYS_pidfd_getfd 为 438。
+
+SYS_memfd_create 为 319。
+
+SYS_userfaultfd 为 323。
+
+SYS_madvise 为 28。
+
+SYS_mincore 为 27。
+
+SYS_mlock 为 149。
+
+SYS_mlock2 为 325。
+
+SYS_munlock 为 150。
+
+SYS_mlockall 为 151。
+
+SYS_munlockall 为 152。
+
+SYS_mremap 为 25。
+
+SYS_msync 为 26。
+
+SYS_process_madvise 为 440。
+
+SYS_process_vm_readv 为 310。
+
+SYS_process_vm_writev 为 311。
+
+SYS_accept4 为 288。
+
+SYS_recvmmsg 为 299。
+
+SYS_sendmmsg 为 307。
+
+SYS_socketpair 为 53。
+
+SYS_getsockname 为 51。
+
+SYS_getpeername 为 52。
+
+SYS_setsockopt 为 54。
+
+SYS_getsockopt 为 55。
+
+SYS_recvfrom 为 45。
+
+SYS_sendto 为 44。
+
+SYS_recvmsg 为 47。
+
+SYS_sendmsg 为 46。
+
+SYS_seccomp 为 317。
+
+SYS_kcmp 为 312。
+
+SYS_getrandom 为 318。
+
+SYS_landlock_create_ruleset 为 444。
+
+SYS_landlock_add_rule 为 445。
+
+SYS_landlock_restrict_self 为 446。
+
+SYS_rseq 为 334。
+
+SYS_io_uring_setup 为 425。
+
+SYS_io_uring_enter 为 426。
+
+SYS_io_uring_register 为 427。
+
+SYS_close_range 为 436。
+
+SYS_openat2 为 437。
+
+SYS_epoll_pwait2 为 441。
+
+SYS_mount_setattr 为 442。
+
+SYS_quotactl_fd 为 443。
+
+SYS_nova_ai_推理 为 0x8000。
+
+SYS_nova_ai_异常检测 为 0x8001。
+
+SYS_nova_ai_风险评分 为 0x8002。
+
+SYS_nova_内核打印 为 0x8010。
+
+SYS_nova_线程创建 为 0x8020。
+
+SYS_nova_线程退出 为 0x8021。
+
+SYS_nova_线程睡眠 为 0x8022。
+
+SYS_nova_进程创建 为 0x8030。
+
+SYS_nova_进程结束 为 0x8031。
+
+SYS_nova_GPU_提交 为 0x8040。
+
+SYS_nova_GPU_等待 为 0x8041。
+
+SYS_nova_内存池创建 为 0x8050。
+
+SYS_nova_内存池释放 为 0x8051。
+
+SYS_nova_消息发送 为 0x8060。
+
+SYS_nova_消息接收 为 0x8061。
+
+SYS_nova_诊断转储 为 0x8070。
+
+SYS_nova_内核探针 为 0x8071。
+
+可变 NSCI全局统计 为 新建 NSCI统计结构。
+
+NSCI统计结构 是 一种 事物，含 总调用次数、安全拦截次数、AI推理次数、未知调用次数、错误次数、最大耗时_us、总耗时_us。
+
+最大系统调用号 为 512。
+
+NOVA调用基址 为 0x8000。
+
+NOVA调用最大 为 128。
+
+可变 系统调用表 为 空。
+
+可变 nova调用表 为 空。
+
+可变 调用计数器 为 空。
+
+可变 调用耗时表 为 空。
+
+系统调用表_初始化 接受 零参：
+    系统调用表 为 做 堆_分配 用 最大系统调用号 乘 8。
+    nova调用表 为 做 堆_分配 用 NOVA调用最大 乘 8。
+    调用计数器 为 做 堆_分配 用 最大系统调用号 乘 8。
+    调用耗时表 为 做 堆_分配 用 最大系统调用号 乘 8。
+    若 系统调用表 等于 0 或者 nova调用表 等于 0：
+        做 内核打印 用 「[NSCI] 系统调用表分配失败!」。
+        返还。
+    完。
+    做 内存_置零 用 系统调用表、最大系统调用号 乘 8。
+    做 内存_置零 用 nova调用表、NOVA调用最大 乘 8。
+    做 内存_置零 用 调用计数器、最大系统调用号 乘 8。
+    做 内存_置零 用 调用耗时表、最大系统调用号 乘 8。
+    做 内核打印 用 「[NSCI] 系统调用表初始化: Linux兼容槽 {} + Nova原创槽 {}」、最大系统调用号、NOVA调用最大。
+完。
+
+系统调用表_注册 接受 调用号、处理函数：
+    若 系统调用表 等于 空：
+        返还 假。
+    完。
+    若 调用号 大于或等于 NOVA调用基址：
+        idx 为 调用号 减 NOVA调用基址。
+        若 idx 大于或等于 NOVA调用最大：
+            返还 假。
+        完。
+        做 内存_写64 用 nova调用表 加 idx 乘 8、处理函数。
+    否则：
+        若 调用号 大于或等于 最大系统调用号：
+            返还 假。
+        完。
+        做 内存_写64 用 系统调用表 加 调用号 乘 8、处理函数。
+    完。
+    返还 真。
+完。
+
+系统调用表_查找 接受 调用号：
+    若 调用号 大于或等于 NOVA调用基址：
+        idx 为 调用号 减 NOVA调用基址。
+        若 idx 大于或等于 NOVA调用最大 或者 nova调用表 等于 空：
+            返还 0。
+        完。
+        返还 做 内存_读64 用 nova调用表 加 idx 乘 8。
+    否则：
+        若 调用号 大于或等于 最大系统调用号 或者 系统调用表 等于 空：
+            返还 0。
+        完。
+        返还 做 内存_读64 用 系统调用表 加 调用号 乘 8。
+    完。
+完。
+
+系统调用_分发 接受 调用号、arg0、arg1、arg2、arg3、arg4、arg5：
+    NSCI全局统计 的 总调用次数 为 NSCI全局统计 的 总调用次数 加 1。
+    开始 为 做 读取微秒。
+    安全 为 做 系统调用_安全检查 用 调用号、arg0、arg1。
+    若 安全 等于 假：
+        NSCI全局统计 的 安全拦截次数 为 NSCI全局统计 的 安全拦截次数 加 1。
+        返还 负 1。
+    完。
+    handler 为 做 系统调用表_查找 用 调用号。
+    若 handler 等于 0：
+        NSCI全局统计 的 未知调用次数 为 NSCI全局统计 的 未知调用次数 加 1。
+        返还 负 38。
+    完。
+    若 调用号 小于 最大系统调用号 并且 调用计数器 不等于 空：
+        cnt 为 做 内存_读64 用 调用计数器 加 调用号 乘 8。
+        做 内存_写64 用 调用计数器 加 调用号 乘 8、cnt 加 1。
+    完。
+    结果 为 做 调用函数 用 handler、arg0、arg1、arg2、arg3、arg4、arg5。
+    耗时 为 做 读取微秒 减 开始。
+    NSCI全局统计 的 总耗时_us 为 NSCI全局统计 的 总耗时_us 加 耗时。
+    若 耗时 大于 NSCI全局统计 的 最大耗时_us：
+        NSCI全局统计 的 最大耗时_us 为 耗时。
+    完。
+    若 调用号 小于 最大系统调用号 并且 调用耗时表 不等于 空：
+        累计 为 做 内存_读64 用 调用耗时表 加 调用号 乘 8。
+        做 内存_写64 用 调用耗时表 加 调用号 乘 8、累计 加 耗时。
+    完。
+    若 结果 小于 0：
+        NSCI全局统计 的 错误次数 为 NSCI全局统计 的 错误次数 加 1。
+    完。
+    返还 结果。
+完。
+
+危险调用数 为 12。
+
+系统调用_是危险调用 接受 调用号：
+    若 调用号 等于 SYS_renameat2：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_unlinkat：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_setresuid：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_setresgid：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_capset：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_seccomp：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_clone3：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_mount_setattr：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_landlock_restrict_self：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_userfaultfd：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_process_vm_readv：
+        返还 真。
+    完。
+    若 调用号 等于 SYS_process_vm_writev：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+系统调用_安全检查 接受 调用号、arg0、arg1：
+    若 做 系统调用_是危险调用 用 调用号：
+        进程 为 做 当前进程。
+        若 进程 等于 0：
+            返还 假。
+        完。
+        uid 为 做 进程_获取有效UID 用 进程。
+        若 uid 不等于 0：
+            特征 为 做 Tensor_创建 用 4。
+            做 Tensor_写 用 特征、0、调用号。
+            做 Tensor_写 用 特征、1、arg0。
+            做 Tensor_写 用 特征、2、uid。
+            做 Tensor_写 用 特征、3、做 读取微秒。
+            风险 为 做 AI总线_风险评分 用 全局AI总线、特征。
+            做 Tensor_释放 用 特征。
+            NSCI全局统计 的 AI推理次数 为 NSCI全局统计 的 AI推理次数 加 1。
+            若 风险 大于 700：
+                做 内核打印 用 「[NSCI] 高风险调用拦截: syscall={} uid={} risk={}」、调用号、uid、风险。
+                返还 假。
+            完。
+        完。
+    完。
+    返还 真。
+完。
+
+系统调用_注册定时器类 接受 零参：
+    做 系统调用表_注册 用 SYS_timer_create、处理_timer_create。
+    做 系统调用表_注册 用 SYS_timer_settime、处理_timer_settime。
+    做 系统调用表_注册 用 SYS_timer_gettime、处理_timer_gettime。
+    做 系统调用表_注册 用 SYS_timer_getoverrun、处理_timer_getoverrun。
+    做 系统调用表_注册 用 SYS_timer_delete、处理_timer_delete。
+    做 系统调用表_注册 用 SYS_timerfd_create、处理_timerfd_create。
+    做 系统调用表_注册 用 SYS_timerfd_settime、处理_timerfd_settime。
+    做 系统调用表_注册 用 SYS_timerfd_gettime、处理_timerfd_gettime。
+    做 系统调用表_注册 用 SYS_clock_settime、处理_clock_settime。
+    做 系统调用表_注册 用 SYS_clock_nanosleep、处理_clock_nanosleep。
+完。
+
+系统调用_注册文件高级类 接受 零参：
+    做 系统调用表_注册 用 SYS_sendfile、处理_sendfile。
+    做 系统调用表_注册 用 SYS_splice、处理_splice。
+    做 系统调用表_注册 用 SYS_tee、处理_tee。
+    做 系统调用表_注册 用 SYS_fallocate、处理_fallocate。
+    做 系统调用表_注册 用 SYS_inotify_init1、处理_inotify_init1。
+    做 系统调用表_注册 用 SYS_inotify_add_watch、处理_inotify_add_watch。
+    做 系统调用表_注册 用 SYS_inotify_rm_watch、处理_inotify_rm_watch。
+    做 系统调用表_注册 用 SYS_readahead、处理_readahead。
+    做 系统调用表_注册 用 SYS_copy_file_range、处理_copy_file_range。
+    做 系统调用表_注册 用 SYS_preadv、处理_preadv。
+    做 系统调用表_注册 用 SYS_pwritev、处理_pwritev。
+完。
+
+系统调用_注册进程高级类 接受 零参：
+    做 系统调用表_注册 用 SYS_waitid、处理_waitid。
+    做 系统调用表_注册 用 SYS_gettid、处理_gettid。
+    做 系统调用表_注册 用 SYS_tgkill、处理_tgkill。
+    做 系统调用表_注册 用 SYS_sched_yield、处理_sched_yield。
+    做 系统调用表_注册 用 SYS_sched_getaffinity、处理_sched_getaffinity。
+    做 系统调用表_注册 用 SYS_sched_setaffinity、处理_sched_setaffinity。
+    做 系统调用表_注册 用 SYS_prctl、处理_prctl。
+    做 系统调用表_注册 用 SYS_clone3、处理_clone3。
+    做 系统调用表_注册 用 SYS_pidfd_open、处理_pidfd_open。
+    做 系统调用表_注册 用 SYS_prlimit64、处理_prlimit64。
+完。
+
+系统调用_注册内存高级类 接受 零参：
+    做 系统调用表_注册 用 SYS_memfd_create、处理_memfd_create。
+    做 系统调用表_注册 用 SYS_userfaultfd、处理_userfaultfd。
+    做 系统调用表_注册 用 SYS_madvise、处理_madvise。
+    做 系统调用表_注册 用 SYS_mincore、处理_mincore。
+    做 系统调用表_注册 用 SYS_mlock、处理_mlock。
+    做 系统调用表_注册 用 SYS_mlock2、处理_mlock2。
+    做 系统调用表_注册 用 SYS_munlock、处理_munlock。
+    做 系统调用表_注册 用 SYS_mremap、处理_mremap。
+    做 系统调用表_注册 用 SYS_msync、处理_msync。
+    做 系统调用表_注册 用 SYS_process_madvise、处理_process_madvise。
+完。
+
+系统调用_注册网络高级类 接受 零参：
+    做 系统调用表_注册 用 SYS_accept4、处理_accept4。
+    做 系统调用表_注册 用 SYS_recvmmsg、处理_recvmmsg。
+    做 系统调用表_注册 用 SYS_sendmmsg、处理_sendmmsg。
+    做 系统调用表_注册 用 SYS_socketpair、处理_socketpair。
+    做 系统调用表_注册 用 SYS_recvfrom、处理_recvfrom。
+    做 系统调用表_注册 用 SYS_sendto、处理_sendto。
+    做 系统调用表_注册 用 SYS_recvmsg、处理_recvmsg。
+    做 系统调用表_注册 用 SYS_sendmsg、处理_sendmsg。
+完。
+
+系统调用_注册安全类 接受 零参：
+    做 系统调用表_注册 用 SYS_seccomp、处理_seccomp。
+    做 系统调用表_注册 用 SYS_getrandom、处理_getrandom。
+    做 系统调用表_注册 用 SYS_landlock_create_ruleset、处理_landlock_create_ruleset。
+    做 系统调用表_注册 用 SYS_landlock_add_rule、处理_landlock_add_rule。
+    做 系统调用表_注册 用 SYS_landlock_restrict_self、处理_landlock_restrict_self。
+    做 系统调用表_注册 用 SYS_io_uring_setup、处理_io_uring_setup。
+    做 系统调用表_注册 用 SYS_io_uring_enter、处理_io_uring_enter。
+    做 系统调用表_注册 用 SYS_io_uring_register、处理_io_uring_register。
+完。
+
+系统调用_注册Nova原创类 接受 零参：
+    做 系统调用表_注册 用 SYS_nova_ai_推理、处理_nova_ai_推理。
+    做 系统调用表_注册 用 SYS_nova_ai_异常检测、处理_nova_ai_异常检测。
+    做 系统调用表_注册 用 SYS_nova_ai_风险评分、处理_nova_ai_风险评分。
+    做 系统调用表_注册 用 SYS_nova_内核打印、处理_nova_内核打印。
+    做 系统调用表_注册 用 SYS_nova_线程创建、处理_nova_线程创建。
+    做 系统调用表_注册 用 SYS_nova_线程退出、处理_nova_线程退出。
+    做 系统调用表_注册 用 SYS_nova_GPU_提交、处理_nova_GPU_提交。
+    做 系统调用表_注册 用 SYS_nova_内存池创建、处理_nova_内存池创建。
+    做 系统调用表_注册 用 SYS_nova_消息发送、处理_nova_消息发送。
+    做 系统调用表_注册 用 SYS_nova_诊断转储、处理_nova_诊断转储。
+完。
+
+NSCI_初始化 接受 零参：
+    做 内核打印 用 「[NSCI] Nova系统调用智能分发 启动」。
+    做 系统调用表_初始化。
+    做 系统调用_注册定时器类。
+    做 系统调用_注册文件高级类。
+    做 系统调用_注册进程高级类。
+    做 系统调用_注册内存高级类。
+    做 系统调用_注册网络高级类。
+    做 系统调用_注册安全类。
+    做 系统调用_注册Nova原创类。
+    NSCI全局统计 的 总调用次数 为 0。
+    NSCI全局统计 的 安全拦截次数 为 0。
+    NSCI全局统计 的 AI推理次数 为 0。
+    NSCI全局统计 的 未知调用次数 为 0。
+    NSCI全局统计 的 错误次数 为 0。
+    NSCI全局统计 的 最大耗时_us 为 0。
+    NSCI全局统计 的 总耗时_us 为 0。
+    做 内核打印 用 「[NSCI] 初始化完成 — 定时器/文件/进程/内存/网络/安全/Nova原创 已注册」。
+完。
+
+NSCI_打印诊断 接受 零参：
+    做 内核打印 用 「╔════════════════════════════════════════════╗」。
+    做 内核打印 用 「║  NSCI 系统调用智能分发 诊断报告          ║」。
+    做 内核打印 用 「╠════════════════════════════════════════════╣」。
+    做 内核打印 用 「║ 总调用:       {}」、NSCI全局统计 的 总调用次数。
+    做 内核打印 用 「║ 安全拦截:     {}」、NSCI全局统计 的 安全拦截次数。
+    做 内核打印 用 「║ AI推理:       {}」、NSCI全局统计 的 AI推理次数。
+    做 内核打印 用 「║ 未知调用:     {}」、NSCI全局统计 的 未知调用次数。
+    做 内核打印 用 「║ 错误次数:     {}」、NSCI全局统计 的 错误次数。
+    做 内核打印 用 「║ 最大耗时:     {}μs」、NSCI全局统计 的 最大耗时_us。
+    做 内核打印 用 「║ 总耗时:       {}μs」、NSCI全局统计 的 总耗时_us。
+    做 内核打印 用 「╚════════════════════════════════════════════╝」。
+完。
+
+NSCI_获取热点调用 接受 结果数组、最大数：
+    若 调用计数器 等于 空 或者 结果数组 等于 0：
+        返还 0。
+    完。
+    可变 已找 为 0。
+    可变 round 为 0。
+    只要 round 小于 最大数 并且 round 小于 10：
+        可变 最大值 为 0。
+        可变 最大号 为 负 1。
+        可变 i 为 0。
+        只要 i 小于 最大系统调用号：
+            cnt 为 做 内存_读64 用 调用计数器 加 i 乘 8。
+            若 cnt 大于 最大值：
+                可变 已有 为 假。
+                可变 j 为 0。
+                只要 j 小于 已找：
+                    若 做 内存_读64 用 结果数组 加 j 乘 8 等于 i：
+                        已有 为 真。
+                    完。
+                    j 为 j 加 1。
+                完。
+                若 已有 等于 假：
+                    最大值 为 cnt。
+                    最大号 为 i。
+                完。
+            完。
+            i 为 i 加 1。
+        完。
+        若 最大号 大于或等于 0：
+            做 内存_写64 用 结果数组 加 已找 乘 8、最大号。
+            已找 为 已找 加 1。
+        完。
+        round 为 round 加 1。
+    完。
+    返还 已找。
+完。
+
+NSCI_获取调用计数 接受 调用号：
+    若 调用计数器 等于 空 或者 调用号 大于或等于 最大系统调用号：
+        返还 0。
+    完。
+    返还 做 内存_读64 用 调用计数器 加 调用号 乘 8。
+完。
+
+NSCI_获取调用耗时 接受 调用号：
+    若 调用耗时表 等于 空 或者 调用号 大于或等于 最大系统调用号：
+        返还 0。
+    完。
+    返还 做 内存_读64 用 调用耗时表 加 调用号 乘 8。
+完。
+
+可变 _谐振调用_热表 为 一组：（空）。
+
+可变 _谐振调用_分析次数 为 0。
+
+谐振调用_记录 接受 调用号：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 _谐振调用_热表：
+        若 _谐振调用_热表 的 第 i 项 的 号 等于 调用号：
+            _谐振调用_热表 的 第 i 项 的 次数 为 _谐振调用_热表 的 第 i 项 的 次数 加 1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    做 追加 用 _谐振调用_热表、一本字典：号 对应 调用号、次数 对应 1。
+完。
+
+谐振调用_最热 接受 前N：
+    _谐振调用_分析次数 为 _谐振调用_分析次数 加 1。
+    可变 结果 为 一组：（空）。
+    可变 k 为 0。
+    只要 k 小于 前N 并且 k 小于 做 计数 用 _谐振调用_热表：
+        可变 最大idx 为 k。
+        可变 j 为 k 加 1。
+        只要 j 小于 做 计数 用 _谐振调用_热表：
+            若 _谐振调用_热表 的 第 j 项 的 次数 大于 _谐振调用_热表 的 第 最大idx 项 的 次数：
+                最大idx 为 j。
+            完。
+            j 为 j 加 1。
+        完。
+        若 最大idx 不等于 k：
+            临时 为 _谐振调用_热表 的 第 k 项。
+            _谐振调用_热表 的 第 k 项 为 _谐振调用_热表 的 第 最大idx 项。
+            _谐振调用_热表 的 第 最大idx 项 为 临时。
+        完。
+        做 追加 用 结果、_谐振调用_热表 的 第 k 项。
+        k 为 k 加 1。
+    完。
+    返还 结果。
+完。
+
+系统调用号_完整统计 接受 零参：
+    返还 一组：「最大系统调用号」、最大系统调用号、「热表条目数」、做 计数 用 _谐振调用_热表、「分析次数」、_谐振调用_分析次数。
+完。
+
+本章 收束。

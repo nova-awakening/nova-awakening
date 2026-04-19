@@ -1,0 +1,126 @@
+《像素混合》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《.·图像数据像》。
+
+引用《.·画布渲染上》。
+
+引用《..·中枢·内存初始化》。
+
+Ctx2D_混合像素 接受 ctx、x、y、源颜色、合成模式：
+    若 ctx 等于 0 或者 x 小于 0 或者 y 小于 0 或者 x 大于或等于 ctx 的 画布宽 或者 y 大于或等于 ctx 的 画布高：
+        返还。
+    完。
+    偏移 为 (y 乘 ctx 的 画布宽 加 x) 乘 4。
+    目标 为 做 内存_读32 用 ctx 的 像素缓冲 加 偏移。
+    sa 为 源颜色 右移 24 位与 0xFF。
+    若 sa 等于 0：
+        返还。
+    完。
+    可变 结果 为 源颜色。
+    若 合成模式 等于 COMP_SOURCE_OVER：
+        da 为 目标 右移 24 位与 0xFF。
+        若 da 等于 0 或者 sa 等于 255：
+            结果 为 源颜色。
+        否则：
+            inv 为 255 减 sa。
+            sr 为 源颜色 右移 16 位与 0xFF。
+            sg 为 源颜色 右移 8 位与 0xFF。
+            sb 为 源颜色 位与 0xFF。
+            dr 为 目标 右移 16 位与 0xFF。
+            dg 为 目标 右移 8 位与 0xFF。
+            db 为 目标 位与 0xFF。
+            or 为 sr 加 dr 乘 inv 除以 255。
+            og 为 sg 加 dg 乘 inv 除以 255。
+            ob 为 sb 加 db 乘 inv 除以 255。
+            oa 为 sa 加 da 乘 inv 除以 255。
+            结果 为 oa 左移 24 位或 or 左移 16 位或 og 左移 8 位或 ob。
+        完。
+    否则若 合成模式 等于 COMP_MULTIPLY：
+        sr 为 源颜色 右移 16 位与 0xFF。
+        dr 为 目标 右移 16 位与 0xFF。
+        sg 为 源颜色 右移 8 位与 0xFF。
+        dg 为 目标 右移 8 位与 0xFF。
+        sb 为 源颜色 位与 0xFF。
+        db 为 目标 位与 0xFF。
+        结果 为 sa 左移 24 位或 sr 乘 dr 除以 255 左移 16 位或 sg 乘 dg 除以 255 左移 8 位或 sb 乘 db 除以 255。
+    否则若 合成模式 等于 COMP_SCREEN：
+        sr 为 源颜色 右移 16 位与 0xFF。
+        dr 为 目标 右移 16 位与 0xFF。
+        sg 为 源颜色 右移 8 位与 0xFF。
+        dg 为 目标 右移 8 位与 0xFF。
+        sb 为 源颜色 位与 0xFF。
+        db 为 目标 位与 0xFF。
+        结果 为 sa 左移 24 位或 sr 加 dr 减 sr 乘 dr 除以 255 左移 16 位或 sg 加 dg 减 sg 乘 dg 除以 255 左移 8 位或 sb 加 db 减 sb 乘 db 除以 255。
+    否则若 合成模式 等于 COMP_COPY：
+        结果 为 源颜色。
+    完。
+    做 内存_写32 用 ctx 的 像素缓冲 加 偏移、结果。
+完。
+
+Offscreen画布 是 一种 事物，含 宽度、高度、ctx。
+
+Offscreen画布_创建 接受 宽度、高度：
+    oc 为 做 堆_分配 用 Offscreen画布。
+    oc 的 宽度 为 宽度。
+    oc 的 高度 为 高度。
+    oc 的 ctx 为 做 Ctx2D_创建 用 宽度、高度。
+    oc 的 ctx 的 是离屏 为 真。
+    返还 oc。
+完。
+
+Offscreen画布_transferTo图像Bitmap 接受 oc：
+    若 oc 等于 0 或者 oc 的 ctx 等于 0：
+        返还 0。
+    完。
+    id 为 做 图像Data_创建 用 oc 的 宽度、oc 的 高度。
+    做 内存_复制 用 id 的 数据、oc 的 ctx 的 像素缓冲、oc 的 宽度 乘 oc 的 高度 乘 4。
+    返还 id。
+完。
+
+Ctx2D_标记脏区 接受 ctx、x、y、w、h：
+    若 ctx 等于 0：
+        返还。
+    完。
+    若 非 ctx 的 有脏区：
+        ctx 的 脏区x 为 x。
+        ctx 的 脏区y 为 y。
+        ctx 的 脏区w 为 w。
+        ctx 的 脏区h 为 h。
+        ctx 的 有脏区 为 真。
+    否则：
+        x2 为 ctx 的 脏区x 加 ctx 的 脏区w。
+        y2 为 ctx 的 脏区y 加 ctx 的 脏区h。
+        若 x 小于 ctx 的 脏区x：
+            ctx 的 脏区x 为 x。
+        完。
+        若 y 小于 ctx 的 脏区y：
+            ctx 的 脏区y 为 y。
+        完。
+        若 x 加 w 大于 x2：
+            x2 为 x 加 w。
+        完。
+        若 y 加 h 大于 y2：
+            y2 为 y 加 h。
+        完。
+        ctx 的 脏区w 为 x2 减 ctx 的 脏区x。
+        ctx 的 脏区h 为 y2 减 ctx 的 脏区y。
+    完。
+完。
+
+智能_画布_检测模式 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还。
+    完。
+完。
+
+本章 收束。

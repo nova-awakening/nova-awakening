@@ -1,0 +1,273 @@
+《HTTP2发送请求》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·HTTP2推送》。
+
+引用《..·中枢·辅助有符号读》。
+
+引用《.·帧编码》。
+
+引用《..·感知·内核直连层》。
+
+H2Session_发送请求 接受 s、方法、路径、头部、体、体长度：
+    若 s 等于 0 或者 s 的 已关闭：
+        返还 0。
+    完。
+    流ID 为 s 的 下一个流ID。
+    s 的 下一个流ID 为 s 的 下一个流ID 加 2。
+    stream 为 做 堆_分配 用 H2Stream。
+    stream 的 流ID 为 流ID。
+    stream 的 状态 为 H2_STREAM_OPEN。
+    stream 的 方法 为 方法。
+    stream 的 路径 为 路径。
+    stream 的 本地窗口 为 s 的 远端设置 的 initial_window_size。
+    stream 的 远端窗口 为 s 的 本地设置 的 initial_window_size。
+    stream 的 依赖流 为 0。
+    stream 的 权重 为 16。
+    stream 的 响应体容量 为 65536。
+    stream 的 响应体 为 做 堆_分配 用 65536。
+    stream 的 响应体长度 为 0。
+    若 s 的 流数量 小于 s 的 流容量：
+        做 内存_写64 用 s 的 流列表 加 s 的 流数量 乘 8、stream。
+        s 的 流数量 为 s 的 流数量 加 1。
+    完。
+    编码头 为 做 HPACK_编码 用 s 的 编码器、方法、路径、头部。
+    帧 为 新建 H2Frame。
+    帧 的 类型 为 H2_FRAME_HEADERS。
+    帧 的 流ID 为 流ID。
+    帧 的 有效载荷 为 编码头 的 数据。
+    帧 的 长度 为 编码头 的 长度。
+    若 体 等于 0 或者 体长度 等于 0：
+        帧 的 标志 为 H2_FLAG_END_HEADERS 位或 H2_FLAG_END_STREAM。
+        做 H2Session_发送帧 用 s、帧。
+    否则：
+        帧 的 标志 为 H2_FLAG_END_HEADERS。
+        做 H2Session_发送帧 用 s、帧。
+        做 H2Session_发送DATA 用 s、stream、体、体长度。
+    完。
+    返还 stream。
+完。
+
+H2Session_发送DATA 接受 s、stream、数据、长度：
+    若 s 等于 0 或者 stream 等于 0：
+        返还。
+    完。
+    最大帧 为 s 的 远端设置 的 max_frame_size。
+    可变 已发 为 0。
+    只要 已发 小于 长度：
+        可发 为 stream 的 远端窗口。
+        若 可发 小于或等于 0：
+            返还。
+        完。
+        若 s 的 连接窗口_远端 小于或等于 0：
+            返还。
+        完。
+        本次 为 长度 减 已发。
+        若 本次 大于 最大帧：
+            本次 为 最大帧。
+        完。
+        若 本次 大于 可发：
+            本次 为 可发。
+        完。
+        若 本次 大于 s 的 连接窗口_远端：
+            本次 为 s 的 连接窗口_远端。
+        完。
+        帧 为 新建 H2Frame。
+        帧 的 类型 为 H2_FRAME_DATA。
+        帧 的 流ID 为 stream 的 流ID。
+        帧 的 有效载荷 为 数据 加 已发。
+        帧 的 长度 为 本次。
+        若 已发 加 本次 大于或等于 长度：
+            帧 的 标志 为 H2_FLAG_END_STREAM。
+            stream 的 状态 为 H2_STREAM_HALF_CLOSED_L。
+        否则：
+            帧 的 标志 为 0。
+        完。
+        做 H2Session_发送帧 用 s、帧。
+        已发 为 已发 加 本次。
+        stream 的 远端窗口 为 stream 的 远端窗口 减 本次。
+        s 的 连接窗口_远端 为 s 的 连接窗口_远端 减 本次。
+    完。
+完。
+
+H2Session_处理接收 接受 s：
+    若 s 等于 0 或者 s 的 已关闭：
+        返还。
+    完。
+    读取量 为 做 安全_接收 用 s 的 安全上下文、s 的 接收缓冲 加 s 的 接收长度、s 的 接收容量 减 s 的 接收长度。
+    若 读取量 小于或等于 0：
+        返还。
+    完。
+    s 的 接收长度 为 s 的 接收长度 加 读取量。
+    可变 偏移 为 0。
+    只要 偏移 加 9 小于或等于 s 的 接收长度：
+        帧 为 做 H2Frame_解码 用 s 的 接收缓冲 加 偏移、s 的 接收长度 减 偏移。
+        若 帧 等于 0：
+            跳出。
+        完。
+        若 偏移 加 9 加 帧 的 长度 大于 s 的 接收长度：
+            跳出。
+        完。
+        做 H2Session_处理帧 用 s、帧。
+        偏移 为 偏移 加 9 加 帧 的 长度。
+    完。
+    若 偏移 大于 0：
+        做 内存_复制 用 s 的 接收缓冲、s 的 接收缓冲 加 偏移、s 的 接收长度 减 偏移。
+        s 的 接收长度 为 s 的 接收长度 减 偏移。
+    完。
+完。
+
+H2Session_处理帧 接受 s、帧：
+    若 帧 的 类型 等于 H2_FRAME_DATA：
+        做 H2_处理DATA 用 s、帧。
+    否则若 帧 的 类型 等于 H2_FRAME_HEADERS：
+        做 H2_处理HEADERS 用 s、帧。
+    否则若 帧 的 类型 等于 H2_FRAME_SETTINGS：
+        做 H2_处理SETTINGS 用 s、帧。
+    否则若 帧 的 类型 等于 H2_FRAME_WINDOW_UPDATE：
+        做 H2_处理WINDOW_UPDATE 用 s、帧。
+    否则若 帧 的 类型 等于 H2_FRAME_RST_STREAM：
+        做 H2_处理RST 用 s、帧。
+    否则若 帧 的 类型 等于 H2_FRAME_GOAWAY：
+        做 H2_处理GOAWAY 用 s、帧。
+    否则若 帧 的 类型 等于 H2_FRAME_PING：
+        做 H2_处理PING 用 s、帧。
+    否则若 帧 的 类型 等于 H2_FRAME_PUSH_PROMISE：
+        做 H2_处理PUSH_PROMISE 用 s、帧。
+    完。
+完。
+
+H2_处理DATA 接受 s、帧：
+    stream 为 做 H2Session_查找流 用 s、帧 的 流ID。
+    若 stream 等于 0：
+        返还。
+    完。
+    若 帧 的 有效载荷 不等于 0 并且 帧 的 长度 大于 0：
+        若 stream 的 响应体长度 加 帧 的 长度 小于或等于 stream 的 响应体容量：
+            做 内存_复制 用 stream 的 响应体 加 stream 的 响应体长度、帧 的 有效载荷、帧 的 长度。
+            stream 的 响应体长度 为 stream 的 响应体长度 加 帧 的 长度。
+        完。
+    完。
+    s 的 连接窗口_本地 为 s 的 连接窗口_本地 减 帧 的 长度。
+    stream 的 本地窗口 为 stream 的 本地窗口 减 帧 的 长度。
+    若 s 的 连接窗口_本地 小于 32768：
+        做 H2_发送WINDOW_UPDATE 用 s、0、65535。
+        s 的 连接窗口_本地 为 s 的 连接窗口_本地 加 65535。
+    完。
+    若 stream 的 本地窗口 小于 32768：
+        做 H2_发送WINDOW_UPDATE 用 s、stream 的 流ID、65535。
+        stream 的 本地窗口 为 stream 的 本地窗口 加 65535。
+    完。
+    若 帧 的 标志 位与 H2_FLAG_END_STREAM：
+        stream 的 状态 为 H2_STREAM_HALF_CLOSED_R。
+    完。
+完。
+
+H2_处理HEADERS 接受 s、帧：
+    stream 为 做 H2Session_查找流 用 s、帧 的 流ID。
+    若 stream 等于 0：
+        返还。
+    完。
+    若 帧 的 有效载荷 不等于 0：
+        做 HPACK_解码 用 s 的 解码器、帧 的 有效载荷、帧 的 长度、stream。
+    完。
+    若 帧 的 标志 位与 H2_FLAG_END_STREAM：
+        stream 的 状态 为 H2_STREAM_HALF_CLOSED_R。
+    完。
+完。
+
+H2_处理SETTINGS 接受 s、帧：
+    若 帧 的 标志 位与 H2_FLAG_ACK：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 加 6 小于或等于 帧 的 长度：
+        id 为 做 内存_读16_大端 用 帧 的 有效载荷 加 i。
+        val 为 做 内存_读32_大端 用 帧 的 有效载荷 加 i 加 2。
+        若 id 等于 1：
+            s 的 远端设置 的 header_table_size 为 val。
+        否则若 id 等于 3：
+            s 的 远端设置 的 max_concurrent_streams 为 val。
+        否则若 id 等于 4：
+            s 的 远端设置 的 initial_window_size 为 val。
+        否则若 id 等于 5：
+            s 的 远端设置 的 max_frame_size 为 val。
+        完。
+        i 为 i 加 6。
+    完。
+    ack 为 新建 H2Frame。
+    ack 的 类型 为 H2_FRAME_SETTINGS。
+    ack 的 标志 为 H2_FLAG_ACK。
+    ack 的 流ID 为 0。
+    ack 的 长度 为 0。
+    做 H2Session_发送帧 用 s、ack。
+完。
+
+H2_处理WINDOW_UPDATE 接受 s、帧：
+    增量 为 做 内存_读32_大端 用 帧 的 有效载荷 位与 0x7FFFFFFF。
+    若 帧 的 流ID 等于 0：
+        s 的 连接窗口_远端 为 s 的 连接窗口_远端 加 增量。
+    否则：
+        stream 为 做 H2Session_查找流 用 s、帧 的 流ID。
+        若 stream 不等于 0：
+            stream 的 远端窗口 为 stream 的 远端窗口 加 增量。
+        完。
+    完。
+完。
+
+H2_处理RST 接受 s、帧：
+    stream 为 做 H2Session_查找流 用 s、帧 的 流ID。
+    若 stream 不等于 0：
+        stream 的 状态 为 H2_STREAM_CLOSED。
+    完。
+完。
+
+H2_处理GOAWAY 接受 s、帧：
+    s 的 最后流ID 为 做 内存_读32_大端 用 帧 的 有效载荷 位与 0x7FFFFFFF。
+    s 的 已关闭 为 真。
+完。
+
+H2_处理PING 接受 s、帧：
+    若 帧 的 标志 位与 H2_FLAG_ACK：
+        返还。
+    完。
+    pong 为 新建 H2Frame。
+    pong 的 类型 为 H2_FRAME_PING。
+    pong 的 标志 为 H2_FLAG_ACK。
+    pong 的 流ID 为 0。
+    pong 的 长度 为 8。
+    pong 的 有效载荷 为 帧 的 有效载荷。
+    做 H2Session_发送帧 用 s、pong。
+完。
+
+可变 AI_发送请求_带宽估计 为 0。
+
+可变 AI_发送请求_丢包窗口 为 一组：（空）。
+
+AI_发送请求_带宽预测 接受 发送字节、耗时毫秒：
+    若 耗时毫秒 等于 0：
+        返还 AI_发送请求_带宽估计。
+    完。
+    当前 为 发送字节 乘 1000 除以 耗时毫秒。
+    AI_发送请求_带宽估计 为 AI_发送请求_带宽估计 乘 700 除以 1000 加 当前 乘 300 除以 1000。
+    返还 AI_发送请求_带宽估计。
+完。
+
+AI_发送请求_拥塞建议 接受 丢包率：
+    做 追加 用 AI_发送请求_丢包窗口、丢包率。
+    若 做 计数 用 AI_发送请求_丢包窗口 大于 10：
+        做 列表_移除 用 AI_发送请求_丢包窗口、0。
+    完。
+    若 丢包率 大于 50：
+        返还 「减半窗口」。
+    完。
+    若 丢包率 小于 5：
+        返还 「增大窗口」。
+    完。
+    返还 「保持」。
+完。
+
+本章 收束。

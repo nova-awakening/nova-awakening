@@ -1,0 +1,100 @@
+《NVIDIA引擎初始化》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·APIC任务优先级》。
+
+NV_PGRAPH_初始化 接受 零参：
+    mmio 为 NV状态 的 mmio。
+    做 MMIO写32 用 mmio 加 NV_PGRAPH_INTR、0xFFFFFFFF。
+    可变 超时 为 10000。
+    只要 超时 大于 0 并且 做 MMIO读32 用 mmio 加 NV_PGRAPH_STATUS 位与 0x01 不等于 0：
+        超时 为 超时 减 1。
+    完。
+    若 超时 等于 0：
+        做 内核警告 用 「NV驱动: PGRAPH忙超时」。
+    完。
+    做 内核信息 用 「NV驱动: PGRAPH就绪」。
+完。
+
+NV_PDISPLAY_初始化 接受 零参：
+    mmio 为 NV状态 的 mmio。
+    做 MMIO写32 用 mmio 加 NV_PDISPLAY_INTR_0、0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 NV_PDISPLAY_INTR_EN_0、0x03。
+    NV状态 的 头数 为 2。
+    NV状态 的 SOR数 为 4。
+    做 内核信息 用 「NV驱动: PDISPLAY 头=」 加 做 整数转字符串 用 NV状态 的 头数 加 「 SOR=」 加 做 整数转字符串 用 NV状态 的 SOR数。
+完。
+
+NV_中断初始化 接受 零参：
+    mmio 为 NV状态 的 mmio。
+    做 MMIO写32 用 mmio 加 NV_PMC_INTR_0、0xFFFFFFFF。
+    做 MMIO写32 用 mmio 加 NV_PMC_INTR_EN_0、1 左移 8 位或 1 左移 12 位或 1 左移 26。
+完。
+
+NV_中断处理 接受 中断号：
+    mmio 为 NV状态 的 mmio。
+    状态 为 做 MMIO读32 用 mmio 加 NV_PMC_INTR_0。
+    若 状态 位与 1 左移 8 不等于 0：
+        fifo状态 为 做 MMIO读32 用 mmio 加 NV_PFIFO_INTR_0。
+        若 fifo状态 位与 0x01 不等于 0：
+        完。
+        若 fifo状态 位与 0x10000000 不等于 0：
+            做 内核警告 用 「NV驱动: PFIFO通道故障」。
+        完。
+        做 MMIO写32 用 mmio 加 NV_PFIFO_INTR_0、fifo状态。
+    完。
+    若 状态 位与 1 左移 12 不等于 0：
+        gr状态 为 做 MMIO读32 用 mmio 加 NV_PGRAPH_INTR。
+        若 gr状态 位与 0x01 不等于 0：
+            做 内核警告 用 「NV驱动: PGRAPH页面故障」。
+        完。
+        若 gr状态 位与 0x10 不等于 0：
+        完。
+        若 gr状态 位与 0x100000 不等于 0：
+        完。
+        做 MMIO写32 用 mmio 加 NV_PGRAPH_INTR、gr状态。
+    完。
+    若 状态 位与 1 左移 26 不等于 0：
+        disp状态 为 做 MMIO读32 用 mmio 加 NV_PDISPLAY_INTR_0。
+        若 disp状态 位与 0x01 不等于 0：
+        完。
+        做 MMIO写32 用 mmio 加 NV_PDISPLAY_INTR_0、disp状态。
+    完。
+完。
+
+NV_设置显示模式 接受 头索引、宽、高、刷新率：
+    若 非 NV状态 的 已初始化 或者 头索引 大于或等于 NV状态 的 头数：
+        返还。
+    完。
+    mmio 为 NV状态 的 mmio。
+    头基址 为 NV_PDISP_HEAD_STATE_CTRL 加 头索引 乘 0x80。
+    h_total 为 宽 加 160。
+    v_total 为 高 加 45。
+    像素时钟 为 h_total 乘 v_total 乘 刷新率。
+    做 MMIO写32 用 mmio 加 头基址、1。
+    做 MMIO写32 用 mmio 加 头基址 加 4、高 左移 16 位或 宽。
+    做 MMIO写32 用 mmio 加 头基址 加 8、v_total 左移 16 位或 h_total。
+    做 NV_配置像素PLL 用 像素时钟。
+    做 内核信息 用 「NV驱动: 头」 加 做 整数转字符串 用 头索引 加 「 设置 」 加 做 整数转字符串 用 宽 加 「×」 加 做 整数转字符串 用 高 加 「@」 加 做 整数转字符串 用 刷新率 加 「Hz」。
+完。
+
+NV_配置像素PLL 接受 目标频率：
+    参考 为 27000000。
+    目标_kHz 为 目标频率 除以 1000。
+    若 目标_kHz 等于 0：
+        返还。
+    完。
+    M 为 1。
+    N 为 目标_kHz 乘 M 除以 (参考 除以 1000)。
+    若 N 大于 255：
+        N 为 255。
+    完。
+    P 为 0。
+完。
+
+本章 收束。

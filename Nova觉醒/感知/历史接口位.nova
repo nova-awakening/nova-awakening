@@ -1,0 +1,210 @@
+《历史接口位》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·事件系统核心》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·外联·URL解析辅助》。
+
+引用《.·文档事件》。
+
+引用《.·历史与位置接口》。
+
+引用《.·渲染管线从》。
+
+LocationState 是 一种 事物，含 tab、history。
+
+Location_assign 接受 loc、url：
+    若 loc 的 tab 不等于 0：
+        做 渲染管线_导航到URL 用 loc 的 tab、url。
+    完。
+完。
+
+Location_replace 接受 loc、url：
+    若 loc 的 history 不等于 0：
+        做 历史_replaceState 用 loc 的 history、0、0、url。
+    完。
+    若 loc 的 tab 不等于 0：
+        做 渲染管线_导航到URL 用 loc 的 tab、url。
+    完。
+完。
+
+Location_reload 接受 loc：
+    若 loc 的 tab 不等于 0：
+        做 渲染管线_导航到URL 用 loc 的 tab、loc 的 tab 的 URL。
+    完。
+完。
+
+Location_设置hash 接受 loc、hash：
+    若 loc 的 tab 等于 0：
+        返还。
+    完。
+    url 为 做 URL_解析 用 loc 的 tab 的 URL。
+    若 url 等于 0：
+        返还。
+    完。
+    旧hash 为 url 的 片段。
+    可变 新url 为 做 字符串_连接 用 url 的 协议、「://」。
+    新url 为 做 字符串_连接 用 新url、url 的 主机。
+    新url 为 做 字符串_连接 用 新url、url 的 路径。
+    若 url 的 查询 不等于 0 并且 url 的 查询长度 大于 0：
+        新url 为 做 字符串_连接 用 新url、「?」。
+        新url 为 做 字符串_连接 用 新url、url 的 查询。
+    完。
+    新url 为 做 字符串_连接 用 新url、「#」。
+    新url 为 做 字符串_连接 用 新url、hash。
+    loc 的 tab 的 URL 为 新url。
+    若 旧hash 等于 0 或者 非 做 字符串_相等 用 旧hash、hash：
+        若 loc 的 tab 的 文档 不等于 0：
+            事件 为 做 事件_创建 用 「hashchange」、真、假。
+            事件 的 是受信任的 为 真。
+            做 事件Target_dispatch事件 用 loc 的 tab 的 文档、事件。
+        完。
+    完。
+完。
+
+CSSCustomProperty 是 一种 事物，含 名、值、继承。
+
+CustomPropertyRegistry 是 一种 事物，含 属性列表、属性数量、属性容量。
+
+CustomPropertyRegistry_创建 接受 零参：
+    r 为 做 堆_分配 用 CustomPropertyRegistry。
+    r 的 属性容量 为 128。
+    r 的 属性列表 为 做 堆_分配_数组 用 r 的 属性容量 乘 24。
+    r 的 属性数量 为 0。
+    返还 r。
+完。
+
+CustomProperty_设置 接受 registry、名、值：
+    可变 i 为 0。
+    只要 i 小于 registry 的 属性数量：
+        偏移 为 registry 的 属性列表 加 i 乘 24。
+        若 做 字符串_相等 用 做 内存_读64 用 偏移、名：
+            做 内存_写64 用 偏移 加 8、做 字符串_复制 用 值。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 registry 的 属性数量 大于或等于 registry 的 属性容量：
+        返还。
+    完。
+    偏移 为 registry 的 属性列表 加 registry 的 属性数量 乘 24。
+    做 内存_写64 用 偏移、做 字符串_复制 用 名。
+    做 内存_写64 用 偏移 加 8、做 字符串_复制 用 值。
+    做 内存_写8 用 偏移 加 16、1。
+    registry 的 属性数量 为 registry 的 属性数量 加 1。
+完。
+
+CustomProperty_获取 接受 registry、名：
+    若 registry 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 registry 的 属性数量：
+        偏移 为 registry 的 属性列表 加 i 乘 24。
+        若 做 字符串_相等 用 做 内存_读64 用 偏移、名：
+            返还 做 内存_读64 用 偏移 加 8。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+CSS_解析var引用 接受 值字符串、registry、父registry：
+    若 值字符串 等于 0：
+        返还 值字符串。
+    完。
+    长度 为 做 字符串_长度 用 值字符串。
+    若 长度 小于 6：
+        返还 值字符串。
+    完。
+    可变 pos 为 0。
+    结果 为 做 堆_分配 用 长度 乘 2 加 1。
+    可变 写pos 为 0。
+    只要 pos 小于 长度：
+        若 pos 加 4 小于或等于 长度 并且 做 内存_读8 用 值字符串 加 pos 等于 0x76 并且 做 内存_读8 用 值字符串 加 pos 加 1 等于 0x61 并且 做 内存_读8 用 值字符串 加 pos 加 2 等于 0x72 并且 做 内存_读8 用 值字符串 加 pos 加 3 等于 0x28：
+            pos 为 pos 加 4。
+            只要 pos 小于 长度 并且 做 内存_读8 用 值字符串 加 pos 等于 0x20：
+                pos 为 pos 加 1。
+            完。
+            名起 为 pos。
+            只要 pos 小于 长度 并且 做 内存_读8 用 值字符串 加 pos 不等于 0x2C 并且 做 内存_读8 用 值字符串 加 pos 不等于 0x29：
+                pos 为 pos 加 1。
+            完。
+            变量名 为 做 字符串_复制_N 用 值字符串 加 名起、pos 减 名起。
+            可变 fallback 为 0。
+            若 pos 小于 长度 并且 做 内存_读8 用 值字符串 加 pos 等于 0x2C：
+                pos 为 pos 加 1。
+                只要 pos 小于 长度 并且 做 内存_读8 用 值字符串 加 pos 等于 0x20：
+                    pos 为 pos 加 1。
+                完。
+                fb起 为 pos。
+                可变 深度 为 1。
+                只要 pos 小于 长度 并且 深度 大于 0：
+                    若 做 内存_读8 用 值字符串 加 pos 等于 0x28：
+                        深度 为 深度 加 1。
+                    完。
+                    若 做 内存_读8 用 值字符串 加 pos 等于 0x29：
+                        深度 为 深度 减 1。
+                    完。
+                    若 深度 大于 0：
+                        pos 为 pos 加 1。
+                    完。
+                完。
+                fallback 为 做 字符串_复制_N 用 值字符串 加 fb起、pos 减 fb起。
+            完。
+            若 pos 小于 长度 并且 做 内存_读8 用 值字符串 加 pos 等于 0x29：
+                pos 为 pos 加 1。
+            完。
+            解析值 为 做 CustomProperty_获取 用 registry、变量名。
+            若 解析值 等于 0 并且 父registry 不等于 0：
+                解析值 为 做 CustomProperty_获取 用 父registry、变量名。
+            完。
+            若 解析值 等于 0：
+                解析值 为 fallback。
+            完。
+            若 解析值 等于 0：
+                解析值 为 「」。
+            完。
+            解析值 为 做 CSS_解析var引用 用 解析值、registry、父registry。
+            解析长度 为 做 字符串_长度 用 解析值。
+            做 内存_复制 用 结果 加 写pos、解析值、解析长度。
+            写pos 为 写pos 加 解析长度。
+        否则：
+            做 内存_写8 用 结果 加 写pos、做 内存_读8 用 值字符串 加 pos。
+            写pos 为 写pos 加 1。
+            pos 为 pos 加 1。
+        完。
+    完。
+    做 内存_写8 用 结果 加 写pos、0。
+    返还 结果。
+完。
+
+可变 AI_历史接口位_样式缓存命中 为 0。
+
+AI_历史接口位_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+        返还 「高复杂度」。
+    完。
+    若 组合子数 大于 2：
+        返还 「中复杂度」。
+    完。
+    返还 「低复杂度」。
+完。
+
+AI_历史接口位_布局缓存 接受 元素哈希：
+    AI_历史接口位_样式缓存命中 为 AI_历史接口位_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。

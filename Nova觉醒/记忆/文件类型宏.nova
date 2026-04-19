@@ -1,0 +1,101 @@
+《文件类型宏》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+S_IFMT 为 61440。
+
+S_IFSOCK 为 49152。
+
+S_IFLNK 为 40960。
+
+S_IFREG 为 32768。
+
+S_IFBLK 为 24576。
+
+S_IFDIR 为 16384。
+
+S_IFCHR 为 8192。
+
+S_IFIFO 为 4096。
+
+S_ISUID 为 2048。
+
+S_ISGID 为 1024。
+
+S_ISVTX 为 512。
+
+S_IRWXU 为 448。
+
+S_IRUSR 为 256。
+
+S_IWUSR 为 128。
+
+S_IXUSR 为 64。
+
+S_IRWXG 为 56。
+
+S_IRGRP 为 32。
+
+S_IWGRP 为 16。
+
+S_IXGRP 为 8。
+
+S_IRWXO 为 7。
+
+S_IROTH 为 4。
+
+S_IWOTH 为 2。
+
+S_IXOTH 为 1。
+
+类型_普通文件 为 S_IFREG。
+
+类型_目录 为 S_IFDIR。
+
+类型_符号链接 为 S_IFLNK。
+
+类型_字符设备 为 S_IFCHR。
+
+类型_块设备 为 S_IFBLK。
+
+类型_管道 为 S_IFIFO。
+
+类型_套接字 为 S_IFSOCK。
+
+S_ISREG 接受 mode：
+    返还 mode 位与 S_IFMT 等于 S_IFREG。
+完。
+
+S_ISDIR 接受 mode：
+    返还 mode 位与 S_IFMT 等于 S_IFDIR。
+完。
+
+S_ISLNK 接受 mode：
+    返还 mode 位与 S_IFMT 等于 S_IFLNK。
+完。
+
+S_ISCHR 接受 mode：
+    返还 mode 位与 S_IFMT 等于 S_IFCHR。
+完。
+
+S_ISBLK 接受 mode：
+    返还 mode 位与 S_IFMT 等于 S_IFBLK。
+完。
+
+S_ISFIFO 接受 mode：
+    返还 mode 位与 S_IFMT 等于 S_IFIFO。
+完。
+
+S_ISSOCK 接受 mode：
+    返还 mode 位与 S_IFMT 等于 S_IFSOCK。
+完。
+
+Nova文件节点操作表 是 一种 事物，含 lookup、create、mkdir、rmdir、unlink、rename、symlink、link、readlink、getattr、setattr、permission。
+
+文件操作表 是 一种 事物，含 read、write、llseek、readdir、open、release、fsync、Nova内存映射、Nova设备控制、poll。
+
+Nova文件节点 是 一种 事物。
+
+本章 收束。

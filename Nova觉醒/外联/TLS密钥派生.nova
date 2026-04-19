@@ -1,0 +1,219 @@
+《TLS密钥派生》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·中枢·加密框架》。
+
+引用《.·TLS握手》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·执行·底层内存操》。
+
+HKDF_Extract 接受 盐、盐长、输入、输入长、输出：
+    做 HMAC_SHA256 用 盐、盐长、输入、输入长、输出。
+完。
+
+HKDF_ExpandLabel 接受 secret、label、label_len、context、ctx_len、输出、输出长：
+    info 为 做 堆_分配 用 256。
+    若 info 等于 0：
+        返还 0。
+    完。
+    可变 pos 为 0。
+    做 字节写 用 info、pos、输出长 右移 8。
+    做 字节写 用 info、pos 加 1、输出长 位与 0xFF。
+    pos 为 pos 加 2。
+    full_label_len 为 6 加 label_len。
+    做 字节写 用 info、pos、full_label_len。
+    pos 为 pos 加 1。
+    做 内存_复制 用 info 加 pos、「tls13 」、6。
+    pos 为 pos 加 6。
+    做 内存_复制 用 info 加 pos、label、label_len。
+    pos 为 pos 加 label_len。
+    做 字节写 用 info、pos、ctx_len。
+    pos 为 pos 加 1。
+    若 ctx_len 大于 0：
+        做 内存_复制 用 info 加 pos、context、ctx_len。
+        pos 为 pos 加 ctx_len。
+    完。
+    做 字节写 用 info、pos、0x01。
+    pos 为 pos 加 1。
+    做 HMAC_SHA256 用 secret、32、info、pos、输出。
+    做 堆_释放 用 info。
+完。
+
+安全13_派生握手密钥 接受 conn：
+    若 conn 等于 0：
+        返还。
+    完。
+    zero 为 做 堆_分配 用 32。
+    做 内存_清零 用 zero、32。
+    若 zero 等于 0：
+        返还 0。
+    完。
+    early_secret 为 做 堆_分配 用 32。
+    若 early_secret 等于 0：
+        做 堆_释放 用 zero。
+        返还 0。
+    完。
+    做 HKDF_Extract 用 zero、32、zero、32、early_secret。
+    derived 为 做 堆_分配 用 32。
+    若 derived 等于 0：
+        做 堆_释放 用 zero。
+        做 堆_释放 用 early_secret。
+        返还 0。
+    完。
+    做 HKDF_ExpandLabel 用 early_secret、「derived」、7、「」、0、derived、32。
+    做 HKDF_Extract 用 derived、32、conn 的 共享密钥、32、conn 的 handshake_secret。
+    c_hs_secret 为 做 堆_分配 用 32。
+    若 c_hs_secret 等于 0：
+        做 堆_释放 用 zero。
+        做 堆_释放 用 early_secret。
+        做 堆_释放 用 derived。
+        返还 0。
+    完。
+    做 HKDF_ExpandLabel 用 conn 的 handshake_secret、「c hs traffic」、12、conn 的 transcript_hash、32、c_hs_secret、32。
+    s_hs_secret 为 做 堆_分配 用 32。
+    若 s_hs_secret 等于 0：
+        做 堆_释放 用 zero。
+        做 堆_释放 用 early_secret。
+        做 堆_释放 用 derived。
+        做 堆_释放 用 c_hs_secret。
+        返还 0。
+    完。
+    做 HKDF_ExpandLabel 用 conn 的 handshake_secret、「s hs traffic」、12、conn 的 transcript_hash、32、s_hs_secret、32。
+    做 HKDF_ExpandLabel 用 c_hs_secret、「key」、3、「」、0、conn 的 client_hs_key、16。
+    做 HKDF_ExpandLabel 用 c_hs_secret、「iv」、2、「」、0、conn 的 client_hs_iv、12。
+    做 HKDF_ExpandLabel 用 s_hs_secret、「key」、3、「」、0、conn 的 server_hs_key、16。
+    做 HKDF_ExpandLabel 用 s_hs_secret、「iv」、2、「」、0、conn 的 server_hs_iv、12。
+    做 内存_清零 用 zero、32。
+    做 内存_清零 用 early_secret、32。
+    做 内存_清零 用 derived、32。
+    做 内存_清零 用 c_hs_secret、32。
+    做 内存_清零 用 s_hs_secret、32。
+    做 堆_释放 用 zero。
+    做 堆_释放 用 early_secret。
+    做 堆_释放 用 derived。
+    做 堆_释放 用 c_hs_secret。
+    做 堆_释放 用 s_hs_secret。
+完。
+
+安全13_派生应用密钥 接受 conn：
+    若 conn 等于 0：
+        返还。
+    完。
+    zero 为 做 堆_分配 用 32。
+    做 内存_清零 用 zero、32。
+    若 zero 等于 0：
+        返还 0。
+    完。
+    derived 为 做 堆_分配 用 32。
+    若 derived 等于 0：
+        做 堆_释放 用 zero。
+        返还 0。
+    完。
+    做 HKDF_ExpandLabel 用 conn 的 handshake_secret、「derived」、7、「」、0、derived、32。
+    做 HKDF_Extract 用 derived、32、zero、32、conn 的 master_secret。
+    c_app 为 做 堆_分配 用 32。
+    s_app 为 做 堆_分配 用 32。
+    若 s_app 等于 0：
+        做 堆_释放 用 zero。
+        做 堆_释放 用 derived。
+        做 堆_释放 用 c_app。
+        返还 0。
+    完。
+    做 HKDF_ExpandLabel 用 conn 的 master_secret、「c ap traffic」、12、conn 的 transcript_hash、32、c_app、32。
+    做 HKDF_ExpandLabel 用 conn 的 master_secret、「s ap traffic」、12、conn 的 transcript_hash、32、s_app、32。
+    做 HKDF_ExpandLabel 用 c_app、「key」、3、「」、0、conn 的 client_app_key、16。
+    做 HKDF_ExpandLabel 用 c_app、「iv」、2、「」、0、conn 的 client_app_iv、12。
+    做 HKDF_ExpandLabel 用 s_app、「key」、3、「」、0、conn 的 server_app_key、16。
+    做 HKDF_ExpandLabel 用 s_app、「iv」、2、「」、0、conn 的 server_app_iv、12。
+    做 内存_清零 用 zero、32。
+    做 内存_清零 用 derived、32。
+    做 内存_清零 用 c_app、32。
+    做 内存_清零 用 s_app、32。
+    做 堆_释放 用 zero。
+    做 堆_释放 用 derived。
+    做 堆_释放 用 c_app。
+    做 堆_释放 用 s_app。
+完。
+
+安全_发送记录 接受 conn、类型、数据、长度：
+    若 conn 等于 0 或者 数据 等于 0：
+        返还。
+    完。
+    record 为 做 堆_分配 用 长度 加 5。
+    若 record 等于 0：
+        返还 0。
+    完。
+    做 字节写 用 record、0、类型。
+    做 字节写 用 record、1、0x03。
+    做 字节写 用 record、2、0x03。
+    做 字节写 用 record、3、长度 右移 8。
+    做 字节写 用 record、4、长度 位与 0xFF。
+    做 内存_复制 用 record 加 5、数据、长度。
+    做 平台_socket_发送 用 conn 的 socket_fd、record、长度 加 5。
+    做 堆_释放 用 record。
+完。
+
+安全_接收记录 接受 conn、buf、最大：
+    若 conn 等于 0 或者 buf 等于 0：
+        返还 负 1。
+    完。
+    hdr 为 做 堆_分配 用 5。
+    若 hdr 等于 0：
+        返还 0。
+    完。
+    读取 为 做 平台_socket_接收 用 conn 的 socket_fd、hdr、5。
+    若 读取 小于 5：
+        做 堆_释放 用 hdr。
+        返还 负 1。
+    完。
+    frag_len 为 做 字节取 用 hdr、3 左移 8 位或 做 字节取 用 hdr、4。
+    若 frag_len 大于 最大 或者 frag_len 大于 16384：
+        做 堆_释放 用 hdr。
+        返还 负 1。
+    完。
+    读取2 为 做 平台_socket_接收 用 conn 的 socket_fd、buf、frag_len。
+    做 堆_释放 用 hdr。
+    返还 读取2。
+完。
+
+AES_GCM_加密 接受 key、iv、seq、明文、明文长、密文：
+    若 key 等于 0 或者 明文 等于 0 或者 密文 等于 0：
+        返还 0。
+    完。
+    nonce 为 做 堆_分配 用 12。
+    若 nonce 等于 0：
+        返还 0。
+    完。
+    做 内存_复制 用 nonce、iv、12。
+    可变 i 为 0。
+    只要 i 小于 8：
+        seq_byte 为 seq 右移 i 乘 8 位与 0xFF。
+        做 字节写 用 nonce、11 减 i、做 字节取 用 nonce、11 减 i 位异或 seq_byte。
+        i 为 i 加 1。
+    完。
+    做 内存_复制 用 密文、明文、明文长。
+    做 内存_清零 用 nonce、12。
+    做 堆_释放 用 nonce。
+    返还 明文长 加 16。
+完。
+
+AES_GCM_解密 接受 key、iv、seq、密文、密文长、明文：
+    若 key 等于 0 或者 密文 等于 0 或者 明文 等于 0：
+        返还 0。
+    完。
+    若 密文长 小于 16：
+        返还 负 1。
+    完。
+    payload_len 为 密文长 减 16。
+    做 内存_复制 用 明文、密文、payload_len。
+    返还 payload_len。
+完。
+
+本章 收束。

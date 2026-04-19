@@ -1,0 +1,625 @@
+《PCI总线驱动》
+
+引用《..·执行·端口》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·感知·内核直连层》。
+
+PCI_CONFIG_ADDR 为 0xCF8。
+
+PCI_CONFIG_DATA 为 0xCFC。
+
+PCI_REG_厂商ID 为 0x00。
+
+PCI_REG_设备ID 为 0x02。
+
+PCI_REG_命令 为 0x04。
+
+PCI_REG_状态 为 0x06。
+
+PCI_REG_修订ID 为 0x08。
+
+PCI_REG_编程接口 为 0x09。
+
+PCI_REG_子类代码 为 0x0A。
+
+PCI_REG_类代码 为 0x0B。
+
+PCI_REG_缓存行大小 为 0x0C。
+
+PCI_REG_延迟定时器 为 0x0D。
+
+PCI_REG_头类型 为 0x0E。
+
+PCI_REG_BIST 为 0x0F。
+
+PCI_REG_BAR0 为 0x10。
+
+PCI_REG_BAR1 为 0x14。
+
+PCI_REG_BAR2 为 0x18。
+
+PCI_REG_BAR3 为 0x1C。
+
+PCI_REG_BAR4 为 0x20。
+
+PCI_REG_BAR5 为 0x24。
+
+PCI_REG_子系统厂商 为 0x2C。
+
+PCI_REG_子系统ID 为 0x2E。
+
+PCI_REG_扩展ROM 为 0x30。
+
+PCI_REG_能力指针 为 0x34。
+
+PCI_REG_中断线 为 0x3C。
+
+PCI_REG_中断引脚 为 0x3D。
+
+PCI_REG_最小授权 为 0x3E。
+
+PCI_REG_最大延迟 为 0x3F。
+
+PCI_CMD_IO使能 为 0x0001。
+
+PCI_CMD_内存使能 为 0x0002。
+
+PCI_CMD_总线主控 为 0x0004。
+
+PCI_CMD_特殊周期 为 0x0008。
+
+PCI_CMD_写无效使能 为 0x0010。
+
+PCI_CMD_中断禁用 为 0x0400。
+
+PCI_CAP_MSI 为 0x05。
+
+PCI_CAP_MSIX 为 0x11。
+
+PCI_CAP_VENDOR 为 0x09。
+
+PCI_CAP_EXPRESS 为 0x10。
+
+PCI_BAR_类型_内存 为 0。
+
+PCI_BAR_类型_IO 为 1。
+
+PCI_BAR_内存_32位 为 0x00。
+
+PCI_BAR_内存_64位 为 0x04。
+
+PCI_类_存储控制器 为 0x01。
+
+PCI_类_网络控制器 为 0x02。
+
+PCI_类_显示控制器 为 0x03。
+
+PCI_类_桥设备 为 0x06。
+
+PCI设备 是 一种 事物，含 总线、设备号、功能号、厂商ID、设备ID、类代码、子类代码、编程接口、修订ID、头类型、中断线、中断引脚、BAR、BAR数量、能力列表头、MSI_偏移、MSIX_偏移、已使能、驱动。
+
+PCI_BAR信息 是 一种 事物，含 基地址、大小、类型、是64位。
+
+PCI_子类_SCSI 为 0x00。
+
+PCI_子类_IDE 为 0x01。
+
+PCI_子类_SATA 为 0x06。
+
+PCI_子类_NVMe 为 0x08。
+
+PCI_子类_以太网 为 0x00。
+
+PCI_子类_VGA 为 0x00。
+
+PCI_子类_主桥 为 0x00。
+
+PCI_子类_PCI_PCI桥 为 0x04。
+
+PCIE_SPEED_2_5GT 为 1。
+
+PCIE_SPEED_5GT 为 2。
+
+PCIE_SPEED_8GT 为 3。
+
+PCIE_SPEED_16GT 为 4。
+
+MSI_控制寄存器偏移 为 0x02。
+
+MSI_地址低32位偏移 为 0x04。
+
+MSI_地址高32位偏移 为 0x08。
+
+MSI_数据偏移_32位 为 0x08。
+
+MSI_数据偏移_64位 为 0x0C。
+
+MSIX_表偏移 为 0x04。
+
+MSIX_PBA偏移 为 0x08。
+
+PCI能力 是 一种 事物，含 ID、偏移、下一个。
+
+PCI驱动 是 一种 事物，含 名称、厂商ID、设备ID、类代码、子类代码、初始化函数。
+
+PCI枚举统计 是 一种 事物，含 扫描总线数、扫描设备数、发现设备数、BAR解析数、能力遍历数、MSI配置数、驱动绑定数、AI预判命中、AI预判未中。
+
+可变 PCI设备列表 为 一组：（空）。
+
+可变 PCI驱动列表 为 一组：（空）。
+
+可变 PCI已初始化 为 假。
+
+可变 PCI统计 为 新建 PCI枚举统计：扫描总线数 为 0、扫描设备数 为 0、发现设备数 为 0、BAR解析数 为 0、能力遍历数 为 0、MSI配置数 为 0、驱动绑定数 为 0、AI预判命中 为 0、AI预判未中 为 0。
+
+PCI_构造地址 接受 bus、dev、func、reg：
+    返还 0x80000000 位或 (bus 位与 0xFF) 左移 16 位或 (dev 位与 0x1F) 左移 11 位或 (func 位与 0x07) 左移 8 位或 reg 位与 0xFC。
+完。
+
+PCI_读32 接受 bus、dev、func、reg：
+    addr 为 做 PCI_构造地址 用 bus、dev、func、reg。
+    做 端口_输出32 用 PCI_CONFIG_ADDR、addr。
+    返还 做 端口_输入32 用 PCI_CONFIG_DATA。
+完。
+
+PCI_写32 接受 bus、dev、func、reg、val：
+    addr 为 做 PCI_构造地址 用 bus、dev、func、reg。
+    做 端口_输出32 用 PCI_CONFIG_ADDR、addr。
+    做 端口_输出32 用 PCI_CONFIG_DATA、val。
+完。
+
+PCI_读16 接受 bus、dev、func、reg：
+    raw 为 做 PCI_读32 用 bus、dev、func、reg 位与 0xFC。
+    shift 为 (reg 位与 0x02) 乘 8。
+    返还 raw 右移 shift 位与 0xFFFF。
+完。
+
+PCI_写16 接受 bus、dev、func、reg、val：
+    raw 为 做 PCI_读32 用 bus、dev、func、reg 位与 0xFC。
+    shift 为 (reg 位与 0x02) 乘 8。
+    mask 为 按位取反 (0xFFFF 左移 shift)。
+    做 PCI_写32 用 bus、dev、func、reg 位与 0xFC、raw 位与 mask 位或 (val 位与 0xFFFF) 左移 shift。
+完。
+
+PCI_读8 接受 bus、dev、func、reg：
+    raw 为 做 PCI_读32 用 bus、dev、func、reg 位与 0xFC。
+    shift 为 (reg 位与 0x03) 乘 8。
+    返还 raw 右移 shift 位与 0xFF。
+完。
+
+PCI_写8 接受 bus、dev、func、reg、val：
+    raw 为 做 PCI_读32 用 bus、dev、func、reg 位与 0xFC。
+    shift 为 (reg 位与 0x03) 乘 8。
+    mask 为 按位取反 (0xFF 左移 shift)。
+    做 PCI_写32 用 bus、dev、func、reg 位与 0xFC、raw 位与 mask 位或 (val 位与 0xFF) 左移 shift。
+完。
+
+PCI_探测BAR大小 接受 bus、dev、func、bar_reg：
+    原始值 为 做 PCI_读32 用 bus、dev、func、bar_reg。
+    做 PCI_写32 用 bus、dev、func、bar_reg、0xFFFFFFFF。
+    探测值 为 做 PCI_读32 用 bus、dev、func、bar_reg。
+    做 PCI_写32 用 bus、dev、func、bar_reg、原始值。
+    若 探测值 等于 0 或者 探测值 等于 0xFFFFFFFF：
+        返还 0。
+    完。
+    若 原始值 位与 0x01：
+        返还 按位取反 (探测值 位与 0xFFFC) 加 1 位与 0xFFFF。
+    否则：
+        返还 按位取反 (探测值 位与 0xFFFFFFF0) 加 1。
+    完。
+完。
+
+PCI_解析BAR 接受 设备：
+    可变。
+    bar_idx 为 0。
+    可变。
+    bar_reg 为 PCI_REG_BAR0。
+    只要 bar_idx 小于 6 并且 bar_reg 小于或等于 PCI_REG_BAR5：
+        PCI统计 的 BAR解析数 为 PCI统计 的 BAR解析数 加 1。
+        原始值 为 做 PCI_读32 用 设备 的 总线、设备 的 设备号、设备 的 功能号、bar_reg。
+        若 原始值 等于 0：
+            bar_idx 为 bar_idx 加 1。
+            bar_reg 为 bar_reg 加 4。
+            继续。
+        完。
+        可变。
+        bar 为 新建 PCI_BAR信息：基地址 为 0、大小 为 0、类型 为 PCI_BAR_类型_内存、是64位 为 假。
+        若 原始值 位与 0x01：
+            bar 的 类型 为 PCI_BAR_类型_IO。
+            bar 的 基地址 为 原始值 位与 0xFFFC。
+            bar 的 大小 为 做 PCI_探测BAR大小 用 设备 的 总线、设备 的 设备号、设备 的 功能号、bar_reg。
+        否则：
+            bar 的 类型 为 PCI_BAR_类型_内存。
+            类型位 为 原始值 右移 1 位与 0x03。
+            若 类型位 等于 0x02：
+                bar 的 是64位 为 真。
+                高32 为 做 PCI_读32 用 设备 的 总线、设备 的 设备号、设备 的 功能号、bar_reg 加 4。
+                bar 的 基地址 为 高32 左移 32 位或 原始值 位与 0xFFFFFFF0。
+                bar 的 大小 为 做 PCI_探测BAR大小 用 设备 的 总线、设备 的 设备号、设备 的 功能号、bar_reg。
+                设备 的 BAR 的 第 bar_idx 项 为 bar。
+                bar_idx 为 bar_idx 加 1。
+                bar_reg 为 bar_reg 加 8。
+                继续。
+            否则：
+                bar 的 基地址 为 原始值 位与 0xFFFFFFF0。
+                bar 的 大小 为 做 PCI_探测BAR大小 用 设备 的 总线、设备 的 设备号、设备 的 功能号、bar_reg。
+            完。
+        完。
+        设备 的 BAR 的 第 bar_idx 项 为 bar。
+        bar_idx 为 bar_idx 加 1。
+        bar_reg 为 bar_reg 加 4。
+    完。
+    设备 的 BAR数量 为 bar_idx。
+完。
+
+PCI_遍历能力 接受 设备：
+    状态 为 做 PCI_读16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、PCI_REG_状态。
+    若 状态 位与 0x10 等于 0：
+        返还。
+    完。
+    可变。
+    ptr 为 做 PCI_读8 用 设备 的 总线、设备 的 设备号、设备 的 功能号、PCI_REG_能力指针。
+    ptr 为 ptr 位与 0xFC。
+    可变。
+    visited 为 0。
+    只要 ptr 不等于 0 并且 visited 小于 48：
+        PCI统计 的 能力遍历数 为 PCI统计 的 能力遍历数 加 1。
+        visited 为 visited 加 1。
+        cap_id 为 做 PCI_读8 用 设备 的 总线、设备 的 设备号、设备 的 功能号、ptr。
+        next 为 做 PCI_读8 用 设备 的 总线、设备 的 设备号、设备 的 功能号、ptr 加 1 位与 0xFC。
+        若 cap_id 等于 PCI_CAP_MSI：
+            设备 的 MSI_偏移 为 ptr。
+        否则若 cap_id 等于 PCI_CAP_MSIX：
+            设备 的 MSIX_偏移 为 ptr。
+        完。
+        设备 的 能力列表头 为 ptr。
+        ptr 为 next。
+    完。
+完。
+
+PCI_配置MSI 接受 设备、向量号、CPU目标：
+    若 设备 的 MSI_偏移 等于 0：
+        返还 假。
+    完。
+    PCI统计 的 MSI配置数 为 PCI统计 的 MSI配置数 加 1。
+    ctrl 为 做 PCI_读16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSI_偏移 加 MSI_控制寄存器偏移。
+    是64位 为 ctrl 位与 0x0080 不等于 0。
+    addr_low 为 0xFEE00000 位或 (CPU目标 位与 0xFF) 左移 12。
+    做 PCI_写32 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSI_偏移 加 MSI_地址低32位偏移、addr_low。
+    若 是64位：
+        做 PCI_写32 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSI_偏移 加 MSI_地址高32位偏移、0。
+        做 PCI_写16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSI_偏移 加 MSI_数据偏移_64位、向量号 位与 0xFF。
+    否则：
+        做 PCI_写16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSI_偏移 加 MSI_数据偏移_32位、向量号 位与 0xFF。
+    完。
+    ctrl 为 ctrl 位或 0x0001。
+    做 PCI_写16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSI_偏移 加 MSI_控制寄存器偏移、ctrl。
+    cmd 为 做 PCI_读16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、PCI_REG_命令。
+    做 PCI_写16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、PCI_REG_命令、cmd 位或 PCI_CMD_中断禁用。
+    返还 真。
+完。
+
+PCI_配置MSIX 接受 设备、表索引、向量号、CPU目标：
+    若 设备 的 MSIX_偏移 等于 0：
+        返还 假。
+    完。
+    PCI统计 的 MSI配置数 为 PCI统计 的 MSI配置数 加 1。
+    表信息 为 做 PCI_读32 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSIX_偏移 加 MSIX_表偏移。
+    BAR_idx 为 表信息 位与 0x07。
+    表基址偏移 为 表信息 位与 0xFFFFFFF8。
+    若 BAR_idx 大于或等于 设备 的 BAR数量：
+        返还 假。
+    完。
+    表VA 为 设备 的 BAR 的 第 BAR_idx 项 的 基地址 加 表基址偏移。
+    entry_off 为 表索引 乘 16。
+    做 内存_写32 用 表VA 加 entry_off 加 0、0xFEE00000 位或 (CPU目标 位与 0xFF) 左移 12。
+    做 内存_写32 用 表VA 加 entry_off 加 4、0。
+    做 内存_写32 用 表VA 加 entry_off 加 8、向量号 位与 0xFF。
+    做 内存_写32 用 表VA 加 entry_off 加 12、0。
+    ctrl 为 做 PCI_读16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSIX_偏移 加 MSI_控制寄存器偏移。
+    ctrl 为 ctrl 位或 0x8000。
+    做 PCI_写16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、设备 的 MSIX_偏移 加 MSI_控制寄存器偏移、ctrl。
+    返还 真。
+完。
+
+PCI_使能设备 接受 设备：
+    cmd 为 做 PCI_读16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、PCI_REG_命令。
+    cmd 为 cmd 位或 PCI_CMD_IO使能 位或 PCI_CMD_内存使能 位或 PCI_CMD_总线主控。
+    做 PCI_写16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、PCI_REG_命令、cmd。
+    设备 的 已使能 为 真。
+完。
+
+PCI_禁用设备 接受 设备：
+    cmd 为 做 PCI_读16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、PCI_REG_命令。
+    cmd 为 cmd 位与 按位取反 (PCI_CMD_IO使能 位或 PCI_CMD_内存使能 位或 PCI_CMD_总线主控)。
+    做 PCI_写16 用 设备 的 总线、设备 的 设备号、设备 的 功能号、PCI_REG_命令、cmd。
+    设备 的 已使能 为 假。
+完。
+
+PCI_探测功能 接受 bus、dev、func：
+    vendor 为 做 PCI_读16 用 bus、dev、func、PCI_REG_厂商ID。
+    若 vendor 等于 0xFFFF 或者 vendor 等于 0：
+        返还 空。
+    完。
+    PCI统计 的 发现设备数 为 PCI统计 的 发现设备数 加 1。
+    可变。
+    设备 为 新建 PCI设备：总线 为 bus、设备号 为 dev、功能号 为 func、厂商ID 为 vendor、设备ID 为 做 PCI_读16 用 bus、dev、func、PCI_REG_设备ID、类代码 为 做 PCI_读8 用 bus、dev、func、PCI_REG_类代码、子类代码 为 做 PCI_读8 用 bus、dev、func、PCI_REG_子类代码、编程接口 为 做 PCI_读8 用 bus、dev、func、PCI_REG_编程接口、修订ID 为 做 PCI_读8 用 bus、dev、func、PCI_REG_修订ID、头类型 为 做 PCI_读8 用 bus、dev、func、PCI_REG_头类型、中断线 为 做 PCI_读8 用 bus、dev、func、PCI_REG_中断线、中断引脚 为 做 PCI_读8 用 bus、dev、func、PCI_REG_中断引脚、BAR 为 做 数组_创建 用 6、空、BAR数量 为 0、能力列表头 为 0、MSI_偏移 为 0、MSIX_偏移 为 0、已使能 为 假、驱动 为 空。
+    做 PCI_解析BAR 用 设备。
+    做 PCI_遍历能力 用 设备。
+    做 数组_推入 用 PCI设备列表、设备。
+    返还 设备。
+完。
+
+PCI_扫描总线 接受 bus：
+    PCI统计 的 扫描总线数 为 PCI统计 的 扫描总线数 加 1。
+    可变。
+    dev 为 0。
+    只要 dev 小于 32：
+        PCI统计 的 扫描设备数 为 PCI统计 的 扫描设备数 加 1。
+        vendor 为 做 PCI_读16 用 bus、dev、0、PCI_REG_厂商ID。
+        若 vendor 等于 0xFFFF 或者 vendor 等于 0：
+            dev 为 dev 加 1。
+            继续。
+        完。
+        做 PCI_探测功能 用 bus、dev、0。
+        头 为 做 PCI_读8 用 bus、dev、0、PCI_REG_头类型。
+        若 头 位与 0x80：
+            可变。
+            func 为 1。
+            只要 func 小于 8：
+                做 PCI_探测功能 用 bus、dev、func。
+                func 为 func 加 1。
+            完。
+        完。
+        cl 为 做 PCI_读8 用 bus、dev、0、PCI_REG_类代码。
+        scl 为 做 PCI_读8 用 bus、dev、0、PCI_REG_子类代码。
+        若 cl 等于 PCI_类_桥设备 并且 scl 等于 PCI_子类_PCI_PCI桥：
+            次级 为 做 PCI_读8 用 bus、dev、0、0x19。
+            若 次级 大于 bus 并且 次级 小于 255：
+                做 PCI_扫描总线 用 次级。
+            完。
+        完。
+        dev 为 dev 加 1。
+    完。
+完。
+
+PCI_全枚举 接受 零参：
+    PCI设备列表 为 一组：（空）。
+    PCI统计 的 扫描总线数 为 0。
+    PCI统计 的 扫描设备数 为 0。
+    PCI统计 的 发现设备数 为 0。
+    PCI统计 的 BAR解析数 为 0。
+    PCI统计 的 能力遍历数 为 0。
+    头 为 做 PCI_读8 用 0、0、0、PCI_REG_头类型。
+    若 头 位与 0x80：
+        可变。
+        func 为 0。
+        只要 func 小于 8：
+            v 为 做 PCI_读16 用 0、0、func、PCI_REG_厂商ID。
+            若 v 不等于 0xFFFF 并且 v 不等于 0：
+                做 PCI_扫描总线 用 func。
+            完。
+            func 为 func 加 1。
+        完。
+    否则：
+        做 PCI_扫描总线 用 0。
+    完。
+    PCI已初始化 为 真。
+    返还 做 数组_长度 用 PCI设备列表。
+完。
+
+PCI_注册驱动 接受 驱动：
+    做 数组_推入 用 PCI驱动列表、驱动。
+完。
+
+PCI_驱动匹配设备 接受 驱动、设备：
+    若 驱动 的 厂商ID 不等于 0xFFFF 并且 驱动 的 设备ID 不等于 0xFFFF：
+        返还 驱动 的 厂商ID 等于 设备 的 厂商ID 并且 驱动 的 设备ID 等于 设备 的 设备ID。
+    完。
+    若 驱动 的 类代码 不等于 0xFF：
+        若 驱动 的 类代码 不等于 设备 的 类代码：
+            返还 假。
+        完。
+        若 驱动 的 子类代码 不等于 0xFF 并且 驱动 的 子类代码 不等于 设备 的 子类代码：
+            返还 假。
+        完。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+PCI_绑定全部驱动 接受 零参：
+    可变。
+    i 为 0。
+    只要 i 小于 做 数组_长度 用 PCI设备列表：
+        设备 为 PCI设备列表 的 第 i 项。
+        若 设备 的 驱动 不等于 空：
+            i 为 i 加 1。
+            继续。
+        完。
+        可变。
+        j 为 0。
+        只要 j 小于 做 数组_长度 用 PCI驱动列表：
+            驱动 为 PCI驱动列表 的 第 j 项。
+            若 做 PCI_驱动匹配设备 用 驱动、设备：
+                做 PCI_使能设备 用 设备。
+                ok 为 做 驱动 的 初始化函数 用 设备。
+                若 ok：
+                    设备 的 驱动 为 驱动。
+                    PCI统计 的 驱动绑定数 为 PCI统计 的 驱动绑定数 加 1。
+                    跳出。
+                完。
+            完。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+PCI_按厂商设备查找 接受 vendorId、deviceId：
+    可变。
+    i 为 0。
+    只要 i 小于 做 数组_长度 用 PCI设备列表：
+        d 为 PCI设备列表 的 第 i 项。
+        若 d 的 厂商ID 等于 vendorId 并且 d 的 设备ID 等于 deviceId：
+            返还 d。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+PCI_按类查找 接受 类代码、子类代码：
+    可变。
+    结果 为 一组：（空）。
+    可变。
+    i 为 0。
+    只要 i 小于 做 数组_长度 用 PCI设备列表：
+        d 为 PCI设备列表 的 第 i 项。
+        若 d 的 类代码 等于 类代码：
+            若 子类代码 等于 0xFF 或者 d 的 子类代码 等于 子类代码：
+                做 数组_推入 用 结果、d。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+PCI_按BDF查找 接受 bus、dev、func：
+    可变。
+    i 为 0。
+    只要 i 小于 做 数组_长度 用 PCI设备列表：
+        d 为 PCI设备列表 的 第 i 项。
+        若 d 的 总线 等于 bus 并且 d 的 设备号 等于 dev 并且 d 的 功能号 等于 func：
+            返还 d。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+PCI_类名 接受 设备：
+    若 设备 的 类代码 等于 PCI_类_存储控制器：
+        若 设备 的 子类代码 等于 PCI_子类_SATA：
+            返还 「SATA控制器」。
+        完。
+        若 设备 的 子类代码 等于 PCI_子类_NVMe：
+            返还 「NVMe控制器」。
+        完。
+        若 设备 的 子类代码 等于 PCI_子类_IDE：
+            返还 「IDE控制器」。
+        完。
+        若 设备 的 子类代码 等于 PCI_子类_SCSI：
+            返还 「SCSI控制器」。
+        完。
+        返还 「存储控制器」。
+    完。
+    若 设备 的 类代码 等于 PCI_类_网络控制器：
+        返还 「网络控制器」。
+    完。
+    若 设备 的 类代码 等于 PCI_类_显示控制器：
+        返还 「显示控制器」。
+    完。
+    若 设备 的 类代码 等于 PCI_类_桥设备：
+        返还 「桥设备」。
+    完。
+    返还 「未知设备」。
+完。
+
+PCI_BAR类名 接受 bar：
+    若 bar 等于 空：
+        返还 「无」。
+    完。
+    若 bar 的 类型 等于 PCI_BAR_类型_IO：
+        返还 「IO」。
+    完。
+    若 bar 的 是64位：
+        返还 「MEM64」。
+    完。
+    返还 「MEM32」。
+完。
+
+PCI_AI_设备优先级 接受 设备：
+    特征 为 做 Tensor_创建 用 1、6。
+    做 Tensor_写 用 特征、0、0、设备 的 类代码 乘 1.0。
+    做 Tensor_写 用 特征、0、1、设备 的 子类代码 乘 1.0。
+    做 Tensor_写 用 特征、0、2、设备 的 厂商ID 乘 1.0。
+    做 Tensor_写 用 特征、0、3、设备 的 BAR数量 乘 1.0。
+    做 Tensor_写 用 特征、0、4、若 设备 的 MSI_偏移 大于 0 则 1.0 否则 0.0。
+    做 Tensor_写 用 特征、0、5、若 设备 的 MSIX_偏移 大于 0 则 1.0 否则 0.0。
+    结果 为 做 AI总线_推理 用 「pci_device_priority」、特征。
+    可变。
+    优先级 为 50。
+    若 结果 不等于 空：
+        优先级 为 做 Tensor_读 用 结果、0、0。
+        若 优先级 大于 70：
+            PCI统计 的 AI预判命中 为 PCI统计 的 AI预判命中 加 1。
+        否则：
+            PCI统计 的 AI预判未中 为 PCI统计 的 AI预判未中 加 1。
+        完。
+        做 Tensor_释放 用 结果。
+    完。
+    做 Tensor_释放 用 特征。
+    返还 优先级。
+完。
+
+PCI_AI_排序设备列表 接受 零参：
+    可变。
+    i 为 1。
+    只要 i 小于 做 数组_长度 用 PCI设备列表：
+        key 为 PCI设备列表 的 第 i 项。
+        keyPri 为 做 PCI_AI_设备优先级 用 key。
+        可变。
+        j 为 i 减 1。
+        只要 j 大于或等于 0 并且 做 PCI_AI_设备优先级 用 PCI设备列表 的 第 j 项 小于 keyPri：
+            PCI设备列表 的 第 j 加 1 项 为 PCI设备列表 的 第 j 项。
+            j 为 j 减 1。
+        完。
+        PCI设备列表 的 第 j 加 1 项 为 key。
+        i 为 i 加 1。
+    完。
+完。
+
+PCI_系统初始化 接受 零参：
+    PCI设备列表 为 一组：（空）。
+    PCI驱动列表 为 一组：（空）。
+    PCI已初始化 为 假。
+    PCI统计 为 新建 PCI枚举统计：扫描总线数 为 0、扫描设备数 为 0、发现设备数 为 0、BAR解析数 为 0、能力遍历数 为 0、MSI配置数 为 0、驱动绑定数 为 0、AI预判命中 为 0、AI预判未中 为 0。
+    n 为 做 PCI_全枚举。
+    做 PCI_AI_排序设备列表。
+    做 PCI_绑定全部驱动。
+    返还 n。
+完。
+
+PCI_诊断报告 接受 零参：
+    可变。
+    报告 为 「[NPBE诊断报告]\n」。
+    报告 为 报告 加 「扫描总线数: 」 加 PCI统计 的 扫描总线数 加 「\n」。
+    报告 为 报告 加 「扫描设备数: 」 加 PCI统计 的 扫描设备数 加 「\n」。
+    报告 为 报告 加 「发现设备数: 」 加 PCI统计 的 发现设备数 加 「\n」。
+    报告 为 报告 加 「BAR解析数: 」 加 PCI统计 的 BAR解析数 加 「\n」。
+    报告 为 报告 加 「能力遍历数: 」 加 PCI统计 的 能力遍历数 加 「\n」。
+    报告 为 报告 加 「MSI配置数: 」 加 PCI统计 的 MSI配置数 加 「\n」。
+    报告 为 报告 加 「驱动绑定数: 」 加 PCI统计 的 驱动绑定数 加 「\n」。
+    报告 为 报告 加 「AI预判命中: 」 加 PCI统计 的 AI预判命中 加 「\n」。
+    报告 为 报告 加 「AI预判未中: 」 加 PCI统计 的 AI预判未中 加 「\n\n」。
+    可变。
+    i 为 0。
+    只要 i 小于 做 数组_长度 用 PCI设备列表：
+        d 为 PCI设备列表 的 第 i 项。
+        报告 为 报告 加 「[」 加 d 的 总线 加 「:」 加 d 的 设备号 加 「.」 加 d 的 功能号 加 「] 」。
+        报告 为 报告 加 做 PCI_类名 用 d 加 「 」。
+        报告 为 报告 加 「VID=」 加 d 的 厂商ID 加 「 DID=」 加 d 的 设备ID。
+        若 d 的 驱动 不等于 空：
+            报告 为 报告 加 「 驱动=」 加 d 的 驱动 的 名称。
+        完。
+        报告 为 报告 加 「\n」。
+        i 为 i 加 1。
+    完。
+    返还 报告。
+完。
+
+本章 收束。

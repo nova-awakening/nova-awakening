@@ -1,0 +1,164 @@
+《页隔离预测》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《..·引导·寄存器定义》。
+
+引用《.·内核打印》。
+
+引用《..·推理·总线调度》。
+
+引用《.·页表重建》。
+
+引用《.·获取当前页》。
+
+可变 CPU_受Meltdown影响 为 假。
+
+可变 CPU_受Spectrev1影响 为 假。
+
+可变 CPU_受Spectrev2影响 为 假。
+
+可变 CPU_支持IBRS 为 假。
+
+可变 CPU_支持IBPB 为 假。
+
+可变 CPU_支持eIBRS 为 假。
+
+可变 CPU_支持STIBP 为 假。
+
+可变 CPU_支持SSBD 为 假。
+
+侧信道_检测CPU漏洞 接受 零参：
+    厂商 为 做 CPUID_获取厂商。
+    族 为 做 CPUID_获取族。
+    模型 为 做 CPUID_获取模型。
+    若 厂商 等于 CPU_INTEL：
+        CPU_受Meltdown影响 为 真。
+        CPU_受Spectrev1影响 为 真。
+        CPU_受Spectrev2影响 为 真。
+        特性 为 做 CPUID_扩展特性。
+        CPU_支持IBRS 为 特性 右移 26 位与 1。
+        CPU_支持IBPB 为 特性 右移 26 位与 1。
+        CPU_支持STIBP 为 特性 右移 27 位与 1。
+        CPU_支持SSBD 为 特性 右移 31 位与 1。
+        CPU_支持eIBRS 为 做 CPUID_检查 用 7、0、2、26。
+    完。
+    若 厂商 等于 CPU_AMD：
+        CPU_受Meltdown影响 为 假。
+        CPU_受Spectrev1影响 为 真。
+        CPU_受Spectrev2影响 为 真。
+        CPU_支持IBPB 为 做 CPUID_检查 用 0x80000008、0、1、12。
+    完。
+    做 内核日志 用 「侧信道检测: Meltdown=%d Sv1=%d Sv2=%d IBRS=%d eIBRS=%d」、CPU_受Meltdown影响、CPU_受Spectrev1影响、CPU_受Spectrev2影响、CPU_支持IBRS、CPU_支持eIBRS。
+完。
+
+可变 KPTI_启用 为 假。
+
+可变 内核页表_CR3 为 0。
+
+可变 用户页表_CR3 为 0。
+
+KPTI_初始化 接受 零参：
+    若 非 CPU_受Meltdown影响：
+        做 内核日志 用 「KPTI: CPU不受Meltdown影响, 跳过」。
+        返还。
+    完。
+    KPTI_启用 为 真。
+    用户页表_CR3 为 做 页表_创建_用户模式。
+    做 页表_映射 用 用户页表_CR3、蹦床_系统调用入口、蹦床_系统调用入口、页_只读 位或 页_全局。
+    做 页表_映射 用 用户页表_CR3、蹦床_中断入口、蹦床_中断入口、页_只读 位或 页_全局。
+    内核页表_CR3 为 做 读CR3。
+    做 内核日志 用 「KPTI: 已启用, 内核CR3=0x%x 用户CR3=0x%x」、内核页表_CR3、用户页表_CR3。
+完。
+
+KPTI_进入内核 接受 零参：
+    若 非 KPTI_启用：
+        返还。
+    完。
+    做 写CR3 用 内核页表_CR3。
+完。
+
+KPTI_返回用户 接受 零参：
+    若 非 KPTI_启用：
+        返还。
+    完。
+    做 写CR3 用 用户页表_CR3。
+完。
+
+Spectre_安全索引 接受 索引、数组大小：
+    掩码 为 做 安全比较_掩码 用 索引、数组大小。
+    返还 索引 位与 掩码。
+完。
+
+安全比较_掩码 接受 a、b：
+    差 为 a 减 b。
+    返还 (差 右移 63) 乘 0xFFFFFFFFFFFFFFFF。
+完。
+
+Spectre_lfence 接受 零参：
+    做 内建_lfence。
+完。
+
+Spectre_安全加载 接受 地址、索引、大小：
+    安全idx 为 做 Spectre_安全索引 用 索引、大小。
+    做 Spectre_lfence。
+    返还 做 内存_读64 用 地址 加 安全idx 乘 8。
+完。
+
+Spectrev2_初始化 接受 零参：
+    若 CPU_支持eIBRS：
+        做 写MSR 用 MSR_IA32_SPEC_CTRL、SPEC_CTRL_IBRS。
+        做 内核日志 用 「Spectre v2: eIBRS已启用」。
+        返还。
+    完。
+    若 CPU_支持IBRS：
+        做 内核日志 用 「Spectre v2: IBRS模式(每次入口)」。
+        返还。
+    完。
+    做 内核日志 用 「Spectre v2: Retpoline模式」。
+完。
+
+Retpoline_间接调用 接受 目标：
+    返还 做 调用 用 目标。
+完。
+
+IBPB_刷新 接受 零参：
+    若 CPU_支持IBPB：
+        做 写MSR 用 MSR_IA32_PRED_CMD、PRED_CMD_IBPB。
+    完。
+完。
+
+侧信道_上下文切换 接受 旧进程、新进程：
+    若 旧进程 的 安全域 不等于 新进程 的 安全域：
+        做 IBPB_刷新。
+    完。
+    若 新进程 的 需要SSBD 并且 CPU_支持SSBD：
+        做 写MSR 用 MSR_IA32_SPEC_CTRL、做 读MSR 用 MSR_IA32_SPEC_CTRL 位或 SPEC_CTRL_SSBD。
+    完。
+    若 新进程 的 是虚拟机：
+        做 写MSR 用 MSR_IA32_FLUSH_CMD、L1D_FLUSH。
+    完。
+完。
+
+可变 智能_侧信道检测器 为 空。
+
+智能_侧信道_初始化 接受 零参：
+    智能_侧信道检测器 为 做 智能_异常检测器_创建 用 16、64、3。
+完。
+
+智能_侧信道_检查 接受 进程：
+    缓存命中率 为 做 PMC_读取 用 进程、PMC_L1D_命中率。
+    分支失败率 为 做 PMC_读取 用 进程、PMC_分支预测失败率。
+    TLB未命中 为 做 PMC_读取 用 进程、PMC_DTLB未命中。
+    特征 为 一组：缓存命中率、分支失败率、TLB未命中。
+    异常分数 为 做 智能_异常检测器_评分 用 智能_侧信道检测器、特征。
+    若 异常分数 大于 0.95：
+        做 内核日志 用 「AI侧信道警告: 进程%d 异常分数=%.3f」、进程 的 pid、异常分数。
+        进程 的 需要SSBD 为 真。
+        做 IBPB_刷新。
+    完。
+完。
+
+本章 收束。

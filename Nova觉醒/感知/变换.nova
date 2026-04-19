@@ -1,0 +1,175 @@
+《变换》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·图像操作》。
+
+引用《.·内核直连层》。
+
+画布2D_translate 接受 ctx、tx、ty：
+    若 ctx 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 状态。
+    s 的 e 为 s 的 e 加 (s 的 a 乘 tx 加 s 的 c 乘 ty) 除以 1024。
+    s 的 f 为 s 的 f 加 (s 的 b 乘 tx 加 s 的 d 乘 ty) 除以 1024。
+完。
+
+画布2D_scale 接受 ctx、sx、sy：
+    若 ctx 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 状态。
+    s 的 a 为 s 的 a 乘 sx 除以 1024。
+    s 的 b 为 s 的 b 乘 sx 除以 1024。
+    s 的 c 为 s 的 c 乘 sy 除以 1024。
+    s 的 d 为 s 的 d 乘 sy 除以 1024。
+完。
+
+画布2D_rotate 接受 ctx、角度_Q10：
+    若 ctx 等于 0：
+        返还。
+    完。
+    cos 为 做 Q_cos 用 角度_Q10。
+    sin 为 做 Q_sin 用 角度_Q10。
+    s 为 ctx 的 状态。
+    a 为 s 的 a。
+    b 为 s 的 b。
+    c 为 s 的 c。
+    d 为 s 的 d。
+    s 的 a 为 (a 乘 cos 加 c 乘 sin) 除以 1024。
+    s 的 b 为 (b 乘 cos 加 d 乘 sin) 除以 1024。
+    s 的 c 为 (c 乘 cos 减 a 乘 sin) 除以 1024。
+    s 的 d 为 (d 乘 cos 减 b 乘 sin) 除以 1024。
+完。
+
+画布2D_setTransform 接受 ctx、a、b、c、d、e、f：
+    若 ctx 等于 0：
+        返还。
+    完。
+    s 为 ctx 的 状态。
+    s 的 a 为 a。
+    s 的 b 为 b。
+    s 的 c 为 c。
+    s 的 d 为 d。
+    s 的 e 为 e。
+    s 的 f 为 f。
+完。
+
+画布2D_resetTransform 接受 ctx：
+    做 画布2D_setTransform 用 ctx、1024、0、0、1024、0、0。
+完。
+
+画布2D_变换点 接受 s、x、y：
+    tx 为 (s 的 a 乘 x 加 s 的 c 乘 y) 除以 1024 加 s 的 e。
+    ty 为 (s 的 b 乘 x 加 s 的 d 乘 y) 除以 1024 加 s 的 f。
+    返还 一组：tx、ty。
+完。
+
+画布2D_beginPath 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    ctx 的 路径大小 为 0。
+完。
+
+路径_写 接受 ctx、类型、x1、y1、x2、y2、x3、y3：
+    若 ctx 的 路径大小 加 28 大于 ctx 的 路径容量：
+        返还。
+    完。
+    偏移 为 ctx 的 路径命令 加 ctx 的 路径大小。
+    做 内存_写8 用 偏移、类型。
+    做 内存_写32 用 偏移 加 4、x1。
+    做 内存_写32 用 偏移 加 8、y1。
+    做 内存_写32 用 偏移 加 12、x2。
+    做 内存_写32 用 偏移 加 16、y2。
+    做 内存_写32 用 偏移 加 20、x3。
+    做 内存_写32 用 偏移 加 24、y3。
+    ctx 的 路径大小 为 ctx 的 路径大小 加 28。
+完。
+
+画布2D_moveTo 接受 ctx、x、y：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 路径_写 用 ctx、路径_MoveTo、x、y、0、0、0、0。
+    ctx 的 路径x 为 x。
+    ctx 的 路径y 为 y。
+    ctx 的 路径起点x 为 x。
+    ctx 的 路径起点y 为 y。
+完。
+
+画布2D_lineTo 接受 ctx、x、y：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 路径_写 用 ctx、路径_LineTo、x、y、0、0、0、0。
+    ctx 的 路径x 为 x。
+    ctx 的 路径y 为 y。
+完。
+
+画布2D_quadraticCurveTo 接受 ctx、cpx、cpy、x、y：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 路径_写 用 ctx、路径_QuadTo、cpx、cpy、x、y、0、0。
+    ctx 的 路径x 为 x。
+    ctx 的 路径y 为 y。
+完。
+
+画布2D_bezierCurveTo 接受 ctx、cp1x、cp1y、cp2x、cp2y、x、y：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 路径_写 用 ctx、路径_Nova三次方To、cp1x、cp1y、cp2x、cp2y、x、y。
+    ctx 的 路径x 为 x。
+    ctx 的 路径y 为 y。
+完。
+
+画布2D_closePath 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 路径_写 用 ctx、路径_Close、ctx 的 路径起点x、ctx 的 路径起点y、0、0、0、0。
+    ctx 的 路径x 为 ctx 的 路径起点x。
+    ctx 的 路径y 为 ctx 的 路径起点y。
+完。
+
+画布2D_rect 接受 ctx、x、y、w、h：
+    做 画布2D_moveTo 用 ctx、x、y。
+    做 画布2D_lineTo 用 ctx、x 加 w、y。
+    做 画布2D_lineTo 用 ctx、x 加 w、y 加 h。
+    做 画布2D_lineTo 用 ctx、x、y 加 h。
+    做 画布2D_closePath 用 ctx。
+完。
+
+画布2D_arc 接受 ctx、cx、cy、r、startAngle、endAngle、逆时针：
+    若 ctx 等于 0：
+        返还。
+    完。
+    步数 为 32。
+    角度范围 为 endAngle 减 startAngle。
+    若 逆时针 并且 角度范围 大于 0：
+        角度范围 为 角度范围 减 6283。
+    完。
+    若 非 逆时针 并且 角度范围 小于 0：
+        角度范围 为 角度范围 加 6283。
+    完。
+    步长 为 角度范围 除以 步数。
+    可变 i 为 0。
+    只要 i 小于或等于 步数：
+        角度 为 startAngle 加 步长 乘 i。
+        px 为 cx 加 r 乘 做 Q_cos 用 角度 除以 1024。
+        py 为 cy 加 r 乘 做 Q_sin 用 角度 除以 1024。
+        若 i 等于 0：
+            做 画布2D_moveTo 用 ctx、px、py。
+        否则：
+            做 画布2D_lineTo 用 ctx、px、py。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

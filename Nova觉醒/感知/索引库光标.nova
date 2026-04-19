@@ -1,0 +1,186 @@
+《索引库光标》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·索引库键范围》。
+
+引用《.·索引库比较》。
+
+引用《.·文档节点》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·辅助有符号读》。
+
+IDB_CURSOR_NEXT 为 0。
+
+IDB_CURSOR_NEXTUNIQUE 为 1。
+
+IDB_CURSOR_PREV 为 2。
+
+IDB_CURSOR_PREVUNIQUE 为 3。
+
+IDBCursor 是 一种 事物，含 方向、源、当前位置、键、主键、值、已完成。
+
+IDBObjectStore_openCursor 接受 store、范围、方向：
+    若 store 等于 0：
+        返还 0。
+    完。
+    cursor 为 做 堆_分配 用 IDBCursor。
+    cursor 的 源 为 store。
+    cursor 的 方向 为 方向。
+    cursor 的 已完成 为 假。
+    若 方向 等于 IDB_CURSOR_PREV 或者 方向 等于 IDB_CURSOR_PREVUNIQUE：
+        cursor 的 当前位置 为 store 的 记录数量 减 1。
+    否则：
+        cursor 的 当前位置 为 0。
+    完。
+    若 cursor 的 当前位置 大于或等于 0 并且 cursor 的 当前位置 小于 store 的 记录数量：
+        偏移 为 store 的 记录列表 加 cursor 的 当前位置 乘 16。
+        cursor 的 键 为 做 内存_读64 用 偏移。
+        cursor 的 主键 为 cursor 的 键。
+        cursor 的 值 为 做 内存_读64 用 偏移 加 8。
+    否则：
+        cursor 的 已完成 为 真。
+    完。
+    返还 cursor。
+完。
+
+IDBCursor_continue 接受 cursor：
+    若 cursor 等于 0 或者 cursor 的 已完成：
+        返还。
+    完。
+    store 为 cursor 的 源。
+    若 cursor 的 方向 等于 IDB_CURSOR_NEXT 或者 cursor 的 方向 等于 IDB_CURSOR_NEXTUNIQUE：
+        cursor 的 当前位置 为 cursor 的 当前位置 加 1。
+    否则：
+        cursor 的 当前位置 为 cursor 的 当前位置 减 1。
+    完。
+    若 cursor 的 当前位置 小于 0 或者 cursor 的 当前位置 大于或等于 store 的 记录数量：
+        cursor 的 已完成 为 真。
+        cursor 的 键 为 0。
+        cursor 的 值 为 0。
+        返还。
+    完。
+    偏移 为 store 的 记录列表 加 cursor 的 当前位置 乘 16。
+    cursor 的 键 为 做 内存_读64 用 偏移。
+    cursor 的 主键 为 cursor 的 键。
+    cursor 的 值 为 做 内存_读64 用 偏移 加 8。
+完。
+
+IDBCursor_advance 接受 cursor、步数：
+    可变 i 为 0。
+    只要 i 小于 步数 并且 非 cursor 的 已完成：
+        做 IDBCursor_continue 用 cursor。
+        i 为 i 加 1。
+    完。
+完。
+
+IDBCursor_update 接受 cursor、新值：
+    若 cursor 等于 0 或者 cursor 的 已完成：
+        返还 0。
+    完。
+    store 为 cursor 的 源。
+    若 cursor 的 当前位置 大于或等于 0 并且 cursor 的 当前位置 小于 store 的 记录数量：
+        偏移 为 store 的 记录列表 加 cursor 的 当前位置 乘 16。
+        做 内存_写64 用 偏移 加 8、新值。
+        cursor 的 值 为 新值。
+    完。
+    返还 做 IDBRequest_创建_成功 用 cursor 的 键。
+完。
+
+IDBCursor_delete 接受 cursor：
+    若 cursor 等于 0 或者 cursor 的 已完成：
+        返还 0。
+    完。
+    返还 做 IDBObjectStore_delete 用 cursor 的 源、cursor 的 键。
+完。
+
+IDBObjectStore_createIndex 接受 store、名称、键路径、选项：
+    若 store 等于 0 或者 store 的 索引数量 大于或等于 store 的 索引容量：
+        返还 0。
+    完。
+    idx 为 做 堆_分配 用 IDBIndex。
+    idx 的 名称 为 做 字符串_复制 用 名称。
+    idx 的 键路径 为 做 字符串_复制 用 键路径。
+    idx 的 唯一 为 假。
+    idx 的 多值 为 假。
+    若 选项 不等于 0：
+        u 为 做 Nova对象_获取属性 用 0、选项、「unique」。
+        若 u 不等于 0：
+            idx 的 唯一 为 做 JSValue_ToBoolean 用 0、u。
+        完。
+        m 为 做 Nova对象_获取属性 用 0、选项、「multiEntry」。
+        若 m 不等于 0：
+            idx 的 多值 为 做 JSValue_ToBoolean 用 0、m。
+        完。
+    完。
+    idx 的 条目容量 为 1024。
+    idx 的 条目列表 为 做 堆_分配_数组 用 1024 乘 16。
+    idx 的 条目数量 为 0。
+    idx 的 对象存储 为 store。
+    可变 i 为 0。
+    只要 i 小于 store 的 记录数量：
+        偏移 为 store 的 记录列表 加 i 乘 16。
+        主键 为 做 内存_读64 用 偏移。
+        值 为 做 内存_读64 用 偏移 加 8。
+        索引键 为 做 IDB_提取键 用 值、键路径。
+        若 索引键 不等于 0 并且 idx 的 条目数量 小于 idx 的 条目容量：
+            e偏移 为 idx 的 条目列表 加 idx 的 条目数量 乘 16。
+            做 内存_写64 用 e偏移、索引键。
+            做 内存_写64 用 e偏移 加 8、主键。
+            idx 的 条目数量 为 idx 的 条目数量 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    做 内存_写64 用 store 的 索引列表 加 store 的 索引数量 乘 8、idx。
+    store 的 索引数量 为 store 的 索引数量 加 1。
+    返还 idx。
+完。
+
+IDBIndex_get 接受 idx、键：
+    若 idx 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 idx 的 条目数量：
+        偏移 为 idx 的 条目列表 加 i 乘 16。
+        若 做 IDB_比较键 用 做 内存_读64 用 偏移、键 等于 0：
+            主键 为 做 内存_读64 用 偏移 加 8。
+            返还 做 IDBObjectStore_get 用 idx 的 对象存储、主键。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 做 IDBRequest_创建_成功 用 0。
+完。
+
+IDBIndex_getAll 接受 idx、查询、限制：
+    若 idx 等于 0：
+        返还 一组：0、0。
+    完。
+    可变 max 为 限制。
+    若 max 小于或等于 0：
+        max 为 idx 的 条目数量。
+    完。
+    结果 为 做 堆_分配_数组 用 max 乘 8。
+    可变 计数 为 0。
+    可变 i 为 0。
+    只要 i 小于 idx 的 条目数量 并且 计数 小于 max：
+        偏移 为 idx 的 条目列表 加 i 乘 16。
+        主键 为 做 内存_读64 用 偏移 加 8。
+        查找idx 为 做 IDBObjectStore_查找 用 idx 的 对象存储、主键。
+        若 查找idx 大于或等于 0：
+            值 为 做 内存_读64 用 idx 的 对象存储 的 记录列表 加 查找idx 乘 16 加 8。
+            做 内存_写64 用 结果 加 计数 乘 8、值。
+            计数 为 计数 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 一组：结果、计数。
+完。
+
+本章 收束。

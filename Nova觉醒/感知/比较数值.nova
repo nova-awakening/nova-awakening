@@ -1,0 +1,193 @@
+《比较数值》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+MQ_比较数值 接受 实际值、expr：
+    期望 为 expr 的 值_数字。
+    若 expr 的 有下界：
+        下匹配 为 假。
+        若 expr 的 下界运算符 等于 MQ_OP_LT：
+            下匹配 为 expr 的 下界值 小于 实际值。
+        否则若 expr 的 下界运算符 等于 MQ_OP_LE：
+            下匹配 为 expr 的 下界值 小于或等于 实际值。
+        否则若 expr 的 下界运算符 等于 MQ_OP_GT：
+            下匹配 为 expr 的 下界值 大于 实际值。
+        否则若 expr 的 下界运算符 等于 MQ_OP_GE：
+            下匹配 为 expr 的 下界值 大于或等于 实际值。
+        完。
+        若 非 下匹配：
+            返还 假。
+        完。
+    完。
+    若 expr 的 运算符 等于 MQ_OP_NONE：
+        返还 实际值 大于 0。
+    完。
+    若 expr 的 运算符 等于 MQ_OP_EQ 或者 expr 的 运算符 等于 MQ_OP_COLON：
+        返还 实际值 等于 期望。
+    完。
+    若 expr 的 运算符 等于 MQ_OP_LT：
+        返还 实际值 小于 期望。
+    完。
+    若 expr 的 运算符 等于 MQ_OP_LE：
+        返还 实际值 小于或等于 期望。
+    完。
+    若 expr 的 运算符 等于 MQ_OP_GT：
+        返还 实际值 大于 期望。
+    完。
+    若 expr 的 运算符 等于 MQ_OP_GE：
+        返还 实际值 大于或等于 期望。
+    完。
+    返还 假。
+完。
+
+CONTAINER_TYPE_NORMAL 为 0。
+
+CONTAINER_TYPE_INLINE_SIZE 为 1。
+
+CONTAINER_TYPE_SIZE 为 2。
+
+CQ_INLINE_SIZE 为 1。
+
+CQ_BLOCK_SIZE 为 2。
+
+CQ_WIDTH 为 3。
+
+CQ_HEIGHT 为 4。
+
+CQ_ASPECT_RATIO 为 5。
+
+CQ_ORIENTATION 为 6。
+
+ContainerInfo 是 一种 事物，含 名称、类型、元素、内联尺寸、块尺寸。
+
+ContainerQuery 是 一种 事物，含 容器名、条件。
+
+ContainerQueryEvaluator 是 一种 事物，含 容器栈、容器数量、容器容量。
+
+可变 全局容器求值器 为 0。
+
+ContainerQueryEvaluator_获取 接受 零参：
+    若 全局容器求值器 等于 0：
+        全局容器求值器 为 做 堆_分配 用 ContainerQueryEvaluator。
+        全局容器求值器 的 容器容量 为 64。
+        全局容器求值器 的 容器栈 为 做 堆_分配_数组 用 64 乘 8。
+        全局容器求值器 的 容器数量 为 0。
+    完。
+    返还 全局容器求值器。
+完。
+
+ContainerQuery_注册容器 接受 元素、名称、类型：
+    eval 为 做 ContainerQueryEvaluator_获取。
+    若 eval 的 容器数量 大于或等于 eval 的 容器容量：
+        返还。
+    完。
+    info 为 做 堆_分配 用 ContainerInfo。
+    info 的 名称 为 若 名称 不等于 0 则 做 字符串_复制 用 名称 否则 0。
+    info 的 类型 为 类型。
+    info 的 元素 为 元素。
+    info 的 内联尺寸 为 0。
+    info 的 块尺寸 为 0。
+    做 内存_写64 用 eval 的 容器栈 加 eval 的 容器数量 乘 8、info。
+    eval 的 容器数量 为 eval 的 容器数量 加 1。
+完。
+
+ContainerQuery_更新尺寸 接受 元素、内联、块：
+    eval 为 做 ContainerQueryEvaluator_获取。
+    可变 i 为 0。
+    只要 i 小于 eval 的 容器数量：
+        info 为 做 内存_读64 用 eval 的 容器栈 加 i 乘 8。
+        若 info 不等于 0 并且 info 的 元素 等于 元素：
+            info 的 内联尺寸 为 内联。
+            info 的 块尺寸 为 块。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+ContainerQuery_求值 接受 cq、元素：
+    若 cq 等于 0：
+        返还 假。
+    完。
+    info 为 做 ContainerQuery_查找容器 用 cq 的 容器名、元素。
+    若 info 等于 0：
+        返还 假。
+    完。
+    返还 做 ContainerCondition_求值 用 cq 的 条件、info。
+完。
+
+ContainerQuery_查找容器 接受 名称、元素：
+    eval 为 做 ContainerQueryEvaluator_获取。
+    可变 i 为 eval 的 容器数量 减 1。
+    只要 i 大于或等于 0：
+        info 为 做 内存_读64 用 eval 的 容器栈 加 i 乘 8。
+        若 info 不等于 0 并且 info 的 类型 不等于 CONTAINER_TYPE_NORMAL：
+            若 名称 等于 0 或者 做 字符串_长度 用 名称 等于 0 或者 info 的 名称 不等于 0 并且 做 字符串_相等 用 info 的 名称、名称：
+                返还 info。
+            完。
+        完。
+        i 为 i 减 1。
+    完。
+    返还 0。
+完。
+
+ContainerCondition_求值 接受 条件、info：
+    若 条件 等于 0 或者 info 等于 0：
+        返还 假。
+    完。
+    若 条件 的 表达式 不等于 0 并且 条件 的 子条件数 等于 0：
+        expr 为 条件 的 表达式。
+        可变 实际值 为 0。
+        若 expr 的 特征 等于 CQ_WIDTH 或者 expr 的 特征 等于 CQ_INLINE_SIZE：
+            实际值 为 info 的 内联尺寸。
+        否则若 expr 的 特征 等于 CQ_HEIGHT 或者 expr 的 特征 等于 CQ_BLOCK_SIZE：
+            若 info 的 类型 不等于 CONTAINER_TYPE_SIZE：
+                返还 假。
+            完。
+            实际值 为 info 的 块尺寸。
+        否则若 expr 的 特征 等于 CQ_ORIENTATION：
+            若 做 字符串_相等 用 expr 的 值_字符串、「portrait」：
+                返还 info 的 块尺寸 大于 info 的 内联尺寸。
+            完。
+            若 做 字符串_相等 用 expr 的 值_字符串、「landscape」：
+                返还 info 的 内联尺寸 大于或等于 info 的 块尺寸。
+            完。
+            返还 假。
+        完。
+        返还 做 MQ_比较数值 用 实际值、expr。
+    完。
+    若 条件 的 类型 等于 MQ_CONDITION_AND：
+        可变 i 为 0。
+        只要 i 小于 条件 的 子条件数：
+            若 非 做 ContainerCondition_求值 用 做 内存_读64 用 条件 的 子条件 加 i 乘 8、info：
+                返还 假。
+            完。
+            i 为 i 加 1。
+        完。
+        返还 真。
+    完。
+    若 条件 的 类型 等于 MQ_CONDITION_OR：
+        可变 i 为 0。
+        只要 i 小于 条件 的 子条件数：
+            若 做 ContainerCondition_求值 用 做 内存_读64 用 条件 的 子条件 加 i 乘 8、info：
+                返还 真。
+            完。
+            i 为 i 加 1。
+        完。
+        返还 假。
+    完。
+    若 条件 的 类型 等于 MQ_CONDITION_NOT 并且 条件 的 子条件数 大于 0：
+        返还 非 做 ContainerCondition_求值 用 做 内存_读64 用 条件 的 子条件、info。
+    完。
+    返还 假。
+完。
+
+本章 收束。

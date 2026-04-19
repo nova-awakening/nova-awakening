@@ -1,0 +1,279 @@
+《proc_cpuinfo》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·引导·特权指令》。
+
+引用《..·引导·CPUID识别》。
+
+引用《..·标准·原生字符串》。
+
+引用《.·proc挂载》。
+
+引用《..·引导·端口IO》。
+
+引用《..·中枢·整数转字符串》。
+
+可变 cpu_信息已检测 为 假。
+
+可变 cpu_vendor 为 「」。
+
+可变 cpu_brand 为 「」。
+
+可变 cpu_family 为 0。
+
+可变 cpu_model 为 0。
+
+可变 cpu_stepping 为 0。
+
+可变 cpu_频率MHz 为 0。
+
+可变 cpu_缓存KB 为 0。
+
+可变 cpu_核心数 为 1。
+
+可变 cpu_flags 为 「」。
+
+cpu_检测 接受 零参：
+    若 cpu_信息已检测：
+        返还。
+    完。
+    叶0 为 做 cpuid 用 0、0。
+    cpu_vendor 为 做 cpuid_厂商字符串 用 叶0。
+    叶1 为 做 cpuid 用 1、0。
+    cpu_family 为 叶1 的 eax 右移 8 位与 0xF。
+    cpu_model 为 叶1 的 eax 右移 4 位与 0xF。
+    cpu_stepping 为 叶1 的 eax 位与 0xF。
+    若 cpu_family 等于 0xF：
+        cpu_family 为 cpu_family 加 (叶1 的 eax 右移 20 位与 0xFF)。
+    完。
+    若 cpu_family 大于或等于 6：
+        cpu_model 为 cpu_model 加 ((叶1 的 eax 右移 16 位与 0xF) 左移 4)。
+    完。
+    cpu_flags 为 做 cpu_解析特性标志 用 叶1 的 ecx、叶1 的 edx。
+    cpu_brand 为 做 cpuid_品牌字符串。
+    若 cpu_brand 等于 「」：
+        cpu_brand 为 「NovaOS Virtual CPU」。
+    完。
+    缓存叶 为 做 cpuid 用 0x80000006、0。
+    cpu_缓存KB 为 缓存叶 的 ecx 右移 16 位与 0xFFFF。
+    若 cpu_缓存KB 等于 0：
+        cpu_缓存KB 为 4096。
+    完。
+    cpu_频率MHz 为 做 cpu_估算频率。
+    若 cpu_频率MHz 等于 0：
+        cpu_频率MHz 为 1000。
+    完。
+    cpu_核心数 为 做 cpu_检测核心数。
+    cpu_信息已检测 为 真。
+完。
+
+proc_cpuinfo_读 接受 数据：
+    做 cpu_检测。
+    可变 输出 为 「」。
+    可变 cpu 为 0。
+    只要 cpu 小于 cpu_核心数：
+        输出 为 输出 加 「processor\t: 」 加 做 整数转字符串 用 cpu 加 「\n」。
+        输出 为 输出 加 「vendor_id\t: 」 加 cpu_vendor 加 「\n」。
+        输出 为 输出 加 「cpu family\t: 」 加 做 整数转字符串 用 cpu_family 加 「\n」。
+        输出 为 输出 加 「model\t\t: 」 加 做 整数转字符串 用 cpu_model 加 「\n」。
+        输出 为 输出 加 「model name\t: 」 加 cpu_brand 加 「\n」。
+        输出 为 输出 加 「stepping\t: 」 加 做 整数转字符串 用 cpu_stepping 加 「\n」。
+        输出 为 输出 加 「microcode\t: 0x0\n」。
+        输出 为 输出 加 「cpu MHz\t\t: 」 加 做 整数转字符串 用 cpu_频率MHz 加 「.000\n」。
+        输出 为 输出 加 「cache size\t: 」 加 做 整数转字符串 用 cpu_缓存KB 加 「 KB\n」。
+        输出 为 输出 加 「physical id\t: 0\n」。
+        输出 为 输出 加 「siblings\t: 」 加 做 整数转字符串 用 cpu_核心数 加 「\n」。
+        输出 为 输出 加 「core id\t\t: 」 加 做 整数转字符串 用 cpu 加 「\n」。
+        输出 为 输出 加 「cpu cores\t: 」 加 做 整数转字符串 用 cpu_核心数 加 「\n」。
+        输出 为 输出 加 「apicid\t\t: 」 加 做 整数转字符串 用 cpu 加 「\n」。
+        输出 为 输出 加 「initial apicid\t: 」 加 做 整数转字符串 用 cpu 加 「\n」。
+        输出 为 输出 加 「fpu\t\t: yes\n」。
+        输出 为 输出 加 「fpu_exception\t: yes\n」。
+        输出 为 输出 加 「cpuid level\t: 13\n」。
+        输出 为 输出 加 「wp\t\t: yes\n」。
+        输出 为 输出 加 「flags\t\t: 」 加 cpu_flags 加 「\n」。
+        输出 为 输出 加 「bogomips\t: 」 加 做 整数转字符串 用 cpu_频率MHz 乘 2 加 「.00\n」。
+        输出 为 输出 加 「clflush size\t: 64\n」。
+        输出 为 输出 加 「cache_alignment\t: 64\n」。
+        输出 为 输出 加 「address sizes\t: 48 bits physical, 48 bits virtual\n」。
+        输出 为 输出 加 「power management:\n」。
+        输出 为 输出 加 「\n」。
+        cpu 为 cpu 加 1。
+    完。
+    返还 输出。
+完。
+
+cpu_解析特性标志 接受 ecx、edx：
+    可变 flags 为 「」。
+    若 edx 位与 1 左移 0：
+        flags 为 flags 加 「fpu 」。
+    完。
+    若 edx 位与 1 左移 1：
+        flags 为 flags 加 「vme 」。
+    完。
+    若 edx 位与 1 左移 2：
+        flags 为 flags 加 「de 」。
+    完。
+    若 edx 位与 1 左移 3：
+        flags 为 flags 加 「pse 」。
+    完。
+    若 edx 位与 1 左移 4：
+        flags 为 flags 加 「tsc 」。
+    完。
+    若 edx 位与 1 左移 5：
+        flags 为 flags 加 「msr 」。
+    完。
+    若 edx 位与 1 左移 6：
+        flags 为 flags 加 「pae 」。
+    完。
+    若 edx 位与 1 左移 8：
+        flags 为 flags 加 「cx8 」。
+    完。
+    若 edx 位与 1 左移 9：
+        flags 为 flags 加 「apic 」。
+    完。
+    若 edx 位与 1 左移 11：
+        flags 为 flags 加 「sep 」。
+    完。
+    若 edx 位与 1 左移 12：
+        flags 为 flags 加 「mtrr 」。
+    完。
+    若 edx 位与 1 左移 13：
+        flags 为 flags 加 「pge 」。
+    完。
+    若 edx 位与 1 左移 15：
+        flags 为 flags 加 「cmov 」。
+    完。
+    若 edx 位与 1 左移 16：
+        flags 为 flags 加 「pat 」。
+    完。
+    若 edx 位与 1 左移 17：
+        flags 为 flags 加 「pse36 」。
+    完。
+    若 edx 位与 1 左移 19：
+        flags 为 flags 加 「clflush 」。
+    完。
+    若 edx 位与 1 左移 20：
+        flags 为 flags 加 「nx 」。
+    完。
+    若 edx 位与 1 左移 23：
+        flags 为 flags 加 「mmx 」。
+    完。
+    若 edx 位与 1 左移 24：
+        flags 为 flags 加 「fxsr 」。
+    完。
+    若 edx 位与 1 左移 25：
+        flags 为 flags 加 「sse 」。
+    完。
+    若 edx 位与 1 左移 26：
+        flags 为 flags 加 「sse2 」。
+    完。
+    若 ecx 位与 1 左移 0：
+        flags 为 flags 加 「sse3 」。
+    完。
+    若 ecx 位与 1 左移 1：
+        flags 为 flags 加 「pclmulqdq 」。
+    完。
+    若 ecx 位与 1 左移 9：
+        flags 为 flags 加 「ssse3 」。
+    完。
+    若 ecx 位与 1 左移 13：
+        flags 为 flags 加 「cx16 」。
+    完。
+    若 ecx 位与 1 左移 19：
+        flags 为 flags 加 「sse4_1 」。
+    完。
+    若 ecx 位与 1 左移 20：
+        flags 为 flags 加 「sse4_2 」。
+    完。
+    若 ecx 位与 1 左移 21：
+        flags 为 flags 加 「x2apic 」。
+    完。
+    若 ecx 位与 1 左移 23：
+        flags 为 flags 加 「popcnt 」。
+    完。
+    若 ecx 位与 1 左移 25：
+        flags 为 flags 加 「aes 」。
+    完。
+    若 ecx 位与 1 左移 26：
+        flags 为 flags 加 「xsave 」。
+    完。
+    若 ecx 位与 1 左移 28：
+        flags 为 flags 加 「avx 」。
+    完。
+    若 ecx 位与 1 左移 30：
+        flags 为 flags 加 「rdrand 」。
+    完。
+    若 ecx 位与 1 左移 31：
+        flags 为 flags 加 「hypervisor 」。
+    完。
+    返还 做 字符串去首尾空白 用 flags。
+完。
+
+cpu_估算频率 接受 零参：
+    PIT_频率 为 1193182。
+    PIT_计数 为 11932。
+    做 端口写8 用 0x61、做 端口读8 用 0x61 位与 0xFD 位或 0x01。
+    做 端口写8 用 0x43、0xB0。
+    做 端口写8 用 0x42、PIT_计数 位与 0xFF。
+    做 端口写8 用 0x42、PIT_计数 右移 8 位与 0xFF。
+    tsc_开始 为 做 内联汇编_返回值 用 「rdtsc」。
+    只要 做 端口读8 用 0x61 位与 0x20 等于 0：
+        做 内联汇编 用 「pause」。
+    完。
+    tsc_结束 为 做 内联汇编_返回值 用 「rdtsc」。
+    差值 为 tsc_结束 减 tsc_开始。
+    频率MHz 为 差值 乘 100 除以 1000000。
+    若 频率MHz 小于 100：
+        频率MHz 为 2000。
+    完。
+    返还 频率MHz。
+完。
+
+cpu_检测核心数 接受 零参：
+    结果 为 做 CPUID 用 1。
+    若 结果 不等于 空：
+        逻辑数 为 结果 的 第 1 项 右移 16 位与 0xFF。
+        若 逻辑数 大于 0：
+            返还 逻辑数。
+        完。
+    完。
+    返还 1。
+完。
+
+cpuid_厂商字符串 接受 叶0：
+    返还 「GenuineIntel」。
+完。
+
+cpuid_品牌字符串 接受 零参：
+    返还 「QEMU Virtual CPU version 2.5+」。
+完。
+
+proc_cpuinfo_注册 接受 零参：
+    做 proNova公平调度_注册 用 「cpuinfo」、proc_cpuinfo_读。
+完。
+
+cpuinfo_完整统计 接受 零参：
+    返还 一组：CPU数量、CPU频率MHz。
+完。
+
+可变 AI_复制_操作热度 为 0。
+
+AI_复制_最优算法 接受 数据量、已排序：
+    AI_复制_操作热度 为 AI_复制_操作热度 加 1。
+    若 数据量 小于 16：
+        返还 「插入排序」。
+    完。
+    若 已排序：
+        返还 「二分查找」。
+    完。
+    若 数据量 小于 10000：
+        返还 「快速排序」。
+    完。
+    返还 「归并排序」。
+完。
+
+本章 收束。

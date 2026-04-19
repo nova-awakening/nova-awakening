@@ -1,0 +1,153 @@
+《Animation_Timeline》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·内容可见性》。
+
+引用《.·关键帧动画》。
+
+DocumentTimeline 是 一种 事物，含 原点时间、当前时间、动画、动画数。
+
+可变 全局Timeline 为 0。
+
+Timeline_获取 接受 零参：
+    若 全局Timeline 等于 0：
+        全局Timeline 为 做 堆_分配 用 DocumentTimeline。
+        全局Timeline 的 原点时间 为 做 平台_获取高精度时间。
+        全局Timeline 的 当前时间 为 0。
+        全局Timeline 的 动画 为 0。
+        全局Timeline 的 动画数 为 0。
+    完。
+    返还 全局Timeline。
+完。
+
+Timeline_currentTime 接受 零参：
+    tl 为 做 Timeline_获取。
+    tl 的 当前时间 为 做 平台_获取高精度时间 减 tl 的 原点时间。
+    返还 tl 的 当前时间。
+完。
+
+Animation 是 一种 事物，含 id、effect、timeline、staNova往返时间ime、currentTime、holdTime、playbackRate、playState、pending、replaceState、onfinish、oncancel、onremove、下一个。
+
+Animation_创建 接受 effect、timeline：
+    anim 为 做 堆_分配 用 Animation。
+    anim 的 id 为 0。
+    anim 的 effect 为 effect。
+    anim 的 timeline 为 若 timeline 不等于 0 则 timeline 否则 做 Timeline_获取。
+    anim 的 staNova往返时间ime 为 负 1。
+    anim 的 currentTime 为 负 1。
+    anim 的 holdTime 为 负 1。
+    anim 的 playbackRate 为 1024。
+    anim 的 playState 为 ANIM_IDLE。
+    anim 的 pending 为 假。
+    anim 的 replaceState 为 0。
+    anim 的 onfinish 为 0。
+    anim 的 oncancel 为 0。
+    anim 的 onremove 为 0。
+    anim 的 下一个 为 0。
+    tl 为 anim 的 timeline。
+    若 tl 不等于 0：
+        anim 的 下一个 为 tl 的 动画。
+        tl 的 动画 为 anim。
+        tl 的 动画数 为 tl 的 动画数 加 1。
+    完。
+    返还 anim。
+完。
+
+Animation_play 接受 anim：
+    若 anim 等于 0：
+        返还。
+    完。
+    若 anim 的 playState 等于 ANIM_FINISHED 并且 anim 的 playbackRate 大于或等于 0：
+        anim 的 currentTime 为 0。
+    完。
+    anim 的 playState 为 ANIM_RUNNING。
+    anim 的 pending 为 假。
+    anim 的 staNova往返时间ime 为 做 Timeline_currentTime 减 anim 的 currentTime 乘 1024 除以 anim 的 playbackRate。
+    anim 的 holdTime 为 负 1。
+完。
+
+Animation_pause 接受 anim：
+    若 anim 等于 0 或者 anim 的 playState 等于 ANIM_PAUSED：
+        返还。
+    完。
+    anim 的 holdTime 为 anim 的 currentTime。
+    anim 的 playState 为 ANIM_PAUSED。
+    anim 的 staNova往返时间ime 为 负 1。
+完。
+
+Animation_cancel 接受 anim：
+    若 anim 等于 0：
+        返还。
+    完。
+    anim 的 playState 为 ANIM_IDLE。
+    anim 的 currentTime 为 负 1。
+    anim 的 staNova往返时间ime 为 负 1。
+    若 anim 的 oncancel 不等于 0：
+    完。
+完。
+
+Animation_finish 接受 anim：
+    若 anim 等于 0：
+        返还。
+    完。
+    若 anim 的 effect 不等于 0：
+        kfe 为 anim 的 effect。
+        若 anim 的 playbackRate 大于或等于 0：
+            anim 的 currentTime 为 kfe 的 delay 加 kfe 的 duration 乘 kfe 的 iterations 除以 1024 加 kfe 的 endDelay。
+        否则：
+            anim 的 currentTime 为 0。
+        完。
+    完。
+    anim 的 playState 为 ANIM_FINISHED。
+    若 anim 的 onfinish 不等于 0：
+    完。
+完。
+
+Animation_reverse 接受 anim：
+    若 anim 等于 0：
+        返还。
+    完。
+    anim 的 playbackRate 为 负 anim 的 playbackRate。
+    做 Animation_play 用 anim。
+完。
+
+Animation_updatePlaybackRate 接受 anim、rate：
+    若 anim 等于 0：
+        返还。
+    完。
+    之前时间 为 anim 的 currentTime。
+    anim 的 playbackRate 为 rate。
+    若 anim 的 playState 等于 ANIM_RUNNING：
+        anim 的 staNova往返时间ime 为 做 Timeline_currentTime 减 之前时间 乘 1024 除以 rate。
+    完。
+完。
+
+Animation_tick 接受 anim、timelineTime：
+    若 anim 等于 0 或者 anim 的 playState 不等于 ANIM_RUNNING：
+        返还。
+    完。
+    若 anim 的 staNova往返时间ime 大于或等于 0：
+        anim 的 currentTime 为 (timelineTime 减 anim 的 staNova往返时间ime) 乘 anim 的 playbackRate 除以 1024。
+    完。
+    若 anim 的 effect 不等于 0：
+        做 KeyframeEffect_计算 用 anim 的 effect、anim 的 currentTime。
+    完。
+    若 anim 的 effect 不等于 0：
+        kfe 为 anim 的 effect。
+        endTime 为 kfe 的 delay 加 kfe 的 duration 乘 kfe 的 iterations 除以 1024 加 kfe 的 endDelay。
+        若 anim 的 playbackRate 大于或等于 0 并且 anim 的 currentTime 大于或等于 endTime：
+            anim 的 playState 为 ANIM_FINISHED。
+            若 anim 的 onfinish 不等于 0：
+            完。
+        否则若 anim 的 playbackRate 小于 0 并且 anim 的 currentTime 小于或等于 0：
+            anim 的 playState 为 ANIM_FINISHED。
+            若 anim 的 onfinish 不等于 0：
+            完。
+        完。
+    完。
+完。
+
+本章 收束。

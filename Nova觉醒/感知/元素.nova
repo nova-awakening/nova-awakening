@@ -1,0 +1,120 @@
+《元素》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·关键帧》。
+
+引用《.·Animation_Timeline》。
+
+元素_animate 接受 元素、keyframes、帧数、duration、easing、iterations、fill、delay：
+    若 元素 等于 0 或者 keyframes 等于 0：
+        返还 0。
+    完。
+    kfe 为 做 KeyframeEffect_创建 用 元素、keyframes、帧数、duration。
+    kfe 的 delay 为 delay。
+    kfe 的 iterations 为 iterations。
+    kfe 的 fill 为 fill。
+    若 easing 不等于 0：
+        kfe 的 easing 为 easing。
+    完。
+    anim 为 做 Animation_创建 用 kfe、0。
+    做 Animation_play 用 anim。
+    返还 anim。
+完。
+
+Document_getAnimations 接受 结果、最大数：
+    tl 为 做 Timeline_获取。
+    若 tl 等于 0 或者 结果 等于 0：
+        返还 0。
+    完。
+    可变 count 为 0。
+    可变 anim 为 tl 的 动画。
+    只要 anim 不等于 0 并且 count 小于 最大数：
+        若 anim 的 playState 不等于 ANIM_IDLE：
+            做 内存_写64 用 结果 加 count 乘 8、anim。
+            count 为 count 加 1。
+        完。
+        anim 为 anim 的 下一个。
+    完。
+    返还 count。
+完。
+
+AnimationTimeline_tick 接受 零参：
+    tl 为 做 Timeline_获取。
+    若 tl 等于 0：
+        返还。
+    完。
+    现在 为 做 Timeline_currentTime。
+    可变 anim 为 tl 的 动画。
+    只要 anim 不等于 0：
+        做 Animation_tick 用 anim、现在。
+        anim 为 anim 的 下一个。
+    完。
+完。
+
+CSSTransition_创建 接受 元素、propId、从值、到值、duration、delay、easing：
+    若 元素 等于 0：
+        返还 0。
+    完。
+    frames 为 做 堆_分配 用 2 乘 做 大小of 用 Keyframe。
+    f0 为 frames。
+    f0 的 offset 为 0。
+    f0 的 属性 的 第 0 项 为 propId。
+    f0 的 值 的 第 0 项 为 从值。
+    f0 的 属性数 为 1。
+    f0 的 easing 为 easing。
+    f1 为 frames 加 做 大小of 用 Keyframe。
+    f1 的 offset 为 1024。
+    f1 的 属性 的 第 0 项 为 propId。
+    f1 的 值 的 第 0 项 为 到值。
+    f1 的 属性数 为 1。
+    f1 的 easing 为 0。
+    返还 做 元素_animate 用 元素、frames、2、duration、0、1024、FILL_BOTH、delay。
+完。
+
+CSSKeyframes_创建 接受 元素、keyframes、帧数、name、duration、iterations、direction、fill、delay、easing：
+    若 元素 等于 0：
+        返还 0。
+    完。
+    kfe 为 做 KeyframeEffect_创建 用 元素、keyframes、帧数、duration。
+    kfe 的 delay 为 delay。
+    kfe 的 iterations 为 iterations。
+    kfe 的 direction 为 direction。
+    kfe 的 fill 为 fill。
+    若 easing 不等于 0：
+        kfe 的 easing 为 easing。
+    完。
+    anim 为 做 Animation_创建 用 kfe、0。
+    做 Animation_play 用 anim。
+    返还 anim。
+完。
+
+智能_Animation_图处加速检测 接受 anim：
+    若 anim 等于 0 或者 anim 的 effect 等于 0：
+        返还 假。
+    完。
+    返还 假。
+完。
+
+智能_Animation_帧预测 接受 anim、当前帧、预测帧数：
+    若 anim 等于 0 或者 anim 的 effect 等于 0：
+        返还。
+    完。
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还。
+    完。
+完。
+
+智能_Animation_自动降级 接受 anim、设备性能评分：
+    若 anim 等于 0：
+        返还。
+    完。
+    若 设备性能评分 小于 30：
+    否则若 设备性能评分 小于 60：
+    完。
+完。
+
+本章 收束。

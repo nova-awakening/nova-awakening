@@ -1,0 +1,112 @@
+《瓦片》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内存管理纹》。
+
+引用《..·中枢·字符串替换》。
+
+TILE_SIZE 为 256。
+
+TILE_STATE_IDLE 为 0。
+
+TILE_STATE_SCHEDULED 为 1。
+
+TILE_STATE_RASTERIZED 为 2。
+
+TILE_STATE_图处_READY 为 3。
+
+Tile 是 一种 事物，含 列、行、x、y、宽、高、状态、像素数据、纹理ID、优先级、需要光栅化。
+
+LayerTreeHost 是 一种 事物，含 根层、层列表、层数量、层容量、帧序号、最后commit时间、视口宽、视口高、设备像素比、需要commit、需要重绘、正在动画、光栅化队列、光栅化队列大小、纹理内存使用、纹理内存限制、下一个层ID。
+
+可变 全局层树 为 0。
+
+LayerTreeHost_获取 接受 零参：
+    若 全局层树 等于 0：
+        全局层树 为 做 堆_分配 用 LayerTreeHost。
+        全局层树 的 层容量 为 256。
+        全局层树 的 层列表 为 做 堆_分配_数组 用 256 乘 8。
+        全局层树 的 层数量 为 0。
+        全局层树 的 帧序号 为 0。
+        全局层树 的 需要commit 为 假。
+        全局层树 的 需要重绘 为 假。
+        全局层树 的 正在动画 为 假。
+        全局层树 的 纹理内存使用 为 0。
+        全局层树 的 纹理内存限制 为 256 乘 1024 乘 1024。
+        全局层树 的 光栅化队列 为 做 堆_分配_数组 用 1024 乘 8。
+        全局层树 的 光栅化队列大小 为 0。
+        全局层树 的 下一个层ID 为 1。
+        全局层树 的 根层 为 0。
+    完。
+    返还 全局层树。
+完。
+
+Compositing_分析层 接受 paint层：
+    若 paint层 等于 0：
+        返还 CR_NONE。
+    完。
+    可变 原因 为 CR_NONE。
+    样式 为 paint层 的 计算样式。
+    若 样式 等于 0：
+        返还 CR_NONE。
+    完。
+    wc 为 样式 的 will_change。
+    若 wc 不等于 0：
+        若 做 字符串_包含 用 wc、「transform」：
+            原因 为 原因 位或 CR_WILL_CHANGE_TRANSFORM。
+        完。
+        若 做 字符串_包含 用 wc、「opacity」：
+            原因 为 原因 位或 CR_WILL_CHANGE_OPACITY。
+        完。
+        若 做 字符串_包含 用 wc、「filter」：
+            原因 为 原因 位或 CR_WILL_CHANGE_FILTER。
+        完。
+    完。
+    若 样式 的 transform 不等于 0：
+        若 做 Transform_是3D 用 样式 的 transform：
+            原因 为 原因 位或 CR_3D_TRANSFORM。
+        完。
+    完。
+    若 paint层 的 有transform动画：
+        原因 为 原因 位或 CR_ANIMATION_TRANSFORM。
+    完。
+    若 paint层 的 有opacity动画：
+        原因 为 原因 位或 CR_ANIMATION_OPACITY。
+    完。
+    若 样式 的 position 等于 5：
+        原因 为 原因 位或 CR_FIXED_POSITION。
+    完。
+    若 样式 的 overflow_x 等于 3 或者 样式 的 overflow_y 等于 3：
+        若 paint层 的 可滚动：
+            原因 为 原因 位或 CR_OVERFLOW_SCROLL。
+        完。
+    完。
+    若 paint层 的 是video：
+        原因 为 原因 位或 CR_VIDEO。
+    完。
+    若 paint层 的 是canvas：
+        原因 为 原因 位或 CR_CANVAS。
+    完。
+    若 样式 的 backdrop_filter 不等于 0：
+        原因 为 原因 位或 CR_BACKDROP_FILTER。
+    完。
+    若 样式 的 filter 不等于 0：
+        原因 为 原因 位或 CR_FILTER。
+    完。
+    若 样式 的 mix_blend_mode 不等于 0：
+        原因 为 原因 位或 CR_BLEND_MODE。
+    完。
+    若 样式 的 backface_visibility 等于 1：
+        原因 为 原因 位或 CR_BACKFACE_HIDDEN。
+    完。
+    返还 原因。
+完。
+
+Compositing_需要合成层 接受 原因：
+    返还 原因 不等于 CR_NONE。
+完。
+
+本章 收束。

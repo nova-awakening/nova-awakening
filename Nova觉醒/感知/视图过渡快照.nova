@@ -1,0 +1,459 @@
+《视图过渡快照》
+
+引用《.·内核直连层》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·执行·节点操作》。
+
+引用《..·执行·底层内存操》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·外联·URL解析辅助》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内存初始化》。
+
+VT_STATE_IDLE 为 0。
+
+VT_STATE_CAPTURING 为 1。
+
+VT_STATE_UPDATING 为 2。
+
+VT_STATE_ANIMATING 为 3。
+
+VT_STATE_DONE 为 4。
+
+VT_STATE_SKIPPED 为 5。
+
+VTSnapshot 是 一种 事物，含 名称、x、y、宽、高、变换、像素、像素宽、像素高、书写模式、方向、圆角、有裁剪。
+
+VTSnapshot_创建 接受 名称、元素：
+    snap 为 做 堆_分配 用 VTSnapshot。
+    snap 的 名称 为 若 名称 不等于 0 则 做 字符串_复制 用 名称 否则 「」。
+    snap 的 像素 为 0。
+    snap 的 像素宽 为 0。
+    snap 的 像素高 为 0。
+    snap 的 变换 为 做 堆_分配 用 64。
+    snap 的 有裁剪 为 假。
+    若 元素 不等于 0：
+        布局 为 元素 的 布局对象。
+        若 布局 不等于 0：
+            snap 的 x 为 布局 的 x。
+            snap 的 y 为 布局 的 y。
+            snap 的 宽 为 布局 的 宽。
+            snap 的 高 为 布局 的 高。
+        完。
+        做 VTSnapshot_光栅化 用 snap、元素。
+    完。
+    返还 snap。
+完。
+
+VTSnapshot_光栅化 接受 snap、元素：
+    若 snap 等于 0 或者 元素 等于 0：
+        返还。
+    完。
+    snap 的 像素宽 为 若 snap 的 宽 大于 0 则 snap 的 宽 否则 1。
+    snap 的 像素高 为 若 snap 的 高 大于 0 则 snap 的 高 否则 1。
+    snap 的 像素 为 做 堆_分配 用 snap 的 像素宽 乘 snap 的 像素高 乘 4。
+    做 内存_清零 用 snap 的 像素、snap 的 像素宽 乘 snap 的 像素高 乘 4。
+    offscreen 为 做 Sk画布_创建_从Buffer 用 snap 的 像素、snap 的 像素宽、snap 的 像素高。
+    做 绘制Layer_绘制子树 用 offscreen、元素、snap 的 宽、snap 的 高。
+完。
+
+NVTS_默认动画时长 为 250。
+
+NVTS_最大快照数 为 64。
+
+NVTS_帧率 为 60。
+
+可变 NVTS_当前状态 为 VT_STATE_IDLE。
+
+可变 NVTS_快照列表 为 一组：（空）。
+
+可变 NVTS_新快照列表 为 一组：（空）。
+
+可变 NVTS_动画时长 为 NVTS_默认动画时长。
+
+可变 NVTS_动画开始时间 为 0。
+
+可变 NVTS_DOM更新回调 为 0。
+
+可变 NVTS_快照捕获次数 为 0。
+
+可变 NVTS_动画播放次数 为 0。
+
+可变 NVTS_光栅化次数 为 0。
+
+可变 NVTS_插值次数 为 0。
+
+可变 NVTS_跳过次数 为 0。
+
+可变 NVTS_AI预测次数 为 0。
+
+可变 NVTS_伪元素创建次数 为 0。
+
+可变 NVTS_AI总线 为 0。
+
+NVTS_开始视图过渡 接受 文档、回调：
+    若 NVTS_当前状态 不等于 VT_STATE_IDLE：
+        做 打印 用 「[NVTS] 警告: 已有过渡进行中, 跳过」。
+        NVTS_跳过次数 为 NVTS_跳过次数 加 1。
+        返还 假。
+    完。
+    NVTS_DOM更新回调 为 回调。
+    NVTS_当前状态 为 VT_STATE_CAPTURING。
+    NVTS_快照列表 为 一组：（空）。
+    做 NVTS_捕获所有快照 用 文档、NVTS_快照列表。
+    NVTS_当前状态 为 VT_STATE_UPDATING。
+    若 NVTS_DOM更新回调 不等于 0：
+        做 NVTS_DOM更新回调。
+    完。
+    NVTS_新快照列表 为 一组：（空）。
+    做 NVTS_捕获所有快照 用 文档、NVTS_新快照列表。
+    NVTS_当前状态 为 VT_STATE_ANIMATING。
+    NVTS_动画开始时间 为 做 系统调用_时间戳。
+    NVTS_动画播放次数 为 NVTS_动画播放次数 加 1。
+    返还 真。
+完。
+
+NVTS_捕获所有快照 接受 文档、目标列表：
+    可变 i 为 0。
+    总数 为 做 DOM_元素总数 用 文档。
+    只要 i 小于 总数 并且 做 计数 用 目标列表 小于 NVTS_最大快照数：
+        元素 为 做 DOM_获取元素按索引 用 文档、i。
+        vtName 为 做 DOM_获取属性 用 文档、元素 的 ID、「view-transition-name」。
+        若 做 字符串长度 用 vtName 大于 0 并且 vtName 不等于 「none」：
+            snap 为 做 VTSnapshot_创建 用 vtName、元素。
+            做 追加 用 目标列表、snap。
+            NVTS_快照捕获次数 为 NVTS_快照捕获次数 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NVTS_线性插值 接受 a、b、t：
+    返还 a 加 (b 减 a) 乘 t。
+完。
+
+NVTS_ease插值 接受 t：
+    返还 t 乘 t 乘 (3.0 减 2.0 乘 t)。
+完。
+
+NVTS_easeInOut插值 接受 t：
+    返还 t 乘 t 乘 t 乘 (t 乘 (t 乘 6.0 减 15.0) 加 10.0)。
+完。
+
+NVTS_计算插值快照 接受 旧snap、新snap、t：
+    NVTS_插值次数 为 NVTS_插值次数 加 1。
+    easeT 为 做 NVTS_ease插值 用 t。
+    结果 为 做 堆_分配 用 VTSnapshot。
+    结果 的 名称 为 新snap 的 名称。
+    结果 的 x 为 做 NVTS_线性插值 用 旧snap 的 x、新snap 的 x、easeT。
+    结果 的 y 为 做 NVTS_线性插值 用 旧snap 的 y、新snap 的 y、easeT。
+    结果 的 宽 为 做 NVTS_线性插值 用 旧snap 的 宽、新snap 的 宽、easeT。
+    结果 的 高 为 做 NVTS_线性插值 用 旧snap 的 高、新snap 的 高、easeT。
+    若 旧snap 的 圆角 不等于 0 并且 新snap 的 圆角 不等于 0：
+        结果 的 圆角 为 做 堆_分配 用 16。
+        可变 ci 为 0。
+        只要 ci 小于 4：
+            旧r 为 做 内存_读32 用 旧snap 的 圆角 加 ci 乘 4。
+            新r 为 做 内存_读32 用 新snap 的 圆角 加 ci 乘 4。
+            做 内存_写i32 用 结果 的 圆角 加 ci 乘 4、做 NVTS_线性插值 用 旧r、新r、easeT。
+            ci 为 ci 加 1。
+        完。
+    完。
+    返还 结果。
+完。
+
+NVTS_交叉淡入帧 接受 旧snap、新snap、t、目标缓冲、视口宽、视口高：
+    easeT 为 做 NVTS_ease插值 用 t。
+    插值 为 做 NVTS_计算插值快照 用 旧snap、新snap、easeT。
+    若 旧snap 的 像素 不等于 0：
+        做 NVTS_绘制快照到缓冲 用 目标缓冲、旧snap、插值、1.0 减 easeT、视口宽、视口高。
+    完。
+    若 新snap 的 像素 不等于 0：
+        做 NVTS_绘制快照到缓冲 用 目标缓冲、新snap、插值、easeT、视口宽、视口高。
+    完。
+    做 堆_释放 用 插值。
+完。
+
+NVTS_绘制快照到缓冲 接受 目标、snap、插值快照、opacity、vw、vh：
+    dx 为 插值快照 的 x。
+    dy 为 插值快照 的 y。
+    dw 为 插值快照 的 宽。
+    dh 为 插值快照 的 高。
+    若 dw 小于或等于 0 或者 dh 小于或等于 0：
+        返还。
+    完。
+    scaleX 为 dw 除以 snap 的 像素宽。
+    scaleY 为 dh 除以 snap 的 像素高。
+    可变 py 为 0。
+    只要 py 小于 dh 并且 dy 加 py 小于 vh：
+        srcY 为 py 除以 scaleY。
+        若 srcY 大于或等于 snap 的 像素高：
+            返还。
+        完。
+        可变 px 为 0。
+        只要 px 小于 dw 并且 dx 加 px 小于 vw：
+            srcX 为 px 除以 scaleX。
+            若 srcX 小于 snap 的 像素宽：
+                srcOff 为 (srcY 乘 snap 的 像素宽 加 srcX) 乘 4。
+                dstOff 为 ((dy 加 py) 乘 vw 加 (dx 加 px)) 乘 4。
+                sr 为 做 内存_读u8 用 snap 的 像素 加 srcOff。
+                sg 为 做 内存_读u8 用 snap 的 像素 加 srcOff 加 1。
+                sb 为 做 内存_读u8 用 snap 的 像素 加 srcOff 加 2。
+                sa 为 做 内存_读u8 用 snap 的 像素 加 srcOff 加 3。
+                混合透明 为 sa 乘 opacity 除以 255。
+                dr 为 做 内存_读u8 用 目标 加 dstOff。
+                dg 为 做 内存_读u8 用 目标 加 dstOff 加 1。
+                db 为 做 内存_读u8 用 目标 加 dstOff 加 2。
+                做 内存_写u8 用 目标 加 dstOff、(sr 乘 混合透明 加 dr 乘 (255 减 混合透明)) 除以 255。
+                做 内存_写u8 用 目标 加 dstOff 加 1、(sg 乘 混合透明 加 dg 乘 (255 减 混合透明)) 除以 255。
+                做 内存_写u8 用 目标 加 dstOff 加 2、(sb 乘 混合透明 加 db 乘 (255 减 混合透明)) 除以 255。
+                做 内存_写u8 用 目标 加 dstOff 加 3、255。
+            完。
+            px 为 px 加 1。
+        完。
+        py 为 py 加 1。
+    完。
+完。
+
+VT_伪_根 为 0。
+
+VT_伪_组 为 1。
+
+VT_伪_图像对 为 2。
+
+VT_伪_旧 为 3。
+
+VT_伪_新 为 4。
+
+NVTS_伪元素节点 是 一种 事物，含 类型 为 0、名称 为 「」、子节点 为 一组：（空）、快照 为 0。
+
+NVTS_构建伪元素树 接受 旧快照列表、新快照列表：
+    NVTS_伪元素创建次数 为 NVTS_伪元素创建次数 加 1。
+    root 为 新建 NVTS_伪元素节点：类型 为 VT_伪_根、名称 为 「」、子节点 为 一组：（空）、快照 为 0。
+    名称集 为 一组：（空）。
+    做 NVTS_收集名称 用 旧快照列表、名称集。
+    做 NVTS_收集名称 用 新快照列表、名称集。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 名称集：
+        name 为 名称集 的 第 i 项。
+        group 为 新建 NVTS_伪元素节点：类型 为 VT_伪_组、名称 为 name、子节点 为 一组：（空）、快照 为 0。
+        pair 为 新建 NVTS_伪元素节点：类型 为 VT_伪_图像对、名称 为 name、子节点 为 一组：（空）、快照 为 0。
+        旧snap 为 做 NVTS_查找快照 用 旧快照列表、name。
+        oldNode 为 新建 NVTS_伪元素节点：类型 为 VT_伪_旧、名称 为 name、子节点 为 一组：（空）、快照 为 旧snap。
+        新snap 为 做 NVTS_查找快照 用 新快照列表、name。
+        newNode 为 新建 NVTS_伪元素节点：类型 为 VT_伪_新、名称 为 name、子节点 为 一组：（空）、快照 为 新snap。
+        做 追加 用 pair 的 子节点、oldNode。
+        做 追加 用 pair 的 子节点、newNode。
+        做 追加 用 group 的 子节点、pair。
+        做 追加 用 root 的 子节点、group。
+        i 为 i 加 1。
+    完。
+    返还 root。
+完。
+
+NVTS_收集名称 接受 快照列表、名称集：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 快照列表：
+        name 为 快照列表 的 第 i 项 的 名称。
+        可变 found 为 假。
+        可变 j 为 0。
+        只要 j 小于 做 计数 用 名称集：
+            若 名称集 的 第 j 项 等于 name：
+                found 为 真。
+            完。
+            j 为 j 加 1。
+        完。
+        若 非 found：
+            做 追加 用 名称集、name。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NVTS_查找快照 接受 快照列表、名称：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 快照列表：
+        若 快照列表 的 第 i 项 的 名称 等于 名称：
+            返还 快照列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+NVTS_宽高比 是 一种 事物，含 自动 为 假、宽比 为 0、高比 为 0。
+
+NVTS_解析宽高比 接受 值串：
+    结果 为 新建 NVTS_宽高比：自动 为 假、宽比 为 0、高比 为 0。
+    若 值串 等于 「auto」：
+        结果 的 自动 为 真。
+        返还 结果。
+    完。
+    autoPos 为 做 字符串查找 用 值串、「auto 」。
+    若 autoPos 等于 0：
+        结果 的 自动 为 真。
+        rest 为 做 字符串子串 用 值串、5、做 字符串长度 用 值串 减 5。
+        slashPos 为 做 字符串查找 用 rest、「/」。
+        若 slashPos 大于或等于 0：
+            结果 的 宽比 为 做 字符串转整数 用 做 字符串去空格 用 做 字符串子串 用 rest、0、slashPos。
+            结果 的 高比 为 做 字符串转整数 用 做 字符串去空格 用 做 字符串子串 用 rest、slashPos 加 1、做 字符串长度 用 rest 减 slashPos 减 1。
+        完。
+        返还 结果。
+    完。
+    slashPos 为 做 字符串查找 用 值串、「/」。
+    若 slashPos 大于或等于 0：
+        结果 的 宽比 为 做 字符串转整数 用 做 字符串去空格 用 做 字符串子串 用 值串、0、slashPos。
+        结果 的 高比 为 做 字符串转整数 用 做 字符串去空格 用 做 字符串子串 用 值串、slashPos 加 1、做 字符串长度 用 值串 减 slashPos 减 1。
+    完。
+    返还 结果。
+完。
+
+NVTS_应用宽高比 接受 宽、高、ratio：
+    若 ratio 的 宽比 小于或等于 0 或者 ratio 的 高比 小于或等于 0：
+        返还 一组：宽、高。
+    完。
+    目标比 为 ratio 的 宽比 除以 ratio 的 高比。
+    当前比 为 宽 除以 高。
+    若 当前比 大于 目标比：
+        返还 一组：高 乘 目标比、高。
+    否则：
+        返还 一组：宽、宽 除以 目标比。
+    完。
+完。
+
+NVTS_动画帧更新 接受 目标缓冲、视口宽、视口高：
+    若 NVTS_当前状态 不等于 VT_STATE_ANIMATING：
+        返还 假。
+    完。
+    now 为 做 系统调用_时间戳。
+    elapsed 为 now 减 NVTS_动画开始时间。
+    可变 t 为 elapsed 除以 NVTS_动画时长。
+    若 t 大于 1.0：
+        t 为 1.0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 NVTS_快照列表：
+        旧snap 为 NVTS_快照列表 的 第 i 项。
+        新snap 为 做 NVTS_查找快照 用 NVTS_新快照列表、旧snap 的 名称。
+        若 新snap 不等于 0：
+            做 NVTS_交叉淡入帧 用 旧snap、新snap、t、目标缓冲、视口宽、视口高。
+        完。
+        i 为 i 加 1。
+    完。
+    若 t 大于或等于 1.0：
+        做 NVTS_完成过渡。
+        返还 假。
+    完。
+    返还 真。
+完。
+
+NVTS_完成过渡 接受 零参：
+    NVTS_当前状态 为 VT_STATE_DONE。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 NVTS_快照列表：
+        做 NVTS_释放快照 用 NVTS_快照列表 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    NVTS_快照列表 为 一组：（空）。
+    NVTS_新快照列表 为 一组：（空）。
+    NVTS_当前状态 为 VT_STATE_IDLE。
+完。
+
+NVTS_跳过过渡 接受 零参：
+    NVTS_跳过次数 为 NVTS_跳过次数 加 1。
+    做 NVTS_完成过渡。
+完。
+
+NVTS_释放快照 接受 snap：
+    若 snap 等于 0：
+        返还。
+    完。
+    若 snap 的 像素 不等于 0：
+        做 堆_释放 用 snap 的 像素。
+    完。
+    若 snap 的 变换 不等于 0：
+        做 堆_释放 用 snap 的 变换。
+    完。
+    若 snap 的 圆角 不等于 0：
+        做 堆_释放 用 snap 的 圆角。
+    完。
+    做 堆_释放 用 snap。
+完。
+
+NVTS_AI特征提取 接受 旧snap、新snap：
+    tensor 为 做 Tensor_创建 用 12。
+    做 Tensor_写 用 tensor、0、旧snap 的 宽 除以 1920.0。
+    做 Tensor_写 用 tensor、1、旧snap 的 高 除以 1080.0。
+    做 Tensor_写 用 tensor、2、新snap 的 宽 除以 1920.0。
+    做 Tensor_写 用 tensor、3、新snap 的 高 除以 1080.0。
+    dx 为 新snap 的 x 减 旧snap 的 x。
+    dy 为 新snap 的 y 减 旧snap 的 y。
+    做 Tensor_写 用 tensor、4、dx 除以 1920.0。
+    做 Tensor_写 用 tensor、5、dy 除以 1080.0。
+    旧面积 为 旧snap 的 宽 乘 旧snap 的 高。
+    新面积 为 新snap 的 宽 乘 新snap 的 高。
+    若 旧面积 大于 0：
+        做 Tensor_写 用 tensor、6、新面积 除以 旧面积。
+    否则：
+        做 Tensor_写 用 tensor、6、1.0。
+    完。
+    做 Tensor_写 用 tensor、7、新snap 的 像素宽 乘 新snap 的 像素高 乘 4 除以 (1024.0 乘 1024.0)。
+    返还 tensor。
+完。
+
+NVTS_AI预测动画时长 接受 旧snap、新snap：
+    NVTS_AI预测次数 为 NVTS_AI预测次数 加 1。
+    若 NVTS_AI总线 等于 0：
+        返还 NVTS_默认动画时长。
+    完。
+    tensor 为 做 NVTS_AI特征提取 用 旧snap、新snap。
+    结果 为 做 AI总线_推理 用 NVTS_AI总线、「vt_duration」、tensor。
+    推荐时长 为 做 Tensor_读 用 结果、0。
+    做 Tensor_释放 用 tensor。
+    做 Tensor_释放 用 结果。
+    若 推荐时长 小于 100：
+        推荐时长 为 100。
+    完。
+    若 推荐时长 大于 1000：
+        推荐时长 为 1000。
+    完。
+    返还 推荐时长。
+完。
+
+NVTS_初始化 接受 零参：
+    NVTS_当前状态 为 VT_STATE_IDLE。
+    NVTS_快照列表 为 一组：（空）。
+    NVTS_新快照列表 为 一组：（空）。
+    NVTS_动画时长 为 NVTS_默认动画时长。
+    NVTS_动画开始时间 为 0。
+    NVTS_DOM更新回调 为 0。
+    NVTS_快照捕获次数 为 0。
+    NVTS_动画播放次数 为 0。
+    NVTS_光栅化次数 为 0。
+    NVTS_插值次数 为 0。
+    NVTS_跳过次数 为 0。
+    NVTS_AI预测次数 为 0。
+    NVTS_伪元素创建次数 为 0。
+    NVTS_AI总线 为 全局AI总线。
+    做 打印 用 「[NVTS] 视图过渡快照引擎初始化完成」。
+完。
+
+NVTS_诊断报告 接受 零参：
+    做 打印 用 「[NVTS] === 视图过渡诊断 ===」。
+    做 打印 用 「  状态=」 加 做 整数转字符串 用 NVTS_当前状态 加 「 动画时长=」 加 做 整数转字符串 用 NVTS_动画时长 加 「ms」。
+    做 打印 用 「  快照捕获=」 加 做 整数转字符串 用 NVTS_快照捕获次数 加 「 动画播放=」 加 做 整数转字符串 用 NVTS_动画播放次数 加 「 跳过=」 加 做 整数转字符串 用 NVTS_跳过次数。
+    做 打印 用 「  插值=」 加 做 整数转字符串 用 NVTS_插值次数 加 「 光栅化=」 加 做 整数转字符串 用 NVTS_光栅化次数 加 「 伪元素=」 加 做 整数转字符串 用 NVTS_伪元素创建次数。
+    做 打印 用 「  AI预测=」 加 NVTS_AI预测次数。
+完。
+
+本章 收束。

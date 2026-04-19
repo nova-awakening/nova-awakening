@@ -1,0 +1,149 @@
+《选择接口》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·全局注册》。
+
+引用《.·样式滤镜》。
+
+引用《.·文档节点》。
+
+Selection 是 一种 事物，含 anchor节点、anchorOffset、focus节点、focusOffset、ranges、rangeCount、类型、方向。
+
+可变 全局Selection 为 0。
+
+Selection_获取 接受 零参：
+    若 全局Selection 等于 0：
+        全局Selection 为 做 堆_分配 用 Selection。
+        全局Selection 的 anchor节点 为 0。
+        全局Selection 的 focus节点 为 0。
+        全局Selection 的 rangeCount 为 0。
+        全局Selection 的 类型 为 0。
+    完。
+    返还 全局Selection。
+完。
+
+Selection_addRange 接受 sel、range：
+    若 sel 等于 0 或者 range 等于 0 或者 sel 的 rangeCount 大于或等于 8：
+        返还。
+    完。
+    sel 的 ranges 的 第 sel 的 rangeCount 项 为 range。
+    sel 的 rangeCount 为 sel 的 rangeCount 加 1。
+    sel 的 anchor节点 为 range 的 startContainer。
+    sel 的 anchorOffset 为 range 的 startOffset。
+    sel 的 focus节点 为 range 的 endContainer。
+    sel 的 focusOffset 为 range 的 endOffset。
+    若 range 的 collapsed：
+        sel 的 类型 为 1。
+    否则：
+        sel 的 类型 为 2。
+    完。
+完。
+
+Selection_removeAllRanges 接受 sel：
+    若 sel 等于 0：
+        返还。
+    完。
+    sel 的 rangeCount 为 0。
+    sel 的 anchor节点 为 0。
+    sel 的 focus节点 为 0。
+    sel 的 类型 为 0。
+完。
+
+Selection_removeRange 接受 sel、range：
+    若 sel 等于 0 或者 range 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 sel 的 rangeCount：
+        若 sel 的 ranges 的 第 i 项 等于 range：
+            可变 j 为 i。
+            只要 j 小于 sel 的 rangeCount 减 1：
+                sel 的 ranges 的 第 j 项 为 sel 的 ranges 的 第 j 加 1 项。
+                j 为 j 加 1。
+            完。
+            sel 的 rangeCount 为 sel 的 rangeCount 减 1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+Selection_getRangeAt 接受 sel、index：
+    若 sel 等于 0 或者 index 大于或等于 sel 的 rangeCount：
+        返还 0。
+    完。
+    返还 sel 的 ranges 的 第 index 项。
+完。
+
+Selection_collapse 接受 sel、节点、offset：
+    若 sel 等于 0：
+        返还。
+    完。
+    做 Selection_removeAllRanges 用 sel。
+    r 为 做 Range_创建。
+    做 Range_setStart 用 r、节点、offset。
+    做 Range_setEnd 用 r、节点、offset。
+    做 Selection_addRange 用 sel、r。
+完。
+
+Selection_extend 接受 sel、节点、offset：
+    若 sel 等于 0 或者 sel 的 rangeCount 等于 0：
+        返还。
+    完。
+    sel 的 focus节点 为 节点。
+    sel 的 focusOffset 为 offset。
+    r 为 sel 的 ranges 的 第 0 项。
+    若 r 不等于 0：
+        做 Range_setEnd 用 r、节点、offset。
+    完。
+完。
+
+Selection_selectAllChildren 接受 sel、节点：
+    若 sel 等于 0 或者 节点 等于 0：
+        返还。
+    完。
+    做 Selection_removeAllRanges 用 sel。
+    r 为 做 Range_创建。
+    做 Range_select节点Contents 用 r、节点。
+    做 Selection_addRange 用 sel、r。
+完。
+
+Selection_toString 接受 sel：
+    若 sel 等于 0 或者 sel 的 rangeCount 等于 0：
+        返还 「」。
+    完。
+    返还 做 Range_toString 用 sel 的 ranges 的 第 0 项。
+完。
+
+Selection_isCollapsed 接受 sel：
+    若 sel 等于 0 或者 sel 的 rangeCount 等于 0：
+        返还 真。
+    完。
+    返还 sel 的 类型 小于或等于 1。
+完。
+
+Selection_复制到剪贴板 接受 sel：
+    若 sel 等于 0 或者 sel 的 rangeCount 等于 0：
+        返还。
+    完。
+    文本 为 做 Selection_toString 用 sel。
+    若 文本 不等于 0：
+        做 Clipboard_writeText 用 文本。
+    完。
+完。
+
+Selection_剪切到剪贴板 接受 sel：
+    若 sel 等于 0 或者 sel 的 rangeCount 等于 0：
+        返还。
+    完。
+    做 Selection_复制到剪贴板 用 sel。
+    r 为 sel 的 ranges 的 第 0 项。
+    若 r 不等于 0：
+        做 Range_deleteContents 用 r。
+    完。
+完。
+
+本章 收束。

@@ -1,0 +1,99 @@
+《HTML实体表》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·标记实体添加》。
+
+HTMLEntity 是 一种 事物，含 名称、名称长度、码点1、码点2。
+
+可变 实体表 为 0。
+
+可变 实体表大小 为 0。
+
+HTMLEntity_初始化表 接受 零参：
+    若 实体表 不等于 0：
+        返还。
+    完。
+    实体表 为 做 堆_分配_数组 用 2300 乘 24。
+    实体表大小 为 0。
+    做 HTMLEntity_添加 用 「amp」、0x26、0。
+    做 HTMLEntity_添加 用 「lt」、0x3C、0。
+    做 HTMLEntity_添加 用 「gt」、0x3E、0。
+    做 HTMLEntity_添加 用 「quot」、0x22、0。
+    做 HTMLEntity_添加 用 「apos」、0x27、0。
+    做 HTMLEntity_添加 用 「nbsp」、0xA0、0。
+    做 HTMLEntity_添加 用 「ensp」、0x2002、0。
+    做 HTMLEntity_添加 用 「emsp」、0x2003、0。
+    做 HTMLEntity_添加 用 「thinsp」、0x2009、0。
+    做 HTMLEntity_添加 用 「zwnj」、0x200C、0。
+    做 HTMLEntity_添加 用 「zwj」、0x200D、0。
+    做 HTMLEntity_添加 用 「lrm」、0x200E、0。
+    做 HTMLEntity_添加 用 「rlm」、0x200F、0。
+    做 HTMLEntity_添加 用 「iexcl」、0xA1、0。
+    做 HTMLEntity_添加 用 「cent」、0xA2、0。
+    做 HTMLEntity_添加 用 「pound」、0xA3、0。
+    做 HTMLEntity_添加 用 「curren」、0xA4、0。
+    做 HTMLEntity_添加 用 「yen」、0xA5、0。
+    做 HTMLEntity_添加 用 「brvbar」、0xA6、0。
+    做 HTMLEntity_添加 用 「sect」、0xA7、0。
+    做 HTMLEntity_添加 用 「uml」、0xA8、0。
+    做 HTMLEntity_添加 用 「copy」、0xA9、0。
+    做 HTMLEntity_添加 用 「ordf」、0xAA、0。
+    做 HTMLEntity_添加 用 「laquo」、0xAB、0。
+    做 HTMLEntity_添加 用 「not」、0xAC、0。
+    做 HTMLEntity_添加 用 「shy」、0xAD、0。
+    做 HTMLEntity_添加 用 「reg」、0xAE、0。
+    做 HTMLEntity_添加 用 「macr」、0xAF、0。
+    做 HTMLEntity_添加 用 「deg」、0xB0、0。
+    做 HTMLEntity_添加 用 「plusmn」、0xB1、0。
+    做 HTMLEntity_添加 用 「sup2」、0xB2、0。
+    做 HTMLEntity_添加 用 「sup3」、0xB3、0。
+    做 HTMLEntity_添加 用 「acute」、0xB4、0。
+    做 HTMLEntity_添加 用 「micro」、0xB5、0。
+    做 HTMLEntity_添加 用 「para」、0xB6、0。
+    做 HTMLEntity_添加 用 「middot」、0xB7、0。
+    做 HTMLEntity_添加 用 「cedil」、0xB8、0。
+    做 HTMLEntity_添加 用 「sup1」、0xB9、0。
+    做 HTMLEntity_添加 用 「ordm」、0xBA、0。
+    做 HTMLEntity_添加 用 「raquo」、0xBB、0。
+    做 HTMLEntity_添加 用 「frac14」、0xBC、0。
+    做 HTMLEntity_添加 用 「frac12」、0xBD、0。
+    做 HTMLEntity_添加 用 「frac34」、0xBE、0。
+    做 HTMLEntity_添加 用 「iquest」、0xBF、0。
+    做 HTMLEntity_添加 用 「Agrave」、0xC0、0。
+    做 HTMLEntity_添加 用 「Aacute」、0xC1、0。
+    做 HTMLEntity_添加 用 「Acirc」、0xC2、0。
+    做 HTMLEntity_添加 用 「Atilde」、0xC3、0。
+    做 HTMLEntity_添加 用 「Auml」、0xC4、0。
+    做 HTMLEntity_添加 用 「Aring」、0xC5、0。
+    做 HTMLEntity_添加 用 「AElig」、0xC6、0。
+    做 HTMLEntity_添加 用 「Ccedil」、0xC7、0。
+    做 HTMLEntity_添加 用 「Egrave」、0xC8、0。
+    做 HTMLEntity_添加 用 「Eacute」、0xC9、0。
+    做 HTMLEntity_添加 用 「Ecirc」、0xCA、0。
+    做 HTMLEntity_添加 用 「Euml」、0xCB、0。
+    做 HTMLEntity_添加 用 「Igrave」、0xCC、0。
+    做 HTMLEntity_添加 用 「Iacute」、0xCD、0。
+    做 HTMLEntity_添加 用 「Icirc」、0xCE、0。
+    做 HTMLEntity_添加 用 「Iuml」、0xCF、0。
+    做 HTMLEntity_添加 用 「ETH」、0xD0、0。
+    做 HTMLEntity_添加 用 「Ntilde」、0xD1、0。
+    做 HTMLEntity_添加 用 「Ograve」、0xD2、0。
+    做 HTMLEntity_添加 用 「Oacute」、0xD3、0。
+    做 HTMLEntity_添加 用 「Ocirc」、0xD4、0。
+    做 HTMLEntity_添加 用 「Otilde」、0xD5、0。
+    做 HTMLEntity_添加 用 「Ouml」、0xD6、0。
+    做 HTMLEntity_添加 用 「times」、0xD7、0。
+    做 HTMLEntity_添加 用 「Oslash」、0xD8、0。
+    做 HTMLEntity_添加 用 「Ugrave」、0xD9、0。
+    做 HTMLEntity_添加 用 「Uacute」、0xDA、0。
+    做 HTMLEntity_添加 用 「Ucirc」、0xDB、0。
+    做 HTMLEntity_添加 用 「Uuml」、0xDC、0。
+    做 HTMLEntity_添加 用 「Yacute」、0xDD、0。
+    做 HTMLEntity_添加 用 「THORN」、0xDE、0。
+    做 HTMLEntity_添加 用 「szlig」、0xDF、0。
+完。
+
+本章 收束。

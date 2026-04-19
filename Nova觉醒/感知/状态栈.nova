@@ -1,0 +1,464 @@
+《状态栈》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·日志中枢》。
+
+引用《..·中枢·公共智能》。
+
+引用《..·引导·引导加载器》。
+
+引用《..·稳态·图处显示》。
+
+引用《.·图绘渲染上下》。
+
+引用《.·内核直连层》。
+
+引用《..·稳态·数学基础向量》。
+
+引用《.·网缓画布结》。
+
+引用《..·中枢·哈希函数》。
+
+引用《.·画布像素操作》。
+
+引用《.·绘制矩形创建》。
+
+引用《.·绘制画布绘》。
+
+画布2D_save 接受 ctx：
+    若 ctx 的 栈深度 大于或等于 ctx 的 栈容量：
+        返还。
+    完。
+    偏移 为 ctx 的 状态栈 加 ctx 的 栈深度 乘 256。
+    做 内存_复制 用 偏移、& ctx 的 当前状态、256。
+    ctx 的 栈深度 为 ctx 的 栈深度 加 1。
+完。
+
+画布2D_restore 接受 ctx：
+    若 ctx 的 栈深度 等于 0：
+        返还。
+    完。
+    ctx 的 栈深度 为 ctx 的 栈深度 减 1。
+    偏移 为 ctx 的 状态栈 加 ctx 的 栈深度 乘 256。
+    做 内存_复制 用 & ctx 的 当前状态、偏移、256。
+完。
+
+画布2D_translate 接受 ctx、dx、dy：
+    t 为 做 SkMatrix_平移 用 dx、dy。
+    ctx 的 当前状态 的 矩阵 为 做 SkMatrix_乘 用 ctx 的 当前状态 的 矩阵、t。
+完。
+
+画布2D_scale 接受 ctx、sx、sy：
+    s 为 做 SkMatrix_缩放 用 sx、sy。
+    ctx 的 当前状态 的 矩阵 为 做 SkMatrix_乘 用 ctx 的 当前状态 的 矩阵、s。
+完。
+
+画布2D_rotate 接受 ctx、角度：
+    cos_val 为 做 定点_cos 用 角度。
+    sin_val 为 做 定点_sin 用 角度。
+    m 为 新建 SkMatrix。
+    m 的 m00 为 cos_val。
+    m 的 m01 为 0 减 sin_val。
+    m 的 m02 为 0。
+    m 的 m10 为 sin_val。
+    m 的 m11 为 cos_val。
+    m 的 m12 为 0。
+    m 的 m20 为 0。
+    m 的 m21 为 0。
+    m 的 m22 为 10000。
+    ctx 的 当前状态 的 矩阵 为 做 SkMatrix_乘 用 ctx 的 当前状态 的 矩阵、m。
+完。
+
+画布2D_setTransform 接受 ctx、a、b、c、d、e、f：
+    ctx 的 当前状态 的 矩阵 的 m00 为 a。
+    ctx 的 当前状态 的 矩阵 的 m01 为 c。
+    ctx 的 当前状态 的 矩阵 的 m02 为 e。
+    ctx 的 当前状态 的 矩阵 的 m10 为 b。
+    ctx 的 当前状态 的 矩阵 的 m11 为 d。
+    ctx 的 当前状态 的 矩阵 的 m12 为 f。
+    ctx 的 当前状态 的 矩阵 的 m20 为 0。
+    ctx 的 当前状态 的 矩阵 的 m21 为 0。
+    ctx 的 当前状态 的 矩阵 的 m22 为 10000。
+完。
+
+画布2D_resetTransform 接受 ctx：
+    ctx 的 当前状态 的 矩阵 为 做 SkMatrix_单位矩阵。
+完。
+
+画布2D_fillRect 接受 ctx、x、y、w、h：
+    若 w 等于 0 或者 h 等于 0：
+        返还。
+    完。
+    paint 为 做 画布2D_创建填充画笔 用 ctx。
+    rect 为 做 SkRect_创建 用 x、y、x 加 w、y 加 h。
+    做 Sk画布_drawRect 用 ctx 的 skcanvas、rect、paint。
+完。
+
+画布2D_strokeRect 接受 ctx、x、y、w、h：
+    若 w 等于 0 并且 h 等于 0：
+        返还。
+    完。
+    paint 为 做 画布2D_创建描边画笔 用 ctx。
+    rect 为 做 SkRect_创建 用 x、y、x 加 w、y 加 h。
+    做 Sk画布_drawRect 用 ctx 的 skcanvas、rect、paint。
+完。
+
+画布2D_clearRect 接受 ctx、x、y、w、h：
+    px 为 x 除以 100。
+    py 为 y 除以 100。
+    pw 为 w 除以 100。
+    ph 为 h 除以 100。
+    若 px 小于 0：
+        px 为 0。
+    完。
+    若 py 小于 0：
+        py 为 0。
+    完。
+    若 px 加 pw 大于 ctx 的 宽：
+        pw 为 ctx 的 宽 减 px。
+    完。
+    若 py 加 ph 大于 ctx 的 高：
+        ph 为 ctx 的 高 减 py。
+    完。
+    可变 cy 为 py。
+    只要 cy 小于 py 加 ph：
+        可变 cx 为 px。
+        只要 cx 小于 px 加 pw：
+            做 Nova缓冲itmap_设置像素 用 ctx 的 位图、cx、cy、0x00000000。
+            cx 为 cx 加 1。
+        完。
+        cy 为 cy 加 1。
+    完。
+完。
+
+路径段 是 一种 事物，含 类型、x1、y1、x2、y2、x3、y3。
+
+路径_MOVETO 为 0。
+
+路径_LINETO 为 1。
+
+路径_QUADRATIC 为 2。
+
+路径_BEZIER 为 3。
+
+路径_ARC 为 4。
+
+路径_CLOSE 为 5。
+
+画布2D_beginPath 接受 ctx：
+    ctx 的 路径段列表 为 一组：（空）。
+    ctx 的 路径段数 为 0。
+    ctx 的 当前X 为 0。
+    ctx 的 当前Y 为 0。
+    ctx 的 路径起始X 为 0。
+    ctx 的 路径起始Y 为 0。
+完。
+
+画布2D_moveTo 接受 ctx、x、y：
+    做 追加 用 ctx 的 路径段列表、新建 路径段：类型 为 路径_MOVETO、x1 为 x、y1 为 y、x2 为 0、y2 为 0、x3 为 0、y3 为 0。
+    ctx 的 路径段数 为 ctx 的 路径段数 加 1。
+    ctx 的 当前X 为 x。
+    ctx 的 当前Y 为 y。
+    ctx 的 路径起始X 为 x。
+    ctx 的 路径起始Y 为 y。
+完。
+
+画布2D_lineTo 接受 ctx、x、y：
+    做 追加 用 ctx 的 路径段列表、新建 路径段：类型 为 路径_LINETO、x1 为 x、y1 为 y、x2 为 0、y2 为 0、x3 为 0、y3 为 0。
+    ctx 的 路径段数 为 ctx 的 路径段数 加 1。
+    ctx 的 当前X 为 x。
+    ctx 的 当前Y 为 y。
+完。
+
+画布2D_quadraticCurveTo 接受 ctx、cpx、cpy、x、y：
+    做 追加 用 ctx 的 路径段列表、新建 路径段：类型 为 路径_QUADRATIC、x1 为 cpx、y1 为 cpy、x2 为 x、y2 为 y、x3 为 0、y3 为 0。
+    ctx 的 路径段数 为 ctx 的 路径段数 加 1。
+    ctx 的 当前X 为 x。
+    ctx 的 当前Y 为 y。
+完。
+
+画布2D_bezierCurveTo 接受 ctx、cp1x、cp1y、cp2x、cp2y、x、y：
+    做 追加 用 ctx 的 路径段列表、新建 路径段：类型 为 路径_BEZIER、x1 为 cp1x、y1 为 cp1y、x2 为 cp2x、y2 为 cp2y、x3 为 x、y3 为 y。
+    ctx 的 路径段数 为 ctx 的 路径段数 加 1。
+    ctx 的 当前X 为 x。
+    ctx 的 当前Y 为 y。
+完。
+
+画布2D_arc 接受 ctx、cx、cy、半径、起始角、结束角、逆时针：
+    做 追加 用 ctx 的 路径段列表、新建 路径段：类型 为 路径_ARC、x1 为 cx、y1 为 cy、x2 为 半径、y2 为 起始角、x3 为 结束角、y3 为 逆时针。
+    ctx 的 路径段数 为 ctx 的 路径段数 加 1。
+    ctx 的 当前X 为 cx 加 做 定点_乘 用 半径、做 定点_cos 用 结束角。
+    ctx 的 当前Y 为 cy 加 做 定点_乘 用 半径、做 定点_sin 用 结束角。
+完。
+
+画布2D_closePath 接受 ctx：
+    若 ctx 的 路径段数 大于 0：
+        做 追加 用 ctx 的 路径段列表、新建 路径段：类型 为 路径_CLOSE、x1 为 ctx 的 路径起始X、y1 为 ctx 的 路径起始Y、x2 为 0、y2 为 0、x3 为 0、y3 为 0。
+        ctx 的 路径段数 为 ctx 的 路径段数 加 1。
+        ctx 的 当前X 为 ctx 的 路径起始X。
+        ctx 的 当前Y 为 ctx 的 路径起始Y。
+    完。
+完。
+
+画布2D_fill 接受 ctx：
+    若 ctx 的 路径段数 等于 0：
+        返还。
+    完。
+    paint 为 做 画布2D_创建填充画笔 用 ctx。
+    做 Sk画布_drawPath 用 ctx 的 skcanvas、ctx 的 路径段列表、paint、ctx 的 当前状态 的 矩阵。
+    画布_绘制调用数 为 画布_绘制调用数 加 1。
+完。
+
+画布2D_stroke 接受 ctx：
+    若 ctx 的 路径段数 等于 0：
+        返还。
+    完。
+    paint 为 做 画布2D_创建描边画笔 用 ctx。
+    做 Sk画布_drawPath 用 ctx 的 skcanvas、ctx 的 路径段列表、paint、ctx 的 当前状态 的 矩阵。
+    画布_绘制调用数 为 画布_绘制调用数 加 1。
+完。
+
+CanvasGradient 是 一种 事物，含 类型、x0、y0、x1、y1、r0、r1、颜色停靠列表、停靠数。
+
+画布2D_createLinearGradient 接受 x0、y0、x1、y1：
+    返还 新建 CanvasGradient：类型 为 0、x0 为 x0、y0 为 y0、x1 为 x1、y1 为 y1、r0 为 0、r1 为 0、颜色停靠列表 为 一组：（空）、停靠数 为 0。
+完。
+
+画布2D_createRadialGradient 接受 x0、y0、r0、x1、y1、r1：
+    返还 新建 CanvasGradient：类型 为 1、x0 为 x0、y0 为 y0、x1 为 x1、y1 为 y1、r0 为 r0、r1 为 r1、颜色停靠列表 为 一组：（空）、停靠数 为 0。
+完。
+
+CanvasGradient_addColorStop 接受 grad、偏移、颜色：
+    若 grad 等于 空：
+        返还。
+    完。
+    做 追加 用 grad 的 颜色停靠列表、一本字典：偏移 对应 偏移、颜色 对应 颜色。
+    grad 的 停靠数 为 grad 的 停靠数 加 1。
+完。
+
+画布2D_drawImage_3 接受 ctx、图像、dx、dy：
+    若 图像 等于 空：
+        返还。
+    完。
+    做 画布2D_drawImage_9 用 ctx、图像、0、0、图像 的 宽、图像 的 高、dx、dy、图像 的 宽、图像 的 高。
+完。
+
+画布2D_drawImage_5 接受 ctx、图像、dx、dy、dw、dh：
+    若 图像 等于 空：
+        返还。
+    完。
+    做 画布2D_drawImage_9 用 ctx、图像、0、0、图像 的 宽、图像 的 高、dx、dy、dw、dh。
+完。
+
+画布2D_drawImage_9 接受 ctx、图像、sx、sy、sw、sh、dx、dy、dw、dh：
+    若 图像 等于 空 或者 ctx 等于 空：
+        返还。
+    完。
+    若 sx 小于 0：
+        dx 为 dx 减 sx 乘 dw 除以 sw。
+        sw 为 sw 加 sx。
+        sx 为 0。
+    完。
+    若 sy 小于 0：
+        dy 为 dy 减 sy 乘 dh 除以 sh。
+        sh 为 sh 加 sy。
+        sy 为 0。
+    完。
+    若 sw 小于或等于 0 或者 sh 小于或等于 0 或者 dw 小于或等于 0 或者 dh 小于或等于 0：
+        返还。
+    完。
+    可变 行 为 0。
+    只要 行 小于 dh：
+        源行 为 sy 加 行 乘 sh 除以 dh。
+        若 源行 大于或等于 图像 的 高：
+            跳出。
+        完。
+        可变 列 为 0。
+        只要 列 小于 dw：
+            源列 为 sx 加 列 乘 sw 除以 dw。
+            若 源列 大于或等于 图像 的 宽：
+                跳出。
+            完。
+            像素 为 做 图像_获取像素 用 图像、源列、源行。
+            目标x 为 dx 加 列。
+            目标y 为 dy 加 行。
+            若 目标x 大于或等于 0 并且 目标x 小于 ctx 的 宽 并且 目标y 大于或等于 0 并且 目标y 小于 ctx 的 高：
+                alpha 为 像素 右移 24 位与 0xFF。
+                alpha 为 alpha 乘 ctx 的 当前状态 的 globalAlpha 除以 255。
+                若 alpha 大于 0：
+                    做 画布_混合像素 用 ctx 的 位图、目标x、目标y、像素、alpha。
+                完。
+            完。
+            列 为 列 加 1。
+        完。
+        行 为 行 加 1。
+    完。
+    画布_绘制调用数 为 画布_绘制调用数 加 1。
+完。
+
+画布_混合像素 接受 位图、x、y、源色、alpha：
+    目标色 为 做 Nova缓冲itmap_获取像素 用 位图、x、y。
+    inv_a 为 255 减 alpha。
+    r 为 ((源色 右移 16 位与 0xFF) 乘 alpha 加 (目标色 右移 16 位与 0xFF) 乘 inv_a) 除以 255。
+    g 为 ((源色 右移 8 位与 0xFF) 乘 alpha 加 (目标色 右移 8 位与 0xFF) 乘 inv_a) 除以 255。
+    b 为 ((源色 位与 0xFF) 乘 alpha 加 (目标色 位与 0xFF) 乘 inv_a) 除以 255。
+    做 Nova缓冲itmap_设置像素 用 位图、x、y、0xFF000000 位或 r 左移 16 位或 g 左移 8 位或 b。
+完。
+
+ImageData 是 一种 事物，含 宽、高、数据、数据大小。
+
+画布2D_createImageData 接受 宽、高：
+    大小 为 宽 乘 高 乘 4。
+    数据 为 做 分配内存 用 大小。
+    做 内存_置零 用 数据、大小。
+    返还 新建 ImageData：宽 为 宽、高 为 高、数据 为 数据、数据大小 为 大小。
+完。
+
+画布2D_getImageData 接受 ctx、sx、sy、sw、sh：
+    imgdata 为 做 画布2D_createImageData 用 sw、sh。
+    可变 y 为 0。
+    只要 y 小于 sh：
+        可变 x 为 0。
+        只要 x 小于 sw：
+            像素 为 0。
+            实际x 为 sx 加 x。
+            实际y 为 sy 加 y。
+            若 实际x 大于或等于 0 并且 实际x 小于 ctx 的 宽 并且 实际y 大于或等于 0 并且 实际y 小于 ctx 的 高：
+                像素 为 做 Nova缓冲itmap_获取像素 用 ctx 的 位图、实际x、实际y。
+            完。
+            偏移 为 (y 乘 sw 加 x) 乘 4。
+            做 内存_写8 用 imgdata 的 数据 加 偏移、像素 右移 16 位与 0xFF。
+            做 内存_写8 用 imgdata 的 数据 加 偏移 加 1、像素 右移 8 位与 0xFF。
+            做 内存_写8 用 imgdata 的 数据 加 偏移 加 2、像素 位与 0xFF。
+            做 内存_写8 用 imgdata 的 数据 加 偏移 加 3、像素 右移 24 位与 0xFF。
+            x 为 x 加 1。
+        完。
+        y 为 y 加 1。
+    完。
+    返还 imgdata。
+完。
+
+画布2D_putImageData 接受 ctx、imgdata、dx、dy：
+    若 imgdata 等于 空：
+        返还。
+    完。
+    可变 y 为 0。
+    只要 y 小于 imgdata 的 高：
+        可变 x 为 0。
+        只要 x 小于 imgdata 的 宽：
+            偏移 为 (y 乘 imgdata 的 宽 加 x) 乘 4。
+            r 为 做 内存_读8 用 imgdata 的 数据 加 偏移。
+            g 为 做 内存_读8 用 imgdata 的 数据 加 偏移 加 1。
+            b 为 做 内存_读8 用 imgdata 的 数据 加 偏移 加 2。
+            a 为 做 内存_读8 用 imgdata 的 数据 加 偏移 加 3。
+            像素 为 a 左移 24 位或 r 左移 16 位或 g 左移 8 位或 b。
+            目标x 为 dx 加 x。
+            目标y 为 dy 加 y。
+            若 目标x 大于或等于 0 并且 目标x 小于 ctx 的 宽 并且 目标y 大于或等于 0 并且 目标y 小于 ctx 的 高：
+                做 Nova缓冲itmap_设置像素 用 ctx 的 位图、目标x、目标y、像素。
+            完。
+            x 为 x 加 1。
+        完。
+        y 为 y 加 1。
+    完。
+完。
+
+画布2D_set_globalAlpha 接受 ctx、alpha：
+    若 alpha 小于 0：
+        alpha 为 0。
+    完。
+    若 alpha 大于 255：
+        alpha 为 255。
+    完。
+    ctx 的 当前状态 的 globalAlpha 为 alpha。
+完。
+
+画布2D_set_fillStyle 接受 ctx、颜色：
+    ctx 的 当前状态 的 填充颜色 为 颜色。
+完。
+
+画布2D_set_strokeStyle 接受 ctx、颜色：
+    ctx 的 当前状态 的 描边颜色 为 颜色。
+完。
+
+画布2D_set_lineWidth 接受 ctx、宽度：
+    若 宽度 小于或等于 0：
+        返还。
+    完。
+    ctx 的 当前状态 的 线宽 为 宽度。
+完。
+
+画布2D_set_lineCap 接受 ctx、类型：
+    ctx 的 当前状态 的 线端 为 类型。
+完。
+
+画布2D_set_lineJoin 接受 ctx、类型：
+    ctx 的 当前状态 的 线连 为 类型。
+完。
+
+画布2D_set_shadowColor 接受 ctx、颜色：
+    ctx 的 当前状态 的 阴影颜色 为 颜色。
+完。
+
+画布2D_set_shadowBlur 接受 ctx、模糊：
+    ctx 的 当前状态 的 阴影模糊 为 模糊。
+完。
+
+画布2D_set_shadowOffsetX 接受 ctx、偏移：
+    ctx 的 当前状态 的 阴影X偏移 为 偏移。
+完。
+
+画布2D_set_shadowOffsetY 接受 ctx、偏移：
+    ctx 的 当前状态 的 阴影Y偏移 为 偏移。
+完。
+
+画布2D_创建填充画笔 接受 ctx：
+    返还 一本字典：颜色 对应 ctx 的 当前状态 的 填充颜色、alpha 对应 ctx 的 当前状态 的 globalAlpha、样式 对应 0。
+完。
+
+画布2D_创建描边画笔 接受 ctx：
+    返还 一本字典：颜色 对应 ctx 的 当前状态 的 描边颜色、alpha 对应 ctx 的 当前状态 的 globalAlpha、线宽 对应 ctx 的 当前状态 的 线宽、线端 对应 ctx 的 当前状态 的 线端、线连 对应 ctx 的 当前状态 的 线连、样式 对应 1。
+完。
+
+SkMatrix_单位矩阵 接受 零参：
+    返还 一本字典：m00 对应 10000、m01 对应 0、m02 对应 0、m10 对应 0、m11 对应 10000、m12 对应 0、m20 对应 0、m21 对应 0、m22 对应 10000。
+完。
+
+SkMatrix_平移 接受 dx、dy：
+    m 为 做 SkMatrix_单位矩阵。
+    m 的 m02 为 dx。
+    m 的 m12 为 dy。
+    返还 m。
+完。
+
+SkMatrix_缩放 接受 sx、sy：
+    m 为 做 SkMatrix_单位矩阵。
+    m 的 m00 为 sx。
+    m 的 m11 为 sy。
+    返还 m。
+完。
+
+SkMatrix_乘 接受 a、b：
+    m 为 一本字典：（空）。
+    m 的 m00 为 (a 的 m00 乘 b 的 m00 加 a 的 m01 乘 b 的 m10) 除以 10000。
+    m 的 m01 为 (a 的 m00 乘 b 的 m01 加 a 的 m01 乘 b 的 m11) 除以 10000。
+    m 的 m02 为 (a 的 m00 乘 b 的 m02 加 a 的 m01 乘 b 的 m12) 除以 10000 加 a 的 m02。
+    m 的 m10 为 (a 的 m10 乘 b 的 m00 加 a 的 m11 乘 b 的 m10) 除以 10000。
+    m 的 m11 为 (a 的 m10 乘 b 的 m01 加 a 的 m11 乘 b 的 m11) 除以 10000。
+    m 的 m12 为 (a 的 m10 乘 b 的 m02 加 a 的 m11 乘 b 的 m12) 除以 10000 加 a 的 m12。
+    m 的 m20 为 0。
+    m 的 m21 为 0。
+    m 的 m22 为 10000。
+    返还 m。
+完。
+
+可变 画布_绘制调用数 为 0。
+
+画布2D_统计 接受 零参：
+    返还 一本字典：绘制调用数 对应 画布_绘制调用数。
+完。
+
+本章 收束。

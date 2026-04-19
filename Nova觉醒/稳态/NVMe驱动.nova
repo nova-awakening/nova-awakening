@@ -1,0 +1,124 @@
+《NVMe驱动》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·E1000收发初始化》。
+
+引用《..·中枢·APIC任务优先级》。
+
+引用《.·图处枚举》。
+
+引用《.·NVMe驱动辅助》。
+
+引用《.·管理命令》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·中断处理》。
+
+引用《.·NVMe_IO队列》。
+
+可变 NVMe控制器列表 为 一组：（空）。
+
+可变 NVMe_读总数 为 0。
+
+可变 NVMe_写总数 为 0。
+
+可变 NVMe_已初始化 为 假。
+
+NVMe_初始化 接受 零参：
+    NVMe控制器列表 为 一组：（空）。
+    做 内核信息 用 「NVMe: 扫描NVMe控制器...」。
+    可变 总线 为 0。
+    只要 总线 小于 256：
+        可变 设备号 为 0。
+        只要 设备号 小于 32：
+            可变 功能号 为 0。
+            只要 功能号 小于 8：
+                vid_did 为 做 PCI_配置读32 用 总线、设备号、功能号、0x00。
+                若 vid_did 等于 0xFFFFFFFF 或者 vid_did 等于 0：
+                    功能号 为 功能号 加 1。
+                    继续。
+                完。
+                类信息 为 做 PCI_配置读32 用 总线、设备号、功能号、0x08。
+                类代码 为 类信息 右移 24 位与 0xFF。
+                子类 为 类信息 右移 16 位与 0xFF。
+                接口 为 类信息 右移 8 位与 0xFF。
+                若 类代码 等于 0x01 并且 子类 等于 0x08 并且 接口 等于 0x02：
+                    vid 为 vid_did 位与 0xFFFF。
+                    did 为 vid_did 右移 16 位与 0xFFFF。
+                    做 内核信息 用 「NVMe: 发现控制器 」 加 做 整数转十六进制 用 vid 加 「:」 加 做 整数转十六进制 用 did 加 「 @PCI 」 加 做 整数转字符串 用 总线 加 「:」 加 做 整数转字符串 用 设备号。
+                    cmd 为 做 PCI_配置读32 用 总线、设备号、功能号、0x04。
+                    做 PCI_配置写32 用 总线、设备号、功能号、0x04、cmd 位或 0x06。
+                    bar0 为 做 PCI_读BAR 用 总线、设备号、功能号、0。
+                    做 NVMe_初始化控制器 用 bar0。
+                完。
+                功能号 为 功能号 加 1。
+            完。
+            设备号 为 设备号 加 1。
+        完。
+        总线 为 总线 加 1。
+    完。
+    NVMe_已初始化 为 真。
+    做 内核信息 用 「NVMe: 初始化完成 控制器=」 加 做 整数转字符串 用 做 计数 用 NVMe控制器列表。
+完。
+
+NVMe_初始化控制器 接受 bar0：
+    若 bar0 等于 0：
+        返还。
+    完。
+    ctl 为 新建 NVMe控制器。
+    ctl 的 MMIO基址 为 bar0。
+    ctl 的 IO队列 为 一组：（空）。
+    ctl 的 命名空间 为 一组：（空）。
+    cap_lo 为 做 MMIO读32 用 bar0 加 NVME_CAP。
+    cap_hi 为 做 MMIO读32 用 bar0 加 NVME_CAP 加 4。
+    ctl 的 最大队列深度 为 (cap_lo 位与 0xFFFF) 加 1。
+    ctl 的 门铃步长 为 4 左移 (cap_hi 右移 0 位与 0xF)。
+    vs 为 做 MMIO读32 用 bar0 加 NVME_VS。
+    ctl 的 版本 为 vs。
+    做 内核信息 用 「NVMe: 版本=」 加 做 整数转字符串 用 vs 右移 16 位与 0xFFFF 加 「.」 加 做 整数转字符串 用 vs 右移 8 位与 0xFF 加 「 最大队列=」 加 做 整数转字符串 用 ctl 的 最大队列深度 加 「 门铃步长=」 加 做 整数转字符串 用 ctl 的 门铃步长。
+    cc 为 做 MMIO读32 用 bar0 加 NVME_CC。
+    做 MMIO写32 用 bar0 加 NVME_CC、cc 位与 按位取反 NVME_CC_EN。
+    做 NVMe_等待禁用 用 bar0。
+    aq_depth 为 32。
+    若 aq_depth 大于 ctl 的 最大队列深度：
+        aq_depth 为 ctl 的 最大队列深度。
+    完。
+    ctl 的 管理队列 为 新建 NVMe_队列。
+    ctl 的 管理队列 的 ID 为 0。
+    ctl 的 管理队列 的 深度 为 aq_depth。
+    ctl 的 管理队列 的 SQ地址 为 做 直传_分配_对齐 用 aq_depth 乘 64、4096。
+    ctl 的 管理队列 的 CQ地址 为 做 直传_分配_对齐 用 aq_depth 乘 16、4096。
+    ctl 的 管理队列 的 SQ尾指针 为 0。
+    ctl 的 管理队列 的 CQ头指针 为 0。
+    ctl 的 管理队列 的 Phase位 为 1。
+    ctl 的 管理队列 的 SQ门铃 为 bar0 加 0x1000。
+    ctl 的 管理队列 的 CQ门铃 为 bar0 加 0x1000 加 ctl 的 门铃步长。
+    ctl 的 管理队列 的 下一个命令ID 为 0。
+    做 内存填零 用 ctl 的 管理队列 的 SQ地址、aq_depth 乘 64。
+    做 内存填零 用 ctl 的 管理队列 的 CQ地址、aq_depth 乘 16。
+    做 MMIO写32 用 bar0 加 NVME_AQA、aq_depth 减 1 左移 16 位或 aq_depth 减 1。
+    做 MMIO写32 用 bar0 加 NVME_ASQ、ctl 的 管理队列 的 SQ地址 位与 0xFFFFFFFF。
+    做 MMIO写32 用 bar0 加 NVME_ASQ 加 4、ctl 的 管理队列 的 SQ地址 右移 32 位与 0xFFFFFFFF。
+    做 MMIO写32 用 bar0 加 NVME_ACQ、ctl 的 管理队列 的 CQ地址 位与 0xFFFFFFFF。
+    做 MMIO写32 用 bar0 加 NVME_ACQ 加 4、ctl 的 管理队列 的 CQ地址 右移 32 位与 0xFFFFFFFF。
+    new_cc 为 NVME_CC_EN 位或 NVME_CC_CSS_NVM 位或 NVME_CC_IOSQES 位或 NVME_CC_IOCQES。
+    new_cc 为 new_cc 位或 0 左移 NVME_CC_MPS_SHIFT。
+    做 MMIO写32 用 bar0 加 NVME_CC、new_cc。
+    若 非 做 NVMe_等待就绪 用 bar0：
+        做 内核警告 用 「NVMe: 控制器使能超时」。
+        返还。
+    完。
+    做 NVMe_识别控制器 用 ctl。
+    做 NVMe_创建IO队列 用 ctl。
+    做 NVMe_识别命名空间 用 ctl。
+    ctl 的 已初始化 为 真。
+    做 追加 用 NVMe控制器列表、ctl。
+完。
+
+本章 收束。

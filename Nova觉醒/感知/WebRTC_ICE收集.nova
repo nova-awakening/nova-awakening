@@ -1,0 +1,114 @@
+《WebRTC_ICE收集》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·辅助存根》。
+
+RTC_开始ICE收集 接受 pc：
+    若 pc 等于 0：
+        返还。
+    完。
+    做 RTC_收集host候选 用 pc。
+    做 RTC_收集srflx候选 用 pc。
+    做 RTC_收集relay候选 用 pc。
+    pc 的 iceGatheringState 为 ICE_GATHER_COMPLETE。
+完。
+
+RTC_收集host候选 接受 pc：
+    若 pc 等于 0：
+        返还。
+    完。
+    cand 为 做 堆_分配 用 RTCIceCandidate。
+    cand 的 类型 为 ICE_CAND_HOST。
+    cand 的 协议 为 0。
+    cand 的 IP 为 「0.0.0.0」。
+    cand 的 端口 为 0。
+    cand 的 优先级 为 2130706431。
+    若 pc 的 本地候选数 小于 32：
+        pc 的 本地候选 的 第 pc 的 本地候选数 项 为 cand。
+        pc 的 本地候选数 为 pc 的 本地候选数 加 1。
+    完。
+    若 pc 的 onicecandidate 不等于 0：
+    完。
+完。
+
+RTC_收集srflx候选 接受 pc：
+    若 pc 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 pc 的 iceServers数：
+        server 为 pc 的 iceServers 的 第 i 项。
+        若 server 不等于 0 并且 做 字符串_以开头 用 server、「stun:」：
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+RTC_收集relay候选 接受 pc：
+    若 pc 等于 0：
+        返还。
+    完。
+完。
+
+RTC_ICE检查 接受 pc：
+    若 pc 等于 0：
+        返还。
+    完。
+    pc 的 iceConnectionState 为 ICE_CHECKING。
+    pc 的 iceConnectionState 为 ICE_CONNECTED。
+    pc 的 connectionState 为 CONN_CONNECTED。
+完。
+
+RTCRtpTransceiver 是 一种 事物，含 mid、sender_track、receiver_track、direction、currentDirection、stopped。
+
+RTCRtpSendParameters 是 一种 事物，含 编码、编码数、transactionId。
+
+RTCRtpEncodingParameters 是 一种 事物，含 active、maxBitrate、maxFramerate、scaleResolutionDownBy、rid。
+
+RTCDataChannel 是 一种 事物，含 label、id、ordered、maxPacketLifeTime、maxRetransmits、protocol、negotiated、readyState、bufferedAmount、binaryType、onopen、onclose、onmessage、onerror、onbufferedamountlow、bufferedAmountLowThreshold。
+
+RTC_createDataChannel 接受 pc、label、ordered、maxRetransmits：
+    若 pc 等于 0：
+        返还 0。
+    完。
+    dc 为 做 堆_分配 用 RTCDataChannel。
+    dc 的 label 为 做 字符串_复制 用 label。
+    dc 的 ordered 为 ordered。
+    dc 的 maxRetransmits 为 maxRetransmits。
+    dc 的 maxPacketLifeTime 为 0。
+    dc 的 negotiated 为 假。
+    dc 的 readyState 为 DC_CONNECTING。
+    dc 的 bufferedAmount 为 0。
+    dc 的 binaryType 为 1。
+    dc 的 onopen 为 0。
+    dc 的 onclose 为 0。
+    dc 的 onmessage 为 0。
+    dc 的 onerror 为 0。
+    若 pc 的 数据通道数 小于 16：
+        pc 的 数据通道 的 第 pc 的 数据通道数 项 为 dc。
+        pc 的 数据通道数 为 pc 的 数据通道数 加 1。
+    完。
+    返还 dc。
+完。
+
+DataChannel_send 接受 dc、数据、长度：
+    若 dc 等于 0 或者 dc 的 readyState 不等于 DC_OPEN：
+        返还。
+    完。
+    dc 的 bufferedAmount 为 dc 的 bufferedAmount 加 长度。
+完。
+
+DataChannel_close 接受 dc：
+    若 dc 等于 0：
+        返还。
+    完。
+    dc 的 readyState 为 DC_CLOSING。
+    dc 的 readyState 为 DC_CLOSED。
+    若 dc 的 onclose 不等于 0：
+    完。
+完。
+
+本章 收束。

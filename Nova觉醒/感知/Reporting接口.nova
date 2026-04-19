@@ -1,0 +1,133 @@
+《Reporting接口》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·运行域》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·内容可见性》。
+
+REPORT_DEPRECATION 为 0。
+
+REPORT_INTERVENTION 为 1。
+
+REPORT_CSP_VIOLATION 为 2。
+
+REPORT_CRASH 为 3。
+
+REPORT_PERMISSION 为 4。
+
+Report 是 一种 事物，含 类型、url、body、时间戳、下一个。
+
+ReportingObserver 是 一种 事物，含 回调、类型过滤、buffered、队列头、队列大小。
+
+可变 报告观察者列表 为 0。
+
+可变 报告观察者数 为 0。
+
+可变 报告缓冲头 为 0。
+
+可变 报告缓冲数 为 0。
+
+ReportingObserver_创建 接受 回调、类型过滤、buffered：
+    ro 为 做 堆_分配 用 ReportingObserver。
+    ro 的 回调 为 回调。
+    ro 的 类型过滤 为 类型过滤。
+    ro 的 buffered 为 buffered。
+    ro 的 队列头 为 0。
+    ro 的 队列大小 为 0。
+    返还 ro。
+完。
+
+ReportingObserver_observe 接受 ro：
+    若 ro 等于 0：
+        返还。
+    完。
+完。
+
+ReportingObserver_disconnect 接受 ro：
+    若 ro 等于 0：
+        返还。
+    完。
+完。
+
+ReportingObserver_takeRecords 接受 ro：
+    若 ro 等于 0：
+        返还 0。
+    完。
+    头 为 ro 的 队列头。
+    ro 的 队列头 为 0。
+    ro 的 队列大小 为 0。
+    返还 头。
+完。
+
+错误Reporting_记录 接受 error：
+    若 error 等于 0：
+        返还。
+    完。
+完。
+
+Reporting_弃用警告 接受 特性名、message：
+    report 为 做 堆_分配 用 Report。
+    report 的 类型 为 REPORT_DEPRECATION。
+    report 的 body 为 message。
+    report 的 时间戳 为 做 平台_获取高精度时间。
+    report 的 下一个 为 报告缓冲头。
+    报告缓冲头 为 report。
+    报告缓冲数 为 报告缓冲数 加 1。
+    做 Console_记录 用 1、message、0、0。
+完。
+
+Reporting_干预 接受 特性名、message：
+    report 为 做 堆_分配 用 Report。
+    report 的 类型 为 REPORT_INTERVENTION。
+    report 的 body 为 message。
+    report 的 时间戳 为 做 平台_获取高精度时间。
+    report 的 下一个 为 报告缓冲头。
+    报告缓冲头 为 report。
+    报告缓冲数 为 报告缓冲数 加 1。
+完。
+
+Reporting_发送到端点 接受 enNova直接偏好优化int_url：
+    若 enNova直接偏好优化int_url 等于 0 或者 报告缓冲头 等于 0：
+        返还。
+    完。
+完。
+
+错误Aggregation 是 一种 事物，含 签名、消息、文件、行号、计数、首次时间、最后时间、下一个。
+
+可变 错误聚合头 为 0。
+
+可变 错误聚合数 为 0。
+
+错误Aggregation_记录 接受 message、filename、lineno：
+    若 message 等于 0：
+        返还。
+    完。
+    签名 为 做 哈希 用 message 位异或 lineno 乘 31。
+    可变 agg 为 错误聚合头。
+    只要 agg 不等于 0：
+        若 agg 的 签名 等于 签名 并且 做 字符串_相等 用 agg 的 消息、message：
+            agg 的 计数 为 agg 的 计数 加 1。
+            agg 的 最后时间 为 做 平台_获取高精度时间。
+            返还。
+        完。
+        agg 为 agg 的 下一个。
+    完。
+    新agg 为 做 堆_分配 用 错误Aggregation。
+    新agg 的 签名 为 签名。
+    新agg 的 消息 为 message。
+    新agg 的 文件 为 filename。
+    新agg 的 行号 为 lineno。
+    新agg 的 计数 为 1。
+    新agg 的 首次时间 为 做 平台_获取高精度时间。
+    新agg 的 最后时间 为 新agg 的 首次时间。
+    新agg 的 下一个 为 错误聚合头。
+    错误聚合头 为 新agg。
+    错误聚合数 为 错误聚合数 加 1。
+完。
+
+本章 收束。

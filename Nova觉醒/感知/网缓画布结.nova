@@ -1,0 +1,330 @@
+《网缓画布结》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·属性自定义属》。
+
+引用《.·光栅化》。
+
+引用《.·绘制画布绘》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·状态栈》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·图位图像素缓》。
+
+引用《.·字体扩展渲》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·内核直连层》。
+
+引用《.·绘制矩形创建》。
+
+Sk画布状态 是 一种 事物，含 矩阵、裁剪矩形、透明度。
+
+Sk画布 是 一种 事物，含 位图、状态栈、状态栈深度、状态栈容量、当前矩阵、当前裁剪、当前透明度、绘制调用数。
+
+Sk画布_创建 接受 位图：
+    c 为 做 堆_分配 用 Sk画布。
+    c 的 位图 为 位图。
+    c 的 状态栈容量 为 32。
+    c 的 状态栈 为 做 堆_分配_数组 用 c 的 状态栈容量 乘 64。
+    c 的 状态栈深度 为 0。
+    c 的 当前矩阵 为 做 SkMatrix_单位矩阵。
+    c 的 当前裁剪 为 做 SkRect_创建 用 0、0、位图 的 宽 乘 100、位图 的 高 乘 100。
+    c 的 当前透明度 为 255。
+    c 的 绘制调用数 为 0。
+    返还 c。
+完。
+
+Sk画布_save 接受 c：
+    若 c 的 状态栈深度 大于或等于 c 的 状态栈容量：
+        返还。
+    完。
+    偏移 为 c 的 状态栈 加 c 的 状态栈深度 乘 64。
+    做 内存_复制 用 偏移、& c 的 当前矩阵、36。
+    做 内存_复制 用 偏移 加 36、& c 的 当前裁剪、16。
+    做 内存_写32 用 偏移 加 52、c 的 当前透明度。
+    c 的 状态栈深度 为 c 的 状态栈深度 加 1。
+完。
+
+Sk画布_restore 接受 c：
+    若 c 的 状态栈深度 等于 0：
+        返还。
+    完。
+    c 的 状态栈深度 为 c 的 状态栈深度 减 1。
+    偏移 为 c 的 状态栈 加 c 的 状态栈深度 乘 64。
+    做 内存_复制 用 & c 的 当前矩阵、偏移、36。
+    做 内存_复制 用 & c 的 当前裁剪、偏移 加 36、16。
+    c 的 当前透明度 为 做 内存_读32 用 偏移 加 52。
+完。
+
+Sk画布_saveLayerAlpha 接受 c、矩形、透明度：
+    做 Sk画布_save 用 c。
+    c 的 当前透明度 为 c 的 当前透明度 乘 透明度 除以 255。
+完。
+
+Sk画布_translate 接受 c、dx、dy：
+    t 为 做 SkMatrix_平移 用 dx、dy。
+    c 的 当前矩阵 为 做 SkMatrix_乘 用 c 的 当前矩阵、t。
+完。
+
+Sk画布_scale 接受 c、sx、sy：
+    s 为 做 SkMatrix_缩放 用 sx、sy。
+    c 的 当前矩阵 为 做 SkMatrix_乘 用 c 的 当前矩阵、s。
+完。
+
+Sk画布_clipRect 接受 c、rect：
+    若 rect 的 左 大于 c 的 当前裁剪 的 左：
+        c 的 当前裁剪 的 左 为 rect 的 左。
+    完。
+    若 rect 的 上 大于 c 的 当前裁剪 的 上：
+        c 的 当前裁剪 的 上 为 rect 的 上。
+    完。
+    若 rect 的 右 小于 c 的 当前裁剪 的 右：
+        c 的 当前裁剪 的 右 为 rect 的 右。
+    完。
+    若 rect 的 下 小于 c 的 当前裁剪 的 下：
+        c 的 当前裁剪 的 下 为 rect 的 下。
+    完。
+完。
+
+Sk画布_clear 接受 c、颜色：
+    做 Nova缓冲itmap_清除 用 c 的 位图、颜色。
+    c 的 绘制调用数 为 c 的 绘制调用数 加 1。
+完。
+
+Sk画布_drawRect 接受 c、rect、paint：
+    c 的 绘制调用数 为 c 的 绘制调用数 加 1。
+    bm 为 c 的 位图。
+    颜色 为 paint 的 颜色。
+    若 c 的 当前透明度 小于 255：
+        a 为 做 SkColor_A 用 颜色 乘 c 的 当前透明度 除以 255。
+        颜色 为 做 SkColor 用 a、做 SkColor_R 用 颜色、做 SkColor_G 用 颜色、做 SkColor_B 用 颜色。
+    完。
+    x1 为 rect 的 左 除以 100。
+    y1 为 rect 的 上 除以 100。
+    x2 为 rect 的 右 除以 100。
+    y2 为 rect 的 下 除以 100。
+    cx1 为 c 的 当前裁剪 的 左 除以 100。
+    cy1 为 c 的 当前裁剪 的 上 除以 100。
+    cx2 为 c 的 当前裁剪 的 右 除以 100。
+    cy2 为 c 的 当前裁剪 的 下 除以 100。
+    若 x1 小于 cx1：
+        x1 为 cx1。
+    完。
+    若 y1 小于 cy1：
+        y1 为 cy1。
+    完。
+    若 x2 大于 cx2：
+        x2 为 cx2。
+    完。
+    若 y2 大于 cy2：
+        y2 为 cy2。
+    完。
+    若 x1 大于或等于 x2 或者 y1 大于或等于 y2：
+        返还。
+    完。
+    若 x1 小于 0：
+        x1 为 0。
+    完。
+    若 y1 小于 0：
+        y1 为 0。
+    完。
+    若 x2 大于 bm 的 宽：
+        x2 为 bm 的 宽。
+    完。
+    若 y2 大于 bm 的 高：
+        y2 为 bm 的 高。
+    完。
+    若 paint 的 风格 等于 Sk绘制风格_填充 或者 paint 的 风格 等于 Sk绘制风格_填充描边：
+        可变 y 为 y1。
+        只要 y 小于 y2：
+            可变 x 为 x1。
+            只要 x 小于 x2：
+                做 Sk画布_混合像素 用 bm、x、y、颜色、paint 的 混合模式。
+                x 为 x 加 1。
+            完。
+            y 为 y 加 1。
+        完。
+    完。
+    若 paint 的 风格 等于 Sk绘制风格_描边 或者 paint 的 风格 等于 Sk绘制风格_填充描边：
+        sw 为 paint 的 描边宽度 除以 100。
+        若 sw 小于 1：
+            sw 为 1。
+        完。
+        做 Sk画布_drawHLine 用 c、x1、x2、y1、sw、颜色、paint 的 混合模式。
+        做 Sk画布_drawHLine 用 c、x1、x2、y2 减 sw、sw、颜色、paint 的 混合模式。
+        做 Sk画布_drawVLine 用 c、x1、y1、y2、sw、颜色、paint 的 混合模式。
+        做 Sk画布_drawVLine 用 c、x2 减 sw、y1、y2、sw、颜色、paint 的 混合模式。
+    完。
+完。
+
+Sk画布_drawRRect 接受 c、rrect、paint：
+    c 的 绘制调用数 为 c 的 绘制调用数 加 1。
+    rect 为 rrect 的 矩形。
+    rx 为 rrect 的 圆角X。
+    ry 为 rrect 的 圆角Y。
+    若 rx 小于或等于 0 或者 ry 小于或等于 0：
+        做 Sk画布_drawRect 用 c、rect、paint。
+        返还。
+    完。
+    半宽 为 (rect 的 右 减 rect 的 左) 除以 2。
+    半高 为 (rect 的 下 减 rect 的 上) 除以 2。
+    若 rx 大于 半宽：
+        rx 为 半宽。
+    完。
+    若 ry 大于 半高：
+        ry 为 半高。
+    完。
+    bm 为 c 的 位图。
+    颜色 为 paint 的 颜色。
+    内rect 为 做 SkRect_创建 用 rect 的 左 加 rx、rect 的 上、rect 的 右 减 rx、rect 的 下。
+    做 Sk画布_fillRect_直接 用 bm、内rect、颜色、paint 的 混合模式。
+    做 Sk画布_fillRect_直接 用 bm、做 SkRect_创建 用 rect 的 左、rect 的 上 加 ry、rect 的 左 加 rx、rect 的 下 减 ry、颜色、paint 的 混合模式。
+    做 Sk画布_fillRect_直接 用 bm、做 SkRect_创建 用 rect 的 右 减 rx、rect 的 上 加 ry、rect 的 右、rect 的 下 减 ry、颜色、paint 的 混合模式。
+    做 Sk画布_fillArc 用 bm、rect 的 左 加 rx、rect 的 上 加 ry、rx、ry、颜色、paint 的 混合模式。
+    做 Sk画布_fillArc 用 bm、rect 的 右 减 rx、rect 的 上 加 ry、rx、ry、颜色、paint 的 混合模式。
+    做 Sk画布_fillArc 用 bm、rect 的 左 加 rx、rect 的 下 减 ry、rx、ry、颜色、paint 的 混合模式。
+    做 Sk画布_fillArc 用 bm、rect 的 右 减 rx、rect 的 下 减 ry、rx、ry、颜色、paint 的 混合模式。
+完。
+
+Sk画布_drawLine 接受 c、x1、y1、x2、y2、paint：
+    c 的 绘制调用数 为 c 的 绘制调用数 加 1。
+    bm 为 c 的 位图。
+    颜色 为 paint 的 颜色。
+    px1 为 x1 除以 100。
+    py1 为 y1 除以 100。
+    px2 为 x2 除以 100。
+    py2 为 y2 除以 100。
+    可变 dx 为 px2 减 px1。
+    可变 dy 为 py2 减 py1。
+    若 dx 小于 0：
+        dx 为 0 减 dx。
+    完。
+    若 dy 小于 0：
+        dy 为 0 减 dy。
+    完。
+    可变 sx 为 1。
+    若 px1 大于 px2：
+        sx 为 负 1。
+    完。
+    可变 sy 为 1。
+    若 py1 大于 py2：
+        sy 为 负 1。
+    完。
+    可变 err 为 dx 减 dy。
+    可变 cx 为 px1。
+    可变 cy 为 py1。
+    只要 1：
+        做 Sk画布_混合像素 用 bm、cx、cy、颜色、paint 的 混合模式。
+        若 cx 等于 px2 并且 cy 等于 py2：
+            跳出。
+        完。
+        e2 为 err 乘 2。
+        若 e2 大于 0 减 dy：
+            err 为 err 减 dy。
+            cx 为 cx 加 sx。
+        完。
+        若 e2 小于 dx：
+            err 为 err 加 dx。
+            cy 为 cy 加 sy。
+        完。
+    完。
+完。
+
+Sk画布_drawText 接受 c、文本、文本长度、x、y、font、paint：
+    c 的 绘制调用数 为 c 的 绘制调用数 加 1。
+    bm 为 c 的 位图。
+    颜色 为 paint 的 颜色。
+    run 为 做 Text布局_排版 用 font 的 字体、文本、文本长度、font 的 大小。
+    若 run 等于 0 或者 run 的 字形数 等于 0：
+        返还。
+    完。
+    可变 gi 为 0。
+    只要 gi 小于 run 的 字形数：
+        glyphID 为 做 内存_读16 用 run 的 字形ID 加 gi 乘 2。
+        gx 为 x 加 做 内存_读32 用 run 的 位置X 加 gi 乘 4。
+        gy 为 y。
+        cached 为 做 Glyph缓存_查找 用 0、glyphID、font 的 大小。
+        若 cached 等于 0：
+            cached 为 做 字体_光栅化字形 用 font 的 字体、glyphID、font 的 大小。
+        完。
+        若 cached 不等于 0 并且 cached 的 位图 不等于 0：
+            px 为 (gx 加 cached 的 bearingX) 除以 100。
+            py 为 (gy 减 cached 的 bearingY) 除以 100。
+            可变 row 为 0。
+            只要 row 小于 cached 的 高：
+                可变 col 为 0。
+                只要 col 小于 cached 的 宽：
+                    alpha 为 做 字节取 用 cached 的 位图、row 乘 cached 的 宽 加 col。
+                    若 alpha 大于 0：
+                        mod_color 为 做 SkColor_调制Alpha 用 颜色、alpha。
+                        做 Sk画布_混合像素 用 bm、px 加 col、py 加 row、mod_color、paint 的 混合模式。
+                    完。
+                    col 为 col 加 1。
+                完。
+                row 为 row 加 1。
+            完。
+        完。
+        gi 为 gi 加 1。
+    完。
+完。
+
+可变 画布_渲染帧数 为 0。
+
+可变 画布_脏区数 为 0。
+
+可变 画布_合成次数 为 0。
+
+画布_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 画布_脏区数 大于 1000：
+        做 追加 用 问题、「脏区过多: 」 加 做 整数转字符串 用 画布_脏区数。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「画布健康」。
+    完。
+    返还 问题。
+完。
+
+画布_统计 接受 零参：
+    返还 一本字典：渲染帧数 对应 画布_渲染帧数、脏区数 对应 画布_脏区数、合成次数 对应 画布_合成次数。
+完。
+
+画布_重置统计 接受 零参：
+    画布_渲染帧数 为 0。
+    画布_脏区数 为 0。
+    画布_合成次数 为 0。
+完。
+
+画布_平均脏区 接受 零参：
+    若 画布_渲染帧数 等于 0：
+        返还 0。
+    完。
+    返还 画布_脏区数 除以 画布_渲染帧数。
+完。
+
+可变 AI_网缓画布结_调用数 为 0。
+
+可变 AI_网缓画布结_异常数 为 0。
+
+AI_网缓画布结_监控 接受 零参：
+    AI_网缓画布结_调用数 为 AI_网缓画布结_调用数 加 1。
+    返还 AI_网缓画布结_异常数 等于 0。
+完。
+
+AI_网缓画布结_健康检查 接受 零参：
+    若 AI_网缓画布结_调用数 大于 0 并且 AI_网缓画布结_异常数 乘 100 除以 AI_网缓画布结_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

@@ -1,0 +1,171 @@
+《选区管理》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·内核直连层》。
+
+引用《.·Base64编解码》。
+
+Input_setSelectionRange 接受 input、start、end、direction：
+    若 input 等于 0：
+        返还。
+    完。
+完。
+
+Input_select 接受 input：
+    若 input 等于 0：
+        返还。
+    完。
+完。
+
+Input_setRangeText 接受 input、替换文本、start、end、selectMode：
+    若 input 等于 0 或者 替换文本 等于 0：
+        返还。
+    完。
+完。
+
+Input_键盘输入 接受 input、keyCode、charCode、是IME：
+    若 input 等于 0 或者 input 的 disabled 或者 input 的 readonly：
+        返还。
+    完。
+    若 是IME：
+        返还。
+    完。
+    若 charCode 大于 0：
+    完。
+    若 keyCode 等于 8：
+    完。
+    若 keyCode 等于 46：
+    完。
+    若 keyCode 等于 13：
+    完。
+完。
+
+FormDataPair 是 一种 事物，含 名称、值、是文件、文件、下一个。
+
+Form_序列化 接受 form：
+    若 form 等于 0：
+        返还 0。
+    完。
+    可变 头 为 0。
+    可变 尾 为 0。
+    返还 头。
+完。
+
+Form_URL编码序列化 接受 pairs：
+    若 pairs 等于 0：
+        返还 「」。
+    完。
+    buf 为 做 堆_分配 用 4096。
+    可变 pos 为 0。
+    可变 first 为 真。
+    可变 pair 为 pairs。
+    只要 pair 不等于 0：
+        若 非 first：
+            做 字节写 用 buf、pos、38。
+            pos 为 pos 加 1。
+        完。
+        encName 为 做 URL_encodeComponent 用 pair 的 名称。
+        nlen 为 做 字节长度 用 encName。
+        做 内存_复制 用 buf 加 pos、encName、nlen。
+        pos 为 pos 加 nlen。
+        做 字节写 用 buf、pos、61。
+        pos 为 pos 加 1。
+        encVal 为 做 URL_encodeComponent 用 pair 的 值。
+        vlen 为 做 字节长度 用 encVal。
+        做 内存_复制 用 buf 加 pos、encVal、vlen。
+        pos 为 pos 加 vlen。
+        first 为 假。
+        pair 为 pair 的 下一个。
+    完。
+    做 字节写 用 buf、pos、0。
+    返还 buf。
+完。
+
+Form_Multipart序列化 接受 pairs、boundary：
+    若 pairs 等于 0 或者 boundary 等于 0：
+        返还 0。
+    完。
+    buf 为 做 堆_分配 用 65536。
+    可变 pos 为 0。
+    可变 pair 为 pairs。
+    只要 pair 不等于 0：
+        做 字节写 用 buf、pos、45。
+        做 字节写 用 buf、pos 加 1、45。
+        pos 为 pos 加 2。
+        blen 为 做 字节长度 用 boundary。
+        做 内存_复制 用 buf 加 pos、boundary、blen。
+        pos 为 pos 加 blen。
+        做 字节写 用 buf、pos、13。
+        做 字节写 用 buf、pos 加 1、10。
+        pos 为 pos 加 2。
+        cd 为 「Content-Disposition: form-data; name=\"」。
+        cdlen 为 做 字节长度 用 cd。
+        做 内存_复制 用 buf 加 pos、cd、cdlen。
+        pos 为 pos 加 cdlen。
+        nlen 为 做 字节长度 用 pair 的 名称。
+        做 内存_复制 用 buf 加 pos、pair 的 名称、nlen。
+        pos 为 pos 加 nlen。
+        做 字节写 用 buf、pos、34。
+        pos 为 pos 加 1。
+        若 pair 的 是文件 并且 pair 的 文件 不等于 0：
+            fn 为 「; filename=\"」。
+            fnlen 为 做 字节长度 用 fn。
+            做 内存_复制 用 buf 加 pos、fn、fnlen。
+            pos 为 pos 加 fnlen。
+            做 字节写 用 buf、pos、34。
+            pos 为 pos 加 1。
+        完。
+        做 字节写 用 buf、pos、13。
+        做 字节写 用 buf、pos 加 1、10。
+        pos 为 pos 加 2。
+        做 字节写 用 buf、pos、13。
+        做 字节写 用 buf、pos 加 1、10。
+        pos 为 pos 加 2。
+        若 非 pair 的 是文件 并且 pair 的 值 不等于 0：
+            vlen 为 做 字节长度 用 pair 的 值。
+            做 内存_复制 用 buf 加 pos、pair 的 值、vlen。
+            pos 为 pos 加 vlen。
+        完。
+        做 字节写 用 buf、pos、13。
+        做 字节写 用 buf、pos 加 1、10。
+        pos 为 pos 加 2。
+        pair 为 pair 的 下一个。
+    完。
+    做 字节写 用 buf、pos、45。
+    做 字节写 用 buf、pos 加 1、45。
+    pos 为 pos 加 2。
+    blen2 为 做 字节长度 用 boundary。
+    做 内存_复制 用 buf 加 pos、boundary、blen2。
+    pos 为 pos 加 blen2。
+    做 字节写 用 buf、pos、45。
+    做 字节写 用 buf、pos 加 1、45。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、13。
+    做 字节写 用 buf、pos 加 1、10。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    返还 buf。
+完。
+
+可变 AI_选区管理_调用数 为 0。
+
+可变 AI_选区管理_异常数 为 0。
+
+AI_选区管理_监控 接受 零参：
+    AI_选区管理_调用数 为 AI_选区管理_调用数 加 1。
+    返还 AI_选区管理_异常数 等于 0。
+完。
+
+AI_选区管理_健康检查 接受 零参：
+    若 AI_选区管理_调用数 大于 0 并且 AI_选区管理_异常数 乘 100 除以 AI_选区管理_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

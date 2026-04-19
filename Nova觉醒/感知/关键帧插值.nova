@@ -1,0 +1,129 @@
+《关键帧插值》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·属性自定义属》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·函数创建》。
+
+引用《.·文档节点》。
+
+AnimationFrame_应用 接受 ke、进度：
+    若 ke 的 关键帧数量 小于 2：
+        返还。
+    完。
+    若 ke 的 目标元素 等于 0：
+        返还。
+    完。
+    可变 kf_before 为 做 内存_读64 用 ke 的 关键帧。
+    可变 kf_after 为 做 内存_读64 用 ke 的 关键帧 加 (ke 的 关键帧数量 减 1) 乘 8。
+    可变 i 为 0。
+    只要 i 小于 ke 的 关键帧数量 减 1：
+        kf1 为 做 内存_读64 用 ke 的 关键帧 加 i 乘 8。
+        kf2 为 做 内存_读64 用 ke 的 关键帧 加 (i 加 1) 乘 8。
+        若 进度 大于或等于 kf1 的 偏移 并且 进度 小于或等于 kf2 的 偏移：
+            kf_before 为 kf1。
+            kf_after 为 kf2。
+            跳出。
+        完。
+        i 为 i 加 1。
+    完。
+    范围 为 kf_after 的 偏移 减 kf_before 的 偏移。
+    可变 局部进度 为 0。
+    若 范围 大于 0：
+        局部进度 为 (进度 减 kf_before 的 偏移) 乘 10000 除以 范围。
+    完。
+    若 kf_before 的 缓动 不等于 0：
+        局部进度 为 做 TimingFunction_求值 用 kf_before 的 缓动、局部进度。
+    完。
+    可变 j 为 0。
+    只要 j 小于 kf_before 的 属性数量：
+        before偏移 为 kf_before 的 属性列表 加 j 乘 12。
+        属性ID 为 做 内存_读32 用 before偏移。
+        值类型 为 做 内存_读32 用 before偏移 加 4。
+        after值 为 做 AnimationFrame_查找属性 用 kf_after、属性ID。
+        若 after值 大于或等于 0：
+            before值 为 做 内存_读32 用 before偏移 加 8。
+            after值偏移 为 kf_after 的 属性列表 加 after值 乘 12。
+            after数值 为 做 内存_读32 用 after值偏移 加 8。
+            可变 插值结果 为 0。
+            若 值类型 等于 0 或者 值类型 等于 2：
+                插值结果 为 before值 加 (after数值 减 before值) 乘 局部进度 除以 10000。
+            否则若 值类型 等于 1：
+                插值结果 为 做 颜色_插值 用 before值、after数值、局部进度。
+            否则：
+                插值结果 为 before值。
+            完。
+            做 AnimationFrame_应用属性 用 ke 的 目标元素、属性ID、值类型、插值结果。
+        完。
+        j 为 j 加 1。
+    完。
+完。
+
+AnimationFrame_查找属性 接受 kf、属性ID：
+    可变 i 为 0。
+    只要 i 小于 kf 的 属性数量：
+        若 做 内存_读32 用 kf 的 属性列表 加 i 乘 12 等于 属性ID：
+            返还 i。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+颜色_插值 接受 c1、c2、t：
+    inv 为 10000 减 t。
+    a 为 (做 SkColor_A 用 c1 乘 inv 加 做 SkColor_A 用 c2 乘 t) 除以 10000。
+    r 为 (做 SkColor_R 用 c1 乘 inv 加 做 SkColor_R 用 c2 乘 t) 除以 10000。
+    g 为 (做 SkColor_G 用 c1 乘 inv 加 做 SkColor_G 用 c2 乘 t) 除以 10000。
+    b 为 (做 SkColor_B 用 c1 乘 inv 加 做 SkColor_B 用 c2 乘 t) 除以 10000。
+    返还 做 SkColor 用 a、r、g、b。
+完。
+
+AnimationFrame_应用属性 接受 元素、属性ID、值类型、值：
+    若 元素 等于 0：
+        返还。
+    完。
+    扩展 为 做 元素_获取扩展 用 元素。
+    若 扩展 等于 0 或者 扩展 的 计算样式 等于 0：
+        返还。
+    完。
+    style 为 扩展 的 计算样式。
+    若 属性ID 等于 CSS属性_opacity：
+        style 的 opacity 为 值。
+    否则若 属性ID 等于 CSS属性_width：
+        style 的 width 为 值。
+    否则若 属性ID 等于 CSS属性_height：
+        style 的 height 为 值。
+    否则若 属性ID 等于 CSS属性_margin_top：
+        style 的 margin_top 为 值。
+    否则若 属性ID 等于 CSS属性_margin_left：
+        style 的 margin_left 为 值。
+    否则若 属性ID 等于 CSS属性_padding_top：
+        style 的 padding_top 为 值。
+    否则若 属性ID 等于 CSS属性_padding_left：
+        style 的 padding_left 为 值。
+    否则若 属性ID 等于 CSS属性_font_size：
+        style 的 font_size 为 值。
+    否则若 属性ID 等于 CSS属性_color：
+        style 的 color 为 值。
+    否则若 属性ID 等于 CSS属性_background_color：
+        style 的 background_color 为 值。
+    否则若 属性ID 等于 CSS属性_border_top_width：
+        style 的 border_top_width 为 值。
+    否则若 属性ID 等于 CSS属性_top：
+        style 的 top 为 值。
+    否则若 属性ID 等于 CSS属性_left：
+        style 的 left 为 值。
+    否则若 属性ID 等于 CSS属性_right：
+        style 的 right 为 值。
+    否则若 属性ID 等于 CSS属性_bottom：
+        style 的 bottom 为 值。
+    完。
+完。
+
+本章 收束。

@@ -1,0 +1,534 @@
+《弹性布局深度》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·日志中枢》。
+
+引用《..·中枢·进程调度》。
+
+引用《..·中枢·公共智能》。
+
+引用《..·引导·引导加载器》。
+
+引用《.·图绘渲染上下》。
+
+FLEX_DIR_ROW 为 0。
+
+FLEX_DIR_ROW_REVERSE 为 2。
+
+FLEX_DIR_COLUMN 为 1。
+
+FLEX_DIR_COLUMN_REVERSE 为 3。
+
+FLEX_WRAP_NOWRAP 为 0。
+
+FLEX_WRAP_WRAP 为 1。
+
+FLEX_WRAP_WRAP_REVERSE 为 2。
+
+JUSTIFY_START 为 0。
+
+JUSTIFY_END 为 1。
+
+JUSTIFY_CENTER 为 2。
+
+JUSTIFY_SPACE_BETWEEN 为 3。
+
+JUSTIFY_SPACE_AROUND 为 4。
+
+JUSTIFY_SPACE_EVENLY 为 5。
+
+ALIGN_STRETCH 为 0。
+
+ALIGN_START 为 1。
+
+ALIGN_END 为 2。
+
+ALIGN_CENTER 为 3。
+
+ALIGN_BASELINE 为 4。
+
+可变 弹性布局_总次数 为 0。
+
+可变 弹性布局_缓存命中 为 0。
+
+可变 弹性布局_多行次数 为 0。
+
+布局弹性_布局 接受 layout：
+    若 layout 等于 0：
+        返还。
+    完。
+    style 为 layout 的 样式。
+    若 style 等于 0：
+        返还。
+    完。
+    是水平 为 style 的 flex_direction 等于 0 或者 style 的 flex_direction 等于 2。
+    是反向 为 style 的 flex_direction 等于 2 或者 style 的 flex_direction 等于 3。
+    主轴大小 为 若 是水平 则 layout 的 宽度 否则 layout 的 高度。
+    交叉轴大小 为 若 是水平 则 layout 的 高度 否则 layout 的 宽度。
+    可变 项数量 为 0。
+    可变 总基础大小 为 0。
+    可变 总flex_grow 为 0。
+    可变 总flex_shrink 为 0。
+    可变 子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 不等于 0 并且 子 的 样式 的 display 不等于 0：
+            做 布局Box_计算盒模型 用 子、layout 的 宽度、layout 的 高度。
+            基础 为 子 的 宽度。
+            若 非 是水平：
+                基础 为 子 的 高度。
+            完。
+            若 基础 小于或等于 0：
+                基础 为 0。
+                若 子 的 样式 的 flex_basis 大于 0：
+                    基础 为 子 的 样式 的 flex_basis。
+                完。
+            完。
+            总基础大小 为 总基础大小 加 基础。
+            grow 为 子 的 样式 的 flex_grow。
+            若 grow 小于 0：
+                grow 为 0。
+            完。
+            总flex_grow 为 总flex_grow 加 grow。
+            shrink 为 子 的 样式 的 flex_shrink。
+            若 shrink 小于 0：
+                shrink 为 100。
+            完。
+            总flex_shrink 为 总flex_shrink 加 shrink。
+            项数量 为 项数量 加 1。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    若 项数量 等于 0：
+        返还。
+    完。
+    剩余空间 为 主轴大小 减 总基础大小。
+    需要收缩 为 剩余空间 小于 0。
+    子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 等于 0 或者 子 的 样式 的 display 等于 0：
+            子 为 子 的 后一兄弟布局。
+            继续。
+        完。
+        基础 为 子 的 宽度。
+        若 非 是水平：
+            基础 为 子 的 高度。
+        完。
+        若 基础 小于或等于 0 并且 子 的 样式 的 flex_basis 大于 0：
+            基础 为 子 的 样式 的 flex_basis。
+        完。
+        可变 最终大小 为 基础。
+        若 需要收缩：
+            若 总flex_shrink 大于 0：
+                shrink 为 子 的 样式 的 flex_shrink。
+                若 shrink 小于 0：
+                    shrink 为 100。
+                完。
+                收缩量 为 (0 减 剩余空间) 乘 shrink 除以 总flex_shrink。
+                最终大小 为 基础 减 收缩量。
+                若 最终大小 小于 0：
+                    最终大小 为 0。
+                完。
+            完。
+        否则若 剩余空间 大于 0 并且 总flex_grow 大于 0：
+            grow 为 子 的 样式 的 flex_grow。
+            若 grow 大于 0：
+                增长量 为 剩余空间 乘 grow 除以 总flex_grow。
+                最终大小 为 基础 加 增长量。
+            完。
+        完。
+        若 子 的 样式 的 min_width 大于 0 并且 是水平：
+            min_val 为 做 CSS值_解析为像素 用 子 的 样式 的 min_width、layout 的 宽度。
+            若 最终大小 小于 min_val：
+                最终大小 为 min_val。
+            完。
+        完。
+        若 子 的 样式 的 max_width 大于 0 并且 子 的 样式 的 max_width 不等于 负 1 并且 是水平：
+            max_val 为 做 CSS值_解析为像素 用 子 的 样式 的 max_width、layout 的 宽度。
+            若 最终大小 大于 max_val：
+                最终大小 为 max_val。
+            完。
+        完。
+        若 是水平：
+            子 的 宽度 为 最终大小。
+        否则：
+            子 的 高度 为 最终大小。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    弹性布局_总次数 为 弹性布局_总次数 加 1。
+    justify 为 style 的 justify_content。
+    可变 主轴偏移 为 0。
+    可变 项间距 为 0。
+    可变 已用空间 为 0。
+    子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 不等于 0 并且 子 的 样式 的 display 不等于 0：
+            若 是水平：
+                已用空间 为 已用空间 加 子 的 宽度。
+            否则：
+                已用空间 为 已用空间 加 子 的 高度。
+            完。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    可用空间 为 主轴大小 减 已用空间。
+    若 justify 等于 JUSTIFY_START：
+        主轴偏移 为 0。
+    否则若 justify 等于 JUSTIFY_END：
+        主轴偏移 为 可用空间。
+    否则若 justify 等于 JUSTIFY_CENTER：
+        主轴偏移 为 可用空间 除以 2。
+    否则若 justify 等于 JUSTIFY_SPACE_BETWEEN：
+        若 项数量 大于 1：
+            项间距 为 可用空间 除以 (项数量 减 1)。
+        完。
+    否则若 justify 等于 JUSTIFY_SPACE_AROUND：
+        若 项数量 大于 0：
+            单侧 为 可用空间 除以 (项数量 乘 2)。
+            主轴偏移 为 单侧。
+            项间距 为 单侧 乘 2。
+        完。
+    否则若 justify 等于 JUSTIFY_SPACE_EVENLY：
+        若 项数量 大于 0：
+            均匀 为 可用空间 除以 (项数量 加 1)。
+            主轴偏移 为 均匀。
+            项间距 为 均匀。
+        完。
+    完。
+    若 是反向：
+        主轴偏移 为 主轴大小 减 主轴偏移。
+    完。
+    可变 当前主轴 为 主轴偏移。
+    子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 等于 0 或者 子 的 样式 的 display 等于 0：
+            子 为 子 的 后一兄弟布局。
+            继续。
+        完。
+        项大小 为 若 是水平 则 子 的 宽度 否则 子 的 高度。
+        若 是反向：
+            当前主轴 为 当前主轴 减 项大小。
+            若 是水平：
+                子 的 x 为 layout 的 x 加 当前主轴。
+            否则：
+                子 的 y 为 layout 的 y 加 当前主轴。
+            完。
+            当前主轴 为 当前主轴 减 项间距。
+        否则：
+            若 是水平：
+                子 的 x 为 layout 的 x 加 当前主轴。
+            否则：
+                子 的 y 为 layout 的 y 加 当前主轴。
+            完。
+            当前主轴 为 当前主轴 加 项大小 加 项间距。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    align 为 style 的 align_items。
+    子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 等于 0 或者 子 的 样式 的 display 等于 0：
+            子 为 子 的 后一兄弟布局。
+            继续。
+        完。
+        可变 项align 为 align。
+        若 子 的 样式 的 align_self 大于或等于 0：
+            项align 为 子 的 样式 的 align_self。
+        完。
+        项交叉大小 为 若 是水平 则 子 的 高度 否则 子 的 宽度。
+        可变 交叉偏移 为 0。
+        若 项align 等于 ALIGN_START：
+            交叉偏移 为 0。
+        否则若 项align 等于 ALIGN_END：
+            交叉偏移 为 交叉轴大小 减 项交叉大小。
+        否则若 项align 等于 ALIGN_CENTER：
+            交叉偏移 为 (交叉轴大小 减 项交叉大小) 除以 2。
+        否则若 项align 等于 ALIGN_STRETCH：
+            若 是水平：
+                若 子 的 样式 的 height_auto：
+                    子 的 高度 为 交叉轴大小。
+                完。
+            否则：
+                若 子 的 样式 的 width_auto：
+                    子 的 宽度 为 交叉轴大小。
+                完。
+            完。
+            交叉偏移 为 0。
+        完。
+        若 是水平：
+            子 的 y 为 layout 的 y 加 交叉偏移。
+        否则：
+            子 的 x 为 layout 的 x 加 交叉偏移。
+        完。
+        若 子 的 第一子 不等于 0：
+            做 布局_递归 用 子。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+完。
+
+弹性行 是 一种 事物，含 项列表、主轴已用、交叉轴最大、交叉轴偏移。
+
+布局弹性_多行 接受 layout：
+    若 layout 等于 0：
+        返还。
+    完。
+    style 为 layout 的 样式。
+    若 style 等于 0 或者 style 的 flex_wrap 等于 FLEX_WRAP_NOWRAP：
+        做 布局弹性_布局 用 layout。
+        返还。
+    完。
+    弹性布局_多行次数 为 弹性布局_多行次数 加 1。
+    是水平 为 style 的 flex_direction 等于 FLEX_DIR_ROW 或者 style 的 flex_direction 等于 FLEX_DIR_ROW_REVERSE。
+    主轴大小 为 若 是水平 则 layout 的 宽度 否则 layout 的 高度。
+    交叉轴大小 为 若 是水平 则 layout 的 高度 否则 layout 的 宽度。
+    可变 行列表 为 一组：（空）。
+    可变 当前行 为 新建 弹性行：项列表 为 一组：（空）、主轴已用 为 0、交叉轴最大 为 0、交叉轴偏移 为 0。
+    可变 子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 等于 0 或者 子 的 样式 的 display 等于 0：
+            子 为 子 的 后一兄弟布局。
+            继续。
+        完。
+        做 布局Box_计算盒模型 用 子、layout 的 宽度、layout 的 高度。
+        项主轴大小 为 若 是水平 则 子 的 宽度 否则 子 的 高度。
+        项交叉大小 为 若 是水平 则 子 的 高度 否则 子 的 宽度。
+        若 当前行 的 主轴已用 加 项主轴大小 大于 主轴大小 并且 做 计数 用 当前行 的 项列表 大于 0：
+            做 追加 用 行列表、当前行。
+            当前行 为 新建 弹性行：项列表 为 一组：（空）、主轴已用 为 0、交叉轴最大 为 0、交叉轴偏移 为 0。
+        完。
+        做 追加 用 当前行 的 项列表、子。
+        当前行 的 主轴已用 为 当前行 的 主轴已用 加 项主轴大小。
+        若 项交叉大小 大于 当前行 的 交叉轴最大：
+            当前行 的 交叉轴最大 为 项交叉大小。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    若 做 计数 用 当前行 的 项列表 大于 0：
+        做 追加 用 行列表、当前行。
+    完。
+    行数 为 做 计数 用 行列表。
+    可变 总交叉已用 为 0。
+    可变 i 为 0。
+    只要 i 小于 行数：
+        总交叉已用 为 总交叉已用 加 行列表 的 第 i 项 的 交叉轴最大。
+        i 为 i 加 1。
+    完。
+    交叉剩余 为 交叉轴大小 减 总交叉已用。
+    ac 为 style 的 align_content。
+    可变 交叉起始 为 0。
+    可变 行间距 为 0。
+    若 ac 等于 JUSTIFY_START：
+        交叉起始 为 0。
+    否则若 ac 等于 JUSTIFY_END：
+        交叉起始 为 交叉剩余。
+    否则若 ac 等于 JUSTIFY_CENTER：
+        交叉起始 为 交叉剩余 除以 2。
+    否则若 ac 等于 JUSTIFY_SPACE_BETWEEN 并且 行数 大于 1：
+        行间距 为 交叉剩余 除以 (行数 减 1)。
+    否则若 ac 等于 JUSTIFY_SPACE_AROUND 并且 行数 大于 0：
+        单侧 为 交叉剩余 除以 (行数 乘 2)。
+        交叉起始 为 单侧。
+        行间距 为 单侧 乘 2。
+    否则若 ac 等于 ALIGN_STRETCH 并且 行数 大于 0：
+        额外 为 交叉剩余 除以 行数。
+        i 为 0。
+        只要 i 小于 行数：
+            行列表 的 第 i 项 的 交叉轴最大 为 行列表 的 第 i 项 的 交叉轴最大 加 额外。
+            i 为 i 加 1。
+        完。
+    完。
+    若 style 的 flex_wrap 等于 FLEX_WRAP_WRAP_REVERSE：
+        可变 反转 为 一组：（空）。
+        i 为 行数 减 1。
+        只要 i 大于或等于 0：
+            做 追加 用 反转、行列表 的 第 i 项。
+            i 为 i 减 1。
+        完。
+        行列表 为 反转。
+    完。
+    可变 当前交叉 为 交叉起始。
+    i 为 0。
+    只要 i 小于 行数：
+        行 为 行列表 的 第 i 项。
+        行 的 交叉轴偏移 为 当前交叉。
+        行项数 为 做 计数 用 行 的 项列表。
+        行剩余 为 主轴大小 减 行 的 主轴已用。
+        可变 行主轴偏移 为 0。
+        可变 行项间距 为 0。
+        若 style 的 justify_content 等于 JUSTIFY_CENTER：
+            行主轴偏移 为 行剩余 除以 2。
+        否则若 style 的 justify_content 等于 JUSTIFY_END：
+            行主轴偏移 为 行剩余。
+        否则若 style 的 justify_content 等于 JUSTIFY_SPACE_BETWEEN 并且 行项数 大于 1：
+            行项间距 为 行剩余 除以 (行项数 减 1)。
+        完。
+        可变 主位置 为 行主轴偏移。
+        可变 j 为 0。
+        只要 j 小于 行项数：
+            项 为 行 的 项列表 的 第 j 项。
+            项主 为 若 是水平 则 项 的 宽度 否则 项 的 高度。
+            若 是水平：
+                项 的 x 为 layout 的 x 加 主位置。
+                项 的 y 为 layout 的 y 加 当前交叉。
+            否则：
+                项 的 y 为 layout 的 y 加 主位置。
+                项 的 x 为 layout 的 x 加 当前交叉。
+            完。
+            项交叉 为 若 是水平 则 项 的 高度 否则 项 的 宽度。
+            align_val 为 style 的 align_items。
+            若 项 的 样式 的 align_self 大于或等于 0：
+                align_val 为 项 的 样式 的 align_self。
+            完。
+            若 align_val 等于 ALIGN_CENTER：
+                偏移 为 (行 的 交叉轴最大 减 项交叉) 除以 2。
+                若 是水平：
+                    项 的 y 为 项 的 y 加 偏移。
+                否则：
+                    项 的 x 为 项 的 x 加 偏移。
+                完。
+            否则若 align_val 等于 ALIGN_END：
+                偏移 为 行 的 交叉轴最大 减 项交叉。
+                若 是水平：
+                    项 的 y 为 项 的 y 加 偏移。
+                否则：
+                    项 的 x 为 项 的 x 加 偏移。
+                完。
+            否则若 align_val 等于 ALIGN_STRETCH：
+                若 是水平：
+                    项 的 高度 为 行 的 交叉轴最大。
+                否则：
+                    项 的 宽度 为 行 的 交叉轴最大。
+                完。
+            完。
+            若 项 的 第一子 不等于 0：
+                做 布局_递归 用 项。
+            完。
+            主位置 为 主位置 加 项主 加 行项间距。
+            j 为 j 加 1。
+        完。
+        当前交叉 为 当前交叉 加 行 的 交叉轴最大 加 行间距。
+        i 为 i 加 1。
+    完。
+完。
+
+弹性_按order排序 接受 layout：
+    可变 需要排序 为 假。
+    可变 子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 不等于 0 并且 子 的 样式 的 order 不等于 0：
+            需要排序 为 真。
+            跳出。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    若 非 需要排序：
+        返还。
+    完。
+    可变 项列表 为 一组：（空）。
+    子 为 layout 的 第一子。
+    只要 子 不等于 0：
+        若 子 的 样式 不等于 0：
+            做 追加 用 项列表、子。
+        完。
+        子 为 子 的 后一兄弟布局。
+    完。
+    n 为 做 计数 用 项列表。
+    可变 i 为 0。
+    只要 i 小于 n 减 1：
+        可变 j 为 0。
+        只要 j 小于 n 减 1 减 i：
+            a_order 为 项列表 的 第 j 项 的 样式 的 order。
+            b_order 为 项列表 的 第 j 加 1 项 的 样式 的 order。
+            若 a_order 大于 b_order：
+                临时 为 项列表 的 第 j 项。
+                项列表 的 第 j 项 为 项列表 的 第 j 加 1 项。
+                项列表 的 第 j 加 1 项 为 临时。
+            完。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    若 n 大于 0：
+        layout 的 第一子 为 项列表 的 第 0 项。
+        i 为 0。
+        只要 i 小于 n：
+            若 i 加 1 小于 n：
+                项列表 的 第 i 项 的 后一兄弟布局 为 项列表 的 第 i 加 1 项。
+            否则：
+                项列表 的 第 i 项 的 后一兄弟布局 为 0。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+完。
+
+弹性_计算gap 接受 style、项数量：
+    row_gap 为 style 的 row_gap。
+    column_gap 为 style 的 column_gap。
+    若 row_gap 小于 0：
+        row_gap 为 0。
+    完。
+    若 column_gap 小于 0：
+        column_gap 为 0。
+    完。
+    返还 一本字典：row_gap 对应 row_gap、column_gap 对应 column_gap。
+完。
+
+布局弹性_入口 接受 layout：
+    若 layout 等于 0：
+        返还。
+    完。
+    style 为 layout 的 样式。
+    若 style 等于 0：
+        返还。
+    完。
+    做 弹性_按order排序 用 layout。
+    若 style 的 flex_wrap 不等于 FLEX_WRAP_NOWRAP：
+        做 布局弹性_多行 用 layout。
+    否则：
+        做 布局弹性_布局 用 layout。
+    完。
+完。
+
+CSS值_解析为像素 接受 值、容器大小：
+    若 值 小于或等于 0：
+        返还 0。
+    完。
+    返还 值。
+完。
+
+布局Box_计算盒模型 接受 子、父宽、父高：
+    若 子 等于 0 或者 子 的 样式 等于 0：
+        返还。
+    完。
+    s 为 子 的 样式。
+    若 s 的 width 大于 0：
+        子 的 宽度 为 做 CSS值_解析为像素 用 s 的 width、父宽。
+    完。
+    若 s 的 height 大于 0：
+        子 的 高度 为 做 CSS值_解析为像素 用 s 的 height、父高。
+    完。
+完。
+
+布局_递归 接受 node：
+    若 node 等于 0：
+        返还。
+    完。
+    style 为 node 的 样式。
+    若 style 等于 0：
+        返还。
+    完。
+    若 style 的 display_flex：
+        做 布局弹性_入口 用 node。
+    完。
+完。
+
+弹性布局_统计 接受 零参：
+    返还 一本字典：总布局次数 对应 弹性布局_总次数、缓存命中 对应 弹性布局_缓存命中、多行布局 对应 弹性布局_多行次数。
+完。
+
+本章 收束。

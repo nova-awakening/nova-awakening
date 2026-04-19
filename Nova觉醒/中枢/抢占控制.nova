@@ -1,0 +1,223 @@
+《抢占控制》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《..·引导·特权指令》。
+
+引用《.·整数转字符串》。
+
+PREEMPT_MASK 为 0x000000FF。
+
+SOFTIRQ_MASK 为 0x0000FF00。
+
+HARDIRQ_MASK 为 0x000F0000。
+
+NMI_MASK 为 0x00100000。
+
+SOFTIRQ_OFFSET 为 8。
+
+HARDIRQ_OFFSET 为 16。
+
+可变 preempt_count 为 0。
+
+可变 need_resched 为 假。
+
+preempt_disable 接受 零参：
+    preempt_count 为 preempt_count 加 1。
+完。
+
+preempt_enable 接受 零参：
+    preempt_count 为 preempt_count 减 1。
+    若 preempt_count 等于 0 并且 need_resched：
+        做 preempt_schedule。
+    完。
+完。
+
+preempt_enable_no_resched 接受 零参：
+    preempt_count 为 preempt_count 减 1。
+完。
+
+preemptible 接受 零参：
+    返还 preempt_count 等于 0。
+完。
+
+in_interrupt 接受 零参：
+    返还 preempt_count 位与 (HARDIRQ_MASK 位或 SOFTIRQ_MASK 位或 NMI_MASK) 不等于 0。
+完。
+
+in_softirq 接受 零参：
+    返还 preempt_count 位与 SOFTIRQ_MASK 不等于 0。
+完。
+
+in_hardirq 接受 零参：
+    返还 preempt_count 位与 HARDIRQ_MASK 不等于 0。
+完。
+
+in_nmi 接受 零参：
+    返还 preempt_count 位与 NMI_MASK 不等于 0。
+完。
+
+in_atomic 接受 零参：
+    返还 preempt_count 不等于 0。
+完。
+
+hardirq_enter 接受 零参：
+    preempt_count 为 preempt_count 加 (1 左移 HARDIRQ_OFFSET)。
+完。
+
+hardirq_exit 接受 零参：
+    preempt_count 为 preempt_count 减 (1 左移 HARDIRQ_OFFSET)。
+完。
+
+softirq_enter 接受 零参：
+    preempt_count 为 preempt_count 加 (1 左移 SOFTIRQ_OFFSET)。
+完。
+
+softirq_exit 接受 零参：
+    preempt_count 为 preempt_count 减 (1 左移 SOFTIRQ_OFFSET)。
+完。
+
+set_need_resched 接受 零参：
+    need_resched 为 真。
+完。
+
+clear_need_resched 接受 零参：
+    need_resched 为 假。
+完。
+
+需要重新调度_抢占 接受 零参：
+    返还 need_resched。
+完。
+
+preempt_schedule 接受 零参：
+    若 非 做 preemptible：
+        返还。
+    完。
+    做 调度。
+    做 clear_need_resched。
+完。
+
+获取preempt_count 接受 零参：
+    返还 preempt_count。
+完。
+
+preempt_schedule_irq 接受 零参：
+    若 preempt_count 不等于 0：
+        返还。
+    完。
+    若 非 need_resched：
+        返还。
+    完。
+    做 关中断。
+    若 need_resched 并且 preempt_count 等于 0：
+        preempt_count 为 preempt_count 加 1。
+        做 调度。
+        preempt_count 为 preempt_count 减 1。
+        做 clear_need_resched。
+    完。
+    做 开中断。
+完。
+
+cond_resched 接受 零参：
+    若 need_resched 并且 做 preemptible：
+        做 preempt_schedule。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+cond_resched_lock 接受 锁：
+    若 need_resched：
+        做 自旋锁_解锁 用 锁。
+        做 preempt_schedule。
+        做 自旋锁_加锁 用 锁。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+might_sleep 接受 零参：
+    若 做 in_atomic：
+        做 内核警告 用 「BUG: 在原子上下文中调用了可能睡眠的函数!」。
+        做 内核警告 用 「  preempt_count=」 加 做 整数转字符串 用 preempt_count。
+        若 做 in_hardirq：
+            做 内核警告 用 「  上下文: 硬中断」。
+        否则若 做 in_softirq：
+            做 内核警告 用 「  上下文: 软中断」。
+        否则：
+            做 内核警告 用 「  上下文: 抢占禁用」。
+        完。
+    完。
+完。
+
+preempt_count_值 接受 零参：
+    返还 preempt_count 位与 PREEMPT_MASK。
+完。
+
+softirq_count_值 接受 零参：
+    返还 (preempt_count 位与 SOFTIRQ_MASK) 右移 SOFTIRQ_OFFSET。
+完。
+
+hardirq_count_值 接受 零参：
+    返还 (preempt_count 位与 HARDIRQ_MASK) 右移 HARDIRQ_OFFSET。
+完。
+
+nmi_enter 接受 零参：
+    preempt_count 为 preempt_count 位或 NMI_MASK。
+完。
+
+nmi_exit 接受 零参：
+    preempt_count 为 preempt_count 位与 按位取反 NMI_MASK。
+完。
+
+当前上下文名 接受 零参：
+    若 做 in_nmi：
+        返还 「NMI」。
+    完。
+    若 做 in_hardirq：
+        返还 「硬中断」。
+    完。
+    若 做 in_softirq：
+        返还 「软中断」。
+    完。
+    若 非 做 preemptible：
+        返还 「抢占禁用」。
+    完。
+    返还 「进程上下文」。
+完。
+
+可变 抢占调度_总次数 为 0。
+
+抢占_统计 接受 零参：
+    返还 一组：preempt_count、抢占调度_总次数、need_resched。
+完。
+
+抢占_完整统计 接受 零参：
+    返还 一组：preempt_count、抢占调度_总次数、need_resched。
+完。
+
+可变 AI_抢占控制_负载窗口 为 一组：（空）。
+
+AI_抢占控制_负载预测 接受 当前负载：
+    做 追加 用 AI_抢占控制_负载窗口、当前负载。
+    若 做 计数 用 AI_抢占控制_负载窗口 大于 20：
+        做 列表_移除 用 AI_抢占控制_负载窗口、0。
+    完。
+    若 做 计数 用 AI_抢占控制_负载窗口 小于 3：
+        返还 当前负载。
+    完。
+    n 为 做 计数 用 AI_抢占控制_负载窗口。
+    趋势 为 AI_抢占控制_负载窗口 的 第 n 减 1 项 减 AI_抢占控制_负载窗口 的 第 n 减 3 项。
+    返还 当前负载 加 趋势。
+完。
+
+AI_抢占控制_迁移建议 接受 源CPU负载、目标CPU负载：
+    若 源CPU负载 大于 目标CPU负载 乘 2：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

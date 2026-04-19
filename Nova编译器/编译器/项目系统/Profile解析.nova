@@ -1,0 +1,101 @@
+《Profile解析》
+
+引用《..·..·标准库·基础》。
+
+引用《..·..·运行时·字典引擎·字典引擎》。
+
+Profile_是合法 接受 名称：
+    若 做 字符串相等 用 名称、「analysis-host」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「linux-user」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「kernel-qemu」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「kernel-physical」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「strict-native」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「hosted-compatible」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「hybrid-bridge」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「」：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+Profile_是重置Profile 接受 名称：
+    若 做 字符串相等 用 名称、「strict-native」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「hosted-compatible」：
+        返还 真。
+    完。
+    若 做 字符串相等 用 名称、「hybrid-bridge」：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+Profile_裁剪子系统 接受 合同、活跃profile：
+    子系统 为 合同 的 第 6 项。
+    若 做 计数 用 子系统 等于 0：
+        返还 一组：（空）。
+    完。
+    可变 结果 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 子系统：
+        做 追加 用 结果、子系统 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+Profile_解析 接受 CLI_profile、合同_profile：
+    若 CLI_profile 不等于 空 并且 做 字节长度 用 CLI_profile 大于 0：
+        若 做 Profile_是合法 用 CLI_profile：
+            返还 CLI_profile。
+        完。
+    完。
+    若 合同_profile 不等于 空 并且 做 字节长度 用 合同_profile 大于 0：
+        若 做 Profile_是合法 用 合同_profile：
+            返还 合同_profile。
+        完。
+    完。
+    返还 「linux-user」。
+完。
+
+Profile_交付物清单 接受 profile名：
+    若 做 字符串相等 用 profile名、「analysis-host」：
+        返还 一组：「project_contract_report」、「语义_报告」、「ir_report」。
+    完。
+    若 做 字符串相等 用 profile名、「linux-user」：
+        返还 一组：「elf_binary」、「symbol_map」、「line_map」。
+    完。
+    若 做 字符串相等 用 profile名、「kernel-qemu」：
+        返还 一组：「kernel_elf」、「qemu_bundle」、「serial_profile」。
+    完。
+    若 做 字符串相等 用 profile名、「kernel-physical」：
+        返还 一组：「disk_image」、「rollback_metadata」、「hardware_profile」。
+    完。
+    若 做 字符串相等 用 profile名、「strict-native」：
+        返还 一组：「native_project_report」、「equivalence_report」、「clone_scan_report」、「elf_binary」。
+    完。
+    若 做 字符串相等 用 profile名、「hosted-compatible」：
+        返还 一组：「native_project_report」、「equivalence_report」、「clone_scan_report」、「compatibility_boundary_report」、「elf_binary」。
+    完。
+    若 做 字符串相等 用 profile名、「hybrid-bridge」：
+        返还 一组：「native_project_report」、「equivalence_report」、「clone_scan_report」、「ffi_bridge_report」、「elf_binary」。
+    完。
+    返还 一组：「elf_binary」。
+完。
+
+本章 收束。

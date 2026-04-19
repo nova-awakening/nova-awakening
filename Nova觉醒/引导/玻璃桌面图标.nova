@@ -1,0 +1,1011 @@
+《玻璃桌面图标》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·端口IO》。
+
+图标R 为 一组：59、16、139、245、239。
+
+图标G 为 一组：130、185、92、158、68。
+
+图标B 为 一组：246、129、246、11、68。
+
+可变 ic 为 0。
+
+只要 ic 小于 5：
+    ic_r 为 图标R 的 第 ic 项。
+    ic_g 为 图标G 的 第 ic 项。
+    ic_b 为 图标B 的 第 ic 项。
+    ic_top 为 48 加 ic 乘 90。
+    可变 iy 为 0。
+    只要 iy 小于 46：
+        ig_t 为 iy 乘 256 除以 46。
+        可变 pr 为 ic_r 加 (256 减 ig_t) 乘 40 除以 256 减 ig_t 乘 20 除以 256。
+        可变 pg 为 ic_g 加 (256 减 ig_t) 乘 40 除以 256 减 ig_t 乘 20 除以 256。
+        可变 pb 为 ic_b 加 (256 减 ig_t) 乘 40 除以 256 减 ig_t 乘 20 除以 256。
+        若 pr 大于 255：
+            pr 为 255。
+        完。
+        若 pg 大于 255：
+            pg 为 255。
+        完。
+        若 pb 大于 255：
+            pb 为 255。
+        完。
+        若 pr 小于 0：
+            pr 为 0。
+        完。
+        若 pg 小于 0：
+            pg 为 0。
+        完。
+        若 pb 小于 0：
+            pb 为 0。
+        完。
+        ic_col 为 pr 乘 65536 加 pg 乘 256 加 pb。
+        若 iy 等于 0：
+            ic_col 为 (pr 加 60) 乘 65536 加 (pg 加 60) 乘 256 加 (pb 加 60)。
+        完。
+        可变 ix 为 0。
+        只要 ix 小于 46：
+            做 内存写32 用 LFB 加 (ic_top 加 iy) 乘 行字节 加 (22 加 ix) 乘 4、ic_col。
+            ix 为 ix 加 1。
+        完。
+        iy 为 iy 加 1。
+    完。
+    可变 sh_i 为 0。
+    只要 sh_i 小于 46：
+        做 内存写32 用 LFB 加 (ic_top 加 46) 乘 行字节 加 (24 加 sh_i) 乘 4、0x00040408。
+        做 内存写32 用 LFB 加 (ic_top 加 47) 乘 行字节 加 (25 加 sh_i) 乘 4、0x00020204。
+        sh_i 为 sh_i 加 1。
+    完。
+    图标符 为 一组：70、62、123、35、42。
+    ic_ch 为 (图标符 的 第 ic 项 减 32) 乘 8。
+    若 ic_ch 大于或等于 0 并且 ic_ch 小于 760：
+        可变 icr 为 0。
+        只要 icr 小于 8：
+            icrd 为 字体 的 第 ic_ch 加 icr 项。
+            可变 icb 为 0。
+            只要 icb 小于 8：
+                若 icrd 右移 7 减 icb 位与 1：
+                    做 内存写32 用 LFB 加 (ic_top 加 19 加 icr) 乘 行字节 加 (37 加 icb) 乘 4、0x00FFFFFF。
+                完。
+                icb 为 icb 加 1。
+            完。
+            icr 为 icr 加 1。
+        完。
+    完。
+    ic 为 ic 加 1。
+完。
+
+图标名0 为 一组：70、105、108、101、115。
+
+图标名1 为 一组：84、101、114、109。
+
+图标名2 为 一组：67、111、100、101。
+
+图标名3 为 一组：77、117、115、105、99。
+
+图标名4 为 一组：83、101、116、117、112。
+
+图标名长 为 一组：5、4、4、5、5。
+
+图标名列 为 一组：图标名0、图标名1、图标名2、图标名3、图标名4。
+
+可变 ln 为 0。
+
+只要 ln 小于 5：
+    当前名 为 图标名列 的 第 ln 项。
+    名长 为 图标名长 的 第 ln 项。
+    lbl_y 为 55 加 ln 乘 90 加 48。
+    可变 lc 为 0。
+    只要 lc 小于 名长：
+        lci 为 (当前名 的 第 lc 项 减 32) 乘 8。
+        若 lci 大于或等于 0 并且 lci 小于 760：
+            可变 lr 为 0。
+            只要 lr 小于 8：
+                lrd 为 字体 的 第 lci 加 lr 项。
+                可变 lb2 为 0。
+                只要 lb2 小于 8：
+                    若 lrd 右移 7 减 lb2 位与 1：
+                        做 内存写32 用 LFB 加 (lbl_y 加 lr) 乘 行字节 加 (22 加 lc 乘 9 加 lb2) 乘 4、0x00C0C0C0。
+                    完。
+                    lb2 为 lb2 加 1。
+                完。
+                lr 为 lr 加 1。
+            完。
+        完。
+        lc 为 lc 加 1。
+    完。
+    ln 为 ln 加 1。
+完。
+
+做 打印 用 「[渲染] 壁纸+系统栏+任务栏+图标+标签 OK」。
+
+NGIR_MAX_ICONS 为 128。
+
+NGIR_MAX_LABEL 为 64。
+
+NGIR_GRID_COLS 为 10。
+
+NGIR_GRID_ROWS 为 8。
+
+NGIR_CELL_W 为 96。
+
+NGIR_CELL_H 为 96。
+
+NGIR_ICON_W 为 46。
+
+NGIR_ICON_H 为 46。
+
+NGIR_GLOW_RADIUS 为 6。
+
+NGIR_SHADOW_OFFSET_X 为 2。
+
+NGIR_SHADOW_OFFSET_Y 为 2。
+
+NGIR_SELECTION_PAD 为 4。
+
+NGIR_CACHE_MAX 为 256。
+
+可变 NGIR_图标总数 为 0。
+
+可变 NGIR_渲染帧数 为 0。
+
+可变 NGIR_AI布局次数 为 0。
+
+可变 NGIR_重排次数 为 0。
+
+可变 NGIR_命中测试次数 为 0。
+
+可变 NGIR_缓存命中 为 0。
+
+可变 NGIR_缓存未命中 为 0。
+
+NGIR颜色 是 一种 事物，含 r、g、b、a。
+
+NGIR图标 是 一种 事物，含 id、名称、名称长度、符号码、x、y、w、h、网格列、网格行、选中、悬停、可见、可拖拽、基色R、基色G、基色B、强调R、强调G、强调B、阴影强度、高光强度、呼吸相位、标签颜色、哈希、图片路径、图片纹理。
+
+图标图片_文件 为 「../资源/图标/图标_文件.png」。
+
+图标图片_终端 为 「../资源/图标/图标_终端.png」。
+
+图标图片_代码 为 「../资源/图标/图标_代码.png」。
+
+图标图片_音乐 为 「../资源/图标/图标_音乐.png」。
+
+图标图片_设置 为 「../资源/图标/图标_设置.png」。
+
+图标图片_笔记 为 「../资源/图标/图标_笔记.png」。
+
+图标图片_浏览 为 「../资源/图标/图标_浏览.png」。
+
+图标图片_AI 为 「../资源/图标/图标_AI.png」。
+
+NGIR主题 是 一种 事物，含 名称、背景暗度、玻璃透明度、高光强度、阴影强度、标签亮度、边框亮度、冷色偏移、暖色偏移。
+
+NGIR动画状态 是 一种 事物，含 时间毫秒、全局相位、鼠标x、鼠标y、鼠标按下、最近点击图标。
+
+NGIR布局统计 是 一种 事物，含 拥挤度、对齐分、语义分组分、可达性分、总评分。
+
+可变 NGIR_图标池 为 0。
+
+可变 NGIR_当前主题 为 0。
+
+可变 NGIR_动画 为 0。
+
+可变 NGIR_布局表 为 0。
+
+NGIR_夹取 接受 v、lo、hi：
+    若 v 小于 lo：
+        返还 lo。
+    完。
+    若 v 大于 hi：
+        返还 hi。
+    完。
+    返还 v。
+完。
+
+NGIR_颜色打包 接受 r、g、b：
+    r 为 做 NGIR_夹取 用 r、0、255。
+    g 为 做 NGIR_夹取 用 g、0、255。
+    b 为 做 NGIR_夹取 用 b、0、255。
+    返还 r 乘 65536 加 g 乘 256 加 b。
+完。
+
+NGIR_颜色混合 接受 c0、c1、t256：
+    r0 为 c0 右移 16 位与 255。
+    g0 为 c0 右移 8 位与 255。
+    b0 为 c0 位与 255。
+    r1 为 c1 右移 16 位与 255。
+    g1 为 c1 右移 8 位与 255。
+    b1 为 c1 位与 255。
+    r 为 r0 加 (r1 减 r0) 乘 t256 除以 256。
+    g 为 g0 加 (g1 减 g0) 乘 t256 除以 256。
+    b 为 b0 加 (b1 减 b0) 乘 t256 除以 256。
+    返还 做 NGIR_颜色打包 用 r、g、b。
+完。
+
+NGIR_像素写 接受 LFB、行字节、x、y、col：
+    若 x 小于 0 或者 y 小于 0：
+        返还。
+    完。
+    做 内存写32 用 LFB 加 y 乘 行字节 加 x 乘 4、col。
+完。
+
+NGIR_矩形填充 接受 LFB、行字节、x、y、w、h、col：
+    可变 yy 为 0。
+    只要 yy 小于 h：
+        可变 xx 为 0。
+        只要 xx 小于 w：
+            做 NGIR_像素写 用 LFB、行字节、x 加 xx、y 加 yy、col。
+            xx 为 xx 加 1。
+        完。
+        yy 为 yy 加 1。
+    完。
+完。
+
+NGIR_带边框矩形 接受 LFB、行字节、x、y、w、h、fill、border：
+    做 NGIR_矩形填充 用 LFB、行字节、x、y、w、h、fill。
+    可变 i 为 0。
+    只要 i 小于 w：
+        做 NGIR_像素写 用 LFB、行字节、x 加 i、y、border。
+        做 NGIR_像素写 用 LFB、行字节、x 加 i、y 加 h 减 1、border。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 h：
+        做 NGIR_像素写 用 LFB、行字节、x、y 加 i、border。
+        做 NGIR_像素写 用 LFB、行字节、x 加 w 减 1、y 加 i、border。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_圆角遮罩 接受 x、y、w、h、r：
+    若 x 大于或等于 r 并且 x 小于 w 减 r：
+        返还 1。
+    完。
+    若 y 大于或等于 r 并且 y 小于 h 减 r：
+        返还 1。
+    完。
+    cx 为 若 x 小于 r 则 r 否则 w 减 r 减 1。
+    cy 为 若 y 小于 r 则 r 否则 h 减 r 减 1。
+    dx 为 x 减 cx。
+    dy 为 y 减 cy。
+    若 dx 乘 dx 加 dy 乘 dy 小于或等于 r 乘 r：
+        返还 1。
+    完。
+    返还 0。
+完。
+
+NGIR_绘制圆角玻璃 接受 LFB、行字节、x、y、w、h、r、base_r、base_g、base_b、alpha256、主题：
+    可变 yy 为 0。
+    只要 yy 小于 h：
+        t 为 yy 乘 256 除以 h。
+        top_r 为 base_r 加 40 加 主题 的 冷色偏移。
+        top_g 为 base_g 加 35。
+        top_b 为 base_b 加 48 加 主题 的 冷色偏移。
+        bot_r 为 base_r 减 24 加 主题 的 暖色偏移。
+        bot_g 为 base_g 减 22 加 主题 的 暖色偏移。
+        bot_b 为 base_b 减 18。
+        row_r 为 top_r 加 (bot_r 减 top_r) 乘 t 除以 256。
+        row_g 为 top_g 加 (bot_g 减 top_g) 乘 t 除以 256。
+        row_b 为 top_b 加 (bot_b 减 top_b) 乘 t 除以 256。
+        row_r 为 做 NGIR_夹取 用 row_r、0、255。
+        row_g 为 做 NGIR_夹取 用 row_g、0、255。
+        row_b 为 做 NGIR_夹取 用 row_b、0、255。
+        row_col 为 做 NGIR_颜色打包 用 row_r、row_g、row_b。
+        可变 xx 为 0。
+        只要 xx 小于 w：
+            若 做 NGIR_圆角遮罩 用 xx、yy、w、h、r 等于 1：
+                bg 为 做 内存读32 用 LFB 加 (y 加 yy) 乘 行字节 加 (x 加 xx) 乘 4。
+                mix 为 做 NGIR_颜色混合 用 bg、row_col、alpha256。
+                做 NGIR_像素写 用 LFB、行字节、x 加 xx、y 加 yy、mix。
+            完。
+            xx 为 xx 加 1。
+        完。
+        yy 为 yy 加 1。
+    完。
+完。
+
+NGIR_绘制高光顶线 接受 LFB、行字节、x、y、w、r、强度：
+    可变 i 为 0。
+    只要 i 小于 w：
+        d 为 i 减 w 除以 2。
+        若 d 小于 0：
+            d 为 0 减 d。
+        完。
+        fall 为 256 减 d 乘 256 除以 (w 除以 2 加 1)。
+        fall 为 做 NGIR_夹取 用 fall、0、256。
+        add 为 强度 乘 fall 除以 256。
+        col 为 做 NGIR_颜色打包 用 180 加 add、220 加 add 除以 2、255。
+        若 做 NGIR_圆角遮罩 用 i、0、w、1 加 r、r 等于 1：
+            做 NGIR_像素写 用 LFB、行字节、x 加 i、y、col。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_绘制底部阴影 接受 LFB、行字节、x、y、w、h、强度：
+    col1 为 做 NGIR_颜色打包 用 强度、强度、强度 乘 2。
+    col2 为 做 NGIR_颜色打包 用 强度 除以 2、强度 除以 2、强度。
+    可变 i 为 0。
+    只要 i 小于 w：
+        做 NGIR_像素写 用 LFB、行字节、x 加 NGIR_SHADOW_OFFSET_X 加 i、y 加 h 加 NGIR_SHADOW_OFFSET_Y、col1。
+        做 NGIR_像素写 用 LFB、行字节、x 加 NGIR_SHADOW_OFFSET_X 加 1 加 i、y 加 h 加 NGIR_SHADOW_OFFSET_Y 加 1、col2。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_绘制内符号 接受 LFB、行字节、x、y、码、字体、col：
+    fi 为 (码 减 32) 乘 8。
+    若 fi 小于 0 或者 fi 大于或等于 760：
+        返还。
+    完。
+    可变 r 为 0。
+    只要 r 小于 8：
+        row 为 字体 的 第 fi 加 r 项。
+        可变 b 为 0。
+        只要 b 小于 8：
+            若 row 右移 7 减 b 位与 1：
+                做 NGIR_像素写 用 LFB、行字节、x 加 b、y 加 r、col。
+            完。
+            b 为 b 加 1。
+        完。
+        r 为 r 加 1。
+    完。
+完。
+
+NGIR_绘制标签 接受 LFB、行字节、x、y、文本、长度、字体、主色、阴影色：
+    可变 c 为 0。
+    只要 c 小于 长度：
+        fi 为 (文本 的 第 c 项 减 32) 乘 8。
+        若 fi 大于或等于 0 并且 fi 小于 760：
+            可变 r 为 0。
+            只要 r 小于 8：
+                row 为 字体 的 第 fi 加 r 项。
+                可变 b 为 0。
+                只要 b 小于 8：
+                    若 row 右移 7 减 b 位与 1：
+                        做 NGIR_像素写 用 LFB、行字节、x 加 c 乘 9 加 b 加 1、y 加 r 加 1、阴影色。
+                        做 NGIR_像素写 用 LFB、行字节、x 加 c 乘 9 加 b、y 加 r、主色。
+                    完。
+                    b 为 b 加 1。
+                完。
+                r 为 r 加 1。
+            完。
+        完。
+        c 为 c 加 1。
+    完。
+完。
+
+NGIR_创建主题_默认 接受 零参：
+    t 为 做 堆分配 用 NGIR主题。
+    t 的 名称 为 「NovaGlassDefault」。
+    t 的 背景暗度 为 24。
+    t 的 玻璃透明度 为 180。
+    t 的 高光强度 为 52。
+    t 的 阴影强度 为 8。
+    t 的 标签亮度 为 208。
+    t 的 边框亮度 为 188。
+    t 的 冷色偏移 为 10。
+    t 的 暖色偏移 为 负 4。
+    返还 t。
+完。
+
+NGIR_创建主题_夜间 接受 零参：
+    t 为 做 堆分配 用 NGIR主题。
+    t 的 名称 为 「NovaGlassNight」。
+    t 的 背景暗度 为 42。
+    t 的 玻璃透明度 为 164。
+    t 的 高光强度 为 38。
+    t 的 阴影强度 为 12。
+    t 的 标签亮度 为 188。
+    t 的 边框亮度 为 158。
+    t 的 冷色偏移 为 4。
+    t 的 暖色偏移 为 负 12。
+    返还 t。
+完。
+
+NGIR_图标哈希 接受 名称、长度：
+    可变 h 为 2166136261。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        h 为 h 位异或 名称 的 第 i 项。
+        h 为 h 乘 16777619。
+        i 为 i 加 1。
+    完。
+    返还 h 位与 0x7FFFFFFF。
+完。
+
+NGIR_创建图标 接受 id、名称、长度、符号码、网格列、网格行、r、g、b：
+    ic 为 做 堆分配 用 NGIR图标。
+    ic 的 id 为 id。
+    ic 的 名称 为 名称。
+    ic 的 名称长度 为 长度。
+    ic 的 符号码 为 符号码。
+    ic 的 网格列 为 网格列。
+    ic 的 网格行 为 网格行。
+    ic 的 x 为 22 加 网格列 乘 NGIR_CELL_W。
+    ic 的 y 为 48 加 网格行 乘 NGIR_CELL_H。
+    ic 的 w 为 NGIR_ICON_W。
+    ic 的 h 为 NGIR_ICON_H。
+    ic 的 选中 为 假。
+    ic 的 悬停 为 假。
+    ic 的 可见 为 真。
+    ic 的 可拖拽 为 真。
+    ic 的 基色R 为 r。
+    ic 的 基色G 为 g。
+    ic 的 基色B 为 b。
+    ic 的 强调R 为 做 NGIR_夹取 用 r 加 40、0、255。
+    ic 的 强调G 为 做 NGIR_夹取 用 g 加 40、0、255。
+    ic 的 强调B 为 做 NGIR_夹取 用 b 加 40、0、255。
+    ic 的 阴影强度 为 8。
+    ic 的 高光强度 为 48。
+    ic 的 呼吸相位 为 id 乘 47 位与 255。
+    ic 的 标签颜色 为 做 NGIR_颜色打包 用 216、180、254。
+    ic 的 哈希 为 做 NGIR_图标哈希 用 名称、长度。
+    ic 的 图片路径 为 0。
+    ic 的 图片纹理 为 0。
+    返还 ic。
+完。
+
+NGIR_设图标图片 接受 ic、路径：
+    若 ic 等于 0：
+        返还。
+    完。
+    ic 的 图片路径 为 路径。
+    ic 的 基色R 为 88。
+    ic 的 基色G 为 28。
+    ic 的 基色B 为 135。
+完。
+
+NGIR_初始化图标池 接受 零参：
+    NGIR_图标池 为 做 堆分配 用 NGIR_MAX_ICONS 乘 8。
+    NGIR_图标总数 为 0。
+    名0 为 一组：70、105、108、101、115。
+    名1 为 一组：84、101、114、109。
+    名2 为 一组：67、111、100、101。
+    名3 为 一组：77、117、115、105、99。
+    名4 为 一组：83、101、116、117、112。
+    名5 为 一组：78、111、116、101。
+    名6 为 一组：87、101、98。
+    名7 为 一组：65、73。
+    ic0 为 做 NGIR_创建图标 用 0、名0、5、70、0、0、88、28、135。
+    做 NGIR_设图标图片 用 ic0、图标图片_文件。
+    做 NGIR_注册图标 用 ic0。
+    ic1 为 做 NGIR_创建图标 用 1、名1、4、62、0、1、88、28、135。
+    做 NGIR_设图标图片 用 ic1、图标图片_终端。
+    做 NGIR_注册图标 用 ic1。
+    ic2 为 做 NGIR_创建图标 用 2、名2、4、123、0、2、88、28、135。
+    做 NGIR_设图标图片 用 ic2、图标图片_代码。
+    做 NGIR_注册图标 用 ic2。
+    ic3 为 做 NGIR_创建图标 用 3、名3、5、35、0、3、88、28、135。
+    做 NGIR_设图标图片 用 ic3、图标图片_音乐。
+    做 NGIR_注册图标 用 ic3。
+    ic4 为 做 NGIR_创建图标 用 4、名4、5、42、0、4、88、28、135。
+    做 NGIR_设图标图片 用 ic4、图标图片_设置。
+    做 NGIR_注册图标 用 ic4。
+    ic5 为 做 NGIR_创建图标 用 5、名5、4、78、1、0、88、28、135。
+    做 NGIR_设图标图片 用 ic5、图标图片_笔记。
+    做 NGIR_注册图标 用 ic5。
+    ic6 为 做 NGIR_创建图标 用 6、名6、3、87、1、1、88、28、135。
+    做 NGIR_设图标图片 用 ic6、图标图片_浏览。
+    做 NGIR_注册图标 用 ic6。
+    ic7 为 做 NGIR_创建图标 用 7、名7、2、65、1、2、88、28、135。
+    做 NGIR_设图标图片 用 ic7、图标图片_AI。
+    做 NGIR_注册图标 用 ic7。
+完。
+
+NGIR_注册图标 接受 icon：
+    若 icon 等于 0：
+        返还。
+    完。
+    若 NGIR_图标总数 大于或等于 NGIR_MAX_ICONS：
+        返还。
+    完。
+    做 内存写64 用 NGIR_图标池 加 NGIR_图标总数 乘 8、icon。
+    NGIR_图标总数 为 NGIR_图标总数 加 1。
+完。
+
+NGIR_获取图标 接受 i：
+    若 i 小于 0 或者 i 大于或等于 NGIR_图标总数：
+        返还 0。
+    完。
+    返还 做 内存读64 用 NGIR_图标池 加 i 乘 8。
+完。
+
+NGIR_初始化动画 接受 零参：
+    NGIR_动画 为 做 堆分配 用 NGIR动画状态。
+    NGIR_动画 的 时间毫秒 为 0。
+    NGIR_动画 的 全局相位 为 0。
+    NGIR_动画 的 鼠标x 为 0。
+    NGIR_动画 的 鼠标y 为 0。
+    NGIR_动画 的 鼠标按下 为 假。
+    NGIR_动画 的 最近点击图标 为 负 1。
+完。
+
+NGIR_初始化 接受 零参：
+    NGIR_当前主题 为 做 NGIR_创建主题_默认。
+    做 NGIR_初始化图标池。
+    做 NGIR_初始化动画。
+    NGIR_布局表 为 做 堆分配 用 NGIR_GRID_COLS 乘 NGIR_GRID_ROWS 乘 4。
+    可变 i 为 0。
+    只要 i 小于 NGIR_GRID_COLS 乘 NGIR_GRID_ROWS：
+        做 内存写32 用 NGIR_布局表 加 i 乘 4、负 1。
+        i 为 i 加 1。
+    完。
+    做 NGIR_重建布局表。
+    做 打印 用 「[NGIR] Glass Icon Rendering 初始化完成」。
+完。
+
+NGIR_网格索引 接受 c、r：
+    若 c 小于 0 或者 c 大于或等于 NGIR_GRID_COLS 或者 r 小于 0 或者 r 大于或等于 NGIR_GRID_ROWS：
+        返还 负 1。
+    完。
+    返还 r 乘 NGIR_GRID_COLS 加 c。
+完。
+
+NGIR_重建布局表 接受 零参：
+    可变 i 为 0。
+    只要 i 小于 NGIR_GRID_COLS 乘 NGIR_GRID_ROWS：
+        做 内存写32 用 NGIR_布局表 加 i 乘 4、负 1。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        若 ic 不等于 0 并且 ic 的 可见：
+            idx 为 做 NGIR_网格索引 用 ic 的 网格列、ic 的 网格行。
+            若 idx 大于或等于 0：
+                做 内存写32 用 NGIR_布局表 加 idx 乘 4、i。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_寻找空网格 接受 零参：
+    可变 r 为 0。
+    只要 r 小于 NGIR_GRID_ROWS：
+        可变 c 为 0。
+        只要 c 小于 NGIR_GRID_COLS：
+            idx 为 做 NGIR_网格索引 用 c、r。
+            若 idx 大于或等于 0 并且 做 内存读32 用 NGIR_布局表 加 idx 乘 4 小于 0：
+                返还 idx。
+            完。
+            c 为 c 加 1。
+        完。
+        r 为 r 加 1。
+    完。
+    返还 负 1。
+完。
+
+NGIR_碰撞修复 接受 零参：
+    可变 i 为 0。
+    可变 冲突数 为 0。
+    做 NGIR_重建布局表。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        若 ic 不等于 0 并且 ic 的 可见：
+            idx 为 做 NGIR_网格索引 用 ic 的 网格列、ic 的 网格行。
+            若 idx 大于或等于 0：
+                owner 为 做 内存读32 用 NGIR_布局表 加 idx 乘 4。
+                若 owner 不等于 i 并且 owner 大于或等于 0：
+                    free 为 做 NGIR_寻找空网格。
+                    若 free 大于或等于 0：
+                        ic 的 网格列 为 free 取余于 NGIR_GRID_COLS。
+                        ic 的 网格行 为 free 除以 NGIR_GRID_COLS。
+                        ic 的 x 为 22 加 ic 的 网格列 乘 NGIR_CELL_W。
+                        ic 的 y 为 48 加 ic 的 网格行 乘 NGIR_CELL_H。
+                        冲突数 为 冲突数 加 1。
+                    完。
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    若 冲突数 大于 0：
+        NGIR_重排次数 为 NGIR_重排次数 加 冲突数。
+        做 NGIR_重建布局表。
+    完。
+完。
+
+NGIR_命中测试 接受 x、y：
+    NGIR_命中测试次数 为 NGIR_命中测试次数 加 1。
+    可变 i 为 NGIR_图标总数 减 1。
+    只要 i 大于或等于 0：
+        ic 为 做 NGIR_获取图标 用 i。
+        若 ic 不等于 0 并且 ic 的 可见：
+            若 x 大于或等于 ic 的 x 并且 x 小于 ic 的 x 加 ic 的 w 并且 y 大于或等于 ic 的 y 并且 y 小于 ic 的 y 加 ic 的 h 加 18：
+                返还 i。
+            完。
+        完。
+        i 为 i 减 1。
+    完。
+    返还 负 1。
+完。
+
+NGIR_更新悬停 接受 mx、my：
+    idx 为 做 NGIR_命中测试 用 mx、my。
+    可变 i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        若 ic 不等于 0：
+            ic 的 悬停 为 i 等于 idx。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_点击 接受 mx、my：
+    idx 为 做 NGIR_命中测试 用 mx、my。
+    NGIR_动画 的 最近点击图标 为 idx。
+    可变 i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        若 ic 不等于 0：
+            ic 的 选中 为 i 等于 idx。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_布局统计计算 接受 零参：
+    st 为 做 堆分配 用 NGIR布局统计。
+    st 的 拥挤度 为 0。
+    st 的 对齐分 为 0。
+    st 的 语义分组分 为 0。
+    st 的 可达性分 为 0。
+    st 的 总评分 为 0。
+    可变 pairs 为 0。
+    可变 dist_sum 为 0。
+    可变 i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        a 为 做 NGIR_获取图标 用 i。
+        可变 j 为 i 加 1。
+        只要 j 小于 NGIR_图标总数：
+            b 为 做 NGIR_获取图标 用 j。
+            dx 为 a 的 x 减 b 的 x。
+            dy 为 a 的 y 减 b 的 y。
+            若 dx 小于 0：
+                dx 为 0 减 dx。
+            完。
+            若 dy 小于 0：
+                dy 为 0 减 dy。
+            完。
+            dist_sum 为 dist_sum 加 dx 加 dy。
+            pairs 为 pairs 加 1。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    若 pairs 大于 0：
+        avg 为 dist_sum 除以 pairs。
+        st 的 拥挤度 为 1.0 减 做 NGIR_夹取 用 avg、0、800 除以 800.0。
+    完。
+    可变 aligned 为 0。
+    i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        a 为 做 NGIR_获取图标 用 i。
+        若 (a 的 x 减 22) 取余于 NGIR_CELL_W 等于 0 并且 (a 的 y 减 48) 取余于 NGIR_CELL_H 等于 0：
+            aligned 为 aligned 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    st 的 对齐分 为 aligned 除以 若 NGIR_图标总数 大于 0 则 NGIR_图标总数 否则 1。
+    可变 group_good 为 0。
+    pairs 为 0。
+    i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        a 为 做 NGIR_获取图标 用 i。
+        可变 j2 为 i 加 1。
+        只要 j2 小于 NGIR_图标总数：
+            b 为 做 NGIR_获取图标 用 j2。
+            ga 为 a 的 哈希 右移 8 位与 15。
+            gb 为 b 的 哈希 右移 8 位与 15。
+            若 ga 等于 gb：
+                md 为 a 的 x 减 b 的 x。
+                若 md 小于 0：
+                    md 为 0 减 md。
+                完。
+                md 为 md 加 若 a 的 y 大于 b 的 y 则 a 的 y 减 b 的 y 否则 b 的 y 减 a 的 y。
+                若 md 小于 NGIR_CELL_W 乘 2：
+                    group_good 为 group_good 加 1。
+                完。
+            完。
+            pairs 为 pairs 加 1。
+            j2 为 j2 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    st 的 语义分组分 为 group_good 除以 若 pairs 大于 0 则 pairs 否则 1。
+    可变 access 为 0。
+    i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        a2 为 做 NGIR_获取图标 用 i。
+        access 为 access 加 (1000 减 做 NGIR_夹取 用 a2 的 x 加 a2 的 y、0、1000)。
+        i 为 i 加 1。
+    完。
+    st 的 可达性分 为 access 除以 若 NGIR_图标总数 大于 0 则 NGIR_图标总数 乘 1000 否则 1。
+    st 的 总评分 为 st 的 对齐分 乘 0.35 加 st 的 语义分组分 乘 0.3 加 st 的 可达性分 乘 0.2 加 (1.0 减 st 的 拥挤度) 乘 0.15。
+    返还 st。
+完。
+
+NGIR_AI_布局优化 接受 零参：
+    若 全局AI总线 等于 0：
+        返还。
+    完。
+    NGIR_AI布局次数 为 NGIR_AI布局次数 加 1。
+    st 为 做 NGIR_布局统计计算。
+    tensor 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 tensor、0、st 的 拥挤度。
+    做 Tensor_写 用 tensor、1、st 的 对齐分。
+    做 Tensor_写 用 tensor、2、st 的 语义分组分。
+    做 Tensor_写 用 tensor、3、st 的 可达性分。
+    做 Tensor_写 用 tensor、4、st 的 总评分。
+    做 Tensor_写 用 tensor、5、NGIR_图标总数 除以 64.0。
+    out 为 做 AI总线_推理 用 全局AI总线、「NGIR_布局优化」、tensor、6。
+    moveBias 为 0。
+    clusterBias 为 0。
+    若 out 不等于 0：
+        moveBias 为 做 Tensor_读 用 out、0。
+        clusterBias 为 做 Tensor_读 用 out、1。
+        做 Tensor_释放 用 out。
+    完。
+    做 Tensor_释放 用 tensor。
+    可变 i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        若 ic 不等于 0：
+            若 moveBias 大于 0.2 并且 ic 的 网格列 小于 NGIR_GRID_COLS 减 1：
+                ic 的 网格列 为 ic 的 网格列 加 1。
+            完。
+            若 moveBias 小于 负 0.2 并且 ic 的 网格列 大于 0：
+                ic 的 网格列 为 ic 的 网格列 减 1。
+            完。
+            若 clusterBias 大于 0.3 并且 ic 的 网格行 大于 0：
+                ic 的 网格行 为 ic 的 网格行 减 1。
+            完。
+            ic 的 x 为 22 加 ic 的 网格列 乘 NGIR_CELL_W。
+            ic 的 y 为 48 加 ic 的 网格行 乘 NGIR_CELL_H。
+        完。
+        i 为 i 加 1。
+    完。
+    做 NGIR_碰撞修复。
+完。
+
+NGIR_更新动画 接受 delta_ms：
+    NGIR_动画 的 时间毫秒 为 NGIR_动画 的 时间毫秒 加 delta_ms。
+    NGIR_动画 的 全局相位 为 NGIR_动画 的 全局相位 加 delta_ms 位与 1023。
+    可变 i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        若 ic 不等于 0：
+            ic 的 呼吸相位 为 ic 的 呼吸相位 加 delta_ms 加 i 乘 3 位与 1023。
+            若 ic 的 悬停：
+                ic 的 高光强度 为 做 NGIR_夹取 用 ic 的 高光强度 加 2、32、96。
+            否则：
+                ic 的 高光强度 为 做 NGIR_夹取 用 ic 的 高光强度 减 1、28、64。
+            完。
+            若 ic 的 选中：
+                ic 的 阴影强度 为 做 NGIR_夹取 用 ic 的 阴影强度 加 1、8、20。
+            否则：
+                ic 的 阴影强度 为 做 NGIR_夹取 用 ic 的 阴影强度 减 1、6、12。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_呼吸亮度 接受 phase：
+    p 为 phase 位与 511。
+    v 为 若 p 小于 256 则 p 否则 511 减 p。
+    返还 (v 减 128) 除以 8。
+完。
+
+NGIR_渲染单图标 接受 LFB、行字节、ic、字体：
+    若 ic 等于 0 或者 非 ic 的 可见：
+        返还。
+    完。
+    pulse 为 做 NGIR_呼吸亮度 用 ic 的 呼吸相位。
+    br 为 做 NGIR_夹取 用 ic 的 基色R 加 pulse、0、255。
+    bg 为 做 NGIR_夹取 用 ic 的 基色G 加 pulse、0、255。
+    bb 为 做 NGIR_夹取 用 ic 的 基色B 加 pulse、0、255。
+    若 ic 的 选中：
+        sel_fill 为 做 NGIR_颜色打包 用 80、130、220。
+        sel_border 为 做 NGIR_颜色打包 用 160、210、255。
+        做 NGIR_带边框矩形 用 LFB、行字节、ic 的 x 减 NGIR_SELECTION_PAD、ic 的 y 减 NGIR_SELECTION_PAD、ic 的 w 加 NGIR_SELECTION_PAD 乘 2、ic 的 h 加 18 加 NGIR_SELECTION_PAD 乘 2、sel_fill、sel_border。
+    完。
+    做 NGIR_绘制底部阴影 用 LFB、行字节、ic 的 x、ic 的 y、ic 的 w、ic 的 h、ic 的 阴影强度 加 NGIR_当前主题 的 阴影强度。
+    alpha 为 NGIR_当前主题 的 玻璃透明度。
+    若 ic 的 悬停：
+        alpha 为 做 NGIR_夹取 用 alpha 加 24、0、255。
+    完。
+    做 NGIR_绘制圆角玻璃 用 LFB、行字节、ic 的 x、ic 的 y、ic 的 w、ic 的 h、6、br、bg、bb、alpha、NGIR_当前主题。
+    做 NGIR_绘制高光顶线 用 LFB、行字节、ic 的 x、ic 的 y、ic 的 w、6、ic 的 高光强度 加 NGIR_当前主题 的 高光强度。
+    glyph_col 为 做 NGIR_颜色打包 用 255、255、255。
+    做 NGIR_绘制内符号 用 LFB、行字节、ic 的 x 加 15、ic 的 y 加 18、ic 的 符号码、字体、glyph_col。
+    label_main 为 做 NGIR_颜色打包 用 NGIR_当前主题 的 标签亮度、NGIR_当前主题 的 标签亮度、NGIR_当前主题 的 标签亮度。
+    label_shadow 为 做 NGIR_颜色打包 用 8、8、12。
+    做 NGIR_绘制标签 用 LFB、行字节、ic 的 x、ic 的 y 加 ic 的 h 加 4、ic 的 名称、ic 的 名称长度、字体、label_main、label_shadow。
+完。
+
+NGIR_渲染全部图标 接受 LFB、行字节、字体：
+    可变 i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        做 NGIR_渲染单图标 用 LFB、行字节、ic、字体。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_切换主题 接受 夜间模式：
+    若 NGIR_当前主题 不等于 0：
+        做 堆释放 用 NGIR_当前主题。
+    完。
+    若 夜间模式：
+        NGIR_当前主题 为 做 NGIR_创建主题_夜间。
+    否则：
+        NGIR_当前主题 为 做 NGIR_创建主题_默认。
+    完。
+完。
+
+NGIR_帧更新并渲染 接受 LFB、行字节、字体、delta_ms、mx、my、鼠标按下：
+    NGIR_渲染帧数 为 NGIR_渲染帧数 加 1。
+    NGIR_动画 的 鼠标x 为 mx。
+    NGIR_动画 的 鼠标y 为 my。
+    NGIR_动画 的 鼠标按下 为 鼠标按下。
+    做 NGIR_更新悬停 用 mx、my。
+    若 鼠标按下：
+        做 NGIR_点击 用 mx、my。
+    完。
+    做 NGIR_更新动画 用 delta_ms。
+    若 NGIR_渲染帧数 取余于 120 等于 0：
+        做 NGIR_AI_布局优化。
+    完。
+    做 NGIR_渲染全部图标 用 LFB、行字节、字体。
+完。
+
+NGIR_拖拽开始 接受 mx、my：
+    idx 为 做 NGIR_命中测试 用 mx、my。
+    NGIR_动画 的 最近点击图标 为 idx。
+完。
+
+NGIR_拖拽移动 接受 mx、my：
+    idx 为 NGIR_动画 的 最近点击图标。
+    若 idx 小于 0：
+        返还。
+    完。
+    ic 为 做 NGIR_获取图标 用 idx。
+    若 ic 等于 0 或者 非 ic 的 可拖拽：
+        返还。
+    完。
+    ic 的 x 为 mx 减 ic 的 w 除以 2。
+    ic 的 y 为 my 减 ic 的 h 除以 2。
+    c 为 (ic 的 x 减 22 加 NGIR_CELL_W 除以 2) 除以 NGIR_CELL_W。
+    r 为 (ic 的 y 减 48 加 NGIR_CELL_H 除以 2) 除以 NGIR_CELL_H。
+    ic 的 网格列 为 做 NGIR_夹取 用 c、0、NGIR_GRID_COLS 减 1。
+    ic 的 网格行 为 做 NGIR_夹取 用 r、0、NGIR_GRID_ROWS 减 1。
+完。
+
+NGIR_拖拽结束 接受 零参：
+    idx 为 NGIR_动画 的 最近点击图标。
+    若 idx 小于 0：
+        返还。
+    完。
+    ic 为 做 NGIR_获取图标 用 idx。
+    若 ic 不等于 0：
+        ic 的 x 为 22 加 ic 的 网格列 乘 NGIR_CELL_W。
+        ic 的 y 为 48 加 ic 的 网格行 乘 NGIR_CELL_H。
+    完。
+    做 NGIR_碰撞修复。
+    做 NGIR_保存布局。
+完。
+
+NGIR_保存布局 接受 零参：
+    可变 i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        做 平台写配置 用 「desktop.icon.」 加 i 加 「.col」、ic 的 网格列。
+        做 平台写配置 用 「desktop.icon.」 加 i 加 「.row」、ic 的 网格行。
+        i 为 i 加 1。
+    完。
+完。
+
+NGIR_加载布局 接受 零参：
+    可变 i 为 0。
+    只要 i 小于 NGIR_图标总数：
+        ic 为 做 NGIR_获取图标 用 i。
+        c 为 做 平台读配置 用 「desktop.icon.」 加 i 加 「.col」、ic 的 网格列。
+        r 为 做 平台读配置 用 「desktop.icon.」 加 i 加 「.row」、ic 的 网格行。
+        ic 的 网格列 为 做 NGIR_夹取 用 c、0、NGIR_GRID_COLS 减 1。
+        ic 的 网格行 为 做 NGIR_夹取 用 r、0、NGIR_GRID_ROWS 减 1。
+        ic 的 x 为 22 加 ic 的 网格列 乘 NGIR_CELL_W。
+        ic 的 y 为 48 加 ic 的 网格行 乘 NGIR_CELL_H。
+        i 为 i 加 1。
+    完。
+    做 NGIR_碰撞修复。
+完。
+
+NGIR缓存项 是 一种 事物，含 键、值、命中数、最后帧。
+
+可变 NGIR_缓存池 为 0。
+
+可变 NGIR_缓存数 为 0。
+
+NGIR_缓存初始化 接受 零参：
+    NGIR_缓存池 为 做 堆分配 用 NGIR_CACHE_MAX 乘 24。
+    NGIR_缓存数 为 0。
+完。
+
+NGIR_缓存查询 接受 key：
+    可变 i 为 0。
+    只要 i 小于 NGIR_缓存数：
+        item 为 NGIR_缓存池 加 i 乘 24。
+        若 做 内存读32 用 item 等于 key：
+            做 内存写32 用 item 加 8、做 内存读32 用 item 加 8 加 1。
+            做 内存写32 用 item 加 12、NGIR_渲染帧数。
+            NGIR_缓存命中 为 NGIR_缓存命中 加 1。
+            返还 做 内存读64 用 item 加 4。
+        完。
+        i 为 i 加 1。
+    完。
+    NGIR_缓存未命中 为 NGIR_缓存未命中 加 1。
+    返还 0。
+完。
+
+NGIR_缓存写入 接受 key、value：
+    若 NGIR_缓存数 大于或等于 NGIR_CACHE_MAX：
+        可变 oldest_i 为 0。
+        可变 oldest_f 为 做 内存读32 用 NGIR_缓存池 加 12。
+        可变 i 为 1。
+        只要 i 小于 NGIR_缓存数：
+            f 为 做 内存读32 用 NGIR_缓存池 加 i 乘 24 加 12。
+            若 f 小于 oldest_f：
+                oldest_f 为 f。
+                oldest_i 为 i。
+            完。
+            i 为 i 加 1。
+        完。
+        item0 为 NGIR_缓存池 加 oldest_i 乘 24。
+        做 内存写32 用 item0、key。
+        做 内存写64 用 item0 加 4、value。
+        做 内存写32 用 item0 加 8、1。
+        做 内存写32 用 item0 加 12、NGIR_渲染帧数。
+        返还。
+    完。
+    item 为 NGIR_缓存池 加 NGIR_缓存数 乘 24。
+    做 内存写32 用 item、key。
+    做 内存写64 用 item 加 4、value。
+    做 内存写32 用 item 加 8、1。
+    做 内存写32 用 item 加 12、NGIR_渲染帧数。
+    NGIR_缓存数 为 NGIR_缓存数 加 1。
+完。
+
+NGIR_性能统计打印 接受 零参：
+    hitRate 为 0。
+    total 为 NGIR_缓存命中 加 NGIR_缓存未命中。
+    若 total 大于 0：
+        hitRate 为 NGIR_缓存命中 乘 100 除以 total。
+    完。
+    做 打印 用 「[NGIR] frame=」 加 做 整数转字符串 用 NGIR_渲染帧数 加 「 icons=」 加 做 整数转字符串 用 NGIR_图标总数 加 「 aiLayout=」 加 做 整数转字符串 用 NGIR_AI布局次数 加 「 reflow=」 加 做 整数转字符串 用 NGIR_重排次数 加 「 hitTest=」 加 做 整数转字符串 用 NGIR_命中测试次数 加 「 cacheHitRate=」 加 做 整数转字符串 用 hitRate 加 「%」。
+完。
+
+NGIR_桌面图标系统启动 接受 零参：
+    做 NGIR_初始化。
+    做 NGIR_缓存初始化。
+    做 NGIR_加载布局。
+    做 打印 用 「[NGIR] 桌面图标系统启动完成」。
+完。
+
+NGIR_桌面图标系统关闭 接受 零参：
+    做 NGIR_保存布局。
+    做 NGIR_性能统计打印。
+    做 打印 用 「[NGIR] 桌面图标系统已关闭」。
+完。
+
+本章 收束。

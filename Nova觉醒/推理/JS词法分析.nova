@@ -1,0 +1,660 @@
+《JS词法分析》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信总线》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·执行·底层内存操》。
+
+TOK_EOF 为 0。
+
+TOK_ERROR 为 1。
+
+TOK_NUMBER 为 10。
+
+TOK_BIGINT 为 11。
+
+TOK_STRING 为 12。
+
+TOK_TEMPLATE_HEAD 为 13。
+
+TOK_TEMPLATE_MIDDLE 为 14。
+
+TOK_TEMPLATE_TAIL 为 15。
+
+TOK_TEMPLATE_FULL 为 16。
+
+TOK_REGEXP 为 17。
+
+TOK_TRUE 为 18。
+
+TOK_FALSE 为 19。
+
+TOK_NULL 为 20。
+
+TOK_IDENTIFIER 为 30。
+
+TOK_PRIVATE_NAME 为 31。
+
+TOK_BREAK 为 40。
+
+TOK_CASE 为 41。
+
+TOK_CATCH 为 42。
+
+TOK_CLASS 为 43。
+
+TOK_CONST 为 44。
+
+TOK_CONTINUE 为 45。
+
+TOK_DEBUGGER 为 46。
+
+TOK_DEFAULT 为 47。
+
+TOK_DELETE 为 48。
+
+TOK_DO 为 49。
+
+TOK_ELSE 为 50。
+
+TOK_EXPORT 为 51。
+
+TOK_EXTENDS 为 52。
+
+TOK_FINALLY 为 53。
+
+TOK_FOR 为 54。
+
+TOK_FUNCTION 为 55。
+
+TOK_IF 为 56。
+
+TOK_IMPORT 为 57。
+
+TOK_IN 为 58。
+
+TOK_INSTANCEOF 为 59。
+
+TOK_LET 为 60。
+
+TOK_NEW 为 61。
+
+TOK_RETURN 为 62。
+
+TOK_STATIC 为 63。
+
+TOK_SUPER 为 64。
+
+TOK_SWITCH 为 65。
+
+TOK_THIS 为 66。
+
+TOK_THROW 为 67。
+
+TOK_TRY 为 68。
+
+TOK_TYPEOF 为 69。
+
+TOK_VAR 为 70。
+
+TOK_VOID 为 71。
+
+TOK_WHILE 为 72。
+
+TOK_WITH 为 73。
+
+TOK_YIELD 为 74。
+
+TOK_ASYNC 为 75。
+
+TOK_AWAIT 为 76。
+
+TOK_OF 为 77。
+
+TOK_LPAREN 为 100。
+
+TOK_RPAREN 为 101。
+
+TOK_LBRACE 为 102。
+
+TOK_RBRACE 为 103。
+
+TOK_LBRACKET 为 104。
+
+TOK_RBRACKET 为 105。
+
+TOK_SEMICOLON 为 106。
+
+TOK_COMMA 为 107。
+
+TOK_DOT 为 108。
+
+TOK_ELLIPSIS 为 109。
+
+TOK_OPTIONAL_CHAIN 为 110。
+
+TOK_COLON 为 111。
+
+TOK_QUESTION 为 112。
+
+TOK_NULLISH 为 113。
+
+TOK_ARROW 为 114。
+
+TOK_ASSIGN 为 120。
+
+TOK_ADD_ASSIGN 为 121。
+
+TOK_SUB_ASSIGN 为 122。
+
+TOK_MUL_ASSIGN 为 123。
+
+TOK_DIV_ASSIGN 为 124。
+
+TOK_MOD_ASSIGN 为 125。
+
+TOK_EXP_ASSIGN 为 126。
+
+TOK_AND_ASSIGN 为 127。
+
+TOK_OR_ASSIGN 为 128。
+
+TOK_XOR_ASSIGN 为 129。
+
+TOK_SHL_ASSIGN 为 130。
+
+TOK_SHR_ASSIGN 为 131。
+
+TOK_USHR_ASSIGN 为 132。
+
+TOK_NULLISH_ASSIGN 为 133。
+
+TOK_AND_LOGIC_ASSIGN 为 134。
+
+TOK_OR_LOGIC_ASSIGN 为 135。
+
+TOK_ADD 为 140。
+
+TOK_SUB 为 141。
+
+TOK_MUL 为 142。
+
+TOK_DIV 为 143。
+
+TOK_MOD 为 144。
+
+TOK_EXP 为 145。
+
+TOK_INC 为 146。
+
+TOK_DEC 为 147。
+
+TOK_EQ 为 150。
+
+TOK_NE 为 151。
+
+TOK_SEQ 为 152。
+
+TOK_SNE 为 153。
+
+TOK_LT 为 154。
+
+TOK_GT 为 155。
+
+TOK_LE 为 156。
+
+TOK_GE 为 157。
+
+TOK_AND 为 160。
+
+TOK_OR 为 161。
+
+TOK_NOT 为 162。
+
+TOK_BIT_AND 为 170。
+
+TOK_BIT_OR 为 171。
+
+TOK_BIT_XOR 为 172。
+
+TOK_BIT_NOT 为 173。
+
+TOK_SHL 为 174。
+
+TOK_SHR 为 175。
+
+TOK_USHR 为 176。
+
+令牌 是 一种 事物，含 类型、起始、长度、行号、列号、值。
+
+词法器 是 一种 事物，含 源码、源码长度、位置、行号、列号、令牌列表、令牌数、错误数。
+
+词法器_创建 接受 源码、长度：
+    lex 为 新建 词法器。
+    lex 的 源码 为 源码。
+    lex 的 源码长度 为 长度。
+    lex 的 位置 为 0。
+    lex 的 行号 为 1。
+    lex 的 列号 为 1。
+    lex 的 令牌列表 为 一组：（空）。
+    lex 的 令牌数 为 0。
+    lex 的 错误数 为 0。
+    返还 lex。
+完。
+
+词法器_销毁 接受 lex：
+    lex 的 源码 为 0。
+    lex 的 令牌列表 为 一组：（空）。
+    lex 的 令牌数 为 0。
+完。
+
+词法_是空白 接受 ch：
+    返还 ch 等于 32 或者 ch 等于 9 或者 ch 等于 11 或者 ch 等于 12 或者 ch 等于 0xA0。
+完。
+
+词法_是换行 接受 ch：
+    返还 ch 等于 10 或者 ch 等于 13。
+完。
+
+词法_是数字 接受 ch：
+    返还 ch 大于或等于 48 并且 ch 小于或等于 57。
+完。
+
+词法_是十六进制 接受 ch：
+    返还 ch 大于或等于 48 并且 ch 小于或等于 57 或者 ch 大于或等于 65 并且 ch 小于或等于 70 或者 ch 大于或等于 97 并且 ch 小于或等于 102。
+完。
+
+词法_是八进制 接受 ch：
+    返还 ch 大于或等于 48 并且 ch 小于或等于 55。
+完。
+
+词法_是二进制 接受 ch：
+    返还 ch 等于 48 或者 ch 等于 49。
+完。
+
+词法_是字母 接受 ch：
+    返还 ch 大于或等于 65 并且 ch 小于或等于 90 或者 ch 大于或等于 97 并且 ch 小于或等于 122。
+完。
+
+词法_是标识符开头 接受 ch：
+    返还 做 词法_是字母 用 ch 或者 ch 等于 95 或者 ch 等于 36 或者 ch 大于 127。
+完。
+
+词法_是标识符字符 接受 ch：
+    返还 做 词法_是标识符开头 用 ch 或者 做 词法_是数字 用 ch。
+完。
+
+词法_当前字符 接受 lex：
+    若 lex 的 位置 大于或等于 lex 的 源码长度：
+        返还 0。
+    完。
+    返还 做 字节取 用 lex 的 源码、lex 的 位置。
+完。
+
+词法_前看 接受 lex、偏移：
+    位 为 lex 的 位置 加 偏移。
+    若 位 大于或等于 lex 的 源码长度：
+        返还 0。
+    完。
+    返还 做 字节取 用 lex 的 源码、位。
+完。
+
+词法_前进 接受 lex：
+    若 lex 的 位置 小于 lex 的 源码长度：
+        ch 为 做 字节取 用 lex 的 源码、lex 的 位置。
+        若 ch 等于 10：
+            lex 的 行号 为 lex 的 行号 加 1。
+            lex 的 列号 为 1。
+        否则：
+            lex 的 列号 为 lex 的 列号 加 1。
+        完。
+        lex 的 位置 为 lex 的 位置 加 1。
+    完。
+完。
+
+词法_是结尾 接受 lex：
+    返还 lex 的 位置 大于或等于 lex 的 源码长度。
+完。
+
+词法_创建令牌 接受 lex、类型、起始、长度：
+    tok 为 新建 令牌。
+    tok 的 类型 为 类型。
+    tok 的 起始 为 起始。
+    tok 的 长度 为 长度。
+    tok 的 行号 为 lex 的 行号。
+    tok 的 列号 为 lex 的 列号。
+    tok 的 值 为 0。
+    返还 tok。
+完。
+
+词法_添加令牌 接受 lex、tok：
+    做 追加 用 lex 的 令牌列表、tok。
+    lex 的 令牌数 为 lex 的 令牌数 加 1。
+完。
+
+词法_跳过空白 接受 lex：
+    只要 非 做 词法_是结尾 用 lex：
+        ch 为 做 词法_当前字符 用 lex。
+        若 做 词法_是空白 用 ch 或者 做 词法_是换行 用 ch：
+            做 词法_前进 用 lex。
+        否则若 ch 等于 47：
+            下一个 为 做 词法_前看 用 lex、1。
+            若 下一个 等于 47：
+                做 词法_跳过单行注释 用 lex。
+            否则若 下一个 等于 42：
+                做 词法_跳过多行注释 用 lex。
+            否则：
+                返还。
+            完。
+        否则：
+            返还。
+        完。
+    完。
+完。
+
+词法_跳过单行注释 接受 lex：
+    只要 非 做 词法_是结尾 用 lex 并且 非 做 词法_是换行 用 做 词法_当前字符 用 lex：
+        做 词法_前进 用 lex。
+    完。
+完。
+
+词法_跳过多行注释 接受 lex：
+    做 词法_前进 用 lex。
+    做 词法_前进 用 lex。
+    只要 非 做 词法_是结尾 用 lex：
+        若 做 词法_当前字符 用 lex 等于 42 并且 做 词法_前看 用 lex、1 等于 47：
+            做 词法_前进 用 lex。
+            做 词法_前进 用 lex。
+            返还。
+        完。
+        做 词法_前进 用 lex。
+    完。
+    lex 的 错误数 为 lex 的 错误数 加 1。
+完。
+
+词法_扫描数字 接受 lex：
+    起始 为 lex 的 位置。
+    ch 为 做 词法_当前字符 用 lex。
+    若 ch 等于 48：
+        做 词法_前进 用 lex。
+        下一个 为 做 词法_当前字符 用 lex。
+        若 下一个 等于 120 或者 下一个 等于 88：
+            做 词法_前进 用 lex。
+            只要 非 做 词法_是结尾 用 lex 并且 做 词法_是十六进制 用 做 词法_当前字符 用 lex：
+                做 词法_前进 用 lex。
+            完。
+        否则若 下一个 等于 98 或者 下一个 等于 66：
+            做 词法_前进 用 lex。
+            只要 非 做 词法_是结尾 用 lex 并且 做 词法_是二进制 用 做 词法_当前字符 用 lex：
+                做 词法_前进 用 lex。
+            完。
+        否则若 下一个 等于 111 或者 下一个 等于 79：
+            做 词法_前进 用 lex。
+            只要 非 做 词法_是结尾 用 lex 并且 做 词法_是八进制 用 做 词法_当前字符 用 lex：
+                做 词法_前进 用 lex。
+            完。
+        否则：
+            只要 非 做 词法_是结尾 用 lex 并且 做 词法_是数字 用 做 词法_当前字符 用 lex：
+                做 词法_前进 用 lex。
+            完。
+        完。
+    否则：
+        只要 非 做 词法_是结尾 用 lex 并且 做 词法_是数字 用 做 词法_当前字符 用 lex：
+            做 词法_前进 用 lex。
+        完。
+    完。
+    若 非 做 词法_是结尾 用 lex 并且 做 词法_当前字符 用 lex 等于 46：
+        做 词法_前进 用 lex。
+        只要 非 做 词法_是结尾 用 lex 并且 做 词法_是数字 用 做 词法_当前字符 用 lex：
+            做 词法_前进 用 lex。
+        完。
+    完。
+    若 非 做 词法_是结尾 用 lex：
+        e 为 做 词法_当前字符 用 lex。
+        若 e 等于 101 或者 e 等于 69：
+            做 词法_前进 用 lex。
+            若 非 做 词法_是结尾 用 lex 并且 (做 词法_当前字符 用 lex 等于 43 或者 做 词法_当前字符 用 lex 等于 45)：
+                做 词法_前进 用 lex。
+            完。
+            只要 非 做 词法_是结尾 用 lex 并且 做 词法_是数字 用 做 词法_当前字符 用 lex：
+                做 词法_前进 用 lex。
+            完。
+        完。
+    完。
+    类型 为 TOK_NUMBER。
+    若 非 做 词法_是结尾 用 lex 并且 做 词法_当前字符 用 lex 等于 110：
+        做 词法_前进 用 lex。
+        类型 为 TOK_BIGINT。
+    完。
+    返还 做 词法_创建令牌 用 lex、类型、起始、lex 的 位置 减 起始。
+完。
+
+词法_扫描字符串 接受 lex、引号：
+    起始 为 lex 的 位置。
+    做 词法_前进 用 lex。
+    只要 非 做 词法_是结尾 用 lex：
+        ch 为 做 词法_当前字符 用 lex。
+        若 ch 等于 引号：
+            做 词法_前进 用 lex。
+            跳出。
+        完。
+        若 ch 等于 92：
+            做 词法_前进 用 lex。
+        完。
+        若 做 词法_是换行 用 ch：
+            lex 的 错误数 为 lex 的 错误数 加 1。
+            跳出。
+        完。
+        做 词法_前进 用 lex。
+    完。
+    返还 做 词法_创建令牌 用 lex、TOK_STRING、起始、lex 的 位置 减 起始。
+完。
+
+词法_扫描标识符 接受 lex：
+    起始 为 lex 的 位置。
+    只要 非 做 词法_是结尾 用 lex 并且 做 词法_是标识符字符 用 做 词法_当前字符 用 lex：
+        做 词法_前进 用 lex。
+    完。
+    长度 为 lex 的 位置 减 起始。
+    tok 为 做 词法_创建令牌 用 lex、TOK_IDENTIFIER、起始、长度。
+    做 词法_检查关键字 用 lex 的 源码 加 起始、长度、tok。
+    返还 tok。
+完。
+
+词法_检查关键字 接受 名、长度、tok：
+    若 长度 等于 2：
+        若 做 字符串_等于N 用 名、长度、「if」：
+            tok 的 类型 为 TOK_IF。
+        否则若 做 字符串_等于N 用 名、长度、「in」：
+            tok 的 类型 为 TOK_IN。
+        否则若 做 字符串_等于N 用 名、长度、「do」：
+            tok 的 类型 为 TOK_DO。
+        否则若 做 字符串_等于N 用 名、长度、「of」：
+            tok 的 类型 为 TOK_OF。
+        完。
+    否则若 长度 等于 3：
+        若 做 字符串_等于N 用 名、长度、「var」：
+            tok 的 类型 为 TOK_VAR。
+        否则若 做 字符串_等于N 用 名、长度、「let」：
+            tok 的 类型 为 TOK_LET。
+        否则若 做 字符串_等于N 用 名、长度、「new」：
+            tok 的 类型 为 TOK_NEW。
+        否则若 做 字符串_等于N 用 名、长度、「for」：
+            tok 的 类型 为 TOK_FOR。
+        否则若 做 字符串_等于N 用 名、长度、「try」：
+            tok 的 类型 为 TOK_TRY。
+        完。
+    否则若 长度 等于 4：
+        若 做 字符串_等于N 用 名、长度、「this」：
+            tok 的 类型 为 TOK_THIS。
+        否则若 做 字符串_等于N 用 名、长度、「true」：
+            tok 的 类型 为 TOK_TRUE。
+        否则若 做 字符串_等于N 用 名、长度、「null」：
+            tok 的 类型 为 TOK_NULL。
+        否则若 做 字符串_等于N 用 名、长度、「else」：
+            tok 的 类型 为 TOK_ELSE。
+        否则若 做 字符串_等于N 用 名、长度、「case」：
+            tok 的 类型 为 TOK_CASE。
+        否则若 做 字符串_等于N 用 名、长度、「void」：
+            tok 的 类型 为 TOK_VOID。
+        否则若 做 字符串_等于N 用 名、长度、「with」：
+            tok 的 类型 为 TOK_WITH。
+        完。
+    否则若 长度 等于 5：
+        若 做 字符串_等于N 用 名、长度、「break」：
+            tok 的 类型 为 TOK_BREAK。
+        否则若 做 字符串_等于N 用 名、长度、「catch」：
+            tok 的 类型 为 TOK_CATCH。
+        否则若 做 字符串_等于N 用 名、长度、「class」：
+            tok 的 类型 为 TOK_CLASS。
+        否则若 做 字符串_等于N 用 名、长度、「const」：
+            tok 的 类型 为 TOK_CONST。
+        否则若 做 字符串_等于N 用 名、长度、「super」：
+            tok 的 类型 为 TOK_SUPER。
+        否则若 做 字符串_等于N 用 名、长度、「throw」：
+            tok 的 类型 为 TOK_THROW。
+        否则若 做 字符串_等于N 用 名、长度、「while」：
+            tok 的 类型 为 TOK_WHILE。
+        否则若 做 字符串_等于N 用 名、长度、「yield」：
+            tok 的 类型 为 TOK_YIELD。
+        否则若 做 字符串_等于N 用 名、长度、「await」：
+            tok 的 类型 为 TOK_AWAIT。
+        否则若 做 字符串_等于N 用 名、长度、「async」：
+            tok 的 类型 为 TOK_ASYNC。
+        否则若 做 字符串_等于N 用 名、长度、「false」：
+            tok 的 类型 为 TOK_FALSE。
+        完。
+    否则若 长度 等于 6：
+        若 做 字符串_等于N 用 名、长度、「return」：
+            tok 的 类型 为 TOK_RETURN。
+        否则若 做 字符串_等于N 用 名、长度、「switch」：
+            tok 的 类型 为 TOK_SWITCH。
+        否则若 做 字符串_等于N 用 名、长度、「typeof」：
+            tok 的 类型 为 TOK_TYPEOF。
+        否则若 做 字符串_等于N 用 名、长度、「delete」：
+            tok 的 类型 为 TOK_DELETE。
+        否则若 做 字符串_等于N 用 名、长度、「export」：
+            tok 的 类型 为 TOK_EXPORT。
+        否则若 做 字符串_等于N 用 名、长度、「import」：
+            tok 的 类型 为 TOK_IMPORT。
+        否则若 做 字符串_等于N 用 名、长度、「static」：
+            tok 的 类型 为 TOK_STATIC。
+        完。
+    否则若 长度 等于 7：
+        若 做 字符串_等于N 用 名、长度、「default」：
+            tok 的 类型 为 TOK_DEFAULT。
+        否则若 做 字符串_等于N 用 名、长度、「extends」：
+            tok 的 类型 为 TOK_EXTENDS。
+        否则若 做 字符串_等于N 用 名、长度、「finally」：
+            tok 的 类型 为 TOK_FINALLY。
+        完。
+    否则若 长度 等于 8：
+        若 做 字符串_等于N 用 名、长度、「continue」：
+            tok 的 类型 为 TOK_CONTINUE。
+        否则若 做 字符串_等于N 用 名、长度、「debugger」：
+            tok 的 类型 为 TOK_DEBUGGER。
+        否则若 做 字符串_等于N 用 名、长度、「function」：
+            tok 的 类型 为 TOK_FUNCTION。
+        完。
+    否则若 长度 等于 10：
+        若 做 字符串_等于N 用 名、长度、「instanceof」：
+            tok 的 类型 为 TOK_INSTANCEOF。
+        完。
+    完。
+完。
+
+词法_令牌类型名 接受 类型：
+    若 类型 等于 TOK_EOF：
+        返还 「EOF」。
+    完。
+    若 类型 等于 TOK_ERROR：
+        返还 「ERROR」。
+    完。
+    若 类型 等于 TOK_NUMBER：
+        返还 「NUMBER」。
+    完。
+    若 类型 等于 TOK_BIGINT：
+        返还 「BIGINT」。
+    完。
+    若 类型 等于 TOK_STRING：
+        返还 「STRING」。
+    完。
+    若 类型 等于 TOK_IDENTIFIER：
+        返还 「IDENTIFIER」。
+    完。
+    若 类型 等于 TOK_REGEXP：
+        返还 「REGEXP」。
+    完。
+    若 类型 大于或等于 TOK_BREAK 并且 类型 小于或等于 TOK_OF：
+        返还 「KEYWORD」。
+    完。
+    若 类型 大于或等于 TOK_LPAREN 并且 类型 小于或等于 TOK_ARROW：
+        返还 「PUNCTUATOR」。
+    完。
+    若 类型 大于或等于 TOK_ASSIGN 并且 类型 小于或等于 TOK_OR_LOGIC_ASSIGN：
+        返还 「ASSIGNMENT」。
+    完。
+    若 类型 大于或等于 TOK_ADD 并且 类型 小于或等于 TOK_DEC：
+        返还 「ARITHMETIC」。
+    完。
+    若 类型 大于或等于 TOK_EQ 并且 类型 小于或等于 TOK_GE：
+        返还 「COMPARISON」。
+    完。
+    若 类型 大于或等于 TOK_AND 并且 类型 小于或等于 TOK_NOT：
+        返还 「LOGICAL」。
+    完。
+    若 类型 大于或等于 TOK_BIT_AND 并且 类型 小于或等于 TOK_USHR：
+        返还 「BITWISE」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+可变 词法_分析总次数 为 0。
+
+可变 词法_总令牌数 为 0。
+
+可变 词法_总错误数 为 0。
+
+可变 词法_关键字数 为 0。
+
+可变 词法_标识符数 为 0。
+
+可变 词法_数字数 为 0。
+
+可变 词法_字符串数 为 0。
+
+词法_统计 接受 零参：
+    返还 一本字典：分析次数 对应 词法_分析总次数、总令牌 对应 词法_总令牌数、总错误 对应 词法_总错误数、关键字 对应 词法_关键字数、标识符 对应 词法_标识符数、数字 对应 词法_数字数、字符串 对应 词法_字符串数。
+完。
+
+词法_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 词法_总错误数 大于 词法_总令牌数 除以 10 并且 词法_总令牌数 大于 100：
+        做 追加 用 问题、「词法错误率过高: 」 加 做 整数转字符串 用 词法_总错误数。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「词法分析器健康」。
+    完。
+    返还 问题。
+完。
+
+词法_重置统计 接受 零参：
+    词法_分析总次数 为 0。
+    词法_总令牌数 为 0。
+    词法_总错误数 为 0。
+    词法_关键字数 为 0。
+    词法_标识符数 为 0。
+    词法_数字数 为 0。
+    词法_字符串数 为 0。
+完。
+
+词法_完整统计 接受 零参：
+    返还 一组：词法_分析总次数、词法_总令牌数、词法_总错误数。
+完。
+
+本章 收束。

@@ -1,0 +1,622 @@
+《字节码操作码》
+
+引用《.·上下文运行时》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·定点Q算术》。
+
+OP_LdaZero 为 0x01。
+
+OP_LdaSmi 为 0x02。
+
+OP_LdaUndefined 为 0x03。
+
+OP_LdaNull 为 0x04。
+
+OP_LdaTrue 为 0x05。
+
+OP_LdaFalse 为 0x06。
+
+OP_LdaConstant 为 0x07。
+
+OP_LdaGlobal 为 0x08。
+
+OP_StaGlobal 为 0x09。
+
+OP_Ldar 为 0x0A。
+
+OP_Star 为 0x0B。
+
+OP_Mov 为 0x0C。
+
+OP_LdaNamedProperty 为 0x10。
+
+OP_StaNamedProperty 为 0x11。
+
+OP_LdaKeyedProperty 为 0x12。
+
+OP_StaKeyedProperty 为 0x13。
+
+OP_Lda模块Variable 为 0x14。
+
+OP_Sta模块Variable 为 0x15。
+
+OP_LdaContextSlot 为 0x18。
+
+OP_StaContextSlot 为 0x19。
+
+OP_LdaCurrentContextSlot 为 0x1A。
+
+OP_StaCurrentContextSlot 为 0x1B。
+
+OP_PushContext 为 0x1C。
+
+OP_PopContext 为 0x1D。
+
+OP_Add 为 0x20。
+
+OP_Sub 为 0x21。
+
+OP_Mul 为 0x22。
+
+OP_Div 为 0x23。
+
+OP_Mod 为 0x24。
+
+OP_Exp 为 0x25。
+
+OP_BitwiseOr 为 0x26。
+
+OP_BitwiseXor 为 0x27。
+
+OP_BitwiseAnd 为 0x28。
+
+OP_ShiftLeft 为 0x29。
+
+OP_ShiftRight 为 0x2A。
+
+OP_ShiftRightLogical 为 0x2B。
+
+OP_AddSmi 为 0x2C。
+
+OP_SubSmi 为 0x2D。
+
+OP_MulSmi 为 0x2E。
+
+OP_DivSmi 为 0x2F。
+
+OP_ModSmi 为 0x30。
+
+OP_BitwiseOrSmi 为 0x31。
+
+OP_BitwiseXorSmi 为 0x32。
+
+OP_BitwiseAndSmi 为 0x33。
+
+OP_ShiftLeftSmi 为 0x34。
+
+OP_ShiftRightSmi 为 0x35。
+
+OP_Negate 为 0x38。
+
+OP_BitwiseNot 为 0x39。
+
+OP_LogicalNot 为 0x3A。
+
+OP_TypeOf 为 0x3B。
+
+OP_DeletePropertyStrict 为 0x3C。
+
+OP_DeletePropertySloppy 为 0x3D。
+
+OP_Inc 为 0x3E。
+
+OP_Dec 为 0x3F。
+
+OP_TestEqual 为 0x40。
+
+OP_TestNotEqual 为 0x41。
+
+OP_TestEqualStrict 为 0x42。
+
+OP_TestNotEqualStrict 为 0x43。
+
+OP_TestLessThan 为 0x44。
+
+OP_TestGreaterThan 为 0x45。
+
+OP_TestLessThanOrEqual 为 0x46。
+
+OP_TestGreaterThanOrEqual 为 0x47。
+
+OP_TestInstanceOf 为 0x48。
+
+OP_TestIn 为 0x49。
+
+OP_TestUndetectable 为 0x4A。
+
+OP_TestNull 为 0x4B。
+
+OP_TestUndefined 为 0x4C。
+
+OP_TestTypeOf 为 0x4D。
+
+OP_Jump 为 0x50。
+
+OP_JumpIfTrue 为 0x51。
+
+OP_JumpIfFalse 为 0x52。
+
+OP_JumpIfToBooleanTrue 为 0x53。
+
+OP_JumpIfToBooleanFalse 为 0x54。
+
+OP_JumpIfNull 为 0x55。
+
+OP_JumpIfNotNull 为 0x56。
+
+OP_JumpIfUndefined 为 0x57。
+
+OP_JumpIfNotUndefined 为 0x58。
+
+OP_JumpLoop 为 0x59。
+
+OP_SwitchOnSmiTable 为 0x5A。
+
+OP_CallAnyReceiver 为 0x60。
+
+OP_CallProperty 为 0x61。
+
+OP_CallProperty0 为 0x62。
+
+OP_CallProperty1 为 0x63。
+
+OP_CallProperty2 为 0x64。
+
+OP_CallUndefinedReceiver 为 0x65。
+
+OP_CallUndefinedReceiver0 为 0x66。
+
+OP_CallUndefinedReceiver1 为 0x67。
+
+OP_CallUndefinedReceiver2 为 0x68。
+
+OP_CallRuntime 为 0x69。
+
+OP_CallRuntimeForPair 为 0x6A。
+
+OP_CallJSRuntime 为 0x6B。
+
+OP_CallWithSpread 为 0x6C。
+
+OP_Construct 为 0x6D。
+
+OP_ConstructWithSpread 为 0x6E。
+
+OP_CreateObjectLiteral 为 0x70。
+
+OP_CreateArrayLiteral 为 0x71。
+
+OP_CreateEmptyObjectLiteral 为 0x72。
+
+OP_CreateEmptyArrayLiteral 为 0x73。
+
+OP_CreateRegExpLiteral 为 0x74。
+
+OP_CloneObject 为 0x75。
+
+OP_GetTemplateObject 为 0x76。
+
+OP_CreateClosure 为 0x77。
+
+OP_CreateBlockContext 为 0x78。
+
+OP_CreateCatchContext 为 0x79。
+
+OP_CreateWithContext 为 0x7A。
+
+OP_Throw 为 0x80。
+
+OP_ReThrow 为 0x81。
+
+OP_ThrowReferenceErrorIfHole 为 0x82。
+
+OP_ThrowSuperNotCalledIfHole 为 0x83。
+
+OP_ThrowSuperAlreadyCalledIfNotHole 为 0x84。
+
+OP_Return 为 0x88。
+
+OP_Debugger 为 0x89。
+
+OP_ForInEnumerate 为 0x90。
+
+OP_ForInPrepare 为 0x91。
+
+OP_ForInContinue 为 0x92。
+
+OP_ForInNext 为 0x93。
+
+OP_ForInStep 为 0x94。
+
+OP_GetIterator 为 0x95。
+
+OP_SuspendGenerator 为 0xA0。
+
+OP_ResumeGenerator 为 0xA1。
+
+OP_GeneratorClose 为 0xA2。
+
+OP_Wide 为 0xC0。
+
+OP_ExtraWide 为 0xC1。
+
+OP_Illegal 为 0xFF。
+
+解释器帧 是 一种 事物，含 字节码、PC、帧大小、寄存器文件、累加器、常量池、上下文、上一帧、执行次数。
+
+可变 当前帧 为 空。
+
+可变 解释_总指令数 为 0。
+
+可变 解释_总帧数 为 0。
+
+可变 解释_异常数 为 0。
+
+可变 解释_JIT候选数 为 0。
+
+解释器_创建帧 接受 字节码、帧大小、常量池、上下文：
+    解释_总帧数 为 解释_总帧数 加 1。
+    帧 为 新建 解释器帧：字节码 为 字节码、PC 为 0、帧大小 为 帧大小、寄存器文件 为 做 数组_创建 用 帧大小、0、累加器 为 0、常量池 为 常量池、上下文 为 上下文、上一帧 为 当前帧、执行次数 为 0。
+    当前帧 为 帧。
+    返还 帧。
+完。
+
+解释器_弹出帧 接受 零参：
+    若 当前帧 等于 空：
+        返还 空。
+    完。
+    上 为 当前帧 的 上一帧。
+    当前帧 为 上。
+    返还 上。
+完。
+
+读字节 接受 帧：
+    v 为 帧 的 字节码 的 第 帧 的 PC 项。
+    帧 的 PC 为 帧 的 PC 加 1。
+    返还 v。
+完。
+
+读寄存器索引 接受 帧：
+    返还 做 读字节 用 帧。
+完。
+
+读常量索引 接受 帧：
+    返还 做 读字节 用 帧。
+完。
+
+读i16 接受 帧：
+    lo 为 做 读字节 用 帧。
+    hi 为 做 读字节 用 帧。
+    v 为 hi 左移 8 位或 lo。
+    若 v 大于或等于 0x8000：
+        v 为 v 减 0x10000。
+    完。
+    返还 v。
+完。
+
+读u16 接受 帧：
+    lo 为 做 读字节 用 帧。
+    hi 为 做 读字节 用 帧。
+    返还 hi 左移 8 位或 lo。
+完。
+
+解释器_执行 接受 帧：
+    只要 真：
+        解释_总指令数 为 解释_总指令数 加 1。
+        帧 的 执行次数 为 帧 的 执行次数 加 1。
+        op 为 做 读字节 用 帧。
+        若 op 等于 OP_LdaZero：
+            帧 的 累加器 为 0。
+        否则若 op 等于 OP_LdaSmi：
+            帧 的 累加器 为 做 读i16 用 帧。
+        否则若 op 等于 OP_LdaUndefined：
+            帧 的 累加器 为 未定义值。
+        否则若 op 等于 OP_LdaNull：
+            帧 的 累加器 为 空值。
+        否则若 op 等于 OP_LdaTrue：
+            帧 的 累加器 为 真值。
+        否则若 op 等于 OP_LdaFalse：
+            帧 的 累加器 为 假值。
+        否则若 op 等于 OP_LdaConstant：
+            idx 为 做 读常量索引 用 帧。
+            帧 的 累加器 为 帧 的 常量池 的 第 idx 项。
+        否则若 op 等于 OP_Ldar：
+            r 为 做 读寄存器索引 用 帧。
+            帧 的 累加器 为 帧 的 寄存器文件 的 第 r 项。
+        否则若 op 等于 OP_Star：
+            r 为 做 读寄存器索引 用 帧。
+            帧 的 寄存器文件 的 第 r 项 为 帧 的 累加器。
+        否则若 op 等于 OP_Mov：
+            dst 为 做 读寄存器索引 用 帧。
+            src 为 做 读寄存器索引 用 帧。
+            帧 的 寄存器文件 的 第 dst 项 为 帧 的 寄存器文件 的 第 src 项。
+        否则若 op 等于 OP_Add：
+            r 为 做 读寄存器索引 用 帧。
+            帧 的 累加器 为 帧 的 寄存器文件 的 第 r 项 加 帧 的 累加器。
+        否则若 op 等于 OP_Sub：
+            r 为 做 读寄存器索引 用 帧。
+            帧 的 累加器 为 帧 的 寄存器文件 的 第 r 项 减 帧 的 累加器。
+        否则若 op 等于 OP_Mul：
+            r 为 做 读寄存器索引 用 帧。
+            帧 的 累加器 为 帧 的 寄存器文件 的 第 r 项 乘 帧 的 累加器。
+        否则若 op 等于 OP_Div：
+            r 为 做 读寄存器索引 用 帧。
+            若 帧 的 累加器 等于 0：
+                帧 的 累加器 为 未定义值。
+            否则：
+                帧 的 累加器 为 帧 的 寄存器文件 的 第 r 项 除以 帧 的 累加器。
+            完。
+        否则若 op 等于 OP_Mod：
+            r 为 做 读寄存器索引 用 帧。
+            若 帧 的 累加器 等于 0：
+                帧 的 累加器 为 未定义值。
+            否则：
+                帧 的 累加器 为 帧 的 寄存器文件 的 第 r 项 取余于 帧 的 累加器。
+            完。
+        否则若 op 等于 OP_AddSmi：
+            smi 为 做 读i16 用 帧。
+            帧 的 累加器 为 帧 的 累加器 加 smi。
+        否则若 op 等于 OP_SubSmi：
+            smi 为 做 读i16 用 帧。
+            帧 的 累加器 为 帧 的 累加器 减 smi。
+        否则若 op 等于 OP_Negate：
+            帧 的 累加器 为 负 帧 的 累加器。
+        否则若 op 等于 OP_Inc：
+            帧 的 累加器 为 帧 的 累加器 加 1。
+        否则若 op 等于 OP_Dec：
+            帧 的 累加器 为 帧 的 累加器 减 1。
+        否则若 op 等于 OP_TestEqual：
+            r 为 做 读寄存器索引 用 帧。
+            帧 的 累加器 为 若 帧 的 寄存器文件 的 第 r 项 等于 帧 的 累加器 则 真值 否则 假值。
+        否则若 op 等于 OP_TestLessThan：
+            r 为 做 读寄存器索引 用 帧。
+            帧 的 累加器 为 若 帧 的 寄存器文件 的 第 r 项 小于 帧 的 累加器 则 真值 否则 假值。
+        否则若 op 等于 OP_TestGreaterThan：
+            r 为 做 读寄存器索引 用 帧。
+            帧 的 累加器 为 若 帧 的 寄存器文件 的 第 r 项 大于 帧 的 累加器 则 真值 否则 假值。
+        否则若 op 等于 OP_Jump：
+            offset 为 做 读i16 用 帧。
+            帧 的 PC 为 帧 的 PC 加 offset 减 2。
+        否则若 op 等于 OP_JumpIfTrue：
+            offset 为 做 读i16 用 帧。
+            若 帧 的 累加器 等于 真值：
+                帧 的 PC 为 帧 的 PC 加 offset 减 2。
+            完。
+        否则若 op 等于 OP_JumpIfFalse：
+            offset 为 做 读i16 用 帧。
+            若 帧 的 累加器 等于 假值：
+                帧 的 PC 为 帧 的 PC 加 offset 减 2。
+            完。
+        否则若 op 等于 OP_JumpLoop：
+            offset 为 做 读i16 用 帧。
+            帧 的 PC 为 帧 的 PC 减 offset 减 2。
+            若 帧 的 执行次数 大于 1000：
+                解释_JIT候选数 为 解释_JIT候选数 加 1。
+            完。
+        否则若 op 等于 OP_Return：
+            返还 帧 的 累加器。
+        否则若 op 等于 OP_Throw：
+            解释_异常数 为 解释_异常数 加 1。
+            返还 帧 的 累加器。
+        否则若 op 等于 OP_Illegal 或者 op 等于 OP_Wide 或者 op 等于 OP_ExtraWide：
+            解释_异常数 为 解释_异常数 加 1。
+            返还 未定义值。
+        否则：
+            继续。
+        完。
+    完。
+完。
+
+AI_字节码热点检测 接受 帧：
+    特征 为 做 Tensor_创建 用 1、3。
+    做 Tensor_写 用 特征、0、0、帧 的 执行次数 乘 1.0。
+    做 Tensor_写 用 特征、0、1、解释_总指令数 乘 1.0。
+    做 Tensor_写 用 特征、0、2、解释_JIT候选数 乘 1.0。
+    结果 为 做 AI总线_推理 用 「bytecode_hotness」、特征。
+    若 结果 不等于 空：
+        做 Tensor_释放 用 结果。
+    完。
+    做 Tensor_释放 用 特征。
+完。
+
+字节码_诊断报告 接受 零参：
+    可变。
+    报告 为 「[NBCI诊断报告]\n」。
+    报告 为 报告 加 「总指令数: 」 加 解释_总指令数 加 「\n」。
+    报告 为 报告 加 「总帧数: 」 加 解释_总帧数 加 「\n」。
+    报告 为 报告 加 「异常数: 」 加 解释_异常数 加 「\n」。
+    报告 为 报告 加 「JIT候选: 」 加 解释_JIT候选数 加 「\n」。
+    返还 报告。
+完。
+
+IC_最大槽数 为 256。
+
+IC_多态阈值 为 4。
+
+IC_缓存条目 是 一种 事物，含 形状ID、属性偏移、命中次数、未命中次数。
+
+IC_缓存表 是 一种 事物，含 条目、容量、已用、总命中、总未命中。
+
+可变 全局IC缓存 为 空。
+
+IC_初始化 接受 零参：
+    全局IC缓存 为 新建 IC_缓存表：条目 为 做 数组_创建 用 IC_最大槽数、空、容量 为 IC_最大槽数、已用 为 0、总命中 为 0、总未命中 为 0。
+完。
+
+IC_查找 接受 形状ID：
+    若 全局IC缓存 等于 空：
+        返还 空。
+    完。
+    哈希 为 形状ID 取余于 全局IC缓存 的 容量。
+    可变。
+    i 为 0。
+    只要 i 小于 全局IC缓存 的 容量：
+        idx 为 (哈希 加 i) 取余于 全局IC缓存 的 容量。
+        条 为 全局IC缓存 的 条目 的 第 idx 项。
+        若 条 等于 空：
+            返还 空。
+        完。
+        若 条 的 形状ID 等于 形状ID：
+            条 的 命中次数 为 条 的 命中次数 加 1。
+            全局IC缓存 的 总命中 为 全局IC缓存 的 总命中 加 1。
+            返还 条 的 属性偏移。
+        完。
+        i 为 i 加 1。
+    完。
+    全局IC缓存 的 总未命中 为 全局IC缓存 的 总未命中 加 1。
+    返还 空。
+完。
+
+IC_插入 接受 形状ID、属性偏移：
+    若 全局IC缓存 等于 空：
+        做 IC_初始化。
+    完。
+    若 全局IC缓存 的 已用 大于或等于 全局IC缓存 的 容量 乘 3 除以 4：
+        返还 假。
+    完。
+    哈希 为 形状ID 取余于 全局IC缓存 的 容量。
+    可变。
+    i 为 0。
+    只要 i 小于 全局IC缓存 的 容量：
+        idx 为 (哈希 加 i) 取余于 全局IC缓存 的 容量。
+        若 全局IC缓存 的 条目 的 第 idx 项 等于 空：
+            全局IC缓存 的 条目 的 第 idx 项 为 新建 IC_缓存条目：形状ID 为 形状ID、属性偏移 为 属性偏移、命中次数 为 0、未命中次数 为 0。
+            全局IC缓存 的 已用 为 全局IC缓存 的 已用 加 1。
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+IC_命中率 接受 零参：
+    若 全局IC缓存 等于 空：
+        返还 0.0。
+    完。
+    总 为 全局IC缓存 的 总命中 加 全局IC缓存 的 总未命中。
+    若 总 等于 0：
+        返还 0.0。
+    完。
+    返还 全局IC缓存 的 总命中 乘 100.0 除以 总。
+完。
+
+操作码总数 为 256。
+
+可变 操作码频率 为 做 数组_创建 用 256、0。
+
+可变 操作码累计耗时 为 做 数组_创建 用 256、0。
+
+操作码_记录执行 接受 op：
+    若 op 大于或等于 0 并且 op 小于 操作码总数：
+        操作码频率 的 第 op 项 为 操作码频率 的 第 op 项 加 1。
+    完。
+完。
+
+操作码_获取频率 接受 op：
+    若 op 大于或等于 0 并且 op 小于 操作码总数：
+        返还 操作码频率 的 第 op 项。
+    完。
+    返还 0。
+完。
+
+操作码_获取热门 接受 前N：
+    可变。
+    结果 为 一组：（空）。
+    可变。
+    排序 为 做 数组_创建 用 操作码总数、0。
+    可变。
+    i 为 0。
+    只要 i 小于 操作码总数：
+        排序 的 第 i 项 为 i。
+        i 为 i 加 1。
+    完。
+    可变。
+    j 为 0。
+    只要 j 小于 操作码总数 减 1：
+        可变。
+        k 为 0。
+        只要 k 小于 操作码总数 减 1 减 j：
+            若 操作码频率 的 第 排序 的 第 k 项 项 小于 操作码频率 的 第 排序 的 第 k 加 1 项 项：
+                tmp 为 排序 的 第 k 项。
+                排序 的 第 k 项 为 排序 的 第 k 加 1 项。
+                排序 的 第 k 加 1 项 为 tmp。
+            完。
+            k 为 k 加 1。
+        完。
+        j 为 j 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 前N 并且 i 小于 操作码总数：
+        若 操作码频率 的 第 排序 的 第 i 项 项 大于 0：
+            结果 为 结果 加 一组：一组：排序 的 第 i 项、操作码频率 的 第 排序 的 第 i 项 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+NBCI_综合诊断 接受 零参：
+    可变。
+    报告 为 做 字节码_诊断报告。
+    报告 为 报告 加 「IC命中率: 」 加 做 IC_命中率 加 「%\n」。
+    热门 为 做 操作码_获取热门 用 10。
+    可变。
+    i 为 0。
+    只要 i 小于 热门 的 长度：
+        报告 为 报告 加 「  操作码0x」 加 热门 的 第 i 项 的 第 0 项 加 「 频率=」 加 热门 的 第 i 项 的 第 1 项 加 「\n」。
+        i 为 i 加 1。
+    完。
+    返还 报告。
+完。
+
+NBCI_AI诊断 接受 零参：
+    特征 为 做 Tensor_创建 用 1、6。
+    做 Tensor_写 用 特征、0、0、解释_总指令数 乘 1.0。
+    做 Tensor_写 用 特征、0、1、解释_总帧数 乘 1.0。
+    做 Tensor_写 用 特征、0、2、解释_异常数 乘 1.0。
+    做 Tensor_写 用 特征、0、3、解释_JIT候选数 乘 1.0。
+    做 Tensor_写 用 特征、0、4、做 IC_命中率。
+    若 全局IC缓存 不等于 空：
+        做 Tensor_写 用 特征、0、5、全局IC缓存 的 已用 乘 1.0。
+    否则：
+        做 Tensor_写 用 特征、0、5、0.0。
+    完。
+    结果 为 做 AI总线_推理 用 「nbci_diagnostics」、特征。
+    若 结果 不等于 空：
+        做 Tensor_释放 用 结果。
+    完。
+    做 Tensor_释放 用 特征。
+完。
+
+字节码操作码_统计 接受 零参：
+    返还 一本字典：模块 对应 「字节码操作码」。
+完。
+
+字节码操作码_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+字节码操作码_综合报告 接受 零参：
+    做 打印 用 「[字节码操作码] ═══ 综合报告 ═══」。
+    做 打印 用 「  健康: 」 加 若 做 字节码操作码_健康评估 则 「正常」 否则 「异常」。
+完。
+
+字节码操作码_全局重置 接受 零参：
+    做 打印 用 「[字节码操作码] 全局统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

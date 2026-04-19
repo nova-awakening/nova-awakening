@@ -1,0 +1,175 @@
+《图形上下文》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·着色器程序》。
+
+图处_BACKEND_GL 为 0。
+
+图处_BACKEND_VULKAN 为 1。
+
+图处_BACKEND_METAL 为 2。
+
+GrContext 是 一种 事物，含 后端类型、最大纹理尺寸、支持NPOT、支持FBO、支持实例化、最大采样数、纹理缓存、着色器缓存、命令缓冲、纹理内存用量、纹理内存上限、绘制调用计数、帧号。
+
+GrContext_创建 接受 后端：
+    ctx 为 做 堆_分配 用 GrContext。
+    ctx 的 后端类型 为 后端。
+    ctx 的 最大纹理尺寸 为 4096。
+    ctx 的 支持NPOT 为 真。
+    ctx 的 支持FBO 为 真。
+    ctx 的 支持实例化 为 真。
+    ctx 的 最大采样数 为 4。
+    ctx 的 纹理缓存 为 做 GrTexture缓存_创建。
+    ctx 的 着色器缓存 为 做 GrShader缓存_创建。
+    ctx 的 命令缓冲 为 做 图处命令缓冲_创建 用 65536。
+    ctx 的 纹理内存用量 为 0。
+    ctx 的 纹理内存上限 为 256 乘 1024 乘 1024。
+    ctx 的 绘制调用计数 为 0。
+    ctx 的 帧号 为 0。
+    返还 ctx。
+完。
+
+GrContext_开始帧 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    ctx 的 帧号 为 ctx 的 帧号 加 1。
+    ctx 的 绘制调用计数 为 0。
+完。
+
+GrContext_结束帧 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    做 图处命令缓冲_刷新 用 ctx 的 命令缓冲。
+    做 GrTexture缓存_清理 用 ctx 的 纹理缓存、ctx 的 帧号。
+完。
+
+TEX_FORMAT_RGBA8 为 0。
+
+TEX_FORMAT_RGB8 为 1。
+
+TEX_FORMAT_ALPHA8 为 2。
+
+TEX_FORMAT_R8 为 3。
+
+TEX_FORMAT_RGB565 为 4。
+
+GrTexture 是 一种 事物，含 gpu_id、宽、高、格式、mipmap、内存大小、最后使用帧、引用计数、下一个。
+
+GrTexture缓存 是 一种 事物，含 桶、总数、总内存。
+
+GrTexture缓存_创建 接受 零参：
+    c 为 做 堆_分配 用 GrTexture缓存。
+    可变 i 为 0。
+    只要 i 小于 256：
+        c 的 桶 的 第 i 项 为 0。
+        i 为 i 加 1。
+    完。
+    c 的 总数 为 0。
+    c 的 总内存 为 0。
+    返还 c。
+完。
+
+GrTexture_创建 接受 ctx、宽、高、格式、数据：
+    若 ctx 等于 0：
+        返还 0。
+    完。
+    tex 为 做 堆_分配 用 GrTexture。
+    tex 的 宽 为 宽。
+    tex 的 高 为 高。
+    tex 的 格式 为 格式。
+    tex 的 mipmap 为 假。
+    tex 的 引用计数 为 1。
+    tex 的 最后使用帧 为 ctx 的 帧号。
+    bpp 为 4。
+    若 格式 等于 TEX_FORMAT_ALPHA8 或者 格式 等于 TEX_FORMAT_R8：
+        bpp 为 1。
+    完。
+    若 格式 等于 TEX_FORMAT_RGB565：
+        bpp 为 2。
+    完。
+    若 格式 等于 TEX_FORMAT_RGB8：
+        bpp 为 3。
+    完。
+    tex 的 内存大小 为 宽 乘 高 乘 bpp。
+    tex 的 gpu_id 为 做 图处命令_创建纹理 用 ctx 的 命令缓冲、宽、高、格式。
+    若 数据 不等于 0：
+        做 图处命令_纹理上传 用 ctx 的 命令缓冲、tex 的 gpu_id、0、0、宽、高、数据。
+    完。
+    ctx 的 纹理内存用量 为 ctx 的 纹理内存用量 加 tex 的 内存大小。
+    cache 为 ctx 的 纹理缓存。
+    桶号 为 tex 的 gpu_id 取余于 256。
+    tex 的 下一个 为 cache 的 桶 的 第 桶号 项。
+    cache 的 桶 的 第 桶号 项 为 tex。
+    cache 的 总数 为 cache 的 总数 加 1。
+    cache 的 总内存 为 cache 的 总内存 加 tex 的 内存大小。
+    返还 tex。
+完。
+
+GrTexture_更新子区域 接受 ctx、tex、x、y、宽、高、数据：
+    若 ctx 等于 0 或者 tex 等于 0 或者 数据 等于 0：
+        返还。
+    完。
+    做 图处命令_纹理上传 用 ctx 的 命令缓冲、tex 的 gpu_id、x、y、宽、高、数据。
+    tex 的 最后使用帧 为 ctx 的 帧号。
+完。
+
+GrTexture_生成mipmap 接受 ctx、tex：
+    若 ctx 等于 0 或者 tex 等于 0 或者 tex 的 mipmap：
+        返还。
+    完。
+    做 图处命令_生成mipmap 用 ctx 的 命令缓冲、tex 的 gpu_id。
+    tex 的 mipmap 为 真。
+    额外 为 tex 的 内存大小 除以 3。
+    ctx 的 纹理内存用量 为 ctx 的 纹理内存用量 加 额外。
+    tex 的 内存大小 为 tex 的 内存大小 加 额外。
+完。
+
+GrTexture_释放 接受 ctx、tex：
+    若 tex 等于 0：
+        返还。
+    完。
+    tex 的 引用计数 为 tex 的 引用计数 减 1。
+    若 tex 的 引用计数 大于 0：
+        返还。
+    完。
+    若 ctx 不等于 0：
+        做 图处命令_删除纹理 用 ctx 的 命令缓冲、tex 的 gpu_id。
+        ctx 的 纹理内存用量 为 ctx 的 纹理内存用量 减 tex 的 内存大小。
+    完。
+    做 堆_释放 用 tex。
+完。
+
+GrTexture缓存_清理 接受 cache、当前帧：
+    若 cache 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 256：
+        可变 前驱 为 0。
+        可变 当前 为 cache 的 桶 的 第 i 项。
+        只要 当前 不等于 0：
+            下一 为 当前 的 下一个。
+            若 当前 的 引用计数 小于或等于 0 并且 当前帧 减 当前 的 最后使用帧 大于 60：
+                若 前驱 等于 0：
+                    cache 的 桶 的 第 i 项 为 下一。
+                否则：
+                    前驱 的 下一个 为 下一。
+                完。
+                cache 的 总数 为 cache 的 总数 减 1。
+                cache 的 总内存 为 cache 的 总内存 减 当前 的 内存大小。
+                做 堆_释放 用 当前。
+            否则：
+                前驱 为 当前。
+            完。
+            当前 为 下一。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

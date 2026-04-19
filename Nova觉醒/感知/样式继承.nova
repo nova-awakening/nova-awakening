@@ -1,0 +1,132 @@
+《样式继承》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·应用样式声明》。
+
+Computed样式_继承 接受 子style、父style：
+    若 父style 等于 0：
+        返还。
+    完。
+    子style 的 color 为 父style 的 color。
+    子style 的 font_size 为 父style 的 font_size。
+    子style 的 font_weight 为 父style 的 font_weight。
+    子style 的 font_family 为 父style 的 font_family。
+    子style 的 font_style 为 父style 的 font_style。
+    子style 的 line_height 为 父style 的 line_height。
+    子style 的 text_align 为 父style 的 text_align。
+    子style 的 text_decoration 为 父style 的 text_decoration。
+    子style 的 white_space 为 父style 的 white_space。
+    子style 的 word_break 为 父style 的 word_break。
+    子style 的 visibility 为 父style 的 visibility。
+    子style 的 cursor 为 父style 的 cursor。
+    子style 的 list_style 为 父style 的 list_style。
+    子style 的 text_transform 为 父style 的 text_transform。
+    子style 的 text_indent 为 父style 的 text_indent。
+    子style 的 letter_spacing 为 父style 的 letter_spacing。
+    子style 的 word_spacing 为 父style 的 word_spacing。
+    子style 的 direction 为 父style 的 direction。
+    子style 的 writing_mode 为 父style 的 writing_mode。
+    子style 的 hyphens 为 父style 的 hyphens。
+    子style 的 tab_size 为 父style 的 tab_size。
+    子style 的 overflow_wrap 为 父style 的 overflow_wrap。
+    子style 的 border_collapse 为 父style 的 border_collapse。
+    子style 的 border_spacing 为 父style 的 border_spacing。
+    子style 的 是继承的 为 真。
+完。
+
+Computed样式_应用margin简写 接受 style、值：
+    若 值 等于 0：
+        返还。
+    完。
+    l 为 做 Computed样式_解析长度值 用 值。
+    style 的 margin_top 为 l。
+    style 的 margin_right 为 l。
+    style 的 margin_bottom 为 l。
+    style 的 margin_left 为 l。
+完。
+
+Computed样式_应用padding简写 接受 style、值：
+    若 值 等于 0：
+        返还。
+    完。
+    l 为 做 Computed样式_解析长度值 用 值。
+    style 的 padding_top 为 l。
+    style 的 padding_right 为 l。
+    style 的 padding_bottom 为 l。
+    style 的 padding_left 为 l。
+完。
+
+Computed样式_应用border简写 接受 style、值：
+    若 值 等于 0：
+        返还。
+    完。
+    若 值 的 类型 等于 CSS值_长度：
+        style 的 border_top_width 为 值 的 数值。
+        style 的 border_right_width 为 值 的 数值。
+        style 的 border_bottom_width 为 值 的 数值。
+        style 的 border_left_width 为 值 的 数值。
+        style 的 border_top_style 为 1。
+        style 的 border_right_style 为 1。
+        style 的 border_bottom_style 为 1。
+        style 的 border_left_style 为 1。
+    完。
+完。
+
+CSS转换上下文 是 一种 事物，含 父_font_size、root_font_size、viewport_width、viewport_height、dpi。
+
+CSS长度_转像素 接受 值_x100、单位、ctx：
+    若 单位 等于 单位_px：
+        返还 值_x100。
+    完。
+    若 单位 等于 单位_em：
+        返还 值_x100 乘 ctx 的 父_font_size 除以 10000。
+    完。
+    若 单位 等于 单位_rem：
+        返还 值_x100 乘 ctx 的 root_font_size 除以 10000。
+    完。
+    若 单位 等于 单位_vw：
+        返还 值_x100 乘 ctx 的 viewport_width 除以 10000。
+    完。
+    若 单位 等于 单位_vh：
+        返还 值_x100 乘 ctx 的 viewport_height 除以 10000。
+    完。
+    若 单位 等于 单位_vmin：
+        min_vp 为 若 ctx 的 viewport_width 小于 ctx 的 viewport_height 则 ctx 的 viewport_width 否则 ctx 的 viewport_height。
+        返还 值_x100 乘 min_vp 除以 10000。
+    完。
+    若 单位 等于 单位_vmax：
+        max_vp 为 若 ctx 的 viewport_width 大于 ctx 的 viewport_height 则 ctx 的 viewport_width 否则 ctx 的 viewport_height。
+        返还 值_x100 乘 max_vp 除以 10000。
+    完。
+    若 单位 等于 单位_pt：
+        返还 值_x100 乘 133 除以 100。
+    完。
+    若 单位 等于 单位_cm：
+        返还 值_x100 乘 3780 除以 100。
+    完。
+    若 单位 等于 单位_mm：
+        返还 值_x100 乘 378 除以 100。
+    完。
+    若 单位 等于 单位_in：
+        返还 值_x100 乘 9600 除以 100。
+    完。
+    若 单位 等于 单位_ch：
+        返还 值_x100 乘 ctx 的 父_font_size 除以 20000。
+    完。
+    若 单位 等于 单位_ex：
+        返还 值_x100 乘 ctx 的 父_font_size 除以 20000。
+    完。
+    若 单位 等于 单位_百分比：
+        返还 值_x100。
+    完。
+    返还 值_x100。
+完。
+
+CSS百分比_转像素 接受 百分比_x100、基础值_x100：
+    返还 百分比_x100 乘 基础值_x100 除以 10000。
+完。
+
+本章 收束。

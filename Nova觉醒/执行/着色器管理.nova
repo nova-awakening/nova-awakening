@@ -1,0 +1,93 @@
+《着色器管理》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·控制台输出》。
+
+引用《.·平台时间》。
+
+引用《..·感知·程序入口》。
+
+引用《.·命令写入》。
+
+图处着色器 是 一种 事物，含 shader_id、类型、源码。
+
+图处程序 是 一种 事物，含 program_id、顶点着色器、片段着色器。
+
+内置_顶点着色器源 为 「
+attribute vec2 a_position;
+attribute vec2 a_texCoord;
+uniform mat3 u_transform;
+varying vec2 v_texCoord;
+void main() {
+    vec3 pos = u_transform * vec3(a_position, 1.0);
+    gl_Position = vec4(pos.xy, 0.0, 1.0);
+    v_texCoord = a_texCoord;
+}」。
+
+内置_片段着色器源 为 「
+precision mediump float;
+varying vec2 v_texCoord;
+uniform sampler2D u_texture;
+uniform float u_opacity;
+void main() {
+    vec4 color = texture2D(u_texture, v_texCoord);
+    gl_FragColor = color * u_opacity;
+}」。
+
+图处_创建内置程序 接受 ctx：
+    若 ctx 等于 0：
+        返还 0。
+    完。
+    vs 为 做 系统调用 用 系统调用_图处_创建着色器、ctx 的 ctx_id、0、内置_顶点着色器源、做 字节长度 用 内置_顶点着色器源、0。
+    fs 为 做 系统调用 用 系统调用_图处_创建着色器、ctx 的 ctx_id、1、内置_片段着色器源、做 字节长度 用 内置_片段着色器源、0。
+    程序 为 做 系统调用 用 系统调用_图处_创建程序、ctx 的 ctx_id、vs、fs、0、0。
+    返还 程序。
+完。
+
+图集区域 是 一种 事物，含 x、y、w、h、已用。
+
+纹理图集 是 一种 事物，含 纹理ID、宽、高、区域、区域数、下一行y、当前行h、当前行x。
+
+纹理图集_创建 接受 ctx、宽、高：
+    atlas 为 做 堆_分配 用 纹理图集。
+    atlas 的 纹理ID 为 做 图处_创建纹理 用 ctx、宽、高、纹理格式_RGBA8。
+    atlas 的 宽 为 宽。
+    atlas 的 高 为 高。
+    atlas 的 区域数 为 0。
+    atlas 的 下一行y 为 0。
+    atlas 的 当前行h 为 0。
+    atlas 的 当前行x 为 0。
+    返还 atlas。
+完。
+
+纹理图集_分配 接受 atlas、w、h：
+    若 atlas 等于 0 或者 atlas 的 区域数 大于或等于 256：
+        返还 负 1。
+    完。
+    若 atlas 的 当前行x 加 w 小于或等于 atlas 的 宽 并且 atlas 的 下一行y 加 h 小于或等于 atlas 的 高：
+        idx 为 atlas 的 区域数。
+        atlas 的 区域 的 第 idx 项 的 x 为 atlas 的 当前行x。
+        atlas 的 区域 的 第 idx 项 的 y 为 atlas 的 下一行y。
+        atlas 的 区域 的 第 idx 项 的 w 为 w。
+        atlas 的 区域 的 第 idx 项 的 h 为 h。
+        atlas 的 区域 的 第 idx 项 的 已用 为 真。
+        atlas 的 当前行x 为 atlas 的 当前行x 加 w。
+        若 h 大于 atlas 的 当前行h：
+            atlas 的 当前行h 为 h。
+        完。
+        atlas 的 区域数 为 atlas 的 区域数 加 1。
+        返还 idx。
+    完。
+    atlas 的 下一行y 为 atlas 的 下一行y 加 atlas 的 当前行h。
+    atlas 的 当前行x 为 0。
+    atlas 的 当前行h 为 0。
+    若 atlas 的 下一行y 加 h 大于 atlas 的 高：
+        返还 负 1。
+    完。
+    返还 做 纹理图集_分配 用 atlas、w、h。
+完。
+
+本章 收束。

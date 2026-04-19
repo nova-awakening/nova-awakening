@@ -1,0 +1,590 @@
+《中止控制中止》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·事件系统核心》。
+
+引用《..·中枢·硬链接》。
+
+引用《.·取数网络请》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·文档事件》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《..·外联·TCP定时器》。
+
+引用《..·推理·AI鼠标事件处理》。
+
+引用《.·文档节点》。
+
+引用《..·标准·加法运算符》。
+
+引用《.·表单数据》。
+
+引用《..·推理·Web接口对象》。
+
+引用《..·推理·AI总线资源调度》。
+
+引用《..·中枢·字符串替换》。
+
+SIGNAL_MAX_LISTENERS 为 64。
+
+Q10 为 1024。
+
+Q_HALF 为 512。
+
+AbortSignal_State 是 一种 事物，含 已中止、中止原因、监听器列表、监听器数、监听器容量、关联信号列表、关联信号数、超时定时器、JS对象。
+
+AbortController_State 是 一种 事物，含 信号、JS对象。
+
+AbortListener 是 一种 事物，含 回调、一次性、已移除。
+
+AbortSignal_创建 接受 Nova运行时：
+    sig 为 做 堆_分配 用 AbortSignal_State。
+    sig 的 已中止 为 假。
+    sig 的 中止原因 为 0。
+    sig 的 监听器容量 为 SIGNAL_MAX_LISTENERS。
+    sig 的 监听器数 为 0。
+    sig 的 监听器列表 为 做 堆_分配 用 sig 的 监听器容量 乘 24。
+    做 内存_置零 用 sig 的 监听器列表、sig 的 监听器容量 乘 24。
+    sig 的 关联信号列表 为 0。
+    sig 的 关联信号数 为 0。
+    sig 的 超时定时器 为 0。
+    jsobj 为 做 Nova对象_创建 用 Nova运行时、Nova运行时 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时、jsobj、「aborted」、Nova运行时 的 false值。
+    做 Nova对象_设置属性 用 Nova运行时、jsobj、「reason」、Nova运行时 的 undefined值。
+    sig 的 JS对象 为 jsobj。
+    做 Nova对象_设置属性 用 Nova运行时、jsobj、「throwIfAborted」、做 Nova原生函数_创建 用 Nova运行时、AbortSignal_throwIfAborted_原生、0、「throwIfAborted」。
+    返还 sig。
+完。
+
+AbortSignal_设置已中止 接受 sig、Nova运行时、原因：
+    若 sig 的 已中止：
+        返还。
+    完。
+    sig 的 已中止 为 真。
+    sig 的 中止原因 为 原因。
+    做 Nova对象_设置属性 用 Nova运行时、sig 的 JS对象、「aborted」、Nova运行时 的 true值。
+    做 Nova对象_设置属性 用 Nova运行时、sig 的 JS对象、「reason」、原因。
+    做 AbortSignal_触发abort事件 用 sig、Nova运行时。
+完。
+
+AbortSignal_throwIfAborted_原生 接受 Nova运行时、this值、argc、argv：
+    sig 为 做 AbortSignal_从jsobj获取 用 this值。
+    若 sig 不等于 0 并且 sig 的 已中止：
+        返还 做 Nova值_抛出异常 用 Nova运行时、sig 的 中止原因。
+    完。
+    返还 Nova运行时 的 undefined值。
+完。
+
+AbortSignal_添加监听器 接受 sig、回调、一次性：
+    若 sig 的 已中止：
+        做 调用 用 回调、0。
+        返还。
+    完。
+    若 sig 的 监听器数 大于或等于 sig 的 监听器容量：
+        新容量 为 sig 的 监听器容量 乘 2。
+        新列表 为 做 堆_分配 用 新容量 乘 24。
+        做 内存_拷贝 用 新列表、sig 的 监听器列表、sig 的 监听器容量 乘 24。
+        做 堆_释放 用 sig 的 监听器列表。
+        sig 的 监听器列表 为 新列表。
+        sig 的 监听器容量 为 新容量。
+    完。
+    off 为 sig 的 监听器数 乘 24。
+    做 内存_写64 用 sig 的 监听器列表 加 off、回调。
+    做 内存_写64 用 sig 的 监听器列表 加 off 加 8、一次性。
+    做 内存_写64 用 sig 的 监听器列表 加 off 加 16、0。
+    sig 的 监听器数 为 sig 的 监听器数 加 1。
+完。
+
+AbortSignal_移除监听器 接受 sig、回调：
+    可变 i 为 0。
+    只要 i 小于 sig 的 监听器数：
+        off 为 i 乘 24。
+        若 做 内存_读64 用 sig 的 监听器列表 加 off 等于 回调：
+            做 内存_写64 用 sig 的 监听器列表 加 off 加 16、1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+AbortSignal_触发abort事件 接受 sig、Nova运行时：
+    可变 i 为 0。
+    只要 i 小于 sig 的 监听器数：
+        off 为 i 乘 24。
+        已移除 为 做 内存_读64 用 sig 的 监听器列表 加 off 加 16。
+        若 非 已移除：
+            cb 为 做 内存_读64 用 sig 的 监听器列表 加 off。
+            once 为 做 内存_读64 用 sig 的 监听器列表 加 off 加 8。
+            做 调用 用 cb、0。
+            若 once：
+                做 内存_写64 用 sig 的 监听器列表 加 off 加 16、1。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    ev 为 做 事件_创建 用 「abort」、假、假。
+    做 事件Target_dispatch事件 用 sig 的 JS对象、ev。
+完。
+
+AbortController_创建 接受 Nova运行时：
+    ctrl 为 做 堆_分配 用 AbortController_State。
+    ctrl 的 信号 为 做 AbortSignal_创建 用 Nova运行时。
+    jsobj 为 做 Nova对象_创建 用 Nova运行时、Nova运行时 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时、jsobj、「signal」、ctrl 的 信号 的 JS对象。
+    做 Nova对象_设置属性 用 Nova运行时、jsobj、「abort」、做 Nova原生函数_创建 用 Nova运行时、AbortController_abort_原生、0、「abort」。
+    ctrl 的 JS对象 为 jsobj。
+    返还 ctrl。
+完。
+
+AbortController_abort 接受 ctrl、Nova运行时、原因：
+    若 ctrl 的 信号 的 已中止：
+        返还。
+    完。
+    实际原因 为 原因。
+    若 原因 等于 0：
+        实际原因 为 做 AbortError_创建 用 Nova运行时、「The operation was aborted.」。
+    完。
+    做 AbortSignal_设置已中止 用 ctrl 的 信号、Nova运行时、实际原因。
+完。
+
+AbortController_abort_原生 接受 Nova运行时、this值、argc、argv：
+    ctrl 为 做 AbortController_从jsobj获取 用 this值。
+    若 ctrl 等于 0：
+        返还 Nova运行时 的 undefined值。
+    完。
+    reason 为 若 argc 大于 0 则 argv 的 第 0 项 否则 0。
+    做 AbortController_abort 用 ctrl、Nova运行时、reason。
+    返还 Nova运行时 的 undefined值。
+完。
+
+AbortError_创建 接受 Nova运行时、消息：
+    err 为 做 Nova对象_创建 用 Nova运行时、Nova运行时 的 Error原型。
+    做 Nova对象_设置属性 用 Nova运行时、err、「name」、做 Nova值_创建_String 用 Nova运行时、「AbortError」。
+    做 Nova对象_设置属性 用 Nova运行时、err、「message」、做 Nova值_创建_String 用 Nova运行时、消息。
+    做 Nova对象_设置属性 用 Nova运行时、err、「code」、做 Nova值_创建_Number 用 Nova运行时、20。
+    返还 err。
+完。
+
+AbortSignal_timeout 接受 Nova运行时、毫秒：
+    sig 为 做 AbortSignal_创建 用 Nova运行时。
+    sig 的 超时定时器 为 做 定时器_创建 用 毫秒、AbortSignal_超时回调、sig。
+    返还 sig。
+完。
+
+AbortSignal_超时回调 接受 sig：
+    若 sig 的 已中止：
+        返还。
+    完。
+    Nova运行时 为 做 全局_Nova运行时_获取。
+    err 为 做 Nova对象_创建 用 Nova运行时、Nova运行时 的 Error原型。
+    做 Nova对象_设置属性 用 Nova运行时、err、「name」、做 Nova值_创建_String 用 Nova运行时、「TimeoutError」。
+    做 Nova对象_设置属性 用 Nova运行时、err、「message」、做 Nova值_创建_String 用 Nova运行时、「The operation timed out.」。
+    做 AbortSignal_设置已中止 用 sig、Nova运行时、err。
+    sig 的 超时定时器 为 0。
+完。
+
+AbortSignal_any 接受 Nova运行时、信号列表、信号数：
+    combined 为 做 AbortSignal_创建 用 Nova运行时。
+    可变 i 为 0。
+    只要 i 小于 信号数：
+        child 为 信号列表 的 第 i 项。
+        若 child 的 已中止：
+            做 AbortSignal_设置已中止 用 combined、Nova运行时、child 的 中止原因。
+            返还 combined。
+        完。
+        i 为 i 加 1。
+    完。
+    combined 的 关联信号列表 为 做 堆_分配 用 信号数 乘 8。
+    combined 的 关联信号数 为 信号数。
+    i 为 0。
+    只要 i 小于 信号数：
+        做 内存_写64 用 combined 的 关联信号列表 加 i 乘 8、信号列表 的 第 i 项。
+        做 AbortSignal_添加监听器 用 信号列表 的 第 i 项、做 AbortSignal_any_子信号回调_创建 用 combined、Nova运行时、真。
+        i 为 i 加 1。
+    完。
+    返还 combined。
+完。
+
+AbortSignal_any_子信号回调_创建 接受 combined、Nova运行时：
+    返还 以 零参 为 引，其做法是：若 非 combined 的 已中止： 可变 j 为 0。 只要 j 小于 combined 的 关联信号数： child 为 做 内存_读64 用 combined 的 关联信号列表 加 j 乘 8。 若 child 的 已中止： 做 AbortSignal_设置已中止 用 combined、Nova运行时、child 的 中止原因。 返还。 完。 j 为 j 加 1。 完。 完。
+完。
+
+取数_Response_text 接受 Nova运行时、resp：
+    promise 为 做 Nova承诺_创建 用 Nova运行时。
+    若 resp 等于 0：
+        做 Nova承诺_resolve 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「」。
+        返还 promise。
+    完。
+    若 resp 的 体已使用：
+        做 Nova承诺_reject 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「TypeError: body already consumed」。
+        返还 promise。
+    完。
+    resp 的 体已使用 为 真。
+    若 resp 的 体数据 不等于 0 并且 resp 的 体长度 大于 0：
+        文本 为 做 字符串_复制_N 用 resp 的 体数据、resp 的 体长度。
+        做 Nova承诺_resolve 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、文本。
+    否则：
+        做 Nova承诺_resolve 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「」。
+    完。
+    返还 promise。
+完。
+
+取数_Response_json 接受 Nova运行时、resp：
+    promise 为 做 Nova承诺_创建 用 Nova运行时。
+    若 resp 等于 0 或者 resp 的 体数据 等于 0：
+        做 Nova承诺_reject 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「SyntaxError: Unexpected end of JSON input」。
+        返还 promise。
+    完。
+    若 resp 的 体已使用：
+        做 Nova承诺_reject 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「TypeError: body already consumed」。
+        返还 promise。
+    完。
+    resp 的 体已使用 为 真。
+    文本 为 做 字符串_复制_N 用 resp 的 体数据、resp 的 体长度。
+    结果 为 做 JSON_解析 用 Nova运行时、文本。
+    若 结果 的 成功：
+        做 Nova承诺_resolve 用 Nova运行时、promise、结果 的 值。
+    否则：
+        做 Nova承诺_reject 用 Nova运行时、promise、结果 的 错误。
+    完。
+    返还 promise。
+完。
+
+取数_Response_arrayBuffer 接受 Nova运行时、resp：
+    promise 为 做 Nova承诺_创建 用 Nova运行时。
+    若 resp 等于 0：
+        空缓冲 为 做 ArrayBuffer_创建 用 Nova运行时、0。
+        做 Nova承诺_resolve 用 Nova运行时、promise、空缓冲。
+        返还 promise。
+    完。
+    若 resp 的 体已使用：
+        做 Nova承诺_reject 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「TypeError: body already consumed」。
+        返还 promise。
+    完。
+    resp 的 体已使用 为 真。
+    ab 为 做 ArrayBuffer_创建 用 Nova运行时、resp 的 体长度。
+    若 resp 的 体长度 大于 0：
+        做 内存_拷贝 用 做 ArrayBuffer_获取数据指针 用 ab、resp 的 体数据、resp 的 体长度。
+    完。
+    做 Nova承诺_resolve 用 Nova运行时、promise、ab。
+    返还 promise。
+完。
+
+取数_Response_blob 接受 Nova运行时、resp：
+    promise 为 做 Nova承诺_创建 用 Nova运行时。
+    若 resp 等于 0：
+        empty_blob 为 做 Blob_创建 用 Nova运行时、0、0、「」。
+        做 Nova承诺_resolve 用 Nova运行时、promise、empty_blob。
+        返还 promise。
+    完。
+    若 resp 的 体已使用：
+        做 Nova承诺_reject 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「TypeError: body already consumed」。
+        返还 promise。
+    完。
+    resp 的 体已使用 为 真。
+    content_type 为 做 Headers_获取 用 resp 的 头、「content-type」。
+    若 content_type 等于 0：
+        content_type 为 「」。
+    完。
+    blob 为 做 Blob_创建 用 Nova运行时、resp 的 体数据、resp 的 体长度、content_type。
+    做 Nova承诺_resolve 用 Nova运行时、promise、blob。
+    返还 promise。
+完。
+
+取数_Response_formData 接受 Nova运行时、resp：
+    promise 为 做 Nova承诺_创建 用 Nova运行时。
+    若 resp 等于 0 或者 resp 的 体已使用：
+        做 Nova承诺_reject 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「TypeError: body already consumed」。
+        返还 promise。
+    完。
+    resp 的 体已使用 为 真。
+    content_type 为 做 Headers_获取 用 resp 的 头、「content-type」。
+    若 做 字符串_包含 用 content_type、「multipart/form-data」：
+        boundary 为 做 提取_boundary 用 content_type。
+        fd 为 做 解析_multipart 用 Nova运行时、resp 的 体数据、resp 的 体长度、boundary。
+        做 Nova承诺_resolve 用 Nova运行时、promise、fd。
+    完。
+    做 否则如果 用 做 字符串_包含 用 content_type、「application/x-www-form-urlencoded」。
+    块：
+        文本 为 做 字符串_复制_N 用 resp 的 体数据、resp 的 体长度。
+        fd 为 做 解析_urlencoded 用 Nova运行时、文本。
+        做 Nova承诺_resolve 用 Nova运行时、promise、fd。
+    完。
+    否则。
+    块：
+        做 Nova承诺_reject 用 Nova运行时、promise、做 Nova值_创建_String 用 Nova运行时、「TypeError: Could not parse content as FormData」。
+    完。
+    返还 promise。
+完。
+
+提取_boundary 接受 content_type：
+    idx 为 做 字符串_查找 用 content_type、「boundary=」。
+    若 idx 小于 0：
+        返还 「」。
+    完。
+    返还 做 字符串_子串 用 content_type、idx 加 9、做 字符串长度 用 content_type。
+完。
+
+解析_multipart 接受 Nova运行时、数据、长度、boundary：
+    fd 为 做 FormData_创建 用 Nova运行时。
+    分隔符 为 做 字符串_拼接 用 「--」、boundary。
+    文本 为 做 字符串_复制_N 用 数据、长度。
+    可变 pos 为 0。
+    可变 部分开始 为 0。
+    只要 pos 小于 长度：
+        idx 为 做 字符串_查找_从 用 文本、分隔符、pos。
+        若 idx 小于 0：
+            跳出。
+        完。
+        若 部分开始 大于 0：
+            部分 为 做 字符串_子串 用 文本、部分开始、idx。
+            做 multipart_解析单部分 用 Nova运行时、fd、部分。
+        完。
+        部分开始 为 idx 加 做 字符串长度 用 分隔符。
+        若 部分开始 小于 长度 并且 做 字节取 用 文本、部分开始 等于 13：
+            部分开始 为 部分开始 加 2。
+        完。
+        pos 为 部分开始。
+    完。
+    返还 fd。
+完。
+
+multipart_解析单部分 接受 Nova运行时、fd、部分文本：
+    空行 为 做 字符串_查找 用 部分文本、「\r\n\r\n」。
+    若 空行 小于 0：
+        返还。
+    完。
+    头 为 做 字符串_子串 用 部分文本、0、空行。
+    体 为 做 字符串_子串 用 部分文本、空行 加 4、做 字符串长度 用 部分文本。
+    name_start 为 做 字符串_查找 用 头、「name=\"」。
+    若 name_start 小于 0：
+        返还。
+    完。
+    name_start 为 name_start 加 6。
+    name_end 为 做 字符串_查找_从 用 头、「\"」、name_start。
+    若 name_end 小于 0：
+        返还。
+    完。
+    名称 为 做 字符串_子串 用 头、name_start、name_end。
+    做 FormData_append 用 fd、Nova运行时、名称、体。
+完。
+
+解析_urlencoded 接受 Nova运行时、文本：
+    fd 为 做 FormData_创建 用 Nova运行时。
+    可变 pos 为 0。
+    len 为 做 字符串长度 用 文本。
+    只要 pos 小于 len：
+        amp 为 做 字符串_查找_从 用 文本、「&」、pos。
+        若 amp 小于 0：
+            amp 为 len。
+        完。
+        对 为 做 字符串_子串 用 文本、pos、amp。
+        eq 为 做 字符串_查找 用 对、「=」。
+        若 eq 大于或等于 0：
+            k 为 做 URL_解码 用 做 字符串_子串 用 对、0、eq。
+            v 为 做 URL_解码 用 做 字符串_子串 用 对、eq 加 1、做 字符串长度 用 对。
+            做 FormData_append 用 fd、Nova运行时、k、v。
+        完。
+        pos 为 amp 加 1。
+    完。
+    返还 fd。
+完。
+
+StreamingBody 是 一种 事物，含 缓冲区、缓冲长度、缓冲容量、已关闭、信号、读取器。
+
+StreamingBody_创建 接受 信号：
+    sb 为 做 堆_分配 用 StreamingBody。
+    sb 的 缓冲容量 为 4096。
+    sb 的 缓冲区 为 做 堆_分配 用 sb 的 缓冲容量。
+    sb 的 缓冲长度 为 0。
+    sb 的 已关闭 为 假。
+    sb 的 信号 为 信号。
+    sb 的 读取器 为 0。
+    若 信号 不等于 0：
+        做 AbortSignal_添加监听器 用 信号、做 StreamingBody_中止回调_创建 用 sb、真。
+    完。
+    返还 sb。
+完。
+
+StreamingBody_中止回调_创建 接受 sb：
+    返还 以 零参 为 引，其做法是：做 StreamingBody_中止 用 sb。
+完。
+
+StreamingBody_追加数据 接受 sb、数据、长度：
+    若 sb 的 已关闭：
+        返还。
+    完。
+    只要 sb 的 缓冲长度 加 长度 大于 sb 的 缓冲容量：
+        sb 的 缓冲容量 为 sb 的 缓冲容量 乘 2。
+        新缓冲 为 做 堆_分配 用 sb 的 缓冲容量。
+        做 内存_拷贝 用 新缓冲、sb 的 缓冲区、sb 的 缓冲长度。
+        做 堆_释放 用 sb 的 缓冲区。
+        sb 的 缓冲区 为 新缓冲。
+    完。
+    做 内存_拷贝 用 sb 的 缓冲区 加 sb 的 缓冲长度、数据、长度。
+    sb 的 缓冲长度 为 sb 的 缓冲长度 加 长度。
+完。
+
+StreamingBody_中止 接受 sb：
+    sb 的 已关闭 为 真。
+完。
+
+StreamingBody_释放 接受 sb：
+    若 sb 的 缓冲区 不等于 0：
+        做 堆_释放 用 sb 的 缓冲区。
+    完。
+    做 堆_释放 用 sb。
+完。
+
+取数_检查中止信号 接受 signal、Nova运行时：
+    若 signal 等于 0：
+        返还 假。
+    完。
+    若 signal 的 已中止：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+取数_绑定中止信号 接受 请求句柄、signal：
+    若 signal 等于 0：
+        返还。
+    完。
+    做 AbortSignal_添加监听器 用 signal、以 零参 为 引，其做法是：做 网络_取消请求 用 请求句柄。、真。
+完。
+
+SIG_MAP_SIZE 为 256。
+
+可变 信号映射表 为 0。
+
+可变 控制器映射表 为 0。
+
+AbortSignal_从jsobj获取 接受 jsobj：
+    若 信号映射表 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 SIG_MAP_SIZE：
+        off 为 i 乘 16。
+        若 做 内存_读64 用 信号映射表 加 off 等于 jsobj：
+            返还 做 内存_读64 用 信号映射表 加 off 加 8。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+AbortController_从jsobj获取 接受 jsobj：
+    若 控制器映射表 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 SIG_MAP_SIZE：
+        off 为 i 乘 16。
+        若 做 内存_读64 用 控制器映射表 加 off 等于 jsobj：
+            返还 做 内存_读64 用 控制器映射表 加 off 加 8。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+AbortSignal_注册映射 接受 sig：
+    若 信号映射表 等于 0：
+        信号映射表 为 做 堆_分配 用 SIG_MAP_SIZE 乘 16。
+        做 内存_置零 用 信号映射表、SIG_MAP_SIZE 乘 16。
+    完。
+    可变 i 为 0。
+    只要 i 小于 SIG_MAP_SIZE：
+        off 为 i 乘 16。
+        若 做 内存_读64 用 信号映射表 加 off 等于 0：
+            做 内存_写64 用 信号映射表 加 off、sig 的 JS对象。
+            做 内存_写64 用 信号映射表 加 off 加 8、sig。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+AbortController_注册映射 接受 ctrl：
+    若 控制器映射表 等于 0：
+        控制器映射表 为 做 堆_分配 用 SIG_MAP_SIZE 乘 16。
+        做 内存_置零 用 控制器映射表、SIG_MAP_SIZE 乘 16。
+    完。
+    可变 i 为 0。
+    只要 i 小于 SIG_MAP_SIZE：
+        off 为 i 乘 16。
+        若 做 内存_读64 用 控制器映射表 加 off 等于 0：
+            做 内存_写64 用 控制器映射表 加 off、ctrl 的 JS对象。
+            做 内存_写64 用 控制器映射表 加 off 加 8、ctrl。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+EWMA_FETCH_ALPHA 为 205。
+
+可变 EWMA_取数延迟 为 0。
+
+可变 EWMA_取数超时率 为 0。
+
+智能_取数接口_AI加载优先级 接受 url：
+    bus 为 全局AI总线。
+    若 bus 等于 0 或者 url 等于 0：
+        返还 Q_HALF。
+    完。
+    返还 做 AI总线_资源优先级 用 bus、url。
+完。
+
+智能_取数接口_AI预取决策 接受 url：
+    bus 为 全局AI总线。
+    若 bus 等于 0 或者 url 等于 0：
+        返还 假。
+    完。
+    分数 为 做 AI总线_资源优先级 用 bus、url。
+    返还 分数 大于 600。
+完。
+
+智能_取数接口_AI超时预测 接受 url：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 30000。
+    完。
+    特征 为 做 Tensor_创建 用 1、4。
+    做 Tensor_写 用 特征、0、0、EWMA_取数延迟。
+    做 Tensor_写 用 特征、0、1、EWMA_取数超时率。
+    做 Tensor_写 用 特征、0、2、做 AI总线_资源优先级 用 bus、url。
+    做 Tensor_写 用 特征、0、3、Q10。
+    预测延迟 为 做 AI总线_注意力权重 用 bus、特征 乘 50。
+    做 Tensor_释放 用 特征。
+    若 预测延迟 小于 5000：
+        返还 5000。
+    完。
+    若 预测延迟 大于 60000：
+        返还 60000。
+    完。
+    返还 预测延迟。
+完。
+
+智能_取数接口_AI反馈延迟 接受 延迟_us、是否超时：
+    EWMA_取数延迟 为 (EWMA_FETCH_ALPHA 乘 延迟_us 加 (Q10 减 EWMA_FETCH_ALPHA) 乘 EWMA_取数延迟) 除以 Q10。
+    若 是否超时：
+        EWMA_取数超时率 为 (EWMA_FETCH_ALPHA 乘 Q10 加 (Q10 减 EWMA_FETCH_ALPHA) 乘 EWMA_取数超时率) 除以 Q10。
+    否则：
+        EWMA_取数超时率 为 (Q10 减 EWMA_FETCH_ALPHA) 乘 EWMA_取数超时率 除以 Q10。
+    完。
+完。
+
+本章 收束。

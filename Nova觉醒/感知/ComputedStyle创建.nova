@@ -1,0 +1,250 @@
+《ComputedStyle创建》
+
+引用《..·中枢·类型定义》。
+引用《..·推理·通信渠道》。
+引用《.·应用样式声明》。
+引用《.·计算长度零》。
+
+    align_self。 ※ auto/flex-start/flex-end/center/baseline/stretch。
+    order。 ※ 默认0。
+    column_gap。 ※ px×100。
+    row_gap。 ※ px×100。
+
+    grid_template_columns。 ※ 模板字符串。
+    grid_template_rows。
+    grid_column_start。
+    grid_column_end。
+    grid_row_start。
+    grid_row_end。
+    grid_auto_flow。 ※ 0=row 1=column 2=dense。
+
+    transform_origin_x。 ※ px×100 (默认50%)。
+    transform_origin_y。
+    transition_property。 ※ 属性名字符串。
+    transition_duration。 ※ ms×100。
+    transition_timing。 ※ 0=ease 1=linear 2=ease-in 3=ease-out 4=ease-in-out。
+    transition_delay。 ※ ms×100。
+    animation_name。 ※ 关键帧名。
+    animation_duration。 ※ ms×100。
+    animation_timing。
+    animation_delay。 ※ ms×100。
+    animation_count。 ※ 次数×100 (-100=infinite)。
+    animation_direction。 ※ 0=normal 1=reverse 2=alternate 3=alternate-reverse。
+    animation_fill。 ※ 0=none 1=forwards 2=backwards 3=both。
+    animation_state。 ※ 0=running 1=paused。
+
+    filter。 ※ 滤镜函数链。
+    backdrop_filter。
+    mix_blend_mode。 ※ 0=normal 1=multiply 2=screen 3=overlay ...。
+
+    object_fit。 ※ 0=fill 1=contain 2=cover 3=none 4=scale-down。
+    object_position_x。 ※ px×100 (默认50%)。
+    object_position_y。
+    cursor。
+    pointer_事件s。 ※ 0=auto 1=none。
+    user_select。 ※ 0=auto 1=none 2=text 3=all。
+    content。
+    list_style。
+    outline。
+    will_change。 ※ 0=auto 1=transform 2=opacity 3=scroll-position。
+    contain。 ※ bit: 1=size 2=layout 4=style 8=paint。
+    resize。 ※ 0=none 1=both 2=horizontal 3=vertical。
+    table_layout。 ※ 0=auto 1=fixed。
+    direction。 ※ 0=ltr 1=rtl。
+    writing_mode。 ※ 0=horizontal-tb 1=vertical-rl 2=vertical-lr。
+    hyphens。 ※ 0=none 1=manual 2=auto。
+    tab_size。 ※ 默认8。
+    appearance。 ※ 0=none 1=auto。
+    scroll_behavior。 ※ 0=auto 1=smooth。
+    aspect_ratio。 ※ 宽×10000/高 (0=auto)。
+    accent_color。 ※ RGBA。
+    clip_path。
+    是继承的。 ※ 某些属性从父继承。
+完。
+
+※ §1 创建默认Computed样式。
+
+Computed样式_创建 接受 零参：
+ style 为 做 堆_分配 用 Computed样式。
+
+ ※ 默认值(CSS初始值)。
+ style.display 为 Display_inline
+ style.position 为 Position_static。
+ style.float_val 为 浮动_none。
+ style.clear 为 0。
+ style.box_sizing 为 BoxSizing_content。
+
+ style.width 为 做 计算长度_auto。
+ style.height 为 做 计算长度_auto。
+ style.min_width 为 做 计算长度_零。
+ style.min_height 为 做 计算长度_零。
+ style.max_width 为 做 计算长度_none。
+ style.max_height 为 做 计算长度_none。
+
+ style.margin_top 为 做 计算长度_零。
+ style.margin_right 为 做 计算长度_零。
+ style.margin_bottom 为 做 计算长度_零。
+ style.margin_left 为 做 计算长度_零。
+
+ style.padding_top 为 做 计算长度_零。
+ style.padding_right 为 做 计算长度_零。
+ style.padding_bottom 为 做 计算长度_零。
+ style.padding_left 为 做 计算长度_零。
+
+ style.border_top_width 为 0。
+ style.border_right_width 为 0。
+ style.border_bottom_width 为 0。
+ style.border_left_width 为 0。
+ style.border_top_color 为 0x000000FF。
+ style.border_right_color 为 0x000000FF。
+ style.border_bottom_color 为 0x000000FF。
+ style.border_left_color 为 0x000000FF。
+ style.border_radius_tl 为 0。
+ style.border_radius_tr 为 0。
+ style.border_radius_bl 为 0。
+ style.border_radius_br 为 0。
+
+ style.top 为 做 计算长度_auto。
+ style.right_pos 为 做 计算长度_auto。
+ style.bottom 为 做 计算长度_auto。
+ style.left_pos 为 做 计算长度_auto。
+ style.z_index 为 0。
+ style.z_index_auto 为 真。
+
+ style.color 为 0x000000FF
+ style.background_color 为 0x00000000
+ style.background_image 为 0。
+
+ style.font_size 为 1600
+ style.font_weight 为 400。
+ style.font_family 为 0。
+ style.font_style 为 0。
+ style.line_height 为 0
+ style.text_align 为 TextAlign_left。
+ style.text_decoration 为 0。
+ style.white_space 为 0。
+ style.word_break 为 0。
+ style.vertical_align 为 0。
+
+ style.overflow_x 为 Overflow_visible。
+ style.overflow_y 为 Overflow_visible。
+
+ style.opacity 为 100
+ style.visibility 为 Visibility_visible。
+
+ style.flex_direction 为 弹性Dir_row。
+ style.flex_wrap 为 0。
+ style.justify_content 为 JC_flex_start。
+ style.align_items 为 JC_stretch。
+ style.align_content 为 JC_stretch。
+ style.flex_grow 为 0。
+ style.flex_shrink 为 100
+ style.flex_basis 为 做 计算长度_auto。
+ style.gap 为 0。
+
+ style.transform 为 0。
+ style.transition 为 0。
+ style.box_shadow 为 0。
+ style.text_shadow 为 0。
+ style.cursor 为 0。
+ style.pointer_事件s 为 0。
+ style.user_select 为 0。
+ style.content 为 0。
+ style.list_style 为 0。
+ style.outline 为 0。
+
+ style.text_transform 为 0。
+ style.text_indent 为 0。
+ style.text_overflow 为 0。
+ style.letter_spacing 为 0。
+ style.word_spacing 为 0。
+ style.overflow_wrap 为 0。
+
+ style.border_top_style 为 0。
+ style.border_right_style 为 0。
+ style.border_bottom_style 为 0。
+ style.border_left_style 为 0。
+ style.border_collapse 为 0。
+ style.border_spacing 为 0。
+
+ style.background_repeat 为 0。
+ style.background_size 为 0。
+ style.background_position_x 为 0。
+ style.background_position_y 为 0。
+ style.background_attachment 为 0。
+ style.background_clip 为 0。
+ style.background_origin 为 0。
+
+ style.align_self 为 0。
+ style.order 为 0。
+ style.column_gap 为 0。
+ style.row_gap 为 0。
+
+ style.grid_template_columns 为 0。
+ style.grid_template_rows 为 0。
+ style.grid_column_start 为 0。
+ style.grid_column_end 为 0。
+ style.grid_row_start 为 0。
+ style.grid_row_end 为 0。
+ style.grid_auto_flow 为 0。
+
+ style.transform_origin_x 为 5000
+ style.transform_origin_y 为 5000。
+
+ style.transition_property 为 0。
+ style.transition_duration 为 0。
+ style.transition_timing 为 0。
+ style.transition_delay 为 0。
+ style.animation_name 为 0。
+ style.animation_duration 为 0。
+ style.animation_timing 为 0。
+ style.animation_delay 为 0。
+ style.animation_count 为 100
+ style.animation_direction 为 0。
+ style.animation_fill 为 0。
+ style.animation_state 为 0。
+
+ style.filter 为 0。
+ style.backdrop_filter 为 0。
+ style.mix_blend_mode 为 0。
+
+ style.object_fit 为 0。
+ style.object_position_x 为 5000
+ style.object_position_y 为 5000。
+
+ style.will_change 为 0。
+ style.contain 为 0。
+ style.resize 为 0。
+ style.table_layout 为 0。
+ style.direction 为 0。
+ style.writing_mode 为 0。
+ style.hyphens 为 0。
+ style.tab_size 为 800
+ style.appearance 为 0。
+ style.scroll_behavior 为 0。
+ style.aspect_ratio 为 0。
+ style.accent_color 为 0。
+ style.clip_path 为 0。
+
+ style.是继承的 为 假。
+
+ 返还 style。
+
+可变 AI_计算样式创_样式缓存命中 为 0。
+
+AI_计算样式创_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+    若 组合子数 大于 2：
+    返还 「低复杂度」。
+完。
+
+AI_计算样式创_布局缓存 接受 元素哈希：
+    AI_计算样式创_样式缓存命中 为 AI_计算样式创_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。
+
+本章 收束。
+
+本章 收束。

@@ -1,0 +1,628 @@
+《屏幕唤醒锁》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·权限接口权限》。
+
+引用《..·中枢·内存初始化》。
+
+WakeLockSentinel 是 一种 事物，含 类型、released、onrelease。
+
+WakeLock_request 接受 类型：
+    若 类型 等于 0：
+        返还 0。
+    完。
+    若 非 做 平台_文档可见：
+        返还 0。
+    完。
+    若 非 做 NDIA_检查权限 用 「screen-wake-lock」：
+        返还 0。
+    完。
+    sentinel 为 做 堆_分配 用 WakeLockSentinel。
+    若 sentinel 等于 0：
+        返还 0。
+    完。
+    sentinel 的 类型 为 类型。
+    sentinel 的 released 为 假。
+    sentinel 的 onrelease 为 0。
+    sentinel 的 平台句柄 为 做 平台_获取唤醒锁。
+    sentinel 的 获取时间 为 做 平台_获取时间戳。
+    sentinel 的 自动重获 为 真。
+    做 NDIA_添加活动锁 用 sentinel。
+    NDIA_唤醒锁请求总数 为 NDIA_唤醒锁请求总数 加 1。
+    返还 sentinel。
+完。
+
+WakeLock_release 接受 sentinel：
+    若 sentinel 等于 0 或者 sentinel 的 released：
+        返还。
+    完。
+    sentinel 的 released 为 真。
+    若 sentinel 的 平台句柄 不等于 0：
+        做 平台_释放唤醒锁 用 sentinel 的 平台句柄。
+        sentinel 的 平台句柄 为 0。
+    完。
+    若 sentinel 的 onrelease 不等于 0：
+        做 平台_调用回调 用 sentinel 的 onrelease、sentinel、0、0。
+    完。
+    做 NDIA_移除活动锁 用 sentinel。
+    NDIA_唤醒锁释放总数 为 NDIA_唤醒锁释放总数 加 1。
+完。
+
+NDIA_最大活动锁 为 16。
+
+NDIA_最大全屏栈 为 8。
+
+NDIA_振动最大序列 为 128。
+
+可变 NDIA_唤醒锁请求总数 为 0。
+
+可变 NDIA_唤醒锁释放总数 为 0。
+
+可变 NDIA_全屏切换总数 为 0。
+
+可变 NDIA_指针锁总数 为 0。
+
+可变 NDIA_网络变化总数 为 0。
+
+可变 NDIA_振动总数 为 0。
+
+可变 NDIA_活动锁列表 为 0。
+
+可变 NDIA_活动锁数量 为 0。
+
+NDIA_初始化活动锁 接受 零参：
+    若 NDIA_活动锁列表 等于 0：
+        NDIA_活动锁列表 为 做 堆_分配 用 NDIA_最大活动锁 乘 8。
+    完。
+完。
+
+NDIA_添加活动锁 接受 sentinel：
+    做 NDIA_初始化活动锁。
+    若 NDIA_活动锁数量 大于或等于 NDIA_最大活动锁：
+        返还。
+    完。
+    做 内存_写64 用 NDIA_活动锁列表 加 NDIA_活动锁数量 乘 8、sentinel。
+    NDIA_活动锁数量 为 NDIA_活动锁数量 加 1。
+完。
+
+NDIA_移除活动锁 接受 sentinel：
+    可变 i 为 0。
+    只要 i 小于 NDIA_活动锁数量：
+        若 做 内存_读64 用 NDIA_活动锁列表 加 i 乘 8 等于 sentinel：
+            NDIA_活动锁数量 为 NDIA_活动锁数量 减 1。
+            若 i 小于 NDIA_活动锁数量：
+                做 内存_写64 用 NDIA_活动锁列表 加 i 乘 8、做 内存_读64 用 NDIA_活动锁列表 加 NDIA_活动锁数量 乘 8。
+            完。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NDIA_处理可见性变化 接受 可见：
+    若 非 可见：
+        可变 i 为 0。
+        只要 i 小于 NDIA_活动锁数量：
+            s 为 做 内存_读64 用 NDIA_活动锁列表 加 i 乘 8。
+            若 s 不等于 0 并且 非 s 的 released：
+                s 的 released 为 真。
+                若 s 的 平台句柄 不等于 0：
+                    做 平台_释放唤醒锁 用 s 的 平台句柄。
+                    s 的 平台句柄 为 0。
+                完。
+                若 s 的 onrelease 不等于 0：
+                    做 平台_调用回调 用 s 的 onrelease、s、0、0。
+                完。
+            完。
+            i 为 i 加 1。
+        完。
+    否则：
+        可变 i 为 0。
+        只要 i 小于 NDIA_活动锁数量：
+            s 为 做 内存_读64 用 NDIA_活动锁列表 加 i 乘 8。
+            若 s 不等于 0 并且 s 的 released 并且 s 的 自动重获：
+                s 的 平台句柄 为 做 平台_获取唤醒锁。
+                s 的 released 为 假。
+                s 的 获取时间 为 做 平台_获取时间戳。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+完。
+
+NDIA_检查权限 接受 权限名：
+    状态 为 做 平台_查询权限 用 权限名。
+    若 状态 等于 1：
+        返还 真。
+    完。
+    若 状态 等于 2：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+NetworkInformation 是 一种 事物，含 effectiveType、downlink、Nova往返时间、saveData、type、onchange、上行带宽、信号强度。
+
+NDIA_网络_SLOW2G 为 0。
+
+NDIA_网络_2G 为 1。
+
+NDIA_网络_3G 为 2。
+
+NDIA_网络_4G 为 3。
+
+可变 全局网络信息 为 0。
+
+NetworkInfo_获取 接受 零参：
+    若 全局网络信息 等于 0：
+        全局网络信息 为 做 堆_分配 用 NetworkInformation。
+        全局网络信息 的 effectiveType 为 「4g」。
+        全局网络信息 的 downlink 为 10240。
+        全局网络信息 的 Nova往返时间 为 50。
+        全局网络信息 的 saveData 为 假。
+        全局网络信息 的 type 为 「wifi」。
+        全局网络信息 的 onchange 为 0。
+        全局网络信息 的 上行带宽 为 5120。
+        全局网络信息 的 信号强度 为 负 50。
+    完。
+    返还 全局网络信息。
+完。
+
+NDIA_计算有效类型 接受 rtt、downlink_q10：
+    若 rtt 大于 2000 或者 downlink_q10 小于 50：
+        返还 NDIA_网络_SLOW2G。
+    完。
+    若 rtt 大于 1400 或者 downlink_q10 小于 70：
+        返还 NDIA_网络_2G。
+    完。
+    若 rtt 大于 270 或者 downlink_q10 小于 700：
+        返还 NDIA_网络_3G。
+    完。
+    返还 NDIA_网络_4G。
+完。
+
+NDIA_更新网络信息 接受 rtt、downlink_q10、type_str：
+    info 为 做 NetworkInfo_获取。
+    旧类型 为 info 的 effectiveType。
+    info 的 Nova往返时间 为 rtt。
+    info 的 downlink 为 downlink_q10。
+    若 type_str 不等于 0：
+        info 的 type 为 type_str。
+    完。
+    新有效类型 为 做 NDIA_计算有效类型 用 rtt、downlink_q10。
+    若 新有效类型 等于 NDIA_网络_SLOW2G：
+        info 的 effectiveType 为 「slow-2g」。
+    完。
+    若 新有效类型 等于 NDIA_网络_2G：
+        info 的 effectiveType 为 「2g」。
+    完。
+    若 新有效类型 等于 NDIA_网络_3G：
+        info 的 effectiveType 为 「3g」。
+    完。
+    若 新有效类型 等于 NDIA_网络_4G：
+        info 的 effectiveType 为 「4g」。
+    完。
+    若 info 的 onchange 不等于 0：
+        做 平台_调用回调 用 info 的 onchange、info、0、0。
+    完。
+    NDIA_网络变化总数 为 NDIA_网络变化总数 加 1。
+完。
+
+NDIA_带宽样本数 为 16。
+
+可变 NDIA_带宽样本 为 0。
+
+可变 NDIA_带宽样本位置 为 0。
+
+NDIA_记录带宽样本 接受 字节数、毫秒：
+    若 毫秒 小于或等于 0：
+        返还。
+    完。
+    若 NDIA_带宽样本 等于 0：
+        NDIA_带宽样本 为 做 堆_分配 用 NDIA_带宽样本数 乘 4。
+    完。
+    带宽 为 字节数 乘 8 乘 1024 除以 毫秒。
+    位置 为 NDIA_带宽样本位置 取余于 NDIA_带宽样本数。
+    做 内存_写32 用 NDIA_带宽样本 加 位置 乘 4、带宽。
+    NDIA_带宽样本位置 为 NDIA_带宽样本位置 加 1。
+完。
+
+NDIA_估算带宽 接受 零参：
+    若 NDIA_带宽样本 等于 0 或者 NDIA_带宽样本位置 等于 0：
+        返还 10240。
+    完。
+    数量 为 NDIA_带宽样本位置。
+    若 数量 大于 NDIA_带宽样本数：
+        数量 为 NDIA_带宽样本数。
+    完。
+    可变 总和 为 0。
+    可变 权重和 为 0。
+    可变 权重 为 1。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        idx 为 (NDIA_带宽样本位置 减 数量 加 i) 取余于 NDIA_带宽样本数。
+        v 为 做 内存_读32 用 NDIA_带宽样本 加 idx 乘 4。
+        总和 为 总和 加 v 乘 权重。
+        权重和 为 权重和 加 权重。
+        权重 为 权重 乘 3 除以 2。
+        i 为 i 加 1。
+    完。
+    若 权重和 等于 0：
+        返还 10240。
+    完。
+    返还 总和 除以 权重和。
+完。
+
+Navigator_deviceMemory 接受 零参：
+    实际MB 为 做 平台_获取物理内存MB。
+    返还 做 NDIA_量化内存 用 实际MB。
+完。
+
+NDIA_量化内存 接受 mb：
+    若 mb 小于 384：
+        返还 25。
+    完。
+    若 mb 小于 768：
+        返还 50。
+    完。
+    若 mb 小于 1536：
+        返还 100。
+    完。
+    若 mb 小于 3072：
+        返还 200。
+    完。
+    若 mb 小于 6144：
+        返还 400。
+    完。
+    返还 800。
+完。
+
+可变 NDIA_全屏栈 为 0。
+
+可变 NDIA_全屏栈深度 为 0。
+
+可变 全屏元素 为 0。
+
+可变 NDIA_全屏变化回调 为 0。
+
+可变 NDIA_全屏错误回调 为 0。
+
+NDIA_初始化全屏栈 接受 零参：
+    若 NDIA_全屏栈 等于 0：
+        NDIA_全屏栈 为 做 堆_分配 用 NDIA_最大全屏栈 乘 8。
+    完。
+完。
+
+元素_requestFullscreen 接受 元素：
+    若 元素 等于 0：
+        返还。
+    完。
+    若 元素 的 标签名 等于 「dialog」 并且 元素 的 打开状态 等于 假：
+        若 NDIA_全屏错误回调 不等于 0：
+            做 平台_调用回调 用 NDIA_全屏错误回调、元素、0、0。
+        完。
+        返还。
+    完。
+    做 NDIA_初始化全屏栈。
+    若 NDIA_全屏栈深度 小于 NDIA_最大全屏栈：
+        做 内存_写64 用 NDIA_全屏栈 加 NDIA_全屏栈深度 乘 8、元素。
+        NDIA_全屏栈深度 为 NDIA_全屏栈深度 加 1。
+    完。
+    全屏元素 为 元素。
+    做 平台_进入全屏。
+    若 NDIA_全屏变化回调 不等于 0：
+        做 平台_调用回调 用 NDIA_全屏变化回调、元素、0、0。
+    完。
+    NDIA_全屏切换总数 为 NDIA_全屏切换总数 加 1。
+完。
+
+Document_exitFullscreen 接受 零参：
+    若 全屏元素 等于 0：
+        返还。
+    完。
+    若 NDIA_全屏栈深度 大于 0：
+        NDIA_全屏栈深度 为 NDIA_全屏栈深度 减 1。
+    完。
+    若 NDIA_全屏栈深度 大于 0：
+        全屏元素 为 做 内存_读64 用 NDIA_全屏栈 加 (NDIA_全屏栈深度 减 1) 乘 8。
+    否则：
+        全屏元素 为 0。
+        做 平台_退出全屏。
+    完。
+    若 NDIA_全屏变化回调 不等于 0：
+        做 平台_调用回调 用 NDIA_全屏变化回调、全屏元素、0、0。
+    完。
+    NDIA_全屏切换总数 为 NDIA_全屏切换总数 加 1。
+完。
+
+Document_fullscreen元素 接受 零参：
+    返还 全屏元素。
+完。
+
+Document_fullscreenEnabled 接受 零参：
+    返还 做 平台_支持全屏。
+完。
+
+可变 指针锁定元素 为 0。
+
+可变 NDIA_指针移动x 为 0。
+
+可变 NDIA_指针移动y 为 0。
+
+可变 NDIA_未调整移动x 为 0。
+
+可变 NDIA_未调整移动y 为 0。
+
+可变 NDIA_指针锁变化回调 为 0。
+
+可变 NDIA_指针锁错误回调 为 0。
+
+元素_requestPointerLock 接受 元素：
+    若 元素 等于 0：
+        返还。
+    完。
+    若 指针锁定元素 不等于 0：
+        若 NDIA_指针锁错误回调 不等于 0：
+            做 平台_调用回调 用 NDIA_指针锁错误回调、元素、0、0。
+        完。
+        返还。
+    完。
+    指针锁定元素 为 元素。
+    NDIA_指针移动x 为 0。
+    NDIA_指针移动y 为 0。
+    NDIA_未调整移动x 为 0。
+    NDIA_未调整移动y 为 0。
+    做 平台_隐藏光标。
+    若 NDIA_指针锁变化回调 不等于 0：
+        做 平台_调用回调 用 NDIA_指针锁变化回调、元素、0、0。
+    完。
+    NDIA_指针锁总数 为 NDIA_指针锁总数 加 1。
+完。
+
+Document_exitPointerLock 接受 零参：
+    若 指针锁定元素 等于 0：
+        返还。
+    完。
+    旧元素 为 指针锁定元素。
+    指针锁定元素 为 0。
+    做 平台_显示光标。
+    若 NDIA_指针锁变化回调 不等于 0：
+        做 平台_调用回调 用 NDIA_指针锁变化回调、旧元素、0、0。
+    完。
+完。
+
+NDIA_处理指针移动 接受 dx、dy、原始dx、原始dy：
+    若 指针锁定元素 等于 0：
+        返还。
+    完。
+    NDIA_指针移动x 为 dx。
+    NDIA_指针移动y 为 dy。
+    NDIA_未调整移动x 为 原始dx。
+    NDIA_未调整移动y 为 原始dy。
+完。
+
+Document_pointerLockElement 接受 零参：
+    返还 指针锁定元素。
+完。
+
+BatteryManager 是 一种 事物，含 充电中、充电时间、放电时间、电量、onchargingchange、onchargingtimechange、ondischargingtimechange、onlevelchange。
+
+可变 全局电池 为 0。
+
+NDIA_获取电池 接受 零参：
+    若 全局电池 等于 0：
+        全局电池 为 做 堆_分配 用 BatteryManager。
+        全局电池 的 充电中 为 真。
+        全局电池 的 充电时间 为 0。
+        全局电池 的 放电时间 为 负 1。
+        全局电池 的 电量 为 100。
+        全局电池 的 onchargingchange 为 0。
+        全局电池 的 onchargingtimechange 为 0。
+        全局电池 的 ondischargingtimechange 为 0。
+        全局电池 的 onlevelchange 为 0。
+    完。
+    返还 全局电池。
+完。
+
+NDIA_更新电池 接受 充电、充电时间、放电时间、电量：
+    bat 为 做 NDIA_获取电池。
+    旧充电 为 bat 的 充电中。
+    旧电量 为 bat 的 电量。
+    bat 的 充电中 为 充电。
+    bat 的 充电时间 为 充电时间。
+    bat 的 放电时间 为 放电时间。
+    bat 的 电量 为 电量。
+    若 旧充电 不等于 充电 并且 bat 的 onchargingchange 不等于 0：
+        做 平台_调用回调 用 bat 的 onchargingchange、bat、0、0。
+    完。
+    若 旧电量 不等于 电量 并且 bat 的 onlevelchange 不等于 0：
+        做 平台_调用回调 用 bat 的 onlevelchange、bat、0、0。
+    完。
+完。
+
+NDIA_方向_竖屏 为 0。
+
+NDIA_方向_横屏 为 1。
+
+NDIA_方向_竖屏反转 为 2。
+
+NDIA_方向_横屏反转 为 3。
+
+可变 NDIA_当前方向 为 0。
+
+可变 NDIA_方向角度 为 0。
+
+可变 NDIA_方向锁定 为 假。
+
+可变 NDIA_方向变化回调 为 0。
+
+ScreenOrientation_获取类型 接受 零参：
+    返还 NDIA_当前方向。
+完。
+
+ScreenOrientation_获取角度 接受 零参：
+    返还 NDIA_方向角度。
+完。
+
+ScreenOrientation_lock 接受 方向：
+    若 方向 小于 0 或者 方向 大于 3：
+        返还 假。
+    完。
+    若 非 做 平台_支持方向锁：
+        返还 假。
+    完。
+    NDIA_当前方向 为 方向。
+    NDIA_方向锁定 为 真。
+    若 方向 等于 NDIA_方向_竖屏：
+        NDIA_方向角度 为 0。
+    完。
+    若 方向 等于 NDIA_方向_横屏：
+        NDIA_方向角度 为 90。
+    完。
+    若 方向 等于 NDIA_方向_竖屏反转：
+        NDIA_方向角度 为 180。
+    完。
+    若 方向 等于 NDIA_方向_横屏反转：
+        NDIA_方向角度 为 270。
+    完。
+    做 平台_设置方向 用 方向。
+    返还 真。
+完。
+
+ScreenOrientation_unlock 接受 零参：
+    NDIA_方向锁定 为 假。
+    做 平台_解锁方向。
+完。
+
+NDIA_处理方向变化 接受 新方向、新角度：
+    若 NDIA_方向锁定：
+        返还。
+    完。
+    NDIA_当前方向 为 新方向。
+    NDIA_方向角度 为 新角度。
+    若 NDIA_方向变化回调 不等于 0：
+        做 平台_调用回调 用 NDIA_方向变化回调、新方向、新角度、0。
+    完。
+完。
+
+Navigator_vibrate 接受 模式数组、数量：
+    若 模式数组 等于 0 或者 数量 等于 0：
+        做 平台_停止振动。
+        返还 真。
+    完。
+    若 数量 大于 NDIA_振动最大序列：
+        返还 假。
+    完。
+    可变 总时间 为 0。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        总时间 为 总时间 加 做 内存_读32 用 模式数组 加 i 乘 4。
+        i 为 i 加 1。
+    完。
+    若 总时间 大于 10000：
+        返还 假。
+    完。
+    i 为 0。
+    只要 i 小于 数量：
+        时长 为 做 内存_读32 用 模式数组 加 i 乘 4。
+        若 i 取余于 2 等于 0：
+            做 平台_振动 用 时长。
+        否则：
+            做 平台_睡眠 用 时长。
+        完。
+        i 为 i 加 1。
+    完。
+    NDIA_振动总数 为 NDIA_振动总数 加 1。
+    返还 真。
+完。
+
+Navigator_vibrate_单次 接受 毫秒：
+    若 毫秒 小于或等于 0：
+        返还 假。
+    完。
+    若 毫秒 大于 10000：
+        返还 假。
+    完。
+    做 平台_振动 用 毫秒。
+    NDIA_振动总数 为 NDIA_振动总数 加 1。
+    返还 真。
+完。
+
+可变 NDIA_AI预测次数 为 0。
+
+NDIA_AI提取特征 接受 零参：
+    t 为 做 Tensor_创建 用 12。
+    若 t 等于 0：
+        返还 0。
+    完。
+    做 Tensor_写 用 t、0、NDIA_活动锁数量。
+    bat 为 做 NDIA_获取电池。
+    做 Tensor_写 用 t、1、bat 的 电量。
+    充电值 为 0。
+    若 bat 的 充电中：
+        充电值 为 1。
+    完。
+    做 Tensor_写 用 t、2、充电值。
+    net 为 做 NetworkInfo_获取。
+    做 Tensor_写 用 t、3、net 的 Nova往返时间。
+    做 Tensor_写 用 t、4、net 的 downlink。
+    全屏值 为 0。
+    若 全屏元素 不等于 0：
+        全屏值 为 1。
+    完。
+    做 Tensor_写 用 t、5、全屏值。
+    指针锁值 为 0。
+    若 指针锁定元素 不等于 0：
+        指针锁值 为 1。
+    完。
+    做 Tensor_写 用 t、6、指针锁值。
+    做 Tensor_写 用 t、7、NDIA_当前方向。
+    做 Tensor_写 用 t、8、做 Navigator_deviceMemory。
+    做 Tensor_写 用 t、9、NDIA_振动总数。
+    做 Tensor_写 用 t、10、NDIA_全屏切换总数。
+    做 Tensor_写 用 t、11、NDIA_网络变化总数。
+    返还 t。
+完。
+
+NDIA_AI预测设备状态 接受 零参：
+    特征 为 做 NDIA_AI提取特征。
+    若 特征 等于 0：
+        返还。
+    完。
+    电量 为 做 Tensor_读 用 特征、1。
+    充电 为 做 Tensor_读 用 特征、2。
+    rtt 为 做 Tensor_读 用 特征、3。
+    唤醒锁数 为 做 Tensor_读 用 特征、0。
+    若 电量 小于 20 并且 充电 等于 0 并且 唤醒锁数 大于 0：
+        做 全局AI总线 的 发布 用 「ndia_电量警告」、「低电量唤醒锁」、电量。
+    完。
+    若 rtt 大于 1000 并且 全屏元素 不等于 0：
+        做 全局AI总线 的 发布 用 「ndia_体验警告」、「全屏网络差」、rtt。
+    完。
+    若 唤醒锁数 大于 5：
+        做 AI总线_异常检测 用 「NDIA_唤醒锁过多」、唤醒锁数。
+    完。
+    做 Tensor_释放 用 特征。
+    NDIA_AI预测次数 为 NDIA_AI预测次数 加 1。
+完。
+
+NDIA_获取统计 接受 零参：
+    返还 一组：NDIA_唤醒锁请求总数、NDIA_唤醒锁释放总数、NDIA_全屏切换总数、NDIA_指针锁总数、NDIA_网络变化总数、NDIA_振动总数、NDIA_AI预测次数。
+完。
+
+NDIA_重置统计 接受 零参：
+    NDIA_唤醒锁请求总数 为 0。
+    NDIA_唤醒锁释放总数 为 0。
+    NDIA_全屏切换总数 为 0。
+    NDIA_指针锁总数 为 0。
+    NDIA_网络变化总数 为 0。
+    NDIA_振动总数 为 0。
+    NDIA_AI预测次数 为 0。
+完。
+
+本章 收束。

@@ -1,0 +1,102 @@
+《接口页面可》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·文档节点》。
+
+VIS_VISIBLE 为 0。
+
+VIS_HIDDEN 为 1。
+
+可变 页面可见性 为 VIS_VISIBLE。
+
+PageVisibility_是否可见 接受 零参：
+    返还 页面可见性 等于 VIS_VISIBLE。
+完。
+
+PageVisibility_获取状态 接受 零参：
+    若 页面可见性 等于 VIS_VISIBLE：
+        返还 「visible」。
+    完。
+    返还 「hidden」。
+完。
+
+PageVisibility_设置 接受 新状态：
+    旧状态 为 页面可见性。
+    页面可见性 为 新状态。
+    若 旧状态 不等于 新状态：
+        若 新状态 等于 VIS_HIDDEN：
+            可变 i 为 0。
+            只要 i 小于 活跃WakeLock数量：
+                s 为 做 内存_读64 用 活跃WakeLock列表 加 i 乘 8。
+                若 s 不等于 0：
+                    做 WakeLockSentinel_release 用 s。
+                完。
+                i 为 i 加 1。
+            完。
+        完。
+    完。
+完。
+
+BroadcastChannel 是 一种 事物，含 名称、已关闭、onmessage、onmessageerror。
+
+BCRegistry 是 一种 事物，含 频道列表、频道数量、频道容量。
+
+可变 全局BC注册表 为 0。
+
+BCRegistry_获取 接受 零参：
+    若 全局BC注册表 等于 0：
+        全局BC注册表 为 做 堆_分配 用 BCRegistry。
+        全局BC注册表 的 频道容量 为 64。
+        全局BC注册表 的 频道列表 为 做 堆_分配_数组 用 64 乘 8。
+        全局BC注册表 的 频道数量 为 0。
+    完。
+    返还 全局BC注册表。
+完。
+
+BroadcastChannel_创建 接受 名称：
+    bc 为 做 堆_分配 用 BroadcastChannel。
+    bc 的 名称 为 做 字符串_复制 用 名称。
+    bc 的 已关闭 为 假。
+    bc 的 onmessage 为 0。
+    bc 的 onmessageerror 为 0。
+    reg 为 做 BCRegistry_获取。
+    若 reg 的 频道数量 小于 reg 的 频道容量：
+        做 内存_写64 用 reg 的 频道列表 加 reg 的 频道数量 乘 8、bc。
+        reg 的 频道数量 为 reg 的 频道数量 加 1。
+    完。
+    返还 bc。
+完。
+
+BroadcastChannel_postMessage 接受 bc、数据：
+    若 bc 等于 0 或者 bc 的 已关闭：
+        返还。
+    完。
+    reg 为 做 BCRegistry_获取。
+    可变 i 为 0。
+    只要 i 小于 reg 的 频道数量：
+        其他 为 做 内存_读64 用 reg 的 频道列表 加 i 乘 8。
+        若 其他 不等于 0 并且 其他 不等于 bc 并且 非 其他 的 已关闭：
+            若 做 字符串_相等 用 其他 的 名称、bc 的 名称：
+                若 其他 的 onmessage 不等于 0：
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+BroadcastChannel_close 接受 bc：
+    若 bc 等于 0：
+        返还。
+    完。
+    bc 的 已关闭 为 真。
+完。
+
+本章 收束。

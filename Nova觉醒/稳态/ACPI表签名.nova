@@ -1,0 +1,77 @@
+《ACPI表签名》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+ACPI_SIG_RSDP 为 「RSD PTR 」。
+
+ACPI_SIG_RSDT 为 「RSDT」。
+
+ACPI_SIG_XSDT 为 「XSDT」。
+
+ACPI_SIG_FADT 为 「FACP」。
+
+ACPI_SIG_MADT 为 「接口C」。
+
+ACPI_SIG_HPET 为 「HPET」。
+
+ACPI_SIG_MCFG 为 「MCFG」。
+
+ACPI_SIG_DSDT 为 「DSDT」。
+
+ACPI_SIG_SSDT 为 「SSDT」。
+
+ACPI_SIG_BGRT 为 「BGRT」。
+
+ACPI_SIG_SRAT 为 「SRAT」。
+
+ACPI_SIG_SLIT 为 「SLIT」。
+
+MADT_LOCAL_接口C 为 0。
+
+MADT_IO_接口C 为 1。
+
+MADT_INT_OVERRIDE 为 2。
+
+MADT_NMI 为 3。
+
+MADT_LOCAL_接口C_NMI 为 4。
+
+MADT_LOCAL_接口C_OVERRIDE 为 5。
+
+MADT_X2接口C 为 9。
+
+ACPI_FADT_WBINVD 为 0x01。
+
+ACPI_FADT_C1_SUPPORTED 为 0x04。
+
+ACPI_FADT_SLEEP_BUTTON 为 0x20。
+
+ACPI_FADT_RESET_REG 为 0x400。
+
+ACPI_FADT_HW_REDUCED 为 0x100000。
+
+ACPI_S0 为 0。
+
+ACPI_S1 为 1。
+
+ACPI_S3 为 3。
+
+ACPI_S4 为 4。
+
+ACPI_S5 为 5。
+
+ACPI_RSDP 是 一种 事物，含 签名、校验和、OEM_ID、版本、RSDT地址、XSDT地址。
+
+ACPI表头 是 一种 事物，含 签名、长度、版本、校验和、OEM_ID、OEM表ID、OEM版本、创建者ID、创建者版本。
+
+ACPI_CPU 是 一种 事物，含 接口C_ID、处理器ID、已启用、是BSP。
+
+ACPI_IO接口C 是 一种 事物，含 ID、地址、GSI基。
+
+ACPI_FADT信息 是 一种 事物，含 SCI中断、SMI命令端口、ACPI使能值、ACPI禁用值、PM1a事件块、PM1b事件块、PM1a控制块、PM1b控制块、PM定时器块、PM定时器长度、世纪寄存器、复位寄存器、复位值、标志、DSDT地址。
+
+散热区域 是 一种 事物，含 名称、当前温度、临界温度、被动温度、风扇策略。
+
+本章 收束。

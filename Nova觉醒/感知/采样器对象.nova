@@ -1,0 +1,99 @@
+《采样器对象》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·稳态·AMD图形驱动》。
+
+引用《.·内核直连层》。
+
+GLSampler 是 一种 事物，含 ID、minFilter、magFilter、wrapS、wrapT、wrapR、minLOD、maxLOD、compareMode、compareFunc。
+
+图绘2_createSampler 接受 零参：
+    s 为 做 堆_分配 用 GLSampler。
+    s 的 ID 为 1。
+    s 的 minFilter 为 0x2601。
+    s 的 magFilter 为 0x2601。
+    s 的 wrapS 为 0x2901。
+    s 的 wrapT 为 0x2901。
+    s 的 wrapR 为 0x2901。
+    s 的 minLOD 为 负 1000 乘 1024。
+    s 的 maxLOD 为 1000 乘 1024。
+    返还 s。
+完。
+
+图绘2_bindSampler 接受 unit、sampler：
+    cmd 为 做 图处命令_分配 用 图处_CMD_BIND_SAMPLER、8。
+    做 内存_写32 用 cmd 加 8、unit。
+    做 内存_写32 用 cmd 加 12、sampler。
+    做 图处命令_提交 用 cmd。
+完。
+
+图绘2_samplerParameteri 接受 sampler、pname、param：
+    若 sampler 等于 0：
+        返还。
+    完。
+完。
+
+图绘2_draw数组sInstanced 接受 mode、first、count、instanceCount：
+    可变 inst 为 0。
+    只要 inst 小于 instanceCount：
+        inst 为 inst 加 1。
+    完。
+完。
+
+图绘2_draw元素sInstanced 接受 mode、count、type、offset、instanceCount：
+    可变 inst 为 0。
+    只要 inst 小于 instanceCount：
+        inst 为 inst 加 1。
+    完。
+完。
+
+图绘2_drawRange元素s 接受 mode、start、end、count、type、offset：
+    cmd 为 做 图处命令_分配 用 图处_CMD_DRAW_RANGE_元素S、24。
+    做 内存_写32 用 cmd 加 8、mode。
+    做 内存_写32 用 cmd 加 12、start。
+    做 内存_写32 用 cmd 加 16、end。
+    做 内存_写32 用 cmd 加 20、count。
+    做 内存_写32 用 cmd 加 24、type。
+    做 内存_写64 用 cmd 加 28、offset。
+    做 图处命令_提交 用 cmd。
+完。
+
+图绘2_bufferSubData 接受 target、dstByteOffset、srcData、srcOffset、length：
+    若 srcData 等于 0 或者 length 小于或等于 0：
+        返还。
+    完。
+    cmd 为 做 图处命令_分配 用 图处_CMD_BUFFER_SUB_DATA、20 加 length。
+    做 内存_写32 用 cmd 加 8、target。
+    做 内存_写64 用 cmd 加 12、dstByteOffset。
+    做 内存_写32 用 cmd 加 20、length。
+    做 内存_复制 用 cmd 加 24、srcData 加 srcOffset、length。
+    做 图处命令_提交 用 cmd。
+完。
+
+图绘2_copyBufferSubData 接受 readTarget、writeTarget、readOffset、writeOffset、size：
+    cmd 为 做 图处命令_分配 用 图处_CMD_COPY_BUF_SUB、28。
+    做 内存_写32 用 cmd 加 8、readTarget。
+    做 内存_写32 用 cmd 加 12、writeTarget。
+    做 内存_写64 用 cmd 加 16、readOffset。
+    做 内存_写64 用 cmd 加 24、writeOffset。
+    做 内存_写64 用 cmd 加 32、size。
+    做 图处命令_提交 用 cmd。
+完。
+
+图绘2_getBufferSubData 接受 target、srcByteOffset、dstData、dstOffset、length：
+    若 dstData 等于 0 或者 length 小于或等于 0：
+        返还。
+    完。
+    做 图处命令_刷新。
+    cmd 为 做 图处命令_分配 用 图处_CMD_GET_BUF_SUB、20 加 length。
+    做 内存_写32 用 cmd 加 8、target。
+    做 内存_写64 用 cmd 加 12、srcByteOffset。
+    做 内存_写32 用 cmd 加 20、length。
+    做 图处命令_提交_同步 用 cmd。
+    做 内存_复制 用 dstData 加 dstOffset、cmd 加 24、length。
+完。
+
+本章 收束。

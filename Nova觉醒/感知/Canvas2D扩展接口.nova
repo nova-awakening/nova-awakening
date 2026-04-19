@@ -1,0 +1,91 @@
+《Canvas2D扩展接口》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+路径_MoveTo 为 0。
+
+路径_LineTo 为 1。
+
+路径_QuadTo 为 2。
+
+路径_Nova三次方To 为 3。
+
+路径_ArcTo 为 4。
+
+路径_Close 为 5。
+
+路径_Arc 为 6。
+
+路径_Rect 为 7。
+
+路径_Ellipse 为 8。
+
+LineCap_Butt 为 0。
+
+LineCap_Round 为 1。
+
+LineCap_Square 为 2。
+
+LineJoin_Miter 为 0。
+
+LineJoin_Round 为 1。
+
+LineJoin_Bevel 为 2。
+
+Composite_SourceOver 为 0。
+
+Composite_SourceIn 为 1。
+
+Composite_SourceOut 为 2。
+
+Composite_SourceAtop 为 3。
+
+Composite_DestOver 为 4。
+
+Composite_DestIn 为 5。
+
+Composite_DestOut 为 6。
+
+Composite_DestAtop 为 7。
+
+Composite_Lighter 为 8。
+
+Composite_Copy 为 9。
+
+Composite_Xor 为 10。
+
+Composite_Multiply 为 11。
+
+Composite_Screen 为 12。
+
+FillRule_NonZero 为 0。
+
+FillRule_EvenOdd 为 1。
+
+TextAlign_Start 为 0。
+
+TextAlign_End 为 1。
+
+TextAlign_Left 为 2。
+
+TextAlign_Right 为 3。
+
+TextAlign_Center 为 4。
+
+TextBaseline_Top 为 0。
+
+TextBaseline_Hanging 为 1。
+
+TextBaseline_Middle 为 2。
+
+TextBaseline_Alphabetic 为 3。
+
+TextBaseline_Ideographic 为 4。
+
+TextBaseline_Bottom 为 5。
+
+画布State 是 一种 事物，含 a、裁剪x、有裁剪、填充颜色R、描边颜色R、填充渐变、描边渐变、线宽、线帽、线连接、斜切限制、虚线偏移、虚线模式、虚线数、全局透明度、合成模式、字体、字号、文字对齐、文字基线、阴影颜色R、阴影偏移x、阴影偏移y、阴影模糊、上一状态。
+
+本章 收束。

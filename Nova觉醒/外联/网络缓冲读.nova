@@ -1,0 +1,137 @@
+《网络缓冲读》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·网缓冲分配》。
+
+引用《..·引导·端口IO》。
+
+Nova缓冲_读32 接受 Nova缓冲、偏移：
+    地址 为 Nova缓冲 的 第 Nova缓冲_缓冲 项 加 Nova缓冲 的 第 Nova缓冲_数据偏移 项 加 偏移。
+    返还 做 内存读8 用 地址 左移 24 位或 做 内存读8 用 地址 加 1 左移 16 位或 做 内存读8 用 地址 加 2 左移 8 位或 做 内存读8 用 地址 加 3。
+完。
+
+Nova缓冲_设置MAC头 接受 Nova缓冲：
+    做 设置 用 Nova缓冲、Nova缓冲_MAC头、Nova缓冲 的 第 Nova缓冲_数据偏移 项。
+完。
+
+Nova缓冲_设置网络头 接受 Nova缓冲：
+    做 设置 用 Nova缓冲、Nova缓冲_网络层头、Nova缓冲 的 第 Nova缓冲_数据偏移 项。
+完。
+
+Nova缓冲_设置传输头 接受 Nova缓冲：
+    做 设置 用 Nova缓冲、Nova缓冲_传输层头、Nova缓冲 的 第 Nova缓冲_数据偏移 项。
+完。
+
+Nova缓冲_MAC头地址 接受 Nova缓冲：
+    返还 Nova缓冲 的 第 Nova缓冲_缓冲 项 加 Nova缓冲 的 第 Nova缓冲_MAC头 项。
+完。
+
+Nova缓冲_网络头地址 接受 Nova缓冲：
+    返还 Nova缓冲 的 第 Nova缓冲_缓冲 项 加 Nova缓冲 的 第 Nova缓冲_网络层头 项。
+完。
+
+Nova缓冲_传输头地址 接受 Nova缓冲：
+    返还 Nova缓冲 的 第 Nova缓冲_缓冲 项 加 Nova缓冲 的 第 Nova缓冲_传输层头 项。
+完。
+
+Nova缓冲_克隆 接受 Nova缓冲：
+    若 Nova缓冲 等于 空：
+        返还 空。
+    完。
+    新Nova缓冲 为 一组：Nova缓冲 的 第 Nova缓冲_缓冲 项、Nova缓冲 的 第 Nova缓冲_头偏移 项、Nova缓冲 的 第 Nova缓冲_数据偏移 项、Nova缓冲 的 第 Nova缓冲_尾偏移 项、Nova缓冲 的 第 Nova缓冲_尾端偏移 项、Nova缓冲 的 第 Nova缓冲_长度 项、Nova缓冲 的 第 Nova缓冲_协议 项、Nova缓冲 的 第 Nova缓冲_传输层头 项、Nova缓冲 的 第 Nova缓冲_网络层头 项、Nova缓冲 的 第 Nova缓冲_MAC头 项、Nova缓冲 的 第 Nova缓冲_设备 项、1、Nova缓冲 的 第 Nova缓冲_优先级 项、Nova缓冲 的 第 Nova缓冲_标记 项、Nova缓冲 的 第 Nova缓冲_时间戳 项。
+    Nova缓冲_克隆次数 为 Nova缓冲_克隆次数 加 1。
+    返还 新Nova缓冲。
+完。
+
+Nova缓冲_拷贝 接受 Nova缓冲：
+    若 Nova缓冲 等于 空：
+        返还 空。
+    完。
+    新Nova缓冲 为 做 Nova缓冲_分配 用 Nova缓冲 的 第 Nova缓冲_尾端偏移 项。
+    若 新Nova缓冲 等于 空：
+        返还 空。
+    完。
+    做 设置 用 新Nova缓冲、Nova缓冲_数据偏移、Nova缓冲 的 第 Nova缓冲_数据偏移 项。
+    做 设置 用 新Nova缓冲、Nova缓冲_尾偏移、Nova缓冲 的 第 Nova缓冲_尾偏移 项。
+    做 设置 用 新Nova缓冲、Nova缓冲_长度、Nova缓冲 的 第 Nova缓冲_长度 项。
+    做 设置 用 新Nova缓冲、Nova缓冲_协议、Nova缓冲 的 第 Nova缓冲_协议 项。
+    做 设置 用 新Nova缓冲、Nova缓冲_传输层头、Nova缓冲 的 第 Nova缓冲_传输层头 项。
+    做 设置 用 新Nova缓冲、Nova缓冲_网络层头、Nova缓冲 的 第 Nova缓冲_网络层头 项。
+    做 设置 用 新Nova缓冲、Nova缓冲_MAC头、Nova缓冲 的 第 Nova缓冲_MAC头 项。
+    做 内存复制 用 新Nova缓冲 的 第 Nova缓冲_缓冲 项、Nova缓冲 的 第 Nova缓冲_缓冲 项、Nova缓冲 的 第 Nova缓冲_尾端偏移 项。
+    返还 新Nova缓冲。
+完。
+
+Nova缓冲_长度 接受 Nova缓冲：
+    返还 Nova缓冲 的 第 Nova缓冲_长度 项。
+完。
+
+Nova缓冲_协议 接受 Nova缓冲：
+    返还 Nova缓冲 的 第 Nova缓冲_协议 项。
+完。
+
+Nova缓冲_设置协议 接受 Nova缓冲、协议：
+    做 设置 用 Nova缓冲、Nova缓冲_协议、协议。
+完。
+
+Nova缓冲_设备 接受 Nova缓冲：
+    返还 Nova缓冲 的 第 Nova缓冲_设备 项。
+完。
+
+Nova缓冲_设置设备 接受 Nova缓冲、设备：
+    做 设置 用 Nova缓冲、Nova缓冲_设备、设备。
+完。
+
+Nova缓冲_headroom 接受 Nova缓冲：
+    返还 Nova缓冲 的 第 Nova缓冲_数据偏移 项 减 Nova缓冲 的 第 Nova缓冲_头偏移 项。
+完。
+
+Nova缓冲_tailroom 接受 Nova缓冲：
+    返还 Nova缓冲 的 第 Nova缓冲_尾端偏移 项 减 Nova缓冲 的 第 Nova缓冲_尾偏移 项。
+完。
+
+Nova缓冲_统计 接受 零参：
+    返还 一组：Nova缓冲_分配次数、Nova缓冲_释放次数、Nova缓冲_克隆次数。
+完。
+
+Nova网络缓冲_队列_创建 接受 零参：
+    返还 一组：（空）。
+完。
+
+Nova网络缓冲_队列_入队 接受 队列、Nova缓冲：
+    做 追加 用 队列、Nova缓冲。
+完。
+
+Nova网络缓冲_队列_出队 接受 队列：
+    若 做 计数 用 队列 等于 0：
+        返还 空。
+    完。
+    头 为 队列 的 第 0 项。
+    做 删除 用 队列、0。
+    返还 头。
+完。
+
+Nova网络缓冲_队列_为空 接受 队列：
+    返还 做 计数 用 队列 等于 0。
+完。
+
+Nova网络缓冲_队列_长度 接受 队列：
+    返还 做 计数 用 队列。
+完。
+
+Nova网络缓冲_队列_清空 接受 队列：
+    只要 做 计数 用 队列 大于 0：
+        做 删除 用 队列、0。
+    完。
+完。
+
+Nova缓冲_创建 接受 大小：
+    返还 做 Nova缓冲_分配 用 大小。
+完。
+
+本章 收束。

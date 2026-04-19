@@ -1,0 +1,186 @@
+《瓦片优先级》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·合成层创建》。
+
+引用《.·瓦片》。
+
+Tile_计算优先级 接受 tile、cl、视口x、视口y、视口宽、视口高：
+    若 tile 等于 0 或者 cl 等于 0：
+        返还 0。
+    完。
+    瓦片全局x 为 cl 的 偏移x 除以 100 加 tile 的 x。
+    瓦片全局y 为 cl 的 偏移y 除以 100 加 tile 的 y。
+    可见 为 非 (瓦片全局x 加 tile 的 宽 小于 视口x 或者 瓦片全局x 大于 视口x 加 视口宽 或者 瓦片全局y 加 tile 的 高 小于 视口y 或者 瓦片全局y 大于 视口y 加 视口高)。
+    若 可见：
+        tile 的 优先级 为 10000。
+    否则：
+        dx 为 0。
+        dy 为 0。
+        若 瓦片全局x 大于 视口x 加 视口宽：
+            dx 为 瓦片全局x 减 视口x 减 视口宽。
+        否则若 瓦片全局x 加 tile 的 宽 小于 视口x：
+            dx 为 视口x 减 瓦片全局x 减 tile 的 宽。
+        完。
+        若 瓦片全局y 大于 视口y 加 视口高：
+            dy 为 瓦片全局y 减 视口y 减 视口高。
+        否则若 瓦片全局y 加 tile 的 高 小于 视口y：
+            dy 为 视口y 减 瓦片全局y 减 tile 的 高。
+        完。
+        tile 的 优先级 为 10000 减 dx 减 dy。
+        若 tile 的 优先级 小于 0：
+            tile 的 优先级 为 0。
+        完。
+    完。
+    返还 tile 的 优先级。
+完。
+
+LayerTreeHost_BeginFrame 接受 时间戳：
+    lth 为 做 LayerTreeHost_获取。
+    lth 的 帧序号 为 lth 的 帧序号 加 1。
+    做 LayerTreeHost_更新动画 用 lth、时间戳。
+    做 LayerTreeHost_更新合成层 用 lth。
+    做 LayerTreeHost_标记脏瓦片 用 lth。
+    做 LayerTreeHost_光栅化 用 lth。
+    做 LayerTreeHost_合成绘制 用 lth。
+    lth 的 最后commit时间 为 时间戳。
+完。
+
+LayerTreeHost_更新动画 接受 lth、时间戳：
+    可变 i 为 0。
+    只要 i 小于 lth 的 层数量：
+        cl 为 做 内存_读64 用 lth 的 层列表 加 i 乘 8。
+        若 cl 不等于 0 并且 cl 的 合成原因 位与 (CR_ANIMATION_TRANSFORM 位或 CR_ANIMATION_OPACITY) 不等于 0：
+            若 cl 的 paint层 不等于 0：
+                样式 为 cl 的 paint层 的 计算样式。
+                若 样式 不等于 0：
+                    cl 的 不透明度 为 样式 的 opacity。
+                    cl 的 变换矩阵 为 样式 的 transform_matrix。
+                完。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+LayerTreeHost_更新合成层 接受 lth：
+    若 lth 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 lth 的 层数量：
+        cl 为 做 内存_读64 用 lth 的 层列表 加 i 乘 8。
+        若 cl 不等于 0 并且 cl 的 绘制层 不等于 0：
+            pl 为 cl 的 绘制层。
+            需提升 为 pl 的 标志 位与 层标志_有3D变换 或者 pl 的 标志 位与 层标志_有动画 或者 pl 的 标志 位与 层标志_will_change 或者 pl 的 标志 位与 层标志_有视频 或者 pl 的 标志 位与 层标志_有画布。
+            若 需提升 并且 非 (pl 的 标志 位与 层标志_是合成的)：
+                pl 的 标志 为 pl 的 标志 位或 层标志_是合成的。
+                cl 的 需要重绘 为 真。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+LayerTreeHost_标记脏瓦片 接受 lth：
+    可变 i 为 0。
+    只要 i 小于 lth 的 层数量：
+        cl 为 做 内存_读64 用 lth 的 层列表 加 i 乘 8。
+        若 cl 不等于 0 并且 cl 的 需要重绘：
+            总瓦片 为 cl 的 瓦片列数 乘 cl 的 瓦片行数。
+            可变 j 为 0。
+            只要 j 小于 总瓦片：
+                tile 为 做 内存_读64 用 cl 的 瓦片列表 加 j 乘 8。
+                若 tile 不等于 0：
+                    tile 的 需要光栅化 为 真。
+                完。
+                j 为 j 加 1。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+LayerTreeHost_光栅化 接受 lth：
+    可变 i 为 0。
+    只要 i 小于 lth 的 层数量：
+        cl 为 做 内存_读64 用 lth 的 层列表 加 i 乘 8。
+        若 cl 不等于 0 并且 cl 的 需要重绘：
+            做 CompositedLayer_光栅化所有瓦片 用 cl。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+LayerTreeHost_合成绘制 接受 lth：
+    若 lth 等于 0 或者 lth 的 根层 等于 0：
+        返还。
+    完。
+    做 CompositedLayer_合成递归 用 lth 的 根层。
+完。
+
+CompositedLayer_合成递归 接受 cl：
+    若 cl 等于 0：
+        返还。
+    完。
+    做 CompositedLayer_绘制到帧缓冲 用 cl。
+    可变 i 为 0。
+    只要 i 小于 cl 的 子数量：
+        子 为 做 内存_读64 用 cl 的 子列表 加 i 乘 8。
+        做 CompositedLayer_合成递归 用 子。
+        i 为 i 加 1。
+    完。
+完。
+
+CompositedLayer_绘制到帧缓冲 接受 cl：
+    若 cl 等于 0：
+        返还。
+    完。
+    总瓦片 为 cl 的 瓦片列数 乘 cl 的 瓦片行数。
+    可变 i 为 0。
+    只要 i 小于 总瓦片：
+        tile 为 做 内存_读64 用 cl 的 瓦片列表 加 i 乘 8。
+        若 tile 不等于 0 并且 tile 的 状态 等于 TILE_STATE_RASTERIZED 并且 tile 的 像素数据 不等于 0：
+            tile 的 状态 为 TILE_STATE_图处_READY。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+可变 AI_瓦片优先级_帧率窗口 为 一组：（空）。
+
+AI_瓦片优先级_帧率预测 接受 当前帧耗时：
+    做 追加 用 AI_瓦片优先级_帧率窗口、当前帧耗时。
+    若 做 计数 用 AI_瓦片优先级_帧率窗口 大于 30：
+        做 列表_移除 用 AI_瓦片优先级_帧率窗口、0。
+    完。
+    若 做 计数 用 AI_瓦片优先级_帧率窗口 小于 3：
+        返还 60。
+    完。
+    可变 总 为 0。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 AI_瓦片优先级_帧率窗口：
+        总 为 总 加 AI_瓦片优先级_帧率窗口 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    平均帧耗时 为 总 除以 做 计数 用 AI_瓦片优先级_帧率窗口。
+    若 平均帧耗时 等于 0：
+        返还 60。
+    完。
+    返还 1000 除以 平均帧耗时。
+完。
+
+AI_瓦片优先级_质量降级建议 接受 帧率：
+    若 帧率 小于 30：
+        返还 「降低分辨率」。
+    完。
+    若 帧率 小于 45：
+        返还 「跳过阴影」。
+    完。
+    返还 「全质量」。
+完。
+
+本章 收束。

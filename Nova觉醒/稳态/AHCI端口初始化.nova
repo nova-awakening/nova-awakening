@@ -1,0 +1,225 @@
+《AHCI端口初始化》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《.·E1000收发初始化》。
+
+引用《..·引导·端口IO》。
+
+引用《.·中断处理》。
+
+引用《.·AHCI驱动全局》。
+
+引用《.·输入原语》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·设备号创建》。
+
+AHCI_初始化端口 接受 ctl、端口号：
+    端口基 为 ctl 的 MMIO基址 加 0x100 加 端口号 乘 0x80。
+    ssts 为 做 MMIO读32 用 端口基 加 PORT_SSTS。
+    det 为 ssts 位与 0xF。
+    ipm 为 ssts 右移 8 位与 0xF。
+    若 det 不等于 3 或者 ipm 不等于 1：
+        返还。
+    完。
+    做 AHCI_停止命令引擎 用 端口基。
+    cmd_list 为 做 直传_分配_对齐 用 1024、1024。
+    做 内存填零 用 cmd_list、1024。
+    fis_area 为 做 直传_分配_对齐 用 256、256。
+    做 内存填零 用 fis_area、256。
+    做 MMIO写32 用 端口基 加 PORT_CLB、cmd_list 位与 0xFFFFFFFF。
+    做 MMIO写32 用 端口基 加 PORT_CLBU、cmd_list 右移 32 位与 0xFFFFFFFF。
+    做 MMIO写32 用 端口基 加 PORT_FB、fis_area 位与 0xFFFFFFFF。
+    做 MMIO写32 用 端口基 加 PORT_FBU、fis_area 右移 32 位与 0xFFFFFFFF。
+    可变 cmd_tables 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 ctl 的 命令槽数：
+        ct 为 做 直传_分配_对齐 用 256、128。
+        做 内存填零 用 ct、256。
+        header_addr 为 cmd_list 加 i 乘 32。
+        做 内存写32 用 header_addr 加 8、ct 位与 0xFFFFFFFF。
+        做 内存写32 用 header_addr 加 12、ct 右移 32 位与 0xFFFFFFFF。
+        做 追加 用 cmd_tables、ct。
+        i 为 i 加 1。
+    完。
+    做 MMIO写32 用 端口基 加 PORT_SERR、0xFFFFFFFF。
+    做 MMIO写32 用 端口基 加 PORT_IS、0xFFFFFFFF。
+    做 MMIO写32 用 端口基 加 PORT_IE、0x7DC000FF。
+    做 AHCI_启动命令引擎 用 端口基。
+    sig 为 做 MMIO读32 用 端口基 加 PORT_SIG。
+    port 为 新建 AHCI端口。
+    port 的 端口号 为 端口号。
+    port 的 端口基址 为 端口基。
+    port 的 命令列表 为 cmd_list。
+    port 的 FIS接收区 为 fis_area。
+    port 的 命令表 为 cmd_tables。
+    port 的 设备类型 为 sig。
+    port 的 已连接 为 真。
+    若 sig 等于 SATA_SIG_ATA：
+        做 内核信息 用 「AHCI: 端口」 加 做 整数转字符串 用 端口号 加 「 SATA硬盘/SSD」。
+        做 AHCI_识别设备 用 port。
+    否则若 sig 等于 SATA_SIG_AT接口：
+        做 内核信息 用 「AHCI: 端口」 加 做 整数转字符串 用 端口号 加 「 SAT接口光驱」。
+    完。
+    做 追加 用 AHCI端口列表、port。
+    若 sig 等于 SATA_SIG_ATA：
+        dev_name 为 「sd」 加 做 字符 用 0x61 加 做 计数 用 AHCI端口列表 减 1。
+        做 块设备_注册 用 dev_name、port。
+        做 内核信息 用 「AHCI: 注册块设备 /dev/」 加 dev_name 加 「 容量=」 加 做 整数转字符串 用 port 的 设备信息 的 扇区数 除以 2048 加 「MB」。
+    完。
+完。
+
+AHCI_停止命令引擎 接受 端口基：
+    cmd 为 做 MMIO读32 用 端口基 加 PORT_CMD。
+    cmd 为 cmd 位与 按位取反 PORT_CMD_ST。
+    做 MMIO写32 用 端口基 加 PORT_CMD、cmd。
+    可变 等待 为 0。
+    只要 等待 小于 500：
+        若 做 MMIO读32 用 端口基 加 PORT_CMD 位与 PORT_CMD_CR 等于 0：
+            返还。
+        完。
+        做 延迟_ms 用 1。
+        等待 为 等待 加 1。
+    完。
+    做 内核警告 用 「AHCI: 停止命令引擎超时」。
+完。
+
+AHCI_启动命令引擎 接受 端口基：
+    可变 等待 为 0。
+    只要 等待 小于 500：
+        若 做 MMIO读32 用 端口基 加 PORT_CMD 位与 PORT_CMD_CR 等于 0：
+            跳出。
+        完。
+        做 延迟_ms 用 1。
+        等待 为 等待 加 1。
+    完。
+    cmd 为 做 MMIO读32 用 端口基 加 PORT_CMD。
+    cmd 为 cmd 位或 PORT_CMD_FRE。
+    cmd 为 cmd 位或 PORT_CMD_ST。
+    做 MMIO写32 用 端口基 加 PORT_CMD、cmd。
+完。
+
+PORT_CLB 为 0x00。
+
+PORT_CLBU 为 0x04。
+
+PORT_FB 为 0x08。
+
+PORT_FBU 为 0x0C。
+
+PORT_IS 为 0x10。
+
+PORT_IE 为 0x14。
+
+PORT_CMD 为 0x18。
+
+PORT_TFD 为 0x20。
+
+PORT_SIG 为 0x24。
+
+PORT_SSTS 为 0x28。
+
+PORT_SCTL 为 0x2C。
+
+PORT_SERR 为 0x30。
+
+PORT_SACT 为 0x34。
+
+PORT_CI 为 0x38。
+
+PORT_CMD_ST 为 0x0001。
+
+PORT_CMD_FRE 为 0x0010。
+
+PORT_CMD_FR 为 0x4000。
+
+PORT_CMD_CR 为 0x8000。
+
+延迟_ms 接受 ms：
+    做 IO原语_延迟毫秒 用 ms。
+完。
+
+延迟_us 接受 us：
+    做 IO原语_延迟微秒 用 us。
+完。
+
+AHCI_检测端口类型 接受 端口基：
+    ssts 为 做 MMIO读32 用 端口基 加 PORT_SSTS。
+    det 为 ssts 位与 0x0F。
+    ipm 为 ssts 右移 8 位与 0x0F。
+    若 det 不等于 3 或者 ipm 不等于 1：
+        返还 0。
+    完。
+    sig 为 做 MMIO读32 用 端口基 加 PORT_SIG。
+    若 sig 等于 0x00000101：
+        返还 1。
+    完。
+    若 sig 等于 0xEB140101：
+        返还 2。
+    完。
+    若 sig 等于 0x96690101：
+        返还 3。
+    完。
+    返还 0。
+完。
+
+AHCI_端口类型名 接受 类型：
+    若 类型 等于 1：
+        返还 「SATA」。
+    完。
+    若 类型 等于 2：
+        返还 「ATAPI」。
+    完。
+    若 类型 等于 3：
+        返还 「PM」。
+    完。
+    返还 「无设备」。
+完。
+
+AHCI_清除端口错误 接受 端口基：
+    serr 为 做 MMIO读32 用 端口基 加 PORT_SERR。
+    做 MMIO写32 用 端口基 加 PORT_SERR、serr。
+    is 为 做 MMIO读32 用 端口基 加 PORT_IS。
+    做 MMIO写32 用 端口基 加 PORT_IS、is。
+完。
+
+AHCI_端口复位 接受 端口基：
+    做 AHCI_停止命令引擎 用 端口基。
+    做 AHCI_清除端口错误 用 端口基。
+    sctl 为 做 MMIO读32 用 端口基 加 PORT_SCTL。
+    做 MMIO写32 用 端口基 加 PORT_SCTL、sctl 位与 按位取反 0x0F 位或 0x01。
+    做 延迟_ms 用 2。
+    做 MMIO写32 用 端口基 加 PORT_SCTL、sctl 位与 按位取反 0x0F。
+    做 延迟_ms 用 200。
+    做 AHCI_启动命令引擎 用 端口基。
+完。
+
+可变 端口_初始化数 为 0。
+
+可变 端口_复位数 为 0。
+
+AHCI端口_统计 接受 零参：
+    返还 一本字典：初始化 对应 端口_初始化数、复位 对应 端口_复位数。
+完。
+
+可变 AI_端口初始化_调用数 为 0。
+
+可变 AI_端口初始化_异常数 为 0。
+
+AI_端口初始化_监控 接受 零参：
+    AI_端口初始化_调用数 为 AI_端口初始化_调用数 加 1。
+    返还 AI_端口初始化_异常数 等于 0。
+完。
+
+AI_端口初始化_健康检查 接受 零参：
+    若 AI_端口初始化_调用数 大于 0 并且 AI_端口初始化_异常数 乘 100 除以 AI_端口初始化_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

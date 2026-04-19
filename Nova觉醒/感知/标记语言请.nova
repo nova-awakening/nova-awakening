@@ -1,0 +1,212 @@
+《标记语言请》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·HTTP头部管理》。
+
+引用《.·资源加载资源》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·项解析》。
+
+引用《..·中枢·字符串替换》。
+
+XHR_UNSENT 为 0。
+
+XHR_OPENED 为 1。
+
+XHR_HEADERS_RECEIVED 为 2。
+
+XHR_LOADING 为 3。
+
+XHR_DONE 为 4。
+
+XMLHttpRequest_State 是 一种 事物，含 readyState、状态码、状态文本、方法、URL、是异步、请求头、响应头、响应文本、响应长度、响应类型、超时、携带凭证、onreadystatechange、onload、onerror、onprogress、onabort、ontimeout、onloadstart、onloadend、Nova运行时实例、发送体、发送体长度、已中止。
+
+XHR_创建 接受 Nova运行时实例：
+    xhr 为 做 堆_分配 用 XMLHttpRequest_State。
+    xhr 的 readyState 为 XHR_UNSENT。
+    xhr 的 状态码 为 0。
+    xhr 的 状态文本 为 0。
+    xhr 的 方法 为 0。
+    xhr 的 URL 为 0。
+    xhr 的 是异步 为 真。
+    xhr 的 请求头 为 做 HTTP头部_创建。
+    xhr 的 响应头 为 0。
+    xhr 的 响应文本 为 0。
+    xhr 的 响应长度 为 0。
+    xhr 的 响应类型 为 0。
+    xhr 的 超时 为 0。
+    xhr 的 携带凭证 为 假。
+    xhr 的 onreadystatechange 为 0。
+    xhr 的 onload 为 0。
+    xhr 的 onerror 为 0。
+    xhr 的 onprogress 为 0。
+    xhr 的 onabort 为 0。
+    xhr 的 ontimeout 为 0。
+    xhr 的 onloadstart 为 0。
+    xhr 的 onloadend 为 0。
+    xhr 的 Nova运行时实例 为 Nova运行时实例。
+    xhr 的 发送体 为 0。
+    xhr 的 发送体长度 为 0。
+    xhr 的 已中止 为 假。
+    返还 xhr。
+完。
+
+XHR_open 接受 xhr、方法、url、异步：
+    xhr 的 方法 为 做 字符串_复制 用 方法。
+    xhr 的 URL 为 做 字符串_复制 用 url。
+    xhr 的 是异步 为 异步。
+    xhr 的 readyState 为 XHR_OPENED。
+    xhr 的 状态码 为 0。
+    xhr 的 响应文本 为 0。
+    xhr 的 响应长度 为 0。
+    xhr 的 已中止 为 假。
+    做 XHR_触发readystatechange 用 xhr。
+完。
+
+XHR_setRequestHeader 接受 xhr、名、值：
+    若 xhr 的 readyState 不等于 XHR_OPENED：
+        返还。
+    完。
+    做 HTTP头部_添加 用 xhr 的 请求头、名、值。
+完。
+
+XHR_send 接受 xhr、体：
+    若 xhr 的 readyState 不等于 XHR_OPENED：
+        返还。
+    完。
+    xhr 的 发送体 为 体。
+    若 体 不等于 0：
+        xhr 的 发送体长度 为 做 字符串_长度 用 体。
+    完。
+    若 xhr 的 onloadstart 不等于 0：
+        做 调用 用 xhr 的 onloadstart、xhr。
+    完。
+    可变 方法 为 HTTP_GET。
+    若 做 字符串_相等_不区分大小写 用 xhr 的 方法、「POST」：
+        方法 为 HTTP_POST。
+    否则若 做 字符串_相等_不区分大小写 用 xhr 的 方法、「PUT」：
+        方法 为 HTTP_PUT。
+    否则若 做 字符串_相等_不区分大小写 用 xhr 的 方法、「DELETE」：
+        方法 为 HTTP_DELETE。
+    完。
+    loader 为 做 ResourceLoader_创建 用 xhr 的 URL、资源类型_XHR。
+    loader 的 请求 的 方法 为 方法。
+    可变 i 为 0。
+    只要 i 小于 xhr 的 请求头 的 数量：
+        偏移 为 xhr 的 请求头 的 条目 加 i 乘 32。
+        做 HTTP头部_添加 用 loader 的 请求 的 请求头、做 内存_读64 用 偏移、做 内存_读64 用 偏移 加 16。
+        i 为 i 加 1。
+    完。
+    若 xhr 的 发送体 不等于 0：
+        loader 的 请求 的 请求体 为 xhr 的 发送体。
+        loader 的 请求 的 请求体长度 为 xhr 的 发送体长度。
+    完。
+    做 ResourceLoader_完整加载 用 loader。
+    若 xhr 的 已中止：
+        返还。
+    完。
+    xhr 的 readyState 为 XHR_HEADERS_RECEIVED。
+    xhr 的 状态码 为 loader 的 响应 的 状态码。
+    xhr 的 状态文本 为 loader 的 响应 的 状态文本。
+    xhr 的 响应头 为 loader 的 响应 的 响应头。
+    做 XHR_触发readystatechange 用 xhr。
+    xhr 的 readyState 为 XHR_LOADING。
+    做 XHR_触发readystatechange 用 xhr。
+    若 loader 的 状态 等于 请求状态_完成：
+        xhr 的 响应文本 为 loader 的 接收缓冲。
+        xhr 的 响应长度 为 loader 的 已接收字节。
+        xhr 的 readyState 为 XHR_DONE。
+        做 XHR_触发readystatechange 用 xhr。
+        若 xhr 的 onload 不等于 0：
+            做 调用 用 xhr 的 onload、xhr。
+        完。
+    否则：
+        xhr 的 readyState 为 XHR_DONE。
+        做 XHR_触发readystatechange 用 xhr。
+        若 xhr 的 onerror 不等于 0：
+            做 调用 用 xhr 的 onerror、xhr。
+        完。
+    完。
+    若 xhr 的 onloadend 不等于 0：
+        做 调用 用 xhr 的 onloadend、xhr。
+    完。
+完。
+
+XHR_abort 接受 xhr：
+    xhr 的 已中止 为 真。
+    xhr 的 readyState 为 XHR_DONE。
+    若 xhr 的 onabort 不等于 0：
+        做 调用 用 xhr 的 onabort、xhr。
+    完。
+    若 xhr 的 onloadend 不等于 0：
+        做 调用 用 xhr 的 onloadend、xhr。
+    完。
+    xhr 的 readyState 为 XHR_UNSENT。
+完。
+
+XHR_getResponseHeader 接受 xhr、名：
+    若 xhr 的 响应头 等于 0：
+        返还 0。
+    完。
+    返还 做 HTTP头部_获取 用 xhr 的 响应头、名。
+完。
+
+XHR_getAllResponseHeaders 接受 xhr：
+    若 xhr 的 响应头 等于 0：
+        返还 「」。
+    完。
+    可变 结果 为 「」。
+    可变 i 为 0。
+    只要 i 小于 xhr 的 响应头 的 数量：
+        偏移 为 xhr 的 响应头 的 条目 加 i 乘 32。
+        结果 为 做 字符串_连接 用 结果、做 内存_读64 用 偏移。
+        结果 为 做 字符串_连接 用 结果、「: 」。
+        结果 为 做 字符串_连接 用 结果、做 内存_读64 用 偏移 加 16。
+        结果 为 做 字符串_连接 用 结果、「\r\n」。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+XHR_触发readystatechange 接受 xhr：
+    若 xhr 的 onreadystatechange 不等于 0：
+        做 调用 用 xhr 的 onreadystatechange、xhr。
+    完。
+完。
+
+可变 AI_标记语言请_事件频率 为 0。
+
+可变 AI_标记语言请_节流阈值 为 16。
+
+AI_标记语言请_节流判断 接受 事件类型、间隔毫秒：
+    AI_标记语言请_事件频率 为 AI_标记语言请_事件频率 加 1。
+    若 事件类型 等于 「滚动」 并且 间隔毫秒 小于 AI_标记语言请_节流阈值：
+        返还 真。
+    完。
+    若 事件类型 等于 「移动」 并且 间隔毫秒 小于 AI_标记语言请_节流阈值：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_标记语言请_优先级排序 接受 事件类型：
+    若 事件类型 等于 「点击」：
+        返还 100。
+    完。
+    若 事件类型 等于 「输入」：
+        返还 90。
+    完。
+    若 事件类型 等于 「滚动」：
+        返还 30。
+    完。
+    返还 50。
+完。
+
+本章 收束。

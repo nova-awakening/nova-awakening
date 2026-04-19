@@ -1,0 +1,261 @@
+《CSS颜色混合》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·样式滤镜》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·样式子网格》。
+
+引用《.·CSS颜色语义》。
+
+引用《.·CSS颜色解析》。
+
+引用《..·中枢·字符串替换》。
+
+CSSColor_从colorMix 接受 str：
+    可变 混合空间 为 CS_OKLCH。
+    若 做 字符串_包含 用 str、「in srgb」：
+        混合空间 为 CS_SRGB。
+    否则若 做 字符串_包含 用 str、「in oklch」：
+        混合空间 为 CS_OKLCH。
+    否则若 做 字符串_包含 用 str、「in oklab」：
+        混合空间 为 CS_OKLAB。
+    否则若 做 字符串_包含 用 str、「in lab」：
+        混合空间 为 CS_LAB。
+    否则若 做 字符串_包含 用 str、「in lch」：
+        混合空间 为 CS_LCH。
+    否则若 做 字符串_包含 用 str、「in hsl」：
+        混合空间 为 CS_HSL。
+    完。
+    len 为 做 字节长度 用 str。
+    可变 comma1 为 0。
+    可变 comma2 为 0。
+    可变 commas 为 0。
+    可变 p 为 0。
+    只要 p 小于 len：
+        若 做 字节取 用 str、p 等于 0x2C：
+            commas 为 commas 加 1。
+            若 commas 等于 1：
+                comma1 为 p。
+            完。
+            若 commas 等于 2：
+                comma2 为 p。
+            完。
+        完。
+        p 为 p 加 1。
+    完。
+    c1_start 为 comma1 加 1。
+    c1_end 为 若 comma2 大于 0 则 comma2 否则 len 减 1。
+    c2_start 为 若 comma2 大于 0 则 comma2 加 1 否则 c1_end。
+    c2_end 为 len 减 1。
+    可变 百分比1 为 5000。
+    可变 百分比2 为 5000。
+    颜色1_str 为 做 CSS_子串_去百分比 用 str、c1_start、c1_end、百分比1。
+    颜色2_str 为 做 CSS_子串_去百分比 用 str、c2_start、c2_end、百分比2。
+    颜色1 为 做 CSSColor_解析 用 颜色1_str。
+    颜色2 为 做 CSSColor_解析 用 颜色2_str。
+    若 百分比1 加 百分比2 不等于 10000：
+        若 百分比2 等于 5000 并且 百分比1 不等于 5000：
+            百分比2 为 10000 减 百分比1。
+        否则若 百分比1 等于 5000 并且 百分比2 不等于 5000：
+            百分比1 为 10000 减 百分比2。
+        完。
+    完。
+    返还 做 CSSColor_混合 用 颜色1、颜色2、百分比1、百分比2、混合空间。
+完。
+
+CSSColor_混合 接受 c1、c2、p1、p2、目标空间：
+    a 为 做 CSSColor_转换到 用 c1、目标空间。
+    b 为 做 CSSColor_转换到 用 c2、目标空间。
+    总 为 p1 加 p2。
+    若 总 等于 0：
+        返还 a。
+    完。
+    w1 为 p1 乘 10000 除以 总。
+    w2 为 p2 乘 10000 除以 总。
+    结果 为 新建 CSSColor：空间 为 目标空间。
+    结果 的 分量1 为 (a 的 分量1 乘 w1 加 b 的 分量1 乘 w2) 除以 10000。
+    结果 的 分量2 为 (a 的 分量2 乘 w1 加 b 的 分量2 乘 w2) 除以 10000。
+    若 目标空间 等于 CS_OKLCH 或者 目标空间 等于 CS_LCH 或者 目标空间 等于 CS_HSL 或者 目标空间 等于 CS_HWB：
+        结果 的 分量3 为 做 CSSColor_色相插值 用 a 的 分量3、b 的 分量3、w1、w2。
+    否则：
+        结果 的 分量3 为 (a 的 分量3 乘 w1 加 b 的 分量3 乘 w2) 除以 10000。
+    完。
+    结果 的 alpha 为 (a 的 alpha 乘 w1 加 b 的 alpha 乘 w2) 除以 10000。
+    返还 结果。
+完。
+
+CSSColor_色相插值 接受 h1、h2、w1、w2：
+    可变 差 为 h2 减 h1。
+    若 差 大于 1800000：
+        差 为 差 减 3600000。
+    完。
+    若 差 小于 负 1800000：
+        差 为 差 加 3600000。
+    完。
+    结果 为 h1 加 差 乘 w2 除以 10000。
+    若 结果 小于 0：
+        结果 为 结果 加 3600000。
+    完。
+    若 结果 大于或等于 3600000：
+        结果 为 结果 减 3600000。
+    完。
+    返还 结果。
+完。
+
+CSSColor_转换到 接受 颜色、目标空间：
+    若 颜色 的 空间 等于 目标空间：
+        返还 颜色。
+    完。
+    若 颜色 的 空间 等于 CS_SRGB 并且 目标空间 等于 CS_OKLAB：
+        返还 做 sRGB_to_OKLab 用 颜色。
+    完。
+    若 颜色 的 空间 等于 CS_SRGB 并且 目标空间 等于 CS_OKLCH：
+        返还 做 OKLab_to_OKLCH 用 做 sRGB_to_OKLab 用 颜色。
+    完。
+    若 颜色 的 空间 等于 CS_OKLAB 并且 目标空间 等于 CS_SRGB：
+        返还 做 OKLab_to_sRGB 用 颜色。
+    完。
+    若 颜色 的 空间 等于 CS_OKLCH 并且 目标空间 等于 CS_SRGB：
+        返还 做 OKLab_to_sRGB 用 做 OKLCH_to_OKLab 用 颜色。
+    完。
+    若 颜色 的 空间 等于 CS_OKLAB 并且 目标空间 等于 CS_OKLCH：
+        返还 做 OKLab_to_OKLCH 用 颜色。
+    完。
+    若 颜色 的 空间 等于 CS_OKLCH 并且 目标空间 等于 CS_OKLAB：
+        返还 做 OKLCH_to_OKLab 用 颜色。
+    完。
+    若 颜色 的 空间 等于 CS_HSL 并且 目标空间 等于 CS_SRGB：
+        返还 做 HSL_to_sRGB 用 颜色。
+    完。
+    若 颜色 的 空间 等于 CS_HWB 并且 目标空间 等于 CS_SRGB：
+        返还 做 HWB_to_sRGB 用 颜色。
+    完。
+    可变 中间 为 颜色。
+    若 颜色 的 空间 等于 CS_HSL：
+        中间 为 做 HSL_to_sRGB 用 颜色。
+    否则若 颜色 的 空间 等于 CS_HWB：
+        中间 为 做 HWB_to_sRGB 用 颜色。
+    否则若 颜色 的 空间 等于 CS_OKLAB：
+        中间 为 做 OKLab_to_sRGB 用 颜色。
+    否则若 颜色 的 空间 等于 CS_OKLCH：
+        中间 为 做 OKLab_to_sRGB 用 做 OKLCH_to_OKLab 用 颜色。
+    否则若 颜色 的 空间 等于 CS_LAB：
+        中间 为 做 Lab_to_sRGB 用 颜色。
+    否则若 颜色 的 空间 等于 CS_LCH：
+        中间 为 做 Lab_to_sRGB 用 做 LCH_to_Lab 用 颜色。
+    完。
+    若 目标空间 等于 CS_SRGB：
+        返还 中间。
+    完。
+    若 目标空间 等于 CS_OKLAB：
+        返还 做 sRGB_to_OKLab 用 中间。
+    完。
+    若 目标空间 等于 CS_OKLCH：
+        返还 做 OKLab_to_OKLCH 用 做 sRGB_to_OKLab 用 中间。
+    完。
+    若 目标空间 等于 CS_HSL：
+        返还 做 sRGB_to_HSL 用 中间。
+    完。
+    返还 中间。
+完。
+
+sRGB_to_OKLab 接受 c：
+    r 为 做 sRGB_去gamma 用 c 的 分量1。
+    g 为 做 sRGB_去gamma 用 c 的 分量2。
+    b 为 做 sRGB_去gamma 用 c 的 分量3。
+    l 为 (4122 乘 r 加 5363 乘 g 加 514 乘 b) 除以 10000。
+    m 为 (2119 乘 r 加 6806 乘 g 加 1075 乘 b) 除以 10000。
+    s 为 (883 乘 r 加 2817 乘 g 加 6300 乘 b) 除以 10000。
+    l_ 为 做 整数_立方根 用 l。
+    m_ 为 做 整数_立方根 用 m。
+    s_ 为 做 整数_立方根 用 s。
+    L 为 (2105 乘 l_ 加 7930 乘 m_ 减 35 乘 s_) 除以 10000。
+    a 为 (1626 乘 l_ 减 1389 乘 m_ 减 237 乘 s_) 除以 1000。
+    B 为 (578 乘 l_ 加 447 乘 m_ 减 10252 乘 s_) 除以 10000。
+    返还 新建 CSSColor：空间 为 CS_OKLAB、分量1 为 L、分量2 为 a、分量3 为 B、alpha 为 c 的 alpha。
+完。
+
+OKLab_to_OKLCH 接受 c：
+    C 为 做 整数_sqrt 用 c 的 分量2 乘 c 的 分量2 加 c 的 分量3 乘 c 的 分量3。
+    H 为 做 整数_atan2 用 c 的 分量3、c 的 分量2。
+    返还 新建 CSSColor：空间 为 CS_OKLCH、分量1 为 c 的 分量1、分量2 为 C、分量3 为 H、alpha 为 c 的 alpha。
+完。
+
+OKLCH_to_OKLab 接受 c：
+    a 为 c 的 分量2 乘 做 整数_cos 用 c 的 分量3 除以 10000。
+    b 为 c 的 分量2 乘 做 整数_sin 用 c 的 分量3 除以 10000。
+    返还 新建 CSSColor：空间 为 CS_OKLAB、分量1 为 c 的 分量1、分量2 为 a、分量3 为 b、alpha 为 c 的 alpha。
+完。
+
+OKLab_to_sRGB 接受 c：
+    L 为 c 的 分量1。
+    a 为 c 的 分量2。
+    B 为 c 的 分量3。
+    l_ 为 L 加 3963 乘 a 除以 10000 加 2106 乘 B 除以 10000。
+    m_ 为 L 减 1056 乘 a 除以 10000 减 638 乘 B 除以 10000。
+    s_ 为 L 减 894 乘 a 除以 10000 减 13399 乘 B 除以 10000。
+    l 为 l_ 乘 l_ 乘 l_ 除以 100000000。
+    m 为 m_ 乘 m_ 乘 m_ 除以 100000000。
+    s 为 s_ 乘 s_ 乘 s_ 除以 100000000。
+    r_lin 为 (41666 乘 l 减 31735 乘 m 减 931 乘 s) 除以 10000。
+    g_lin 为 (负 12684 乘 l 加 22818 乘 m 减 134 乘 s) 除以 10000。
+    b_lin 为 (负 580 乘 l 减 7034 乘 m 加 17614 乘 s) 除以 10000。
+    r 为 做 sRGB_加gamma 用 r_lin。
+    g 为 做 sRGB_加gamma 用 g_lin。
+    b 为 做 sRGB_加gamma 用 b_lin。
+    返还 新建 CSSColor：空间 为 CS_SRGB、分量1 为 r、分量2 为 g、分量3 为 b、alpha 为 c 的 alpha。
+完。
+
+HSL_to_sRGB 接受 c：
+    h 为 c 的 分量1。
+    s 为 c 的 分量2。
+    l 为 c 的 分量3。
+    l_norm 为 l。
+    s_norm 为 s。
+    min_l 为 若 l_norm 小于 5000 则 l_norm 否则 10000 减 l_norm。
+    a2 为 s_norm 乘 min_l 除以 10000。
+    r 为 做 HSL_f 用 0、h、l_norm、a2。
+    g 为 做 HSL_f 用 8、h、l_norm、a2。
+    b 为 做 HSL_f 用 4、h、l_norm、a2。
+    返还 新建 CSSColor：空间 为 CS_SRGB、分量1 为 r、分量2 为 g、分量3 为 b、alpha 为 c 的 alpha。
+完。
+
+HSL_f 接受 n、h、l、a：
+    k 为 (n 乘 3600000 加 h) 除以 300000 取余于 12。
+    可变 v1 为 k 减 3。
+    可变 v2 为 9 减 k。
+    可变 v 为 若 v1 小于 v2 则 v1 否则 v2。
+    若 v 小于 负 1：
+        v 为 负 1。
+    完。
+    若 v 大于 1：
+        v 为 1。
+    完。
+    返还 l 减 a 乘 v。
+完。
+
+HWB_to_sRGB 接受 c：
+    h 为 c 的 分量1。
+    w 为 c 的 分量2。
+    b 为 c 的 分量3。
+    可变 白 为 w。
+    可变 黑 为 b。
+    若 白 加 黑 大于 10000：
+        白 为 白 乘 10000 除以 (白 加 黑)。
+        黑 为 黑 乘 10000 除以 (白 加 黑)。
+    完。
+    hsl 为 新建 CSSColor：空间 为 CS_HSL、分量1 为 h、分量2 为 10000、分量3 为 5000、alpha 为 c 的 alpha。
+    rgb 为 做 HSL_to_sRGB 用 hsl。
+    factor 为 10000 减 白 减 黑。
+    r 为 rgb 的 分量1 乘 factor 除以 10000 加 白。
+    g 为 rgb 的 分量2 乘 factor 除以 10000 加 白。
+    bv 为 rgb 的 分量3 乘 factor 除以 10000 加 白。
+    返还 新建 CSSColor：空间 为 CS_SRGB、分量1 为 r、分量2 为 g、分量3 为 bv、alpha 为 c 的 alpha。
+完。
+
+本章 收束。

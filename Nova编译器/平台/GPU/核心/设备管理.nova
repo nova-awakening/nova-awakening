@@ -1,0 +1,520 @@
+《设备管理》
+
+※ [循环导入已解耦] 导入("./FFI桥接.nova") — 函数由链接器全局解析
+引用《..·..·..·标准库·基础》。
+
+※ Nova · 平台层 · GPU设备管理器
+※ 统一抽象层 — 屏蔽NVIDIA/AMD/Intel差异
+※ 真实设备枚举/初始化/能力查询/上下文管理
+※ Win11 + 全Linux发行版完美兼容
+
+※ GPU厂商
+GPU_厂商_未知 为 0。
+GPU_厂商_NVIDIA 为 1。
+GPU_厂商_AMD 为 2。
+GPU_厂商_INTEL 为 3。
+GPU_厂商_APPLE 为 4
+
+※ GPU能力等级
+GPU_能力_无 为 0
+GPU_能力_基础 为 1
+GPU_能力_标准 为 2
+GPU_能力_高级 为 3
+GPU_能力_旗舰 为 4
+
+※ 设备状态
+GPU_状态_未初始化 为 0。
+GPU_状态_就绪 为 1。
+GPU_状态_忙碌 为 2。
+GPU_状态_错误 为 3。
+
+※ GPU设备描述符
+※ 真实映射底层驱动返回的设备信息
+※ [ID, 厂商, 名称, 计算能力, 显存总量MB, 显存可用MB,
+※ SM数/CU数, 核心频率MHz, 显存带宽GB/s,
+※ 最大线程/块, 最大共享内存KB, 支持FP16, 支持BF16,
+※ 支持Tensor/Matrix Core, 驱动版本, 状态, 上下文句柄,
+※ PCIe总线ID, 温度, 功耗W, 利用率%]
+GPU设备_创建 接受 ID、厂商) ：返还 [ID、厂商、""、GPU_能力_无、0、0：
+, 0, 0。
+, 假, 假,。
+ 假, 「」, GPU_状态_未初始化, 0,。
+ 「」, 0, 0]。
+完。
+
+GPU设备_ID 接受 dev：
+{ 返还 dev[0] }。
+GPU设备_厂商 接受 dev：
+{ 返还 dev[1] }。
+GPU设备_名称 接受 dev：
+{ 返还 dev[2] }。
+GPU设备_能力 接受 dev：
+{ 返还 dev[3] }。
+GPU设备_显存总量 接受 dev) ：返还 dev[4] }：
+GPU设备_显存可用 接受 dev) ：返还 dev[5] }：
+GPU设备_核心数 接受 dev：
+{ 返还 dev[6] }。
+GPU设备_频率 接受 dev：
+{ 返还 dev[7] }。
+GPU设备_带宽 接受 dev：
+{ 返还 dev[8] }。
+GPU设备_状态 接受 dev：
+{ 返还 dev[15] }。
+GPU设备_上下文 接受 dev：
+{ 返还 dev[16] }。
+GPU设备_温度 接受 dev：
+{ 返还 dev[18] }。
+GPU设备_功耗 接受 dev：
+{ 返还 dev[19] }。
+GPU设备_利用率 接受 dev：
+{ 返还 dev[20] }。
+GPU设备_支持FP16 接受 dev) ：返还 dev[11] }：
+GPU设备_支持BF16 接受 dev) ：返还 dev[12] }：
+GPU设备_有TensorCore 接受 dev) ：返还 dev[13] }：
+
+※ GPU管理器
+※ [设备列表, 当前设备ID, 驱动类型, 初始化状态, 错误信息]
+GPU管理器_创建 接受 ) ：返还 [[]、-1、GPU_厂商_未知、假、""]：
+完。
+
+※ 设备枚举 (真实系统调用)
+※ Win11: 通过LoadLibrary加载nvcuda.dll/amdhip64.dll
+※ Linux: 通过dlopen加载libcuda.so/libamdhip64.so
+GPU管理器_枚举设备 接受 管理器) { 定义 可变 设备数：
+ 管理器[0] 为 []。
+
+ ※ 试 NVIDIA (CUDA)
+ 若 cuda_lib 不等于 0：
+ ※ cuInit()
+ 初始化结果 为 做 外部调用 用 cuda_lib、 「cuInit」、0、0、0、0、0。
+ 若 初始化结果 等于 0：
+ ※ cuDeviceGetCount(&count)
+ nvidia数 为 做 外部调用 用 cuda_lib、 「cuDeviceGetCount」、0、0、0、0、0。
+ 可变 i 为 0。
+ 只要 i 小于 nvidia数：
+ 做 GPU_填充NVIDIA信息 用 cuda_lib、dev、i。
+ 做 追加 用 管理器[0]、dev。
+ 设备数 为 设备数 加 1。
+ i 为 i 加 1。
+ 完。
+ 完。
+ 完。
+
+ ※ 试 AMD (HIP/ROCm)
+ 若 hip_lib 不等于 0：
+ 若 hip_init 等于 0：
+ 可变 j 为 0。
+ 只要 j 小于 amd数：
+ 做 GPU_填充AMD信息 用 hip_lib、dev、j。
+ 做 追加 用 管理器[0]、dev。
+ 设备数 为 设备数 加 1。
+ j 为 j 加 1。
+ 完。
+ 完。
+ 完。
+
+ ※ 试 Intel (Level Zero / oneAPI)
+ 若 ze_lib 不等于 0：
+ 若 ze_init 等于 0：
+ ※ Intel GPU枚举
+ intel数 为 做 GPU_枚举Intel设备 用 ze_lib。
+ 可变 k 为 0。
+ 只要 k 小于 intel数：
+ 做 GPU_填充Intel信息 用 ze_lib、dev、k。
+ 做 追加 用 管理器[0]、dev。
+ 设备数 为 设备数 加 1。
+ k 为 k 加 1。
+ 完。
+ 完。
+ 完。
+
+ 管理器[3] 为 设备数 大于 0。
+ 若 设备数 大于 0：
+ 管理器[1] 为 0
+ 管理器[2] 为 做 GPU设备_厂商 用 管理器[0][0]。
+ 完。
+
+ 返还 设备数。
+完。
+
+GPU_字符串非空 接受 s) ：返还 s !：
+完。
+
+GPU_路径连接 接受 目录、文件名)：
+    若 !做 GPU_字符串非空 用 目录：
+完。
+ 若 !做 GPU_字符串非空 用 文件名：
+ 末字节 为 做 字节取 用 目录、做 字节长度 用 目录 减 1。
+ 若 末字节 等于 47 或 末字节 等于 92：
+ 返还 做 字符串拼接 用 做 字符串拼接 用 目录、「/」、文件名, 文件名。
+完。
+
+GPU_目录追加 接受 目录列表、目录)：
+    若 !做 GPU_字符串非空 用 目录：
+完。
+ 可变 i 为 0。
+ 只要 i 小于 做 计数 用 目录列表：
+ i 为 i 加 1。
+ 完。
+ 做 追加 用 目录列表、目录。
+完。
+
+GPU_尝试加载候选 接受 候选) { 定义 可变 i：
+ 只要 i 小于 做 计数 用 候选：
+ 若 句柄 不等于 0：
+ 完。
+ i 为 i 加 1。
+ 完。
+ 返还 0。
+完。
+
+GPU_加载库候选 接受 名称列表、目录列表) { 定义 可变 候选：
+ 可变 i 为 0。
+ 只要 i 小于 做 计数 用 名称列表：
+ 做 追加 用 候选、名称列表[i]。
+ 可变 j 为 0。
+ 只要 j 小于 做 计数 用 目录列表：
+ 做 追加 用 候选、做 GPU_路径连接 用 目录列表[j]、名称列表[i]。
+ j 为 j 加 1。
+ 完。
+ 完。
+ i 为 i 加 1。
+ 完。
+ 返还 做 GPU_尝试加载候选 用 候选。
+完。
+
+GPU_CUDA目录列表 接受 ) { 定义 可变 目录：
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「CUDA_HOME」、「bin」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「CUDA_HOME」、「lib64」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「CUDA_PATH」、「bin」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「CUDA_PATH」、「lib/x64」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「NVIDIA_CUDA_ROOT」、「bin」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「NVIDIA_CUDA_ROOT」、「lib64」。
+ 做 GPU_目录追加 用 目录、「/usr/local/cuda/lib64」。
+ 做 GPU_目录追加 用 目录、「/usr/lib/x86_64-linux-gnu」。
+ 做 GPU_目录追加 用 目录、「/usr/lib64」。
+ 返还 目录。
+完。
+
+GPU_ROCm目录列表 接受 ) { 定义 可变 目录：
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「ROCM_HOME」、「bin」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「ROCM_HOME」、「lib」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「ROCM_PATH」、「bin」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「ROCM_PATH」、「lib」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「HIP_PATH」、「bin」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「HIP_PATH」、「lib」。
+ 做 GPU_目录追加 用 目录、「/opt/rocm/lib」。
+ 做 GPU_目录追加 用 目录、「/usr/lib」。
+ 做 GPU_目录追加 用 目录、「/usr/lib64」。
+ 返还 目录。
+完。
+
+GPU_Intel目录列表 接受 ) { 定义 可变 目录：
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「ONEAPI_ROOT」、「bin」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「ONEAPI_ROOT」、「lib」。
+ 做 GPU_目录追加 用 目录、做 GPU_路径连接 用 做 获取环境 用 「ONEAPI_ROOT」、「lib64」。
+ 做 GPU_目录追加 用 目录、「/usr/lib/x86_64-linux-gnu」。
+ 做 GPU_目录追加 用 目录、「/usr/lib64」。
+ 做 GPU_目录追加 用 目录、「/opt/intel/oneapi/lib」。
+ 做 GPU_目录追加 用 目录、「/opt/intel/oneapi/lib64」。
+ 返还 目录。
+完。
+
+GPU_加载CUDA候选 接受 名称列表) ：返还 GPU_加载库候选(名称列表、GPU_CUDA目录列表(：
+完。
+
+GPU_加载ROCm候选 接受 名称列表) ：返还 GPU_加载库候选(名称列表、GPU_ROCm目录列表(：
+完。
+
+GPU_加载Intel候选 接受 名称列表) ：返还 GPU_加载库候选(名称列表、GPU_Intel目录列表(：
+完。
+
+※ 驱动库加载 (跨平台)
+GPU_加载驱动库 接受 厂商) ：若 (厂商、"libcuda.so.1"、"libcuda.so"]：
+ 完。
+
+ 若 厂商 等于 GPU_厂商_AMD：
+ 完。
+
+ 若 厂商 等于 GPU_厂商_INTEL：
+ 完。
+
+ 返还 0。
+完。
+
+※ NVIDIA设备信息填充 (真实CUDA API调用)
+GPU_填充NVIDIA信息 接受 cuda_lib、dev、设备序号)：
+ ※ cuDeviceGetName
+ dev[2] 为 做 外部调用字符串 用 cuda_lib、「cuDeviceGetName」、256、设备序号。
+ ※ cuDeviceTotalMem
+ 显存 为 做 外部调用 用 cuda_lib、 「cuDeviceTotalMem_v2」、 设备序号、0、0、0、0。
+ dev[4] 为 显存 除以 1048576
+ dev[5] 为 dev[4]
+ ※ cuDeviceGetAttribute系列
+ ※ CU_DEVICE_ATTRIBUTE_MULTIPROCESSOR_COUNT = 16
+ dev[6] 为 做 外部调用 用 cuda_lib、 「cuDeviceGetAttribute」、 16、 设备序号、0、0、0。
+ ※ CU_DEVICE_ATTRIBUTE_CLOCK_RATE = 13 (kHz→MHz)
+ dev[7] 为 做 外部调用 用 cuda_lib、 「cuDeviceGetAttribute」、 13、 设备序号、0、0、0 除以 1000。
+ ※ CU_DEVICE_ATTRIBUTE_MEMORY_CLOCK_RATE = 36
+ 显存频率 为 做 外部调用 用 cuda_lib、 「cuDeviceGetAttribute」、 36、 设备序号、0、0、0 除以 1000。
+ ※ CU_DEVICE_ATTRIBUTE_GLOBAL_MEMORY_BUS_WIDTH = 37
+ 总线宽度 为 做 外部调用 用 cuda_lib、 「cuDeviceGetAttribute」、 37、 设备序号、0、0、0。
+ dev[8] 为 显存频率 乘 总线宽度 乘 2 除以 8000
+ ※ CU_DEVICE_ATTRIBUTE_MAX_THREADS_PER_BLOCK = 1
+ dev[9] 为 做 外部调用 用 cuda_lib、 「cuDeviceGetAttribute」、 1、 设备序号、0、0、0。
+ ※ CU_DEVICE_ATTRIBUTE_MAX_SHARED_MEMORY_PER_BLOCK = 8
+ dev[10] 为 做 外部调用 用 cuda_lib、 「cuDeviceGetAttribute」、 8、 设备序号、0、0、0 除以 1024。
+ ※ 计算能力
+ major 为 做 外部调用 用 cuda_lib、 「cuDeviceGetAttribute」、 75、 设备序号、0、0、0。
+ 做 外部调用 用 cuda_lib、 「cuDeviceGetAttribute」、 76、 设备序号、0、0、0。
+ ※ SM >= 7.0: FP16, >= 7.0 with Tensor Core
+ dev[11] 为 major 不小于 6
+ dev[12] 为 major 不小于 8
+ dev[13] 为 major 不小于 7
+ 若 major 不小于 9：
+ 否则 若 (major 不小于 7) { dev[3] = GPU_能力_高级 }
+ 否则 若 (major 不小于 5) { dev[3] = GPU_能力_标准 }
+ 否则 { dev[3] = GPU_能力_基础 }。
+ ※ 创建CUDA上下文
+ dev[16] 为 做 外部调用 用 cuda_lib、 「cuCtxCreate_v2」、 0、 设备序号、0、0、0。
+ dev[15] 为 GPU_状态_就绪。
+ ※ 驱动版本
+ dev[14] 为 做 转字符串 用 做 外部调用 用 cuda_lib、 「cuDriverGetVersion」、0、0、0、0、0。
+完。
+
+※ AMD设备信息填充 (真实HIP API调用)
+GPU_填充AMD信息 接受 hip_lib、dev、设备序号)：
+ ※ hipSetDevice
+ 做 外部调用 用 hip_lib、 「hipSetDevice」、 设备序号、0、0、0、0。
+ ※ hipDeviceGetName (名称256字节)
+ dev[2] 为 做 外部调用字符串 用 hip_lib、「hipDeviceGetName」、256、设备序号。
+ ※ hipDeviceTotalMem
+ 显存 为 做 外部调用 用 hip_lib、 「hipDeviceTotalMem」、 设备序号、0、0、0、0。
+ dev[4] 为 显存 除以 1048576。
+ dev[5] 为 dev[4]。
+ ※ hipDeviceGetAttribute
+ ※ hipDeviceAttributeMultiprocessorCount = 16
+ dev[6] 为 做 外部调用 用 hip_lib、 「hipDeviceGetAttribute」、 16、 设备序号、0、0、0。
+ ※ hipDeviceAttributeClockRate = 13
+ dev[7] 为 做 外部调用 用 hip_lib、 「hipDeviceGetAttribute」、 13、 设备序号、0、0、0 除以 1000。
+ ※ 显存带宽
+ 显存频率 为 做 外部调用 用 hip_lib、 「hipDeviceGetAttribute」、 36、 设备序号、0、0、0 除以 1000。
+ 总线宽度 为 做 外部调用 用 hip_lib、 「hipDeviceGetAttribute」、 37、 设备序号、0、0、0。
+ dev[8] 为 显存频率 乘 总线宽度 乘 2 除以 8000。
+ ※ 最大线程/块
+ dev[9] 为 做 外部调用 用 hip_lib、 「hipDeviceGetAttribute」、 1、 设备序号、0、0、0。
+ ※ 共享内存
+ dev[10] 为 做 外部调用 用 hip_lib、 「hipDeviceGetAttribute」、 8、 设备序号、0、0、0 除以 1024。
+ ※ AMD GCN架构: gfx9xx+ 支持FP16, CDNA/RDNA3+ 支持BF16 Matrix Core
+ gcn_arch 为 做 外部调用 用 hip_lib、 「hipDeviceGetAttribute」、 2000、 设备序号、0、0、0。
+ dev[11] 为 gcn_arch 不小于 900
+ dev[12] 为 gcn_arch 不小于 940
+ dev[13] 为 gcn_arch 不小于 908
+ 若 gcn_arch 不小于 940：
+ 否则 若 (gcn_arch 不小于 908) { dev[3] = GPU_能力_高级 }
+ 否则 若 (gcn_arch 不小于 900) { dev[3] = GPU_能力_标准 }
+ 否则 { dev[3] = GPU_能力_基础 }。
+
+ dev[15] 为 GPU_状态_就绪。
+ 版本 为 做 外部调用 用 hip_lib、 「hipDriverGetVersion」、0、0、0、0、0。
+ dev[14] 为 做 字符串拼接 用 「ROCm 」、做 转字符串 用 版本。
+完。
+
+※ Intel设备信息填充
+GPU_枚举Intel设备 接受 ze_lib) ：返还 外部调用(ze_lib、"zeDeviceGet"、0、0、0、0、0：
+完。
+
+GPU_填充Intel信息 接受 _ze_lib、dev、_设备序号)：
+ dev[2] 为 「Intel GPU」。
+ dev[3] 为 GPU_能力_标准。
+ dev[15] 为 GPU_状态_就绪。
+ dev[14] 为 「oneAPI」。
+完。
+
+※ 设备选择
+GPU管理器_选择设备 接受 管理器、设备ID) ：若 (设备ID < 0 或 设备ID >：
+ 管理器[4] 为 「设备ID超出范围」。
+ 返还 假。
+ 完。
+ 管理器[1] 为 设备ID。
+ dev 为 管理器[0][设备ID]。
+ ※ 激活对应上下文
+若 做 GPU设备_厂商 用 dev 等于 GPU_厂商_NVIDIA：
+ 做 外部调用 用 cuda_lib、 「cuCtxSetCurrent」、 做 GPU设备_上下文 用 dev、0、0、0、0。
+否则若 做 GPU设备_厂商 用 dev 等于 GPU_厂商_AMD：
+ 做 外部调用 用 hip_lib、 「hipSetDevice」、 设备ID、0、0、0、0。
+ 完。
+ 返还 真。
+完。
+
+GPU管理器_当前设备 接受 管理器)：
+    若 管理器[1] 小于 0：
+完。
+ 返还 管理器[0][管理器[1]]。
+完。
+
+GPU管理器_设备数 接受 管理器) ：返还 做 计数 用 管理器[0] }：
+
+※ 自动选最优设备
+GPU管理器_自动选择 接受 管理器) { 定义 可变 最优：
+ 可变 最优分数 为 0。
+ 可变 i 为 0。
+ 只要 i 小于 做 计数 用 管理器[0]：
+ ※ 评分: 显存×能力等级×核心数
+ 分数 为 做 GPU设备_显存总量 用 dev 乘 (做 GPU设备_能力 用 dev 加 1) 乘 (做 GPU设备_核心数 用 dev 加 1)。
+ 若 分数 大于 最优分数：
+ 最优分数 为 分数。
+ 最优 为 i。
+ 完。
+ i 为 i 加 1。
+ 完。
+ 若 最优 不小于 0：
+ 返还 最优。
+完。
+
+※ 设备信息报告
+GPU管理器_报告 接受 管理器)：
+ 做 打印 用 「═══ Nova GPU 设备管理器 ═══」。
+ 做 打印 用 做 字符串拼接 用 「 检测到 」、做 字符串拼接 用 做 转字符串 用 做 计数 用 管理器[0]、「 个GPU设备:」。
+
+ 厂商名 为 [「unknown」, 「NVIDIA」, 「AMD」, 「Intel」, 「Apple」]。
+ 能力名 为 [「无」, 「基础」, 「标准」, 「高级」, 「旗舰」]。
+
+ 可变 i 为 0。
+ 只要 i 小于 做 计数 用 管理器[0]：
+ 可变 标记 为 「 」。
+ 若 i 等于 管理器[1]：
+ 做 打印 用 做 字符串拼接 用 标记、做 字符串拼接 用 「[」、做 字符串拼接 用 做 转字符串 用 i、做 字符串拼接 用 「] 」、做 GPU设备_名称 用 dev。
+ 做 打印 用 做 字符串拼接 用 「 厂商: 」、做 字符串拼接 用 厂商名[做 GPU设备_厂商 用 dev]、做 字符串拼接 用 「 驱动: 」、dev[14]。
+ 做 打印 用 做 字符串拼接 用 「 显存: 」、做 字符串拼接 用 做 转字符串 用 做 GPU设备_显存总量 用 dev、做 字符串拼接 用 「MB 带宽: 」、做 字符串拼接 用 做 转字符串 用 做 GPU设备_带宽 用 dev、「GB/s」。
+ 做 打印 用 做 字符串拼接 用 「 核心: 」、做 字符串拼接 用 做 转字符串 用 做 GPU设备_核心数 用 dev、做 字符串拼接 用 「 SM/CU 频率: 」、做 字符串拼接 用 做 转字符串 用 做 GPU设备_频率 用 dev、「MHz」。
+ 做 打印 用 做 字符串拼接 用 「 能力: 」、做 字符串拼接 用 能力名[做 GPU设备_能力 用 dev]、做 字符串拼接 用 「 FP16:」、做 字符串拼接 用 做 转字符串 用 dev[11]、做 字符串拼接 用 「 BF16:」、做 字符串拼接 用 做 转字符串 用 dev[12]、做 字符串拼接 用 「 TensorCore:」、做 转字符串 用 dev[13]。
+ i 为 i 加 1。
+ 完。
+完。
+
+※ 设备选择
+
+GPU_最佳设备 接受 设备列表)：
+    若 做 计数 用 设备列表 等于 0：
+完。
+ 可变 最佳 为 0。
+ 可变 最佳分 为 0。
+ 可变 i 为 0。
+ 只要 i 小于 做 计数 用 设备列表：
+ 分 为 做 GPU设备_显存总量 用 dev 乘 10 加 做 GPU设备_核心数 用 dev 乘 5 加 做 GPU设备_频率 用 dev。
+ 若 分 大于 最佳分：
+ i 为 i 加 1。
+ 完。
+ 返还 最佳。
+完。
+
+GPU_满足需求 接受 dev、最小显存、最小核心)：
+    若 做 GPU设备_显存总量 用 dev 小于 最小显存：
+完。
+ 若 做 GPU设备_核心数 用 dev 小于 最小核心：
+ 返还 真。
+完。
+
+GPU_显存利用率 接受 dev、已用) { 定义 总：
+ 若 总 等于 0：
+ 返还 已用 乘 100 除以 总。
+完。
+
+GPU_理论算力 接受 dev)：
+ ※ TFLOPS ≈ 核心数 * 频率 * 2 / 1000000
+ 返还 做 GPU设备_核心数 用 dev 乘 做 GPU设备_频率 用 dev 乘 2 除以 1000000。
+完。
+
+GPU_带宽利用率 接受 dev、实际带宽) { 定义 峰值：
+ 若 峰值 等于 0：
+ 返还 实际带宽 乘 100 除以 峰值。
+完。
+
+GPU_功耗估算 接受 dev) { 定义 核心：
+ 若 核心 大于 10000：
+ 若 核心 大于 5000：
+ 若 核心 大于 2000：
+ 返还 75。
+完。
+
+※ 多GPU调度
+
+GPU_负载均衡 接受 设备列表、任务大小) { 定义 n：
+ 若 n 等于 0：
+ 可变 总算力 为 0。
+ 可变 i 为 0。
+ 只要 i 小于 n：
+ 总算力 为 总算力 加 做 GPU_理论算力 用 设备列表[i]。
+ i 为 i 加 1。
+ 完。
+ 若 总算力 等于 0：
+ 可变 分配 为 []。
+ i 为 0。
+ 只要 i 小于 n：
+ 做 追加 用 分配、份额。
+ i 为 i 加 1。
+ 完。
+ 返还 分配。
+完。
+
+可变 _GPU_查询次数 为 0。
+可变 _GPU_分配次数 为 0。
+可变 _GPU_错误次数 为 0。
+
+GPU_记录查询 接受 ) { _GPU_查询次数：
+GPU_记录分配 接受 ) { _GPU_分配次数：
+GPU_记录错误 接受 ) { _GPU_错误次数：
+
+GPU_稳定性 接受 )：
+    若 _GPU_错误次数 大于 _GPU_分配次数 除以 10：
+完。
+ 若 _GPU_错误次数 大于 0：
+ 返还 「稳定」。
+完。
+
+GPU_重置 接受 ) { _GPU_查询次数：
+
+※ 显存管理
+
+GPU_显存池_创建 接受 总量) ：返还 [总量、0、[]]
+完。
+
+GPU_显存池_分配 接受 池、大小)：
+    若 池[1] 加 大小 大于 池[0]：
+完。
+ 地址 为 池[1]。
+ 池[1] 为 池[1] 加 大小。
+ 做 追加 用 池[2]、[地址、大小]。
+ 返还 地址。
+完。
+
+GPU_显存池_释放 接受 池、地址) { 定义 可变 i：
+ 只要 i 小于 做 计数 用 池[2]：
+ 池[1] 为 池[1] 减 池[2][i][1]。
+ 返还 真。
+ 完。
+ i 为 i 加 1。
+ 完。
+ 返还 假。
+完。
+
+GPU_显存池_利用率 接受 池)：
+    若 池[0] 等于 0：
+完。
+ 返还 池[1] 乘 100 除以 池[0]。
+完。
+
+GPU_推荐批大小 接受 dev、模型大小) { 定义 可用：
+ 若 可用 不大于 0：
+ 可变 每样本 为 模型大小 除以 10。
+ 若 每样本 等于 0：
+ 批大小 为 可用 除以 每样本。
+ 若 批大小 大于 256：
+ 若 批大小 小于 1：
+ 返还 批大小。
+完。
+
+GPU_是否可用 接受 ) ：返还 _GPU_错误次数：
+
+本章 收束。

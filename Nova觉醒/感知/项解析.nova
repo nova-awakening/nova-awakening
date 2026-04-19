@@ -1,0 +1,139 @@
+《项解析》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·资源取数》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·解包》。
+
+引用《.·HTTP头部管理》。
+
+引用《.·解码器创建》。
+
+引用《.·内核直连层》。
+
+引用《.·安全策主机》。
+
+引用《.·资源加载资源》。
+
+引用《..·中枢·字符串替换》。
+
+ContentType 是 一种 事物，含 类型、子类型、字符集。
+
+ContentType_解析 接受 头值：
+    若 头值 等于 0：
+        返还 0。
+    完。
+    ct 为 做 堆_分配 用 ContentType。
+    ct 的 类型 为 0。
+    ct 的 子类型 为 0。
+    ct 的 字符集 为 做 字符串_复制 用 「utf-8」。
+    长度 为 做 字符串_长度 用 头值。
+    可变 pos 为 0。
+    类型起 为 pos。
+    只要 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 不等于 0x2F 并且 做 内存_读8 用 头值 加 pos 不等于 0x3B：
+        pos 为 pos 加 1。
+    完。
+    ct 的 类型 为 做 字符串_复制_N 用 头值 加 类型起、pos 减 类型起。
+    若 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 等于 0x2F：
+        pos 为 pos 加 1。
+        子类型起 为 pos。
+        只要 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 不等于 0x3B 并且 做 内存_读8 用 头值 加 pos 不等于 0x20：
+            pos 为 pos 加 1。
+        完。
+        ct 的 子类型 为 做 字符串_复制_N 用 头值 加 子类型起、pos 减 子类型起。
+    完。
+    只要 pos 小于 长度：
+        若 做 内存_读8 用 头值 加 pos 等于 0x3B：
+            pos 为 pos 加 1。
+        完。
+        只要 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 等于 0x20：
+            pos 为 pos 加 1。
+        完。
+        参数起 为 pos。
+        只要 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 不等于 0x3D 并且 做 内存_读8 用 头值 加 pos 不等于 0x3B：
+            pos 为 pos 加 1。
+        完。
+        参数名 为 做 字符串_复制_N 用 头值 加 参数起、pos 减 参数起。
+        若 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 等于 0x3D：
+            pos 为 pos 加 1。
+            值起 为 pos。
+            若 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 等于 0x22：
+                pos 为 pos 加 1。
+                值起 为 pos。
+                只要 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 不等于 0x22：
+                    pos 为 pos 加 1。
+                完。
+            否则：
+                只要 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 不等于 0x3B 并且 做 内存_读8 用 头值 加 pos 不等于 0x20：
+                    pos 为 pos 加 1。
+                完。
+            完。
+            参数值 为 做 字符串_复制_N 用 头值 加 值起、pos 减 值起。
+            若 pos 小于 长度 并且 做 内存_读8 用 头值 加 pos 等于 0x22：
+                pos 为 pos 加 1。
+            完。
+            若 做 字符串_相等_不区分大小写 用 参数名、「charset」：
+                ct 的 字符集 为 参数值。
+            完。
+        完。
+    完。
+    返还 ct。
+完。
+
+ResourceLoader_完整加载 接受 loader：
+    url 为 loader 的 请求 的 url。
+    若 url 不等于 0：
+        cookie头 为 做 Cookie_获取请求头 用 url 的 主机、url 的 路径、url 的 是安全的。
+        若 cookie头 不等于 0：
+            做 HTTP头部_添加 用 loader 的 请求 的 请求头、「Cookie」、cookie头。
+        完。
+    完。
+    若 loader 的 请求 的 来源 不等于 0 并且 做 CORS_需要预检 用 loader 的 请求：
+        若 非 做 CORS_发送预检 用 loader：
+            loader 的 状态 为 请求状态_失败。
+            返还。
+        完。
+    完。
+    做 ResourceLoader_开始加载 用 loader。
+    做 HTTP_处理重定向 用 loader、10。
+    若 loader 的 状态 不等于 请求状态_完成：
+        返还。
+    完。
+    可变 cookie_idx 为 0。
+    只要 cookie_idx 小于 loader 的 响应 的 响应头 的 数量：
+        偏移 为 loader 的 响应 的 响应头 的 条目 加 cookie_idx 乘 32。
+        名 为 做 内存_读64 用 偏移。
+        若 做 字符串_相等_不区分大小写 用 名、「Set-Cookie」：
+            值 为 做 内存_读64 用 偏移 加 16。
+            做 Cookie_解析SetCookie 用 值、url 的 主机。
+        完。
+        cookie_idx 为 cookie_idx 加 1。
+    完。
+    te 为 做 HTTP头部_获取 用 loader 的 响应 的 响应头、「Transfer-Encoding」。
+    若 te 不等于 0 并且 做 字符串_相等_不区分大小写 用 te、「chunked」：
+        decoder 为 做 ChunkedDecoder_创建。
+        做 ChunkedDecoder_解码 用 decoder、loader 的 接收缓冲、loader 的 已接收字节。
+        做 堆_释放 用 loader 的 接收缓冲。
+        loader 的 接收缓冲 为 decoder 的 输出缓冲。
+        loader 的 已接收字节 为 decoder 的 输出长度。
+    完。
+    ce 为 做 HTTP头部_获取 用 loader 的 响应 的 响应头、「Content-Encoding」。
+    若 ce 不等于 0 并且 (做 字符串_相等_不区分大小写 用 ce、「gzip」 或者 做 字符串_相等_不区分大小写 用 ce、「deflate」)：
+        inflate结果 为 做 Gzip_解压 用 loader 的 接收缓冲、loader 的 已接收字节。
+        若 inflate结果 不等于 0：
+            做 堆_释放 用 loader 的 接收缓冲。
+            loader 的 接收缓冲 为 inflate结果 的 输出。
+            loader 的 已接收字节 为 inflate结果 的 输出长度。
+        完。
+    完。
+    若 loader 的 已接收字节 小于 loader 的 接收缓冲大小：
+        做 内存_写8 用 loader 的 接收缓冲 加 loader 的 已接收字节、0。
+    完。
+完。
+
+本章 收束。

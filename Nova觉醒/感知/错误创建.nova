@@ -1,0 +1,123 @@
+《错误创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《..·执行·控制台输出》。
+
+ERR_GENERIC 为 0。
+
+ERR_TYPE 为 1。
+
+ERR_REFERENCE 为 2。
+
+ERR_SYNTAX 为 3。
+
+ERR_RANGE 为 4。
+
+ERR_URI 为 5。
+
+ERR_EVAL 为 6。
+
+ERR_DOM_EXCEPTION 为 10。
+
+ERR_SECURITY 为 11。
+
+ERR_NETWORK 为 12。
+
+ERR_ABORT 为 13。
+
+ERR_QUOTA_EXCEEDED 为 14。
+
+ERR_NOT_SUPPORTED 为 15。
+
+ERR_INVALID_STATE 为 16。
+
+JS错误 是 一种 事物，含 类型、message、name、fileName、lineNumber、columnNumber、stack、code、cause。
+
+错误_创建 接受 类型、message：
+    err 为 做 堆_分配 用 JS错误。
+    err 的 类型 为 类型。
+    err 的 message 为 message。
+    err 的 name 为 做 错误_类型名称 用 类型。
+    err 的 fileName 为 0。
+    err 的 lineNumber 为 0。
+    err 的 columnNumber 为 0。
+    err 的 stack 为 0。
+    err 的 code 为 0。
+    err 的 cause 为 0。
+    返还 err。
+完。
+
+错误_类型名称 接受 类型：
+    若 类型 等于 ERR_TYPE：
+        返还 「Type错误」。
+    完。
+    若 类型 等于 ERR_REFERENCE：
+        返还 「Reference错误」。
+    完。
+    若 类型 等于 ERR_SYNTAX：
+        返还 「Syntax错误」。
+    完。
+    若 类型 等于 ERR_RANGE：
+        返还 「Range错误」。
+    完。
+    若 类型 等于 ERR_URI：
+        返还 「URI错误」。
+    完。
+    若 类型 等于 ERR_EVAL：
+        返还 「Eval错误」。
+    完。
+    若 类型 等于 ERR_DOM_EXCEPTION：
+        返还 「DOMException」。
+    完。
+    若 类型 等于 ERR_SECURITY：
+        返还 「Security错误」。
+    完。
+    若 类型 等于 ERR_NETWORK：
+        返还 「Network错误」。
+    完。
+    若 类型 等于 ERR_ABORT：
+        返还 「Abort错误」。
+    完。
+    若 类型 等于 ERR_QUOTA_EXCEEDED：
+        返还 「QuotaExceeded错误」。
+    完。
+    若 类型 等于 ERR_NOT_SUPPORTED：
+        返还 「NotSupported错误」。
+    完。
+    若 类型 等于 ERR_INVALID_STATE：
+        返还 「InvalidState错误」。
+    完。
+    返还 「错误」。
+完。
+
+错误_捕获栈 接受 err：
+    若 err 等于 0：
+        返还。
+    完。
+    buf 为 做 堆_分配 用 2048。
+    可变 pos 为 0。
+    若 err 的 name 不等于 0：
+        nlen 为 做 字节长度 用 err 的 name。
+        做 内存_复制 用 buf 加 pos、err 的 name、nlen。
+        pos 为 pos 加 nlen。
+    完。
+    若 err 的 message 不等于 0：
+        做 字节写 用 buf、pos、58。
+        做 字节写 用 buf、pos 加 1、32。
+        pos 为 pos 加 2。
+        mlen 为 做 字节长度 用 err 的 message。
+        做 内存_复制 用 buf 加 pos、err 的 message、mlen。
+        pos 为 pos 加 mlen。
+    完。
+    做 字节写 用 buf、pos、10。
+    pos 为 pos 加 1。
+    做 字节写 用 buf、pos、0。
+    err 的 stack 为 buf。
+完。
+
+本章 收束。

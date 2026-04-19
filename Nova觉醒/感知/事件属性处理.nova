@@ -1,0 +1,427 @@
+《事件属性处理》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·事件系统核心》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·推理·定点Q算术》。
+
+引用《.·文档节点》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·触摸事件》。
+
+引用《..·推理·AI鼠标事件处理》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·中枢·内核打印》。
+
+ON_HANDLER_FLAG 为 0x80000000。
+
+Q10 为 1024。
+
+Q_ONE 为 1024。
+
+EventHandlerEntry 是 一种 事物，含 类型原子、回调、源码、已编译。
+
+事件Target_设置on事件 接受 目标节点、类型原子、回调：
+    map 为 做 事件Target_获取监听器Map 用 目标节点。
+    若 map 等于 0：
+        map 为 做 事件ListenerMap_创建。
+        做 事件Target_设置监听器Map 用 目标节点、map。
+    完。
+    可变 i 为 0。
+    只要 i 小于 map 的 监听器数量：
+        偏移 为 map 的 监听器列表 加 i 乘 40。
+        已有类型 为 做 内存_读32 用 偏移。
+        标志 为 做 内存_读32 用 偏移 加 36。
+        若 已有类型 等于 类型原子 并且 标志 位与 ON_HANDLER_FLAG 不等于 0：
+            做 内存_写32 用 偏移 加 32、1。
+        完。
+        i 为 i 加 1。
+    完。
+    若 回调 不等于 0：
+        做 事件ListenerMap_添加_带标志 用 map、类型原子、回调、假、假、假、ON_HANDLER_FLAG。
+    完。
+完。
+
+事件Target_获取on事件 接受 目标节点、类型原子：
+    map 为 做 事件Target_获取监听器Map 用 目标节点。
+    若 map 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 map 的 监听器数量：
+        偏移 为 map 的 监听器列表 加 i 乘 40。
+        已有类型 为 做 内存_读32 用 偏移。
+        标志 为 做 内存_读32 用 偏移 加 36。
+        已移除 为 做 内存_读32 用 偏移 加 32。
+        若 已有类型 等于 类型原子 并且 标志 位与 ON_HANDLER_FLAG 不等于 0 并且 非 已移除：
+            返还 做 内存_读64 用 偏移 加 8。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+事件处理器_从属性创建 接受 Nova运行时、元素、事件名、属性值：
+    函数体 为 属性值。
+    若 函数体 等于 0 或者 做 字符串长度 用 函数体 等于 0：
+        返还 0。
+    完。
+    源码 为 做 字符串_拼接 用 「function 」、事件名。
+    源码 为 做 字符串_拼接 用 源码、「(event) { 」。
+    源码 为 做 字符串_拼接 用 源码、函数体。
+    源码 为 做 字符串_拼接 用 源码、「 }」。
+    结果 为 做 Nova脚本_编译 用 源码、Nova运行时。
+    若 结果 的 错误 不等于 0：
+        做 控制台_报告错误 用 「EventHandler」、事件名、结果 的 错误。
+        返还 0。
+    完。
+    返还 结果 的 函数。
+完。
+
+事件处理器_懒惰编译 接受 entry、Nova运行时、元素：
+    若 entry 的 已编译：
+        返还 entry 的 回调。
+    完。
+    若 entry 的 源码 等于 0：
+        返还 0。
+    完。
+    事件名 为 做 原子_转字符串 用 entry 的 类型原子。
+    entry 的 回调 为 做 事件处理器_从属性创建 用 Nova运行时、元素、事件名、entry 的 源码。
+    entry 的 已编译 为 真。
+    返还 entry 的 回调。
+完。
+
+注册_全局事件处理器属性 接受 Nova运行时、原型：
+    事件表 为 一组：「abort」、「auxclick」、「beforeinput」、「blur」、「cancel」、「canplay」、「canplaythrough」、「change」、「click」、「close」、「contextmenu」、「copy」、「cut」、「dblclick」、「drag」、「dragend」、「dragenter」、「dragleave」、「dragover」、「dragstart」、「drop」、「durationchange」、「emptied」、「ended」、「error」、「focus」、「focusin」、「focusout」、「gotpointercapture」、「input」、「invalid」、「keydown」、「keypress」、「keyup」、「load」、「loadeddata」、「loadedmetadata」、「loadstart」、「lostpointercapture」、「mousedown」、「mouseenter」、「mouseleave」、「mousemove」、「mouseout」、「mouseover」、「mouseup」、「paste」、「pause」、「play」、「playing」、「pointercancel」、「pointerdown」、「pointerenter」、「pointerleave」、「pointermove」、「pointerout」、「pointerover」、「pointerup」、「progress」、「ratechange」、「reset」、「resize」、「scroll」、「scrollend」、「securitypolicyviolation」、「seeked」、「seeking」、「select」、「selectionchange」、「selectstart」、「slotchange」、「stalled」、「submit」、「suspend」、「timeupdate」、「toggle」、「touchcancel」、「touchend」、「touchmove」、「touchstart」、「transitioncancel」、「transitionend」、「transitionrun」、「transitionstart」、「volumechange」、「waiting」、「wheel」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 事件表：
+        名称 为 做 字符串_拼接 用 「on」、事件表 的 第 i 项。
+        原子 为 做 原子_获取或创建 用 事件表 的 第 i 项。
+        做 注册_on属性访问器 用 Nova运行时、原型、名称、原子。
+        i 为 i 加 1。
+    完。
+完。
+
+注册_on属性访问器 接受 Nova运行时、原型、名称、原子：
+    做 Nova对象_定义属性 用 Nova运行时、原型、名称、做 on属性_getter_创建 用 原子、做 on属性_setter_创建 用 原子。
+完。
+
+on属性_getter_创建 接受 原子：
+    返还 以 Nova运行时、this值、argc、argv 为 引，其做法是：返还 做 事件Target_获取on事件 用 this值、原子。
+完。
+
+on属性_setter_创建 接受 原子：
+    返还 以 Nova运行时、this值、argc、argv 为 引，其做法是：值 为 若 argc 大于 0 则 argv 的 第 0 项 否则 0。 做 事件Target_设置on事件 用 this值、原子、值。 返还 Nova运行时 的 undefined值。
+完。
+
+注册_窗口事件处理器属性 接受 Nova运行时、原型：
+    事件表 为 一组：「afterprint」、「beforeprint」、「beforeunload」、「hashchange」、「languagechange」、「message」、「messageerror」、「offline」、「online」、「pagehide」、「pageshow」、「popstate」、「rejectionhandled」、「storage」、「unhandledrejection」、「unload」。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 事件表：
+        名称 为 做 字符串_拼接 用 「on」、事件表 的 第 i 项。
+        原子 为 做 原子_获取或创建 用 事件表 的 第 i 项。
+        做 注册_on属性访问器 用 Nova运行时、原型、名称、原子。
+        i 为 i 加 1。
+    完。
+完。
+
+事件Target_触发click 接受 目标节点、x、y：
+    me 为 做 Mouse事件_创建 用 「click」、x、y、0、0。
+    me 的 基类 的 冒泡 为 真。
+    me 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标节点、me 的 基类。
+完。
+
+事件Target_触发dblclick 接受 目标节点、x、y：
+    me 为 做 Mouse事件_创建 用 「dblclick」、x、y、0、0。
+    me 的 基类 的 冒泡 为 真。
+    me 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标节点、me 的 基类。
+完。
+
+事件Target_触发focus 接受 目标节点、旧焦点：
+    focus事件 为 做 Focus事件_创建 用 「focus」、旧焦点。
+    focus事件 的 基础事件 的 冒泡 为 假。
+    做 事件Target_dispatch事件 用 目标节点、focus事件 的 基础事件。
+    focusin事件 为 做 Focus事件_创建 用 「focusin」、旧焦点。
+    focusin事件 的 基础事件 的 冒泡 为 真。
+    做 事件Target_dispatch事件 用 目标节点、focusin事件 的 基础事件。
+完。
+
+事件Target_触发blur 接受 目标节点、新焦点：
+    blur事件 为 做 Focus事件_创建 用 「blur」、新焦点。
+    blur事件 的 基础事件 的 冒泡 为 假。
+    做 事件Target_dispatch事件 用 目标节点、blur事件 的 基础事件。
+    focusout事件 为 做 Focus事件_创建 用 「focusout」、新焦点。
+    focusout事件 的 基础事件 的 冒泡 为 真。
+    做 事件Target_dispatch事件 用 目标节点、focusout事件 的 基础事件。
+完。
+
+事件Target_触发input 接受 目标节点、文本：
+    ie 为 做 Input事件_创建 用 文本、「insertText」。
+    ie 的 基础事件 的 冒泡 为 真。
+    ie 的 基础事件 的 可取消 为 假。
+    做 事件Target_dispatch事件 用 目标节点、ie 的 基础事件。
+完。
+
+事件Target_触发change 接受 目标节点：
+    ev 为 做 事件_创建 用 「change」、真、假。
+    做 事件Target_dispatch事件 用 目标节点、ev。
+完。
+
+事件Target_触发submit 接受 表单、提交者：
+    ev 为 做 Submit事件_创建 用 提交者。
+    ev 的 基础事件 的 冒泡 为 真。
+    ev 的 基础事件 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 表单、ev 的 基础事件。
+完。
+
+事件Target_触发自定义事件 接受 目标节点、类型、详情：
+    ce 为 做 Custom事件_创建 用 类型、真、真、详情。
+    做 事件Target_dispatch事件 用 目标节点、ce 的 基础事件。
+完。
+
+事件Target_触发mousedown 接受 目标、x、y、按钮：
+    me 为 做 Mouse事件_创建 用 「mousedown」、x、y、按钮、0。
+    me 的 基类 的 冒泡 为 真。
+    me 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、me 的 基类。
+完。
+
+事件Target_触发mouseup 接受 目标、x、y、按钮：
+    me 为 做 Mouse事件_创建 用 「mouseup」、x、y、按钮、0。
+    me 的 基类 的 冒泡 为 真。
+    me 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、me 的 基类。
+完。
+
+事件Target_触发mousemove 接受 目标、x、y：
+    me 为 做 Mouse事件_创建 用 「mousemove」、x、y、0、0。
+    me 的 基类 的 冒泡 为 真。
+    me 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、me 的 基类。
+完。
+
+事件Target_触发mouseenter 接受 目标、x、y、来源：
+    me 为 做 Mouse事件_创建 用 「mouseenter」、x、y、0、0。
+    me 的 基类 的 冒泡 为 假。
+    me 的 relatedTarget 为 来源。
+    做 事件Target_dispatch事件 用 目标、me 的 基类。
+完。
+
+事件Target_触发mouseleave 接受 目标、x、y、去向：
+    me 为 做 Mouse事件_创建 用 「mouseleave」、x、y、0、0。
+    me 的 基类 的 冒泡 为 假。
+    me 的 relatedTarget 为 去向。
+    做 事件Target_dispatch事件 用 目标、me 的 基类。
+完。
+
+事件Target_触发mouseover 接受 目标、x、y、来源：
+    me 为 做 Mouse事件_创建 用 「mouseover」、x、y、0、0。
+    me 的 基类 的 冒泡 为 真。
+    me 的 relatedTarget 为 来源。
+    做 事件Target_dispatch事件 用 目标、me 的 基类。
+完。
+
+事件Target_触发mouseout 接受 目标、x、y、去向：
+    me 为 做 Mouse事件_创建 用 「mouseout」、x、y、0、0。
+    me 的 基类 的 冒泡 为 真。
+    me 的 relatedTarget 为 去向。
+    做 事件Target_dispatch事件 用 目标、me 的 基类。
+完。
+
+事件Target_触发contextmenu 接受 目标、x、y：
+    me 为 做 Mouse事件_创建 用 「contextmenu」、x、y、2、0。
+    me 的 基类 的 冒泡 为 真。
+    me 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、me 的 基类。
+完。
+
+事件Target_触发keydown 接受 目标、key、code、修饰符：
+    ke 为 做 Keyboard事件_创建 用 「keydown」、key、code、0、修饰符。
+    ke 的 基类 的 冒泡 为 真。
+    ke 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、ke 的 基类。
+完。
+
+事件Target_触发keyup 接受 目标、key、code、修饰符：
+    ke 为 做 Keyboard事件_创建 用 「keyup」、key、code、0、修饰符。
+    ke 的 基类 的 冒泡 为 真。
+    ke 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、ke 的 基类。
+完。
+
+事件Target_触发keypress 接受 目标、charCode：
+    ke 为 做 Keyboard事件_创建 用 「keypress」、「」、「」、0、0。
+    ke 的 charCode 为 charCode。
+    ke 的 基类 的 冒泡 为 真。
+    ke 的 基类 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、ke 的 基类。
+完。
+
+EWMA_事件_ALPHA 为 205。
+
+可变 EWMA_事件处理时间 为 0。
+
+智能_事件Target_AI语义感知 接受 节点：
+    bus 为 全局AI总线。
+    若 bus 等于 0 或者 节点 等于 0：
+        返还。
+    完。
+    做 节点_AI语义分析 用 节点。
+完。
+
+智能_事件Target_AI事件优先级 接受 事件类型、目标节点：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 128。
+    完。
+    特征 为 做 Tensor_创建 用 1、4。
+    做 Tensor_写 用 特征、0、0、事件类型 位与 0xFF。
+    若 目标节点 不等于 0：
+        做 Tensor_写 用 特征、0、1、目标节点 的 深度 乘 Q10 除以 32。
+        做 Tensor_写 用 特征、0、2、目标节点 的 注意力权重。
+    否则：
+        做 Tensor_写 用 特征、0、1、0。
+        做 Tensor_写 用 特征、0、2、0。
+    完。
+    做 Tensor_写 用 特征、0、3、Q10。
+    分数 为 做 AI总线_注意力权重 用 bus、特征。
+    做 Tensor_释放 用 特征。
+    若 分数 大于 800：
+        返还 255。
+    完。
+    若 分数 大于 500：
+        返还 192。
+    完。
+    若 分数 大于 200：
+        返还 128。
+    完。
+    返还 64。
+完。
+
+智能_事件Target_AI反馈处理时间 接受 执行时间_us：
+    EWMA_事件处理时间 为 (EWMA_事件_ALPHA 乘 执行时间_us 加 (Q10 减 EWMA_事件_ALPHA) 乘 EWMA_事件处理时间) 除以 Q10。
+完。
+
+智能_事件Target_AI应该延迟 接受 事件类型：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 假。
+    完。
+    若 EWMA_事件处理时间 大于 5000 并且 事件类型 不等于 「click」 并且 事件类型 不等于 「keydown」：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+事件Target_触发touchstart 接受 目标、touches、changedTouches：
+    te 为 做 Touch事件_创建 用 「touchstart」、touches、changedTouches。
+    te 的 基础事件 的 冒泡 为 真。
+    te 的 基础事件 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、te 的 基础事件。
+完。
+
+事件Target_触发touchmove 接受 目标、touches、changedTouches：
+    te 为 做 Touch事件_创建 用 「touchmove」、touches、changedTouches。
+    te 的 基础事件 的 冒泡 为 真。
+    te 的 基础事件 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、te 的 基础事件。
+完。
+
+事件Target_触发touchend 接受 目标、touches、changedTouches：
+    te 为 做 Touch事件_创建 用 「touchend」、touches、changedTouches。
+    te 的 基础事件 的 冒泡 为 真。
+    te 的 基础事件 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、te 的 基础事件。
+完。
+
+事件Target_触发touchcancel 接受 目标、touches：
+    te 为 做 Touch事件_创建 用 「touchcancel」、touches、一组：（空）。
+    te 的 基础事件 的 冒泡 为 真。
+    te 的 基础事件 的 可取消 为 假。
+    做 事件Target_dispatch事件 用 目标、te 的 基础事件。
+完。
+
+事件Target_触发focusin 接受 目标、来源：
+    fe 为 做 Focus事件_创建 用 「focusin」、来源。
+    fe 的 基础事件 的 冒泡 为 真。
+    fe 的 基础事件 的 可取消 为 假。
+    做 事件Target_dispatch事件 用 目标、fe 的 基础事件。
+完。
+
+事件Target_触发focusout 接受 目标、去向：
+    fe 为 做 Focus事件_创建 用 「focusout」、去向。
+    fe 的 基础事件 的 冒泡 为 真。
+    fe 的 基础事件 的 可取消 为 假。
+    做 事件Target_dispatch事件 用 目标、fe 的 基础事件。
+完。
+
+事件Target_触发wheel 接受 目标、deltaX、deltaY、deltaZ、模式：
+    we 为 做 Wheel事件_创建 用 「wheel」、deltaX、deltaY、deltaZ、模式。
+    we 的 基础事件 的 冒泡 为 真。
+    we 的 基础事件 的 可取消 为 真。
+    做 事件Target_dispatch事件 用 目标、we 的 基础事件。
+完。
+
+可变 全局_事件分发总数 为 0。
+
+可变 全局_事件冒泡总数 为 0。
+
+可变 全局_事件阻止总数 为 0。
+
+可变 全局_事件延迟总数 为 0。
+
+事件_记录分发 接受 零参：
+    全局_事件分发总数 为 全局_事件分发总数 加 1。
+完。
+
+事件_记录冒泡 接受 零参：
+    全局_事件冒泡总数 为 全局_事件冒泡总数 加 1。
+完。
+
+事件_记录阻止 接受 零参：
+    全局_事件阻止总数 为 全局_事件阻止总数 加 1。
+完。
+
+事件_记录延迟 接受 零参：
+    全局_事件延迟总数 为 全局_事件延迟总数 加 1。
+完。
+
+事件_获取分发总数 接受 零参：
+    返还 全局_事件分发总数。
+完。
+
+事件_获取EWMA处理时间 接受 零参：
+    返还 EWMA_事件处理时间。
+完。
+
+事件_重置统计 接受 零参：
+    全局_事件分发总数 为 0。
+    全局_事件冒泡总数 为 0。
+    全局_事件阻止总数 为 0。
+    全局_事件延迟总数 为 0。
+    EWMA_事件处理时间 为 0。
+完。
+
+事件_打印统计 接受 零参：
+    做 打印行 用 「=== on-事件属性处理统计 ===」。
+    做 打印行 用 「分发总数: 」 加 做 整数转字符串 用 全局_事件分发总数。
+    做 打印行 用 「冒泡总数: 」 加 做 整数转字符串 用 全局_事件冒泡总数。
+    做 打印行 用 「阻止总数: 」 加 做 整数转字符串 用 全局_事件阻止总数。
+    做 打印行 用 「延迟总数: 」 加 做 整数转字符串 用 全局_事件延迟总数。
+    做 打印行 用 「EWMA处理: 」 加 做 整数转字符串 用 EWMA_事件处理时间 加 「 us」。
+完。
+
+本章 收束。

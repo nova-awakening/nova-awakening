@@ -1,0 +1,629 @@
+《树构建从文档》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·文档节点》。
+
+引用《..·执行·平台时间》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·原子驻留》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·标准·原生字符串》。
+
+AXTree_构建 接受 文档根：
+    若 文档根 等于 0：
+        返还 0。
+    完。
+    cache 为 做 AXObject缓存_获取。
+    根ax 为 做 AXObject缓存_获取或创建 用 文档根。
+    若 根ax 不等于 0：
+        根ax 的 角色 为 AX_ROLE_ROOT_WEB_AREA。
+    完。
+    cache 的 根 为 根ax。
+    做 AXTree_构建递归 用 根ax、文档根。
+    返还 根ax。
+完。
+
+AXTree_构建递归 接受 ax父、dom父：
+    若 ax父 等于 0 或者 dom父 等于 0：
+        返还。
+    完。
+    可变 子 为 dom父 的 第一子节点。
+    可变 前ax 为 0。
+    只要 子 不等于 0：
+        若 非 做 AX_应忽略 用 子：
+            子ax 为 做 AXObject缓存_获取或创建 用 子。
+            若 子ax 不等于 0：
+                子ax 的 父 为 ax父。
+                若 前ax 等于 0：
+                    ax父 的 第一子 为 子ax。
+                否则：
+                    前ax 的 后一兄弟 为 子ax。
+                完。
+                ax父 的 子数量 为 ax父 的 子数量 加 1。
+                前ax 为 子ax。
+                做 AXTree_构建递归 用 子ax、子。
+            完。
+        完。
+        子 为 子 的 后一兄弟。
+    完。
+完。
+
+AX_应忽略 接受 dom节点：
+    若 dom节点 等于 0：
+        返还 真。
+    完。
+    若 dom节点 的 节点类型 等于 8：
+        返还 真。
+    完。
+    若 dom节点 的 节点类型 等于 1：
+        ah 为 做 元素_getAttribute 用 dom节点、「aria-hidden」。
+        若 ah 不等于 0 并且 做 字符串_相等 用 ah、「true」：
+            返还 真。
+        完。
+        role 为 做 元素_getAttribute 用 dom节点、「role」。
+        若 role 不等于 0 并且 (做 字符串_相等 用 role、「none」 或者 做 字符串_相等 用 role、「presentation」)：
+            返还 真。
+        完。
+    完。
+    返还 假。
+完。
+
+AX_事件_LIVE_REGION_CHANGED 为 1。
+
+AX_事件_FOCUS_CHANGED 为 2。
+
+AX_事件_SELECTION_CHANGED 为 3。
+
+AX_事件_VALUE_CHANGED 为 4。
+
+AX_事件_CHILDREN_CHANGED 为 5。
+
+AX_事件_TEXT_CHANGED 为 6。
+
+AX_事件_EXPANDED_CHANGED 为 7。
+
+AX_通知LiveRegion 接受 ax节点、变化文本：
+    若 ax节点 等于 0：
+        返还。
+    完。
+    可变 当前 为 ax节点。
+    只要 当前 不等于 0：
+        若 当前 的 live 大于 0：
+            做 AX_发送事件 用 当前、AX_事件_LIVE_REGION_CHANGED、变化文本。
+            返还。
+        完。
+        当前 为 当前 的 父。
+    完。
+完。
+
+AX_发送事件 接受 ax节点、事件类型、数据：
+    cache 为 做 AXObject缓存_获取。
+    若 cache 的 事件数量 小于 128：
+        偏移 为 cache 的 事件队列 加 cache 的 事件数量 乘 16。
+        做 内存_写64 用 偏移、ax节点。
+        做 内存_写32 用 偏移 加 8、事件类型。
+        做 内存_写64 用 偏移 加 12、数据。
+        cache 的 事件数量 为 cache 的 事件数量 加 1。
+    完。
+完。
+
+AX_通知焦点变化 接受 新焦点元素：
+    ax 为 做 AXObject缓存_获取或创建 用 新焦点元素。
+    若 ax 不等于 0：
+        做 AX_发送事件 用 ax、AX_事件_FOCUS_CHANGED、0。
+    完。
+完。
+
+AX_ROLE_ROOT_WEB_AREA 为 1。
+
+AX_ROLE_DOCUMENT 为 2。
+
+AX_ROLE_HEADING 为 3。
+
+AX_ROLE_PARAGRAPH 为 4。
+
+AX_ROLE_LINK 为 5。
+
+AX_ROLE_BUTTON 为 6。
+
+AX_ROLE_TEXT_FIELD 为 7。
+
+AX_ROLE_IMAGE 为 8。
+
+AX_ROLE_LIST 为 9。
+
+AX_ROLE_LIST_ITEM 为 10。
+
+AX_ROLE_TABLE 为 11。
+
+AX_ROLE_ROW 为 12。
+
+AX_ROLE_CELL 为 13。
+
+AX_ROLE_CHECKBOX 为 14。
+
+AX_ROLE_RADIO 为 15。
+
+AX_ROLE_COMBOBOX 为 16。
+
+AX_ROLE_SLIDER 为 17。
+
+AX_ROLE_REGION 为 18。
+
+AX_ROLE_NAVIGATION 为 19。
+
+AX_ROLE_MAIN 为 20。
+
+AX_ROLE_FORM 为 21。
+
+AX_ROLE_GENERIC 为 22。
+
+AX_ROLE_STATIC_TEXT 为 23。
+
+AX_ROLE_TAB 为 24。
+
+AX_ROLE_TABPANEL 为 25。
+
+AX_ROLE_DIALOG 为 26。
+
+AX_ROLE_ALERT 为 27。
+
+AX_ROLE_MENU 为 28。
+
+AX_ROLE_MENUITEM 为 29。
+
+AX_ROLE_TREE 为 30。
+
+AX_ROLE_TREEITEM 为 31。
+
+NAXT_获取默认角色 接受 dom节点：
+    若 dom节点 等于 0：
+        返还 AX_ROLE_GENERIC。
+    完。
+    tag 为 dom节点 的 标签名。
+    role_attr 为 做 元素_getAttribute 用 dom节点、「role」。
+    若 role_attr 不等于 0：
+        若 做 字符串_相等 用 role_attr、「button」：
+            返还 AX_ROLE_BUTTON。
+        完。
+        若 做 字符串_相等 用 role_attr、「link」：
+            返还 AX_ROLE_LINK。
+        完。
+        若 做 字符串_相等 用 role_attr、「heading」：
+            返还 AX_ROLE_HEADING。
+        完。
+        若 做 字符串_相等 用 role_attr、「checkbox」：
+            返还 AX_ROLE_CHECKBOX。
+        完。
+        若 做 字符串_相等 用 role_attr、「radio」：
+            返还 AX_ROLE_RADIO。
+        完。
+        若 做 字符串_相等 用 role_attr、「tab」：
+            返还 AX_ROLE_TAB。
+        完。
+        若 做 字符串_相等 用 role_attr、「tabpanel」：
+            返还 AX_ROLE_TABPANEL。
+        完。
+        若 做 字符串_相等 用 role_attr、「dialog」：
+            返还 AX_ROLE_DIALOG。
+        完。
+        若 做 字符串_相等 用 role_attr、「alert」：
+            返还 AX_ROLE_ALERT。
+        完。
+        若 做 字符串_相等 用 role_attr、「navigation」：
+            返还 AX_ROLE_NAVIGATION。
+        完。
+        若 做 字符串_相等 用 role_attr、「main」：
+            返还 AX_ROLE_MAIN。
+        完。
+        若 做 字符串_相等 用 role_attr、「region」：
+            返还 AX_ROLE_REGION。
+        完。
+        若 做 字符串_相等 用 role_attr、「menu」：
+            返还 AX_ROLE_MENU。
+        完。
+        若 做 字符串_相等 用 role_attr、「menuitem」：
+            返还 AX_ROLE_MENUITEM。
+        完。
+        若 做 字符串_相等 用 role_attr、「tree」：
+            返还 AX_ROLE_TREE。
+        完。
+        若 做 字符串_相等 用 role_attr、「treeitem」：
+            返还 AX_ROLE_TREEITEM。
+        完。
+    完。
+    若 做 字符串_相等 用 tag、「a」：
+        返还 AX_ROLE_LINK。
+    完。
+    若 做 字符串_相等 用 tag、「button」：
+        返还 AX_ROLE_BUTTON。
+    完。
+    若 做 字符串_相等 用 tag、「input」：
+        返还 AX_ROLE_TEXT_FIELD。
+    完。
+    若 做 字符串_相等 用 tag、「img」：
+        返还 AX_ROLE_IMAGE。
+    完。
+    若 做 字符串_相等 用 tag、「ul」 或者 做 字符串_相等 用 tag、「ol」：
+        返还 AX_ROLE_LIST。
+    完。
+    若 做 字符串_相等 用 tag、「li」：
+        返还 AX_ROLE_LIST_ITEM。
+    完。
+    若 做 字符串_相等 用 tag、「table」：
+        返还 AX_ROLE_TABLE。
+    完。
+    若 做 字符串_相等 用 tag、「tr」：
+        返还 AX_ROLE_ROW。
+    完。
+    若 做 字符串_相等 用 tag、「td」 或者 做 字符串_相等 用 tag、「th」：
+        返还 AX_ROLE_CELL。
+    完。
+    若 做 字符串_相等 用 tag、「h1」 或者 做 字符串_相等 用 tag、「h2」 或者 做 字符串_相等 用 tag、「h3」 或者 做 字符串_相等 用 tag、「h4」 或者 做 字符串_相等 用 tag、「h5」 或者 做 字符串_相等 用 tag、「h6」：
+        返还 AX_ROLE_HEADING。
+    完。
+    若 做 字符串_相等 用 tag、「p」：
+        返还 AX_ROLE_PARAGRAPH。
+    完。
+    若 做 字符串_相等 用 tag、「nav」：
+        返还 AX_ROLE_NAVIGATION。
+    完。
+    若 做 字符串_相等 用 tag、「main」：
+        返还 AX_ROLE_MAIN。
+    完。
+    若 做 字符串_相等 用 tag、「form」：
+        返还 AX_ROLE_FORM。
+    完。
+    若 做 字符串_相等 用 tag、「select」：
+        返还 AX_ROLE_COMBOBOX。
+    完。
+    若 dom节点 的 节点类型 等于 3：
+        返还 AX_ROLE_STATIC_TEXT。
+    完。
+    返还 AX_ROLE_GENERIC。
+完。
+
+NAXT_计算名称 接受 ax节点、dom节点：
+    若 ax节点 等于 0 或者 dom节点 等于 0：
+        返还。
+    完。
+    labelledby 为 做 元素_getAttribute 用 dom节点、「aria-labelledby」。
+    若 labelledby 不等于 0：
+        ax节点 的 名称 为 做 NAXT_解析ID引用文本 用 dom节点、labelledby。
+        返还。
+    完。
+    label 为 做 元素_getAttribute 用 dom节点、「aria-label」。
+    若 label 不等于 0 并且 做 字符串_长度 用 label 大于 0：
+        ax节点 的 名称 为 做 字符串_复制 用 label。
+        返还。
+    完。
+    alt 为 做 元素_getAttribute 用 dom节点、「alt」。
+    若 alt 不等于 0：
+        ax节点 的 名称 为 做 字符串_复制 用 alt。
+        返还。
+    完。
+    title 为 做 元素_getAttribute 用 dom节点、「title」。
+    若 title 不等于 0：
+        ax节点 的 名称 为 做 字符串_复制 用 title。
+        返还。
+    完。
+    ph 为 做 元素_getAttribute 用 dom节点、「placeholder」。
+    若 ph 不等于 0：
+        ax节点 的 名称 为 做 字符串_复制 用 ph。
+        返还。
+    完。
+    若 dom节点 的 节点类型 等于 3：
+        ax节点 的 名称 为 做 字符串_复制 用 dom节点 的 文本内容。
+    完。
+完。
+
+NAXT_解析ID引用文本 接受 dom节点、id_list：
+    result 为 做 字符串_创建 用 256。
+    可变 pos 为 0。
+    len 为 做 字符串_长度 用 id_list。
+    只要 pos 小于 len：
+        只要 pos 小于 len 并且 id_list 的 第 pos 项 等于 32：
+            pos 为 pos 加 1。
+        完。
+        start 为 pos。
+        只要 pos 小于 len 并且 id_list 的 第 pos 项 不等于 32：
+            pos 为 pos 加 1。
+        完。
+        若 pos 大于 start：
+            id 为 做 字符串_子串 用 id_list、start、pos 减 start。
+            elem 为 做 文档_getElementById 用 dom节点、id。
+            若 elem 不等于 0：
+                text 为 做 元素_获取文本内容 用 elem。
+                若 text 不等于 0：
+                    做 字符串_追加 用 result、text。
+                    做 字符串_追加字符 用 result、32。
+                完。
+            完。
+        完。
+    完。
+    返还 result。
+完。
+
+NAXT_计算描述 接受 ax节点、dom节点：
+    若 ax节点 等于 0 或者 dom节点 等于 0：
+        返还。
+    完。
+    desc 为 做 元素_getAttribute 用 dom节点、「aria-describedby」。
+    若 desc 不等于 0：
+        ax节点 的 描述 为 做 NAXT_解析ID引用文本 用 dom节点、desc。
+    完。
+完。
+
+NAXT_计算状态 接受 ax节点、dom节点：
+    若 ax节点 等于 0 或者 dom节点 等于 0：
+        返还。
+    完。
+    checked 为 做 元素_getAttribute 用 dom节点、「aria-checked」。
+    若 checked 不等于 0 并且 做 字符串_相等 用 checked、「true」：
+        ax节点 的 已勾选 为 真。
+    完。
+    expanded 为 做 元素_getAttribute 用 dom节点、「aria-expanded」。
+    若 expanded 不等于 0：
+        ax节点 的 已展开 为 做 字符串_相等 用 expanded、「true」。
+    完。
+    disabled 为 做 元素_getAttribute 用 dom节点、「aria-disabled」。
+    若 disabled 不等于 0 并且 做 字符串_相等 用 disabled、「true」：
+        ax节点 的 已禁用 为 真。
+    完。
+    required 为 做 元素_getAttribute 用 dom节点、「aria-required」。
+    若 required 不等于 0 并且 做 字符串_相等 用 required、「true」：
+        ax节点 的 必填 为 真。
+    完。
+    val_now 为 做 元素_getAttribute 用 dom节点、「aria-valuenow」。
+    若 val_now 不等于 0：
+        ax节点 的 当前值 为 做 字符串_转整数 用 val_now。
+    完。
+    val_min 为 做 元素_getAttribute 用 dom节点、「aria-valuemin」。
+    若 val_min 不等于 0：
+        ax节点 的 最小值 为 做 字符串_转整数 用 val_min。
+    完。
+    val_max 为 做 元素_getAttribute 用 dom节点、「aria-valuemax」。
+    若 val_max 不等于 0：
+        ax节点 的 最大值 为 做 字符串_转整数 用 val_max。
+    完。
+完。
+
+NAXT_REL_LABELLEDBY 为 0。
+
+NAXT_REL_DESCRIBEDBY 为 1。
+
+NAXT_REL_OWNS 为 2。
+
+NAXT_REL_CONTROLS 为 3。
+
+NAXT_REL_FLOWTO 为 4。
+
+NAXT_最大关系 为 256。
+
+NAXT_关系条目 是 一种 事物，含 类型 为 0、源节点 为 0、目标节点 为 0。
+
+可变 NAXT_关系表 为 0。
+
+可变 NAXT_关系数 为 0。
+
+NAXT_关系初始化 接受 零参：
+    NAXT_关系表 为 做 堆_分配_数组 用 做 大小为 用 NAXT_关系条目 乘 NAXT_最大关系。
+    NAXT_关系数 为 0。
+完。
+
+NAXT_添加关系 接受 类型、源、目标：
+    若 NAXT_关系数 大于或等于 NAXT_最大关系：
+        返还。
+    完。
+    idx 为 NAXT_关系数。
+    NAXT_关系表 的 第 idx 项 的 类型 为 类型。
+    NAXT_关系表 的 第 idx 项 的 源节点 为 源。
+    NAXT_关系表 的 第 idx 项 的 目标节点 为 目标。
+    NAXT_关系数 为 NAXT_关系数 加 1。
+完。
+
+NAXT_解析关系 接受 ax节点、dom节点：
+    若 ax节点 等于 0 或者 dom节点 等于 0：
+        返还。
+    完。
+    owns 为 做 元素_getAttribute 用 dom节点、「aria-owns」。
+    若 owns 不等于 0：
+        做 NAXT_添加关系 用 NAXT_REL_OWNS、ax节点、owns。
+    完。
+    controls 为 做 元素_getAttribute 用 dom节点、「aria-controls」。
+    若 controls 不等于 0：
+        做 NAXT_添加关系 用 NAXT_REL_CONTROLS、ax节点、controls。
+    完。
+    flowto 为 做 元素_getAttribute 用 dom节点、「aria-flowto」。
+    若 flowto 不等于 0：
+        做 NAXT_添加关系 用 NAXT_REL_FLOWTO、ax节点、flowto。
+    完。
+完。
+
+NAXT_DIRTY_ROLE 为 1。
+
+NAXT_DIRTY_NAME 为 2。
+
+NAXT_DIRTY_STATE 为 4。
+
+NAXT_DIRTY_CHILDREN 为 8。
+
+NAXT_DIRTY_VALUE 为 16。
+
+NAXT_DIRTY_ALL 为 31。
+
+可变 NAXT_脏节点队列 为 0。
+
+可变 NAXT_脏节点数 为 0。
+
+NAXT_最大脏节点 为 512。
+
+NAXT_脏队列初始化 接受 零参：
+    NAXT_脏节点队列 为 做 堆_分配_数组 用 NAXT_最大脏节点 乘 2。
+    NAXT_脏节点数 为 0。
+完。
+
+NAXT_标记脏 接受 ax节点、脏标志：
+    若 ax节点 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 NAXT_脏节点数：
+        若 NAXT_脏节点队列 的 第 i 乘 2 项 等于 ax节点：
+            NAXT_脏节点队列 的 第 i 乘 2 加 1 项 为 NAXT_脏节点队列 的 第 i 乘 2 加 1 项 位或 脏标志。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 NAXT_脏节点数 小于 NAXT_最大脏节点：
+        NAXT_脏节点队列 的 第 NAXT_脏节点数 乘 2 项 为 ax节点。
+        NAXT_脏节点队列 的 第 NAXT_脏节点数 乘 2 加 1 项 为 脏标志。
+        NAXT_脏节点数 为 NAXT_脏节点数 加 1。
+    完。
+完。
+
+NAXT_处理脏节点 接受 零参：
+    可变 i 为 0。
+    只要 i 小于 NAXT_脏节点数：
+        ax 为 NAXT_脏节点队列 的 第 i 乘 2 项。
+        flags 为 NAXT_脏节点队列 的 第 i 乘 2 加 1 项。
+        dom 为 ax 的 dom节点。
+        若 flags 位与 NAXT_DIRTY_ROLE：
+            ax 的 角色 为 做 NAXT_获取默认角色 用 dom。
+        完。
+        若 flags 位与 NAXT_DIRTY_NAME：
+            做 NAXT_计算名称 用 ax、dom。
+        完。
+        若 flags 位与 NAXT_DIRTY_STATE：
+            做 NAXT_计算状态 用 ax、dom。
+        完。
+        若 flags 位与 NAXT_DIRTY_CHILDREN：
+            做 AXTree_构建递归 用 ax、dom。
+            做 AX_发送事件 用 ax、AX_事件_CHILDREN_CHANGED、0。
+        完。
+        i 为 i 加 1。
+    完。
+    NAXT_脏节点数 为 0。
+完。
+
+NAXT_PLATFORM_ATSPI 为 0。
+
+NAXT_PLATFORM_UIA 为 1。
+
+可变 NAXT_平台类型 为 0。
+
+NAXT_设置平台 接受 平台：
+    NAXT_平台类型 为 平台。
+完。
+
+NAXT_发送平台事件 接受 ax节点、事件类型：
+    若 NAXT_平台类型 等于 NAXT_PLATFORM_ATSPI：
+        做 系统调用 用 系统调用_ATSPI_发送事件、ax节点、事件类型、0、0、0。
+    否则若 NAXT_平台类型 等于 NAXT_PLATFORM_UIA：
+        做 系统调用 用 系统调用_UIA_触发事件、ax节点、事件类型、0、0、0。
+    完。
+完。
+
+NAXT_平台查询焦点 接受 零参：
+    若 NAXT_平台类型 等于 NAXT_PLATFORM_ATSPI：
+        返还 做 系统调用 用 系统调用_ATSPI_获取焦点、0、0、0、0、0。
+    否则若 NAXT_平台类型 等于 NAXT_PLATFORM_UIA：
+        返还 做 系统调用 用 系统调用_UIA_获取焦点、0、0、0、0、0。
+    完。
+    返还 0。
+完。
+
+可变 NAXT_总节点数 为 0。
+
+可变 NAXT_总事件数 为 0。
+
+可变 NAXT_总更新数 为 0。
+
+NAXT_AI角色预测 接受 dom节点：
+    tensor 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 tensor、0、dom节点 的 节点类型。
+    做 Tensor_写 用 tensor、1、dom节点 的 子节点数。
+    has_onclick 为 做 元素_getAttribute 用 dom节点、「onclick」 不等于 0。
+    做 Tensor_写 用 tensor、2、has_onclick。
+    has_tabindex 为 做 元素_getAttribute 用 dom节点、「tabindex」 不等于 0。
+    做 Tensor_写 用 tensor、3、has_tabindex。
+    has_href 为 做 元素_getAttribute 用 dom节点、「href」 不等于 0。
+    做 Tensor_写 用 tensor、4、has_href。
+    做 Tensor_写 用 tensor、5、NAXT_总节点数。
+    结果 为 做 AI总线_推理 用 tensor、「NAXT_角色预测」。
+    做 Tensor_释放 用 tensor。
+    返还 结果。
+完。
+
+NAXT_AI可访问性检查 接受 ax根：
+    tensor 为 做 Tensor_创建 用 4。
+    做 Tensor_写 用 tensor、0、NAXT_总节点数。
+    做 Tensor_写 用 tensor、1、NAXT_总事件数。
+    做 Tensor_写 用 tensor、2、NAXT_关系数。
+    做 Tensor_写 用 tensor、3、NAXT_脏节点数。
+    异常 为 做 AI总线_异常检测 用 tensor、「NAXT_可访问性」。
+    做 Tensor_释放 用 tensor。
+    返还 异常。
+完。
+
+NAXT_全局初始化 接受 零参：
+    做 NAXT_关系初始化。
+    做 NAXT_脏队列初始化。
+    NAXT_总节点数 为 0。
+    NAXT_总事件数 为 0。
+    NAXT_总更新数 为 0。
+完。
+
+NAXT_获取统计 接受 零参：
+    返还 NAXT_总节点数 乘 65536 加 NAXT_总事件数。
+完。
+
+NAXT_重置统计 接受 零参：
+    NAXT_总节点数 为 0。
+    NAXT_总事件数 为 0。
+    NAXT_总更新数 为 0。
+完。
+
+NAXT_LIVE_OFF 为 0。
+
+NAXT_LIVE_POLITE 为 1。
+
+NAXT_LIVE_ASSERTIVE 为 2。
+
+NAXT_获取Live级别 接受 dom节点：
+    若 dom节点 等于 0：
+        返还 NAXT_LIVE_OFF。
+    完。
+    live 为 做 元素_getAttribute 用 dom节点、「aria-live」。
+    若 live 等于 0：
+        返还 NAXT_LIVE_OFF。
+    完。
+    若 做 字符串_相等 用 live、「polite」：
+        返还 NAXT_LIVE_POLITE。
+    完。
+    若 做 字符串_相等 用 live、「assertive」：
+        返还 NAXT_LIVE_ASSERTIVE。
+    完。
+    返还 NAXT_LIVE_OFF。
+完。
+
+NAXT_获取Live原子性 接受 dom节点：
+    atomic 为 做 元素_getAttribute 用 dom节点、「aria-atomic」。
+    若 atomic 不等于 0 并且 做 字符串_相等 用 atomic、「true」：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

@@ -1,0 +1,78 @@
+《滚动容器创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+SNAP_AXIS_NONE 为 0。
+
+SNAP_AXIS_X 为 1。
+
+SNAP_AXIS_Y 为 2。
+
+SNAP_AXIS_BOTH 为 3。
+
+SNAP_AXIS_BLOCK 为 4。
+
+SNAP_AXIS_INLINE 为 5。
+
+SNAP_STRICT_NONE 为 0。
+
+SNAP_STRICT_PROXIMITY 为 1。
+
+SNAP_STRICT_MANDATORY 为 2。
+
+SNAP_ALIGN_NONE 为 0。
+
+SNAP_ALIGN_START 为 1。
+
+SNAP_ALIGN_CENTER 为 2。
+
+SNAP_ALIGN_END 为 3。
+
+SNAP_STOP_NORMAL 为 0。
+
+SNAP_STOP_ALWAYS 为 1。
+
+OVERSCROLL_AUTO 为 0。
+
+OVERSCROLL_CONTAIN 为 1。
+
+OVERSCROLL_NONE 为 2。
+
+SCROLL_BEHAVIOR_AUTO 为 0。
+
+SCROLL_BEHAVIOR_SMOOTH 为 1。
+
+SnapPoint 是 一种 事物，含 x、y、对齐x、对齐y、停止、元素。
+
+ScrollSnapContainer 是 一种 事物，含 轴、严格度、padding_上、padding_右、padding_下、padding_左、snap点列表、snap点数量、snap点容量、视口宽、视口高、内容宽、内容高、滚动x、滚动y、目标x、目标y、overscroll_x、overscroll_y、滚动行为、正在动画、动画起始x、动画起始y、动画目标x、动画目标y、动画起始时间、动画持续时间。
+
+ScrollSnapContainer_创建 接受 零参：
+    ssc 为 做 堆_分配 用 ScrollSnapContainer。
+    ssc 的 轴 为 SNAP_AXIS_NONE。
+    ssc 的 严格度 为 SNAP_STRICT_NONE。
+    ssc 的 padding_上 为 0。
+    ssc 的 padding_右 为 0。
+    ssc 的 padding_下 为 0。
+    ssc 的 padding_左 为 0。
+    ssc 的 snap点容量 为 64。
+    ssc 的 snap点列表 为 做 堆_分配_数组 用 64 乘 8。
+    ssc 的 snap点数量 为 0。
+    ssc 的 视口宽 为 0。
+    ssc 的 视口高 为 0。
+    ssc 的 内容宽 为 0。
+    ssc 的 内容高 为 0。
+    ssc 的 滚动x 为 0。
+    ssc 的 滚动y 为 0。
+    ssc 的 目标x 为 0。
+    ssc 的 目标y 为 0。
+    ssc 的 overscroll_x 为 OVERSCROLL_AUTO。
+    ssc 的 overscroll_y 为 OVERSCROLL_AUTO。
+    ssc 的 滚动行为 为 SCROLL_BEHAVIOR_AUTO。
+    ssc 的 正在动画 为 假。
+    ssc 的 动画持续时间 为 300。
+    返还 ssc。
+完。
+
+本章 收束。

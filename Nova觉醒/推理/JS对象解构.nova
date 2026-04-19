@@ -1,0 +1,443 @@
+《JS对象解构》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·定点Q算术》。
+
+引用《.·小整数SMI判定》。
+
+引用《.·Promise辅助》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·标准·类型判断》。
+
+Destructure_对象 接受 Nova运行时实例、源、键列表、键数量、有rest：
+    若 源 等于 0：
+        返还 0。
+    完。
+    结果 为 做 堆_分配_数组 用 (键数量 加 1) 乘 8。
+    可变 i 为 0。
+    只要 i 小于 键数量：
+        键 为 做 内存_读64 用 键列表 加 i 乘 8。
+        若 键 不等于 0：
+            做 内存_写64 用 结果 加 i 乘 8、做 Nova对象_获取属性_完整 用 Nova运行时实例、源、键。
+        否则：
+            做 内存_写64 用 结果 加 i 乘 8、0。
+        完。
+        i 为 i 加 1。
+    完。
+    若 有rest：
+        rest对象 为 做 Nova对象_创建 用 Nova运行时实例、0。
+        所有键 为 做 Object_keys 用 Nova运行时实例、源。
+        所有键数组 为 所有键 的 第 0 项。
+        所有键数 为 所有键 的 第 1 项。
+        可变 j 为 0。
+        只要 j 小于 所有键数：
+            k 为 做 内存_读64 用 所有键数组 加 j 乘 8。
+            可变 已提取 为 假。
+            i 为 0。
+            只要 i 小于 键数量：
+                若 做 字符串_相等 用 k、做 内存_读64 用 键列表 加 i 乘 8：
+                    已提取 为 真。
+                    跳出。
+                完。
+                i 为 i 加 1。
+            完。
+            若 非 已提取：
+                值 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、源、k。
+                desc 为 做 PropDesc_创建_数据 用 值、真、真、真。
+                做 Nova对象_设置属性 用 rest对象、k、desc。
+            完。
+            j 为 j 加 1。
+        完。
+        做 内存_写64 用 结果 加 键数量 乘 8、rest对象。
+    完。
+    返还 结果。
+完。
+
+Destructure_应用默认值 接受 值、默认值：
+    若 值 等于 0：
+        返还 默认值。
+    完。
+    返还 值。
+完。
+
+Destructure_应用默认值_惰性 接受 Nova运行时实例、值、默认值函数：
+    若 值 等于 0 并且 默认值函数 不等于 0：
+        返还 做 Nova函数_Call 用 Nova运行时实例、默认值函数、0。
+    完。
+    若 值 等于 0：
+        返还 0。
+    完。
+    返还 值。
+完。
+
+Destructure_嵌套_对象属性_到_数组 接受 Nova运行时实例、源、属性名：
+    子源 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、源、属性名。
+    返还 子源。
+完。
+
+Destructure_嵌套_数组元素_到_对象 接受 Nova运行时实例、源、索引：
+    若 源 等于 0：
+        返还 0。
+    完。
+    返还 做 Nova数组_获取 用 源、索引。
+完。
+
+NJSD_模式_对象 为 1。
+
+NJSD_模式_数组 为 2。
+
+NJSD_模式_嵌套对象 为 3。
+
+NJSD_模式_嵌套数组 为 4。
+
+NJSD_模式_赋值 为 5。
+
+NJSD_模式_参数 为 6。
+
+NJSD_绑定_普通 为 0。
+
+NJSD_绑定_别名 为 1。
+
+NJSD_绑定_计算键 为 2。
+
+NJSD_绑定_默认值 为 3。
+
+NJSD_绑定_rest 为 4。
+
+可变 NJSD_对象解构次数 为 0。
+
+可变 NJSD_数组解构次数 为 0。
+
+可变 NJSD_嵌套解构次数 为 0。
+
+可变 NJSD_默认值次数 为 0。
+
+可变 NJSD_计算键次数 为 0。
+
+可变 NJSD_rest次数 为 0。
+
+可变 NJSD_迭代器次数 为 0。
+
+可变 NJSD_AI推断次数 为 0。
+
+可变 NJSD_错误次数 为 0。
+
+可变 NJSD_AI总线 为 0。
+
+Destructure_数组 接受 Nova运行时实例、源、索引数、有rest：
+    NJSD_数组解构次数 为 NJSD_数组解构次数 加 1。
+    若 源 等于 0：
+        NJSD_错误次数 为 NJSD_错误次数 加 1。
+        返还 0。
+    完。
+    iter 为 做 NJSD_获取迭代器 用 Nova运行时实例、源。
+    若 iter 等于 0：
+        返还 做 Destructure_数组_索引回退 用 Nova运行时实例、源、索引数、有rest。
+    完。
+    结果 为 做 堆_分配_数组 用 (索引数 加 1) 乘 8。
+    可变 i 为 0。
+    只要 i 小于 索引数：
+        next 为 做 NJSD_迭代器_next 用 Nova运行时实例、iter。
+        若 next 的 完成：
+            只要 i 小于 索引数：
+                做 内存_写i64 用 结果 加 i 乘 8、0。
+                i 为 i 加 1。
+            完。
+            返还 结果。
+        完。
+        做 内存_写i64 用 结果 加 i 乘 8、next 的 值。
+        i 为 i 加 1。
+    完。
+    若 有rest：
+        NJSD_rest次数 为 NJSD_rest次数 加 1。
+        rest数组 为 做 Nova数组_创建 用 Nova运行时实例、0。
+        可变 ri 为 0。
+        可变 done 为 假。
+        只要 非 done：
+            next 为 做 NJSD_迭代器_next 用 Nova运行时实例、iter。
+            若 next 的 完成：
+                done 为 真。
+            否则：
+                做 Nova数组_设置 用 rest数组、ri、next 的 值。
+                ri 为 ri 加 1。
+            完。
+        完。
+        做 内存_写i64 用 结果 加 索引数 乘 8、rest数组。
+    完。
+    返还 结果。
+完。
+
+Destructure_数组_索引回退 接受 Nova运行时实例、源、索引数、有rest：
+    结果 为 做 堆_分配_数组 用 (索引数 加 1) 乘 8。
+    len 为 做 Nova数组_长度 用 Nova运行时实例、源。
+    可变 i 为 0。
+    只要 i 小于 索引数：
+        若 i 小于 len：
+            做 内存_写i64 用 结果 加 i 乘 8、做 Nova数组_获取 用 源、i。
+        否则：
+            做 内存_写i64 用 结果 加 i 乘 8、0。
+        完。
+        i 为 i 加 1。
+    完。
+    若 有rest：
+        NJSD_rest次数 为 NJSD_rest次数 加 1。
+        rest数组 为 做 Nova数组_创建 用 Nova运行时实例、0。
+        可变 ri 为 0。
+        只要 索引数 加 ri 小于 len：
+            做 Nova数组_设置 用 rest数组、ri、做 Nova数组_获取 用 源、索引数 加 ri。
+            ri 为 ri 加 1。
+        完。
+        做 内存_写i64 用 结果 加 索引数 乘 8、rest数组。
+    完。
+    返还 结果。
+完。
+
+NJSD_迭代结果 是 一种 事物，含 值 为 0、完成 为 假。
+
+NJSD_获取迭代器 接受 Nova运行时实例、对象：
+    NJSD_迭代器次数 为 NJSD_迭代器次数 加 1。
+    iterMethod 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、对象、「@@iterator」。
+    若 iterMethod 等于 0：
+        返还 0。
+    完。
+    iter 为 做 Nova函数_Call 用 Nova运行时实例、iterMethod、对象。
+    返还 iter。
+完。
+
+NJSD_迭代器_next 接受 Nova运行时实例、iter：
+    结果 为 新建 NJSD_迭代结果：值 为 0、完成 为 假。
+    nextMethod 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、iter、「next」。
+    若 nextMethod 等于 0：
+        结果 的 完成 为 真。
+        返还 结果。
+    完。
+    iterResult 为 做 Nova函数_Call 用 Nova运行时实例、nextMethod、iter。
+    若 iterResult 等于 0：
+        结果 的 完成 为 真。
+        返还 结果。
+    完。
+    doneVal 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、iterResult、「done」。
+    结果 的 完成 为 做 NJSD_转Bool 用 doneVal。
+    若 非 结果 的 完成：
+        结果 的 值 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、iterResult、「value」。
+    完。
+    返还 结果。
+完。
+
+NJSD_转Bool 接受 val：
+    若 val 等于 0：
+        返还 假。
+    完。
+    若 val 等于 假：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+Destructure_计算键 接受 Nova运行时实例、源、键表达式：
+    NJSD_计算键次数 为 NJSD_计算键次数 加 1。
+    动态键 为 做 Nova表达式_求值 用 Nova运行时实例、键表达式。
+    若 动态键 等于 0：
+        返还 0。
+    完。
+    字符串键 为 做 Nova转字符串 用 Nova运行时实例、动态键。
+    返还 做 Nova对象_获取属性_完整 用 Nova运行时实例、源、字符串键。
+完。
+
+Destructure_计算键_带默认 接受 Nova运行时实例、源、键表达式、默认值：
+    val 为 做 Destructure_计算键 用 Nova运行时实例、源、键表达式。
+    返还 做 Destructure_应用默认值 用 val、默认值。
+完。
+
+NJSD_验证解构目标 接受 Nova运行时实例、源：
+    若 源 等于 0：
+        NJSD_错误次数 为 NJSD_错误次数 加 1。
+        做 Nova运行时_抛出类型错误 用 Nova运行时实例、「Cannot destructure undefined or null」。
+        返还 假。
+    完。
+    返还 真。
+完。
+
+NJSD_强制转对象 接受 Nova运行时实例、源：
+    若 源 等于 0：
+        NJSD_错误次数 为 NJSD_错误次数 加 1。
+        返还 0。
+    完。
+    类型 为 做 Nova值_类型 用 Nova运行时实例、源。
+    若 类型 等于 「string」 或者 类型 等于 「number」 或者 类型 等于 「boolean」：
+        返还 做 Nova对象_装箱 用 Nova运行时实例、源。
+    完。
+    返还 源。
+完。
+
+NJSD_解构绑定项 是 一种 事物，含 类型 为 0、源键 为 「」、目标名 为 「」、默认值 为 0、子模式 为 0。
+
+NJSD_增强对象解构 接受 Nova运行时实例、源、绑定列表、绑定数、有rest：
+    NJSD_对象解构次数 为 NJSD_对象解构次数 加 1。
+    若 非 做 NJSD_验证解构目标 用 Nova运行时实例、源：
+        返还 0。
+    完。
+    obj 为 做 NJSD_强制转对象 用 Nova运行时实例、源。
+    若 obj 等于 0：
+        返还 0。
+    完。
+    结果 为 做 堆_分配_数组 用 (绑定数 加 1) 乘 8。
+    可变 i 为 0。
+    只要 i 小于 绑定数：
+        binding 为 绑定列表 的 第 i 项。
+        可变 val 为 0。
+        若 binding 的 类型 等于 NJSD_绑定_计算键：
+            val 为 做 Destructure_计算键 用 Nova运行时实例、obj、binding 的 源键。
+        否则：
+            val 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、obj、binding 的 源键。
+        完。
+        若 val 等于 0 并且 binding 的 默认值 不等于 0：
+            NJSD_默认值次数 为 NJSD_默认值次数 加 1。
+            val 为 binding 的 默认值。
+        完。
+        若 binding 的 子模式 不等于 0：
+            NJSD_嵌套解构次数 为 NJSD_嵌套解构次数 加 1。
+            val 为 做 NJSD_递归解构 用 Nova运行时实例、val、binding 的 子模式。
+        完。
+        做 内存_写i64 用 结果 加 i 乘 8、val。
+        i 为 i 加 1。
+    完。
+    若 有rest：
+        rest结果 为 做 Destructure_对象_收集rest 用 Nova运行时实例、obj、绑定列表、绑定数。
+        做 内存_写i64 用 结果 加 绑定数 乘 8、rest结果。
+    完。
+    返还 结果。
+完。
+
+Destructure_对象_收集rest 接受 Nova运行时实例、源、绑定列表、绑定数：
+    NJSD_rest次数 为 NJSD_rest次数 加 1。
+    rest对象 为 做 Nova对象_创建 用 Nova运行时实例、0。
+    所有键 为 做 Object_keys 用 Nova运行时实例、源。
+    所有键数组 为 所有键 的 第 0 项。
+    所有键数 为 所有键 的 第 1 项。
+    可变 j 为 0。
+    只要 j 小于 所有键数：
+        k 为 做 内存_读64 用 所有键数组 加 j 乘 8。
+        可变 已提取 为 假。
+        可变 bi 为 0。
+        只要 bi 小于 绑定数：
+            若 做 字符串_相等 用 k、绑定列表 的 第 bi 项 的 源键：
+                已提取 为 真。
+            完。
+            bi 为 bi 加 1。
+        完。
+        若 非 已提取：
+            值 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、源、k。
+            desc 为 做 PropDesc_创建_数据 用 值、真、真、真。
+            做 Nova对象_设置属性 用 rest对象、k、desc。
+        完。
+        j 为 j 加 1。
+    完。
+    返还 rest对象。
+完。
+
+NJSD_递归解构 接受 Nova运行时实例、源、子模式：
+    若 子模式 的 类型 等于 NJSD_模式_对象：
+        返还 做 NJSD_增强对象解构 用 Nova运行时实例、源、子模式 的 绑定列表、子模式 的 绑定数、子模式 的 有rest。
+    否则若 子模式 的 类型 等于 NJSD_模式_数组：
+        返还 做 Destructure_数组 用 Nova运行时实例、源、子模式 的 索引数、子模式 的 有rest。
+    完。
+    返还 源。
+完。
+
+NJSD_AI特征提取 接受 绑定列表、绑定数、有rest：
+    tensor 为 做 Tensor_创建 用 10。
+    做 Tensor_写 用 tensor、0、绑定数 除以 32.0。
+    若 有rest：
+        做 Tensor_写 用 tensor、1、1.0。
+    否则：
+        做 Tensor_写 用 tensor、1、0.0。
+    完。
+    可变 maxDepth 为 0。
+    可变 i 为 0。
+    只要 i 小于 绑定数：
+        若 绑定列表 的 第 i 项 的 子模式 不等于 0：
+            maxDepth 为 maxDepth 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    做 Tensor_写 用 tensor、2、maxDepth 除以 8.0。
+    可变 defCount 为 0。
+    i 为 0。
+    只要 i 小于 绑定数：
+        若 绑定列表 的 第 i 项 的 默认值 不等于 0：
+            defCount 为 defCount 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    若 绑定数 大于 0：
+        做 Tensor_写 用 tensor、3、defCount 除以 绑定数。
+    完。
+    可变 compCount 为 0。
+    i 为 0。
+    只要 i 小于 绑定数：
+        若 绑定列表 的 第 i 项 的 类型 等于 NJSD_绑定_计算键：
+            compCount 为 compCount 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    若 绑定数 大于 0：
+        做 Tensor_写 用 tensor、4、compCount 除以 绑定数。
+    完。
+    返还 tensor。
+完。
+
+NJSD_AI预测解构性能 接受 绑定列表、绑定数、有rest：
+    NJSD_AI推断次数 为 NJSD_AI推断次数 加 1。
+    若 NJSD_AI总线 等于 0：
+        返还 0。
+    完。
+    tensor 为 做 NJSD_AI特征提取 用 绑定列表、绑定数、有rest。
+    结果 为 做 AI总线_推理 用 NJSD_AI总线、「destruct_perf」、tensor。
+    性能分 为 做 Tensor_读 用 结果、0。
+    做 Tensor_释放 用 tensor。
+    做 Tensor_释放 用 结果。
+    返还 性能分。
+完。
+
+NJSD_AI检测类型不匹配 接受 Nova运行时实例、源、绑定列表、绑定数：
+    可变 缺失数 为 0。
+    可变 i 为 0。
+    只要 i 小于 绑定数：
+        键 为 绑定列表 的 第 i 项 的 源键。
+        val 为 做 Nova对象_获取属性_完整 用 Nova运行时实例、源、键。
+        若 val 等于 0 并且 绑定列表 的 第 i 项 的 默认值 等于 0：
+            缺失数 为 缺失数 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 缺失数。
+完。
+
+NJSD_初始化 接受 零参：
+    NJSD_对象解构次数 为 0。
+    NJSD_数组解构次数 为 0。
+    NJSD_嵌套解构次数 为 0。
+    NJSD_默认值次数 为 0。
+    NJSD_计算键次数 为 0。
+    NJSD_rest次数 为 0。
+    NJSD_迭代器次数 为 0。
+    NJSD_AI推断次数 为 0。
+    NJSD_错误次数 为 0。
+    NJSD_AI总线 为 全局AI总线。
+    做 打印 用 「[NJSD] 解构赋值引擎初始化完成」。
+完。
+
+NJSD_诊断报告 接受 零参：
+    做 打印 用 「[NJSD] === 解构赋值诊断 ===」。
+    做 打印 用 「  对象解构=」 加 做 整数转字符串 用 NJSD_对象解构次数 加 「 数组解构=」 加 做 整数转字符串 用 NJSD_数组解构次数 加 「 嵌套=」 加 做 整数转字符串 用 NJSD_嵌套解构次数。
+    做 打印 用 「  默认值=」 加 做 整数转字符串 用 NJSD_默认值次数 加 「 计算键=」 加 做 整数转字符串 用 NJSD_计算键次数 加 「 rest=」 加 做 整数转字符串 用 NJSD_rest次数。
+    做 打印 用 「  迭代器=」 加 做 整数转字符串 用 NJSD_迭代器次数 加 「 AI推断=」 加 做 整数转字符串 用 NJSD_AI推断次数 加 「 错误=」 加 做 整数转字符串 用 NJSD_错误次数。
+完。
+
+本章 收束。

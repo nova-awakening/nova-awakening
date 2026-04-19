@@ -1,0 +1,56 @@
+《核心处理令》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·HTMLTreeBuilder_文本》。
+
+引用《.·HTMLTreeBuilder_head》。
+
+引用《.·文档节点》。
+
+引用《.·requestAnimationFrame》。
+
+引用《.·元素栈创建》。
+
+引用《.·原子驻留》。
+
+引用《.·树构建器》。
+
+引用《.·文档接口属》。
+
+引用《.·HTMLTreeBuilder_body》。
+
+引用《.·节点行为统计》。
+
+引用《.·文档创建》。
+
+HTMLTreeBuilder_html前模式 接受 tb、令牌：
+    若 令牌 的 类型 等于 令牌类型_DOCTYPE：
+        返还。
+    完。
+    若 令牌 的 类型 等于 令牌类型_注释：
+        注释 为 做 Comment_创建 用 令牌 的 数据。
+        做 节点_appendChild 用 tb 的 文档、注释。
+        返还。
+    完。
+    若 令牌 的 类型 等于 令牌类型_开始标签：
+        标签原子 为 做 原子_驻留 用 令牌 的 标签名。
+        若 标签原子 等于 原子_html：
+            html 为 做 HTMLTreeBuilder_创建元素并插入 用 tb、令牌、tb 的 文档。
+            做 元素栈_压入 用 tb 的 开放元素栈、html。
+            做 Document_设置文档元素 用 tb 的 文档、html。
+            tb 的 插入模式 为 插入模式_head前。
+            返还。
+        完。
+    完。
+    html 为 做 Document_create元素 用 tb 的 文档、「html」。
+    做 节点_appendChild 用 tb 的 文档、html。
+    做 元素栈_压入 用 tb 的 开放元素栈、html。
+    做 Document_设置文档元素 用 tb 的 文档、html。
+    tb 的 插入模式 为 插入模式_head前。
+    做 HTMLTreeBuilder_处理令牌 用 tb、令牌。
+完。
+
+本章 收束。

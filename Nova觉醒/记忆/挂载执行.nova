@@ -1,0 +1,187 @@
+《挂载执行》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《.·超级块》。
+
+引用《.·目录项添加》。
+
+引用《.·挂载移动》。
+
+引用《.·文件系统类》。
+
+引用《.·VFS文件读写》。
+
+引用《.·路径查找》。
+
+MS_RDONLY 为 0x0001。
+
+MS_NOSUID 为 0x0002。
+
+MS_节点V 为 0x0004。
+
+MS_NOEXEC 为 0x0008。
+
+MS_SYNCHRONOUS 为 0x0010。
+
+MS_REMOUNT 为 0x0020。
+
+MS_BIND 为 0x1000。
+
+MS_MOVE 为 0x2000。
+
+MS_NOATIME 为 0x0400。
+
+MS_RELATIME 为 0x200000。
+
+挂载结构 是 一种 事物，含 mnt_id、mnt_parent、mnt_mountpoint、mnt_root、mnt_sb、mnt_flags、mnt_devname、mnt_fstype、mnt_opts、mnt_children、mnt_count。
+
+可变 挂载表 为 一组：（空）。
+
+可变 根挂载 为 空。
+
+可变 下一个挂载ID 为 1。
+
+可变 挂载_总数 为 0。
+
+do_mount 接受 源、目标、类型：
+    返还 做 do_mount_带标志 用 源、目标、类型、0、「」。
+完。
+
+do_mount_带标志 接受 源、目标、类型、标志、选项：
+    若 标志 位与 MS_REMOUNT 不等于 0：
+        返还 做 do_remount 用 目标、标志、选项。
+    完。
+    若 标志 位与 MS_BIND 不等于 0：
+        返还 做 do_bind_mount 用 源、目标、标志。
+    完。
+    若 标志 位与 MS_MOVE 不等于 0：
+        返还 做 do_move_mount 用 源、目标。
+    完。
+    返还 做 do_new_mount 用 源、目标、类型、标志、选项。
+完。
+
+do_new_mount 接受 源、目标、类型、标志、选项：
+    fs类型 为 做 查找文件系统 用 类型。
+    若 fs类型 等于 空：
+        做 内核警告 用 「mount: 未知文件系统类型 」 加 类型。
+        返还 错误_不支持设备。
+    完。
+    若 fs类型 的 fs_flags 位与 FS_REQUIRES_DEV 不等于 0 并且 源 等于 「」：
+        返还 错误_无效参数。
+    完。
+    根 为 做 获取根目录项。
+    目标Nova路径项 为 做 路径查找 用 根、目标。
+    若 目标Nova路径项 等于 空：
+        返还 错误_不存在。
+    完。
+    若 非 做 目录项_是目录 用 目标Nova路径项：
+        返还 错误_非目录。
+    完。
+    可变 sb 为 空。
+    若 fs类型 的 mount 不等于 0：
+        sb 为 做 fs类型 的 mount 用 fs类型、标志、源、选项。
+    否则：
+        sb 为 做 超级块_创建 用 0、4096、0、类型。
+    完。
+    若 sb 等于 空：
+        返还 错误_内存不足。
+    完。
+    若 标志 位与 MS_RDONLY 不等于 0：
+        做 超级块_设置只读 用 sb。
+    完。
+    mnt 为 新建 挂载结构。
+    mnt 的 mnt_id 为 下一个挂载ID。
+    下一个挂载ID 为 下一个挂载ID 加 1。
+    mnt 的 mnt_parent 为 空。
+    mnt 的 mnt_mountpoint 为 目标Nova路径项。
+    mnt 的 mnt_root 为 sb 的 s_root。
+    mnt 的 mnt_sb 为 sb。
+    mnt 的 mnt_flags 为 标志。
+    mnt 的 mnt_devname 为 源。
+    mnt 的 mnt_fstype 为 类型。
+    mnt 的 mnt_opts 为 选项。
+    mnt 的 mnt_children 为 一组：（空）。
+    mnt 的 mnt_count 为 1。
+    做 目录项_设置已挂载 用 目标Nova路径项。
+    做 追加 用 挂载表、mnt。
+    挂载_总数 为 挂载_总数 加 1。
+    若 目标 等于 「/」：
+        根挂载 为 mnt。
+    完。
+    做 内核信息 用 「mount: 」 加 类型 加 「 on 」 加 目标 加 「 (」 加 源 加 「)」。
+    返还 成功。
+完。
+
+do_remount 接受 目标、新标志、选项：
+    mnt 为 做 查找挂载_按目标 用 目标。
+    若 mnt 等于 空：
+        返还 错误_无效参数。
+    完。
+    mnt 的 mnt_flags 为 新标志 位与 按位取反 MS_REMOUNT。
+    mnt 的 mnt_opts 为 选项。
+    若 新标志 位与 MS_RDONLY 不等于 0：
+        做 超级块_设置只读 用 mnt 的 mnt_sb。
+    否则：
+        做 超级块_设置读写 用 mnt 的 mnt_sb。
+    完。
+    sb 为 mnt 的 mnt_sb。
+    若 sb 的 s_op 不等于 空 并且 sb 的 s_op 的 remount_fs 不等于 0：
+        做 sb 的 s_op 的 remount_fs 用 sb、新标志、选项。
+    完。
+    做 内核信息 用 「remount: 」 加 目标。
+    返还 成功。
+完。
+
+do_bind_mount 接受 源、目标、标志：
+    根 为 做 获取根目录项。
+    源Nova路径项 为 做 路径查找 用 根、源。
+    若 源Nova路径项 等于 空：
+        返还 错误_不存在。
+    完。
+    目标Nova路径项 为 做 路径查找 用 根、目标。
+    若 目标Nova路径项 等于 空：
+        返还 错误_不存在。
+    完。
+    源mnt 为 做 查找挂载_按Nova路径项 用 源Nova路径项。
+    若 源mnt 等于 空：
+        返还 错误_无效参数。
+    完。
+    mnt 为 新建 挂载结构。
+    mnt 的 mnt_id 为 下一个挂载ID。
+    下一个挂载ID 为 下一个挂载ID 加 1。
+    mnt 的 mnt_mountpoint 为 目标Nova路径项。
+    mnt 的 mnt_root 为 源Nova路径项。
+    mnt 的 mnt_sb 为 源mnt 的 mnt_sb。
+    mnt 的 mnt_flags 为 标志 位与 按位取反 MS_BIND。
+    mnt 的 mnt_devname 为 源。
+    mnt 的 mnt_fstype 为 「bind」。
+    mnt 的 mnt_children 为 一组：（空）。
+    mnt 的 mnt_count 为 1。
+    做 超级块_增引用 用 mnt 的 mnt_sb。
+    做 目录项_设置已挂载 用 目标Nova路径项。
+    做 追加 用 挂载表、mnt。
+    挂载_总数 为 挂载_总数 加 1。
+    做 内核信息 用 「bind mount: 」 加 源 加 「 on 」 加 目标。
+    返还 成功。
+完。
+
+可变 AI_执行挂载_调用数 为 0。
+
+可变 AI_执行挂载_异常数 为 0。
+
+AI_执行挂载_监控 接受 零参：
+    AI_执行挂载_调用数 为 AI_执行挂载_调用数 加 1。
+    返还 AI_执行挂载_异常数 等于 0。
+完。
+
+AI_执行挂载_健康检查 接受 零参：
+    若 AI_执行挂载_调用数 大于 0 并且 AI_执行挂载_异常数 乘 100 除以 AI_执行挂载_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

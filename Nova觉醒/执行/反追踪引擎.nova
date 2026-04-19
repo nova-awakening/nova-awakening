@@ -1,0 +1,170 @@
+《反追踪引擎》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·外联·URL解析辅助》。
+
+检测_JS环境 为 0。
+
+检测_安全指纹 为 1。
+
+检测_HTTP头序 为 2。
+
+检测_行为评分 为 3。
+
+检测_时间一致 为 4。
+
+检测_堆栈痕迹 为 5。
+
+检测_CDP协议 为 6。
+
+检测_iframe陷阱 为 7。
+
+安全指纹模板 是 一种 事物，含 名称、JA3哈希、密码套件列表、扩展列表、椭圆曲线、签名算法、ALPN协议。
+
+HTTP头序模板 是 一种 事物，含 浏览器、头部顺序。
+
+反追踪状态 是 一种 事物，含 通过检测次数、被拦截次数、安全伪装次数、环境修复次数。
+
+可变 反追踪_安全模板库 为 一组：（空）。
+
+可变 反追踪_HTTP头序库 为 一组：（空）。
+
+可变 反追踪_状态 为 空。
+
+可变 反追踪_已初始化 为 假。
+
+反追踪_初始化 接受 零参：
+    反追踪_状态 为 新建 反追踪状态。
+    反追踪_安全模板库 为 一组：（空）。
+    反追踪_HTTP头序库 为 一组：（空）。
+    Nova浏览器_tls 为 新建 安全指纹模板。
+    Nova浏览器_tls 的 名称 为 「Nova浏览器-120」。
+    Nova浏览器_tls 的 JA3哈希 为 「cd08e31494f9531f560d64c695473da9」。
+    Nova浏览器_tls 的 密码套件列表 为 一组：0x1301、0x1302、0x1303、0xC02B、0xC02F、0xC02C、0xC030、0xCCA9、0xCCA8、0xC013、0xC014、0x009C、0x009D、0x002F、0x0035。
+    Nova浏览器_tls 的 扩展列表 为 一组：0、23、65281、10、11、35、16、5、13、18、51、45、43、27、17513、21。
+    Nova浏览器_tls 的 椭圆曲线 为 一组：29、23、24。
+    Nova浏览器_tls 的 签名算法 为 一组：0x0403、0x0804、0x0401、0x0503、0x0805、0x0501、0x0806、0x0601。
+    Nova浏览器_tls 的 ALPN协议 为 一组：「h2」、「http/1.1」。
+    做 追加 用 反追踪_安全模板库、Nova浏览器_tls。
+    ff_tls 为 新建 安全指纹模板。
+    ff_tls 的 名称 为 「Firefox-121」。
+    ff_tls 的 JA3哈希 为 「b32309a26951912be7dba376398abc3b」。
+    ff_tls 的 密码套件列表 为 一组：0x1301、0x1303、0x1302、0xC02B、0xC02F、0xCCA9、0xCCA8、0xC02C、0xC030、0xC013、0xC014。
+    ff_tls 的 扩展列表 为 一组：0、23、65281、10、11、35、16、5、51、43、13、45、28、21。
+    ff_tls 的 椭圆曲线 为 一组：29、23、24、256。
+    ff_tls 的 ALPN协议 为 一组：「h2」、「http/1.1」。
+    做 追加 用 反追踪_安全模板库、ff_tls。
+    Nova浏览器_headers 为 新建 HTTP头序模板。
+    Nova浏览器_headers 的 浏览器 为 「Nova浏览器」。
+    Nova浏览器_headers 的 头部顺序 为 一组：「Host」、「Connection」、「sec-ch-ua」、「sec-ch-ua-mobile」、「sec-ch-ua-platform」、「Upgrade-Insecure-Requests」、「User-智能体」、「Accept」、「Sec-取数-Site」、「Sec-取数-Mode」、「Sec-取数-User」、「Sec-取数-Dest」、「Accept-Encoding」、「Accept-Language」。
+    做 追加 用 反追踪_HTTP头序库、Nova浏览器_headers。
+    ff_headers 为 新建 HTTP头序模板。
+    ff_headers 的 浏览器 为 「Firefox」。
+    ff_headers 的 头部顺序 为 一组：「Host」、「User-智能体」、「Accept」、「Accept-Language」、「Accept-Encoding」、「Connection」、「Upgrade-Insecure-Requests」、「Sec-取数-Dest」、「Sec-取数-Mode」、「Sec-取数-Site」、「Sec-取数-User」。
+    做 追加 用 反追踪_HTTP头序库、ff_headers。
+    反追踪_已初始化 为 真。
+    做 内核信息 用 「反追踪引擎: 安全指纹+HTTP头序+JS环境+CDP隐藏 全维度对抗就绪」。
+完。
+
+反追踪_获取安全指纹 接受 浏览器名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 反追踪_安全模板库：
+        若 做 字符串查找 用 反追踪_安全模板库 的 第 i 项 的 名称、浏览器名 大于或等于 0：
+            反追踪_状态 的 安全伪装次数 为 反追踪_状态 的 安全伪装次数 加 1。
+            返还 反追踪_安全模板库 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 反追踪_安全模板库 的 第 0 项。
+完。
+
+反追踪_构造ClientHello 接受 模板：
+    返还 模板 的 密码套件列表。
+完。
+
+反追踪_排序HTTP头 接受 请求头、浏览器名：
+    模板 为 做 反追踪_获取HTTP头序 用 浏览器名。
+    若 模板 等于 空：
+        返还 请求头。
+    完。
+    可变 已排序 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 模板 的 头部顺序：
+        可变 j 为 0。
+        只要 j 小于 做 计数 用 请求头：
+            若 请求头 的 第 j 项 的 第 0 项 等于 模板 的 头部顺序 的 第 i 项：
+                做 追加 用 已排序、请求头 的 第 j 项。
+            完。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    可变 k 为 0。
+    只要 k 小于 做 计数 用 请求头：
+        可变 找到 为 假。
+        可变 m 为 0。
+        只要 m 小于 做 计数 用 已排序：
+            若 已排序 的 第 m 项 的 第 0 项 等于 请求头 的 第 k 项 的 第 0 项：
+                找到 为 真。
+            完。
+            m 为 m 加 1。
+        完。
+        若 非 找到：
+            做 追加 用 已排序、请求头 的 第 k 项。
+        完。
+        k 为 k 加 1。
+    完。
+    返还 已排序。
+完。
+
+反追踪_获取HTTP头序 接受 浏览器名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 反追踪_HTTP头序库：
+        若 做 字符串查找 用 反追踪_HTTP头序库 的 第 i 项 的 浏览器、浏览器名 大于或等于 0：
+            返还 反追踪_HTTP头序库 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+反追踪_生成SecChUa头 接受 零参：
+    返还 一组：一组：「sec-ch-ua」、「\"Not_A Brand\";v=\"8\", \"传统引擎\";v=\"120\", \"行业 Nova浏览器\";v=\"120\"」、一组：「sec-ch-ua-mobile」、「?0」、一组：「sec-ch-ua-platform」、「\"Windows\"」、一组：「Sec-取数-Site」、「none」、一组：「Sec-取数-Mode」、「navigate」、一组：「Sec-取数-User」、「?1」、一组：「Sec-取数-Dest」、「document」。
+完。
+
+反追踪_修复JS环境 接受 零参：
+    反追踪_状态 的 环境修复次数 为 反追踪_状态 的 环境修复次数 加 1。
+    返还 一组：一组：「navigator.webdriver」、「delete」、一组：「Navigator.prototype.webdriver」、「delete」、一组：「window.Nova浏览器」、「正常Nova浏览器对象」、一组：「window.Nova浏览器.runtime」、「{}」、一组：「window.Nova浏览器.loadTimes」、「function」、一组：「window.Nova浏览器.csi」、「function」、一组：「Notification.permission」、「default」、一组：「navigator.plugins.length」、「5」、一组：「navigator.mimeTypes.length」、「4」、一组：「window.__selenium_unwrapped」、「delete」、一组：「window.__webdriver_evaluate」、「delete」、一组：「window.__driver_evaluate」、「delete」、一组：「window.__webdriver_unwrapped」、「delete」、一组：「window.__fxdriver_evaluate」、「delete」、一组：「document.$cdc_asdjflasutopfhvcZLmcfl_」、「delete」、一组：「document.__webdriver_script_fn」、「delete」、一组：「window.cdc_adoQpoasnfa76pfcZLmcfl_数组」、「delete」、一组：「window.cdc_adoQpoasnfa76pfcZLmcfl_承诺」、「delete」、一组：「window.cdc_adoQpoasnfa76pfcZLmcfl_符号」、「delete」、一组：「Function.prototype.toString完整性」、「native code」、一组：「错误.stack清洗」、「移除自动化框架路径」、一组：「iframe.contentWindow属性一致性」、「与主窗口相同」、一组：「navigator.permissions.query({name:'notifications'})」、「prompt」。
+完。
+
+反追踪_一致性自检 接受 零参：
+    可变 问题 为 一组：（空）。
+    配置 为 指纹_当前配置。
+    若 做 字符串查找 用 配置 的 user智能体、「Windows」 大于或等于 0 并且 配置 的 platform 不等于 「Win32」：
+        做 追加 用 问题、「UA/platform不一致」。
+    完。
+    若 做 字符串查找 用 配置 的 user智能体、「Mac」 大于或等于 0 并且 配置 的 platform 不等于 「MacIntel」：
+        做 追加 用 问题、「UA/platform不一致」。
+    完。
+    若 配置 的 语言 等于 「zh-CN」 并且 配置 的 时区名称 不等于 「Asia/Shanghai」：
+        做 追加 用 问题、「语言/时区不一致(可能被检测)」。
+    完。
+    若 配置 的 屏幕宽 小于 800 或者 配置 的 屏幕高 小于 600：
+        做 追加 用 问题、「屏幕分辨率异常」。
+    完。
+    若 做 计数 用 问题 大于 0：
+        做 内核信息 用 「反追踪自检: 发现 」 加 做 整数转字符串 用 做 计数 用 问题 加 「 个一致性问题」。
+    完。
+    返还 问题。
+完。
+
+反追踪_统计 接受 零参：
+    返还 一组：反追踪_状态 的 通过检测次数、反追踪_状态 的 被拦截次数、反追踪_状态 的 安全伪装次数、反追踪_状态 的 环境修复次数。
+完。
+
+本章 收束。

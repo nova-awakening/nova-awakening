@@ -1,0 +1,114 @@
+《创建销毁》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+布局Object_创建 接受 类型、dom节点、样式：
+    lo 为 做 堆_分配 用 布局Object。
+    lo 的 类型 为 类型。
+    lo 的 标志 为 布局标志_需要布局。
+    lo 的 DOM节点 为 dom节点。
+    lo 的 样式 为 样式。
+    lo 的 父 为 0。
+    lo 的 第一子 为 0。
+    lo 的 最后子 为 0。
+    lo 的 前兄 为 0。
+    lo 的 后兄 为 0。
+    lo 的 x 为 0。
+    lo 的 y 为 0。
+    lo 的 内容宽 为 0。
+    lo 的 内容高 为 0。
+    lo 的 绝对x 为 0。
+    lo 的 绝对y 为 0。
+    lo 的 子数量 为 0。
+    若 样式 不等于 0：
+        若 样式 的 float_val 不等于 浮动_none：
+            lo 的 标志 为 lo 的 标志 位或 布局标志_是浮动。
+        完。
+        若 样式 的 position 不等于 Position_static：
+            lo 的 标志 为 lo 的 标志 位或 布局标志_是定位。
+        完。
+    完。
+    若 dom节点 不等于 0：
+        dom节点 的 布局对象 为 lo。
+        dom节点 的 节点标志 为 dom节点 的 节点标志 位或 节点标志_有渲染对象。
+    完。
+    lo 的 预测宽 为 0。
+    lo 的 预测高 为 0。
+    lo 的 预测置信度 为 0。
+    lo 的 布局版本 为 0。
+    lo 的 父布局版本 为 0。
+    lo 的 布局精度 为 2。
+    lo 的 布局优先级 为 128。
+    lo 的 上次布局耗时 为 0。
+    lo 的 累计布局次数 为 0。
+    返还 lo。
+完。
+
+布局Object_添加子 接受 父lo、子lo：
+    子lo 的 父 为 父lo。
+    子lo 的 前兄 为 父lo 的 最后子。
+    子lo 的 后兄 为 0。
+    若 父lo 的 最后子 不等于 0：
+        父lo 的 最后子 的 后兄 为 子lo。
+    否则：
+        父lo 的 第一子 为 子lo。
+    完。
+    父lo 的 最后子 为 子lo。
+    父lo 的 子数量 为 父lo 的 子数量 加 1。
+完。
+
+布局Object_边框盒宽 接受 lo：
+    若 lo 的 样式 等于 0：
+        返还 lo 的 内容宽。
+    完。
+    s 为 lo 的 样式。
+    若 s 的 box_sizing 等于 BoxSizing_border：
+        返还 lo 的 内容宽。
+    完。
+    返还 lo 的 内容宽 加 s 的 padding_left 的 值 加 s 的 padding_right 的 值 加 s 的 border_left_width 加 s 的 border_right_width。
+完。
+
+布局Object_边框盒高 接受 lo：
+    若 lo 的 样式 等于 0：
+        返还 lo 的 内容高。
+    完。
+    s 为 lo 的 样式。
+    若 s 的 box_sizing 等于 BoxSizing_border：
+        返还 lo 的 内容高。
+    完。
+    返还 lo 的 内容高 加 s 的 padding_top 的 值 加 s 的 padding_bottom 的 值 加 s 的 border_top_width 加 s 的 border_bottom_width。
+完。
+
+布局Object_外边距盒宽 接受 lo：
+    若 lo 的 样式 等于 0：
+        返还 做 布局Object_边框盒宽 用 lo。
+    完。
+    s 为 lo 的 样式。
+    返还 做 布局Object_边框盒宽 用 lo 加 s 的 margin_left 的 值 加 s 的 margin_right 的 值。
+完。
+
+布局Object_外边距盒高 接受 lo：
+    若 lo 的 样式 等于 0：
+        返还 做 布局Object_边框盒高 用 lo。
+    完。
+    s 为 lo 的 样式。
+    返还 做 布局Object_边框盒高 用 lo 加 s 的 margin_top 的 值 加 s 的 margin_bottom 的 值。
+完。
+
+布局Object_内边距盒宽 接受 lo：
+    若 lo 的 样式 等于 0：
+        返还 lo 的 内容宽。
+    完。
+    返还 lo 的 内容宽 加 lo 的 样式 的 padding_left 的 值 加 lo 的 样式 的 padding_right 的 值。
+完。
+
+布局Object_内边距盒高 接受 lo：
+    若 lo 的 样式 等于 0：
+        返还 lo 的 内容高。
+    完。
+    返还 lo 的 内容高 加 lo 的 样式 的 padding_top 的 值 加 lo 的 样式 的 padding_bottom 的 值。
+完。
+
+本章 收束。

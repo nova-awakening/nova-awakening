@@ -1,0 +1,478 @@
+《接口绑定》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·感知·文档创建》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·感知·存储创建》。
+
+引用《..·推理·小整数SMI判定》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·辅助有符号读》。
+
+引用《..·标准·加法运算符》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·底层内存操》。
+
+NATIVE_DOC_GET_BY_ID 为 200。
+
+NATIVE_DOC_CREATE_元素 为 201。
+
+NATIVE_DOC_CREATE_TEXT_节点 为 202。
+
+NATIVE_DOC_QUERY_SELECTOR 为 203。
+
+NATIVE_DOC_QUERY_SELECTOR_ALL 为 204。
+
+NATIVE_DOC_GET_BY_CLASS 为 205。
+
+NATIVE_DOC_GET_BY_TAG 为 206。
+
+NATIVE_DOC_CREATE_事件 为 207。
+
+NATIVE_DOC_CREATE_FRAGMENT 为 208。
+
+NATIVE_DOC_CREATE_COMMENT 为 209。
+
+NATIVE_DOC_WRITE 为 210。
+
+NATIVE_DOM_ADD_事件_LISTENER 为 220。
+
+NATIVE_DOM_REMOVE_事件_LISTENER 为 221。
+
+NATIVE_DOM_DISPATCH_事件 为 222。
+
+NATIVE_WIN_ALERT 为 230。
+
+NATIVE_WIN_CONFIRM 为 231。
+
+NATIVE_WIN_GET_COMPUTED_STYLE 为 232。
+
+NATIVE_WIN_SCROLL_TO 为 233。
+
+NATIVE_WIN_SCROLL_BY 为 234。
+
+NATIVE_WIN_OPEN 为 235。
+
+NATIVE_WIN_CLOSE 为 236。
+
+NATIVE_WIN_FETCH 为 237。
+
+NATIVE_WIN_ATOB 为 238。
+
+NATIVE_WIN_BTOA 为 239。
+
+NATIVE_ID_CONSOLE_LOG 为 240。
+
+NATIVE_ID_CONSOLE_ERROR 为 241。
+
+NATIVE_ID_CONSOLE_WARN 为 242。
+
+NATIVE_ID_CONSOLE_TIME 为 243。
+
+NATIVE_ID_CONSOLE_TIMEEND 为 244。
+
+NATIVE_ID_SETTIMEOUT 为 250。
+
+NATIVE_ID_SETINTERVAL 为 251。
+
+NATIVE_ID_CLEARTIMEOUT 为 252。
+
+NATIVE_ID_CLEARINTERVAL 为 253。
+
+NATIVE_ID_REQUESTANIMATIONFRAME 为 254。
+
+NATIVE_ID_CANCELANIMATIONFRAME 为 255。
+
+NATIVE_ID_PARSEINT 为 260。
+
+NATIVE_ID_PARSEFLOAT 为 261。
+
+NATIVE_ID_ISNAN 为 262。
+
+NATIVE_ID_ISFINITE 为 263。
+
+NATIVE_STORAGE_GET_ITEM 为 270。
+
+NATIVE_STORAGE_SET_ITEM 为 271。
+
+NATIVE_STORAGE_REMOVE_ITEM 为 272。
+
+NATIVE_STORAGE_CLEAR 为 273。
+
+NATIVE_STORAGE_KEY 为 274。
+
+NATIVE_STORAGE_LENGTH 为 275。
+
+NATIVE_NAV_USER_AGENT 为 280。
+
+NATIVE_NAV_LANGUAGE 为 281。
+
+NATIVE_NAV_ONLINE 为 282。
+
+NATIVE_LOC_HREF 为 290。
+
+NATIVE_LOC_ASSIGN 为 291。
+
+NATIVE_LOC_RELOAD 为 292。
+
+NATIVE_LOC_REPLACE 为 293。
+
+AI_DOM访问_缓存大小 为 32。
+
+Web接口统计 是 一种 事物，含 统计_DOM查询次数、统计_DOM创建次数、统计_事件监听注册次数、统计_事件派发次数、统计_定时器创建次数、统计_存储访问次数、统计_fetch请求次数、统计_console输出次数、统计_AI缓存命中次数。
+
+可变 全局_Web统计 为 0。
+
+Web统计_获取 接受 零参：
+    若 全局_Web统计 等于 0：
+        全局_Web统计 为 做 堆_分配 用 Web接口统计。
+        若 全局_Web统计 不等于 0：
+            全局_Web统计 的 统计_DOM查询次数 为 0。
+            全局_Web统计 的 统计_DOM创建次数 为 0。
+            全局_Web统计 的 统计_事件监听注册次数 为 0。
+            全局_Web统计 的 统计_事件派发次数 为 0。
+            全局_Web统计 的 统计_定时器创建次数 为 0。
+            全局_Web统计 的 统计_存储访问次数 为 0。
+            全局_Web统计 的 统计_fetch请求次数 为 0。
+            全局_Web统计 的 统计_console输出次数 为 0。
+            全局_Web统计 的 统计_AI缓存命中次数 为 0。
+        完。
+    完。
+    返还 全局_Web统计。
+完。
+
+JSNative_创建 接受 Nova运行时实例、native_id、上下文数据：
+    若 Nova运行时实例 等于 0：
+        返还 0。
+    完。
+    func 为 做 堆_分配 用 64。
+    若 func 等于 0：
+        返还 0。
+    完。
+    做 内存_写32 用 func、8。
+    做 内存_写32 用 func 加 4、native_id。
+    做 内存_写64 用 func 加 8、上下文数据。
+    做 内存_写32 用 func 加 16、1。
+    返还 func。
+完。
+
+JSNative_分发 接受 Nova运行时实例、native_id、上下文、args、argc：
+    若 Nova运行时实例 等于 0：
+        返还 0。
+    完。
+    统计 为 做 Web统计_获取。
+    若 native_id 等于 NATIVE_STORAGE_GET_ITEM：
+        若 统计 不等于 0：
+            统计 的 统计_存储访问次数 为 统计 的 统计_存储访问次数 加 1。
+        完。
+    否则若 native_id 等于 NATIVE_STORAGE_GET_ITEM：
+        若 argc 小于 1：
+            返还 Nova运行时实例 的 null值。
+        完。
+        键 为 做 JSValue_获取字符串 用 做 JSValue_ToString 用 Nova运行时实例、做 内存_读64 用 args。
+        值 为 做 存储_getItem 用 键。
+        若 值 等于 0：
+            返还 Nova运行时实例 的 null值。
+        完。
+        返还 做 Nova值_创建_String 用 Nova运行时实例、值。
+    否则若 native_id 等于 NATIVE_STORAGE_SET_ITEM：
+        若 argc 小于 2：
+            返还 Nova运行时实例 的 undefined值。
+        完。
+        键 为 做 JSValue_获取字符串 用 做 JSValue_ToString 用 Nova运行时实例、做 内存_读64 用 args。
+        值 为 做 JSValue_获取字符串 用 做 JSValue_ToString 用 Nova运行时实例、做 内存_读64 用 args 加 8。
+        做 存储_setItem 用 键、值。
+        返还 Nova运行时实例 的 undefined值。
+    完。
+    返还 Nova运行时实例 的 undefined值。
+完。
+
+网接口_安装Document 接受 Nova运行时实例、ctx、文档：
+    doc_obj 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「[[DOM节点]]」、做 Nova值_创建_Number 用 Nova运行时实例、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「get元素ById」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_GET_BY_ID、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「create元素」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_CREATE_元素、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「createText节点」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_CREATE_TEXT_节点、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「querySelector」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_QUERY_SELECTOR、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「querySelectorAll」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_QUERY_SELECTOR_ALL、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「get元素sByClassName」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_GET_BY_CLASS、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「get元素sByTagName」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_GET_BY_TAG、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「create事件」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_CREATE_事件、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「createDocumentFragment」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_CREATE_FRAGMENT、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「createComment」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_CREATE_COMMENT、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「write」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_WRITE、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「add事件Listener」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOM_ADD_事件_LISTENER、文档。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「readyState」、做 Nova值_创建_String 用 Nova运行时实例、「loading」。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「title」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「characterSet」、做 Nova值_创建_String 用 Nova运行时实例、「UTF-8」。
+    做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「contentType」、做 Nova值_创建_String 用 Nova运行时实例、「text/html」。
+    body 为 做 Document_获取body 用 文档。
+    若 body 不等于 0：
+        做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「body」、做 DOMWrapper_包装节点 用 Nova运行时实例、body。
+    完。
+    head 为 做 Document_获取head 用 文档。
+    若 head 不等于 0：
+        做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「head」、做 DOMWrapper_包装节点 用 Nova运行时实例、head。
+    完。
+    docElem 为 文档 的 第一子节点。
+    若 docElem 不等于 0：
+        做 Nova对象_设置属性 用 Nova运行时实例、doc_obj、「document元素」、做 DOMWrapper_包装节点 用 Nova运行时实例、docElem。
+    完。
+    做 Nova对象_设置属性 用 Nova运行时实例、ctx 的 全局对象、「document」、doc_obj。
+完。
+
+网接口_安装Window 接受 Nova运行时实例、ctx、tab：
+    global 为 ctx 的 全局对象。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「window」、global。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「self」、global。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「globalThis」、global。
+    console 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、console、「log」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CONSOLE_LOG、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、console、「error」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CONSOLE_ERROR、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、console、「warn」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CONSOLE_WARN、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、console、「info」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CONSOLE_LOG、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、console、「debug」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CONSOLE_LOG、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、console、「dir」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CONSOLE_LOG、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「console」、console。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「setTimeout」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_SETTIMEOUT、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「setInterval」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_SETINTERVAL、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「clearTimeout」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CLEARTIMEOUT、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「clearInterval」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CLEARINTERVAL、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「requestAnimationFrame」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_REQUESTANIMATIONFRAME、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「cancelAnimationFrame」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_CANCELANIMATIONFRAME、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「parseInt」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_PARSEINT、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「parse浮动」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_PARSEFLOAT、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「isNaN」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_ISNAN、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「isFinite」、做 JSNative_创建 用 Nova运行时实例、NATIVE_ID_ISFINITE、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「alert」、做 JSNative_创建 用 Nova运行时实例、NATIVE_WIN_ALERT、tab。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「confirm」、做 JSNative_创建 用 Nova运行时实例、NATIVE_WIN_CONFIRM、tab。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「getComputed样式」、做 JSNative_创建 用 Nova运行时实例、NATIVE_WIN_GET_COMPUTED_STYLE、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「fetch」、做 JSNative_创建 用 Nova运行时实例、NATIVE_WIN_FETCH、tab。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「atob」、做 JSNative_创建 用 Nova运行时实例、NATIVE_WIN_ATOB、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「btoa」、做 JSNative_创建 用 Nova运行时实例、NATIVE_WIN_BTOA、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「scrollTo」、做 JSNative_创建 用 Nova运行时实例、NATIVE_WIN_SCROLL_TO、tab。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「scrollBy」、做 JSNative_创建 用 Nova运行时实例、NATIVE_WIN_SCROLL_BY、tab。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「structuredClone」、做 JSNative_创建 用 Nova运行时实例、300、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「queueMicrotask」、做 JSNative_创建 用 Nova运行时实例、301、0。
+    性能对象 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、性能对象、「now」、做 JSNative_创建 用 Nova运行时实例、310、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、性能对象、「mark」、做 JSNative_创建 用 Nova运行时实例、311、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、性能对象、「measure」、做 JSNative_创建 用 Nova运行时实例、312、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「performance」、性能对象。
+完。
+
+网接口_安装Navigator 接受 Nova运行时实例、ctx：
+    若 Nova运行时实例 等于 0 或者 ctx 等于 0：
+        返还。
+    完。
+    global 为 ctx 的 全局对象。
+    nav 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「userAgent」、做 Nova值_创建_String 用 Nova运行时实例、「NovaOS/1.0 (觉醒系统; Nova引擎; x86_64) NovaKit/1.0」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「language」、做 Nova值_创建_String 用 Nova运行时实例、「zh-CN」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「languages」、做 Nova值_创建_String 用 Nova运行时实例、「zh-CN,zh,en-US,en」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「platform」、做 Nova值_创建_String 用 Nova运行时实例、「NovaOS」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「vendor」、做 Nova值_创建_String 用 Nova运行时实例、「NovaOS陈先生」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「appName」、做 Nova值_创建_String 用 Nova运行时实例、「Netscape」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「appVersion」、做 Nova值_创建_String 用 Nova运行时实例、「1.0」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「product」、做 Nova值_创建_String 用 Nova运行时实例、「Nova」。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「cookieEnabled」、Nova运行时实例 的 true值。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「onLine」、Nova运行时实例 的 true值。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「maxTouchPoints」、做 Nova值_创建_Number 用 Nova运行时实例、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「hardwareConcurrency」、做 Nova值_创建_Number 用 Nova运行时实例、4。
+    做 Nova对象_设置属性 用 Nova运行时实例、nav、「deviceMemory」、做 Nova值_创建_Number 用 Nova运行时实例、8。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「navigator」、nav。
+完。
+
+网接口_安装Location 接受 Nova运行时实例、ctx、页面URL：
+    若 Nova运行时实例 等于 0 或者 ctx 等于 0：
+        返还。
+    完。
+    global 为 ctx 的 全局对象。
+    loc 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    若 页面URL 不等于 0：
+        做 Nova对象_设置属性 用 Nova运行时实例、loc、「href」、做 Nova值_创建_String 用 Nova运行时实例、页面URL。
+    否则：
+        做 Nova对象_设置属性 用 Nova运行时实例、loc、「href」、做 Nova值_创建_String 用 Nova运行时实例、「about:blank」。
+    完。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「protocol」、做 Nova值_创建_String 用 Nova运行时实例、「https:」。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「host」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「hostname」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「port」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「pathname」、做 Nova值_创建_String 用 Nova运行时实例、「/」。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「search」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「hash」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「origin」、做 Nova值_创建_String 用 Nova运行时实例、「」。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「assign」、做 JSNative_创建 用 Nova运行时实例、NATIVE_LOC_ASSIGN、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「reload」、做 JSNative_创建 用 Nova运行时实例、NATIVE_LOC_RELOAD、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、loc、「replace」、做 JSNative_创建 用 Nova运行时实例、NATIVE_LOC_REPLACE、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「location」、loc。
+完。
+
+网接口_安装History 接受 Nova运行时实例、ctx：
+    若 Nova运行时实例 等于 0 或者 ctx 等于 0：
+        返还。
+    完。
+    global 为 ctx 的 全局对象。
+    history 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、history、「length」、做 Nova值_创建_Number 用 Nova运行时实例、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、history、「state」、Nova运行时实例 的 null值。
+    做 Nova对象_设置属性 用 Nova运行时实例、history、「pushState」、做 JSNative_创建 用 Nova运行时实例、320、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、history、「replaceState」、做 JSNative_创建 用 Nova运行时实例、321、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、history、「back」、做 JSNative_创建 用 Nova运行时实例、322、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、history、「forward」、做 JSNative_创建 用 Nova运行时实例、323、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、history、「go」、做 JSNative_创建 用 Nova运行时实例、324、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「history」、history。
+完。
+
+网接口_安装Storage 接受 Nova运行时实例、ctx：
+    若 Nova运行时实例 等于 0 或者 ctx 等于 0：
+        返还。
+    完。
+    global 为 ctx 的 全局对象。
+    localStorage 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、localStorage、「getItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_GET_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、localStorage、「setItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_SET_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、localStorage、「removeItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_REMOVE_ITEM、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、localStorage、「clear」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_CLEAR、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、localStorage、「key」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_KEY、0。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「localStorage」、localStorage。
+    sessionStorage 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、sessionStorage、「getItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_GET_ITEM、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、sessionStorage、「setItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_SET_ITEM、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、sessionStorage、「removeItem」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_REMOVE_ITEM、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、sessionStorage、「clear」、做 JSNative_创建 用 Nova运行时实例、NATIVE_STORAGE_CLEAR、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「sessionStorage」、sessionStorage。
+完。
+
+网接口_初始化完整环境 接受 Nova运行时实例、ctx、文档、tab、页面URL：
+    若 Nova运行时实例 等于 0 或者 ctx 等于 0：
+        返还。
+    完。
+    做 打印 用 「[Web接口] 开始安装Web环境...」。
+    做 网接口_安装Window 用 Nova运行时实例、ctx、tab。
+    做 打印 用 「[Web接口]   Window已安装」。
+    若 文档 不等于 0：
+        做 网接口_安装Document 用 Nova运行时实例、ctx、文档。
+        做 打印 用 「[Web接口]   Document已安装」。
+    完。
+    做 网接口_安装Navigator 用 Nova运行时实例、ctx。
+    做 打印 用 「[Web接口]   Navigator已安装」。
+    做 网接口_安装Location 用 Nova运行时实例、ctx、页面URL。
+    做 打印 用 「[Web接口]   Location已安装」。
+    做 网接口_安装History 用 Nova运行时实例、ctx。
+    做 打印 用 「[Web接口]   History已安装」。
+    做 网接口_安装Storage 用 Nova运行时实例、ctx。
+    做 打印 用 「[Web接口]   localStorage/sessionStorage已安装」。
+    做 打印 用 「[Web接口] Web环境安装完成」。
+完。
+
+DOMWrapper_包装节点 接受 Nova运行时实例、dom节点：
+    若 Nova运行时实例 等于 0 或者 dom节点 等于 0：
+        返还 0。
+    完。
+    obj 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    若 obj 等于 0：
+        返还 0。
+    完。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「[[DOM节点]]」、做 Nova值_创建_Number 用 Nova运行时实例、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「appendChild」、做 JSNative_创建 用 Nova运行时实例、400、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「removeChild」、做 JSNative_创建 用 Nova运行时实例、401、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「insertBefore」、做 JSNative_创建 用 Nova运行时实例、402、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「replaceChild」、做 JSNative_创建 用 Nova运行时实例、403、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「cloneNode」、做 JSNative_创建 用 Nova运行时实例、404、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「add事件Listener」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOM_ADD_事件_LISTENER、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「remove事件Listener」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOM_REMOVE_事件_LISTENER、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「getAttribute」、做 JSNative_创建 用 Nova运行时实例、410、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「setAttribute」、做 JSNative_创建 用 Nova运行时实例、411、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「removeAttribute」、做 JSNative_创建 用 Nova运行时实例、412、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「querySelector」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_QUERY_SELECTOR、dom节点。
+    做 Nova对象_设置属性 用 Nova运行时实例、obj、「querySelectorAll」、做 JSNative_创建 用 Nova运行时实例、NATIVE_DOC_QUERY_SELECTOR_ALL、dom节点。
+    返还 obj。
+完。
+
+DOMWrapper_获取DOM节点 接受 Nova运行时实例、js对象：
+    若 Nova运行时实例 等于 0 或者 js对象 等于 0：
+        返还 0。
+    完。
+    dom值 为 做 Nova对象_获取属性 用 Nova运行时实例、js对象、「[[DOM节点]]」。
+    若 dom值 等于 0：
+        返还 0。
+    完。
+    返还 做 JSValue_ToInt32 用 Nova运行时实例、dom值。
+完。
+
+可变 AI_DOM缓存 为 0。
+
+AI_DOM缓存容量 为 32。
+
+AI_DOM缓存_查找 接受 dom节点：
+    若 AI_DOM缓存 等于 0 或者 dom节点 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 AI_DOM缓存容量：
+        偏移 为 AI_DOM缓存 加 i 乘 16。
+        若 做 内存_读64 用 偏移 等于 dom节点：
+            统计 为 做 Web统计_获取。
+            若 统计 不等于 0：
+                统计 的 统计_AI缓存命中次数 为 统计 的 统计_AI缓存命中次数 加 1。
+            完。
+            返还 做 内存_读64 用 偏移 加 8。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+AI_DOM缓存_记录 接受 dom节点、js对象：
+    若 dom节点 等于 0 或者 js对象 等于 0：
+        返还。
+    完。
+    若 AI_DOM缓存 等于 0：
+        AI_DOM缓存 为 做 平台_申请内存 用 AI_DOM缓存容量 乘 16。
+        若 AI_DOM缓存 等于 0：
+            返还。
+        完。
+        做 内存_清零 用 AI_DOM缓存、AI_DOM缓存容量 乘 16。
+    完。
+    可变 i 为 0。
+    只要 i 小于 AI_DOM缓存容量：
+        若 做 内存_读64 用 AI_DOM缓存 加 i 乘 16 等于 0：
+            做 内存_写64 用 AI_DOM缓存 加 i 乘 16、dom节点。
+            做 内存_写64 用 AI_DOM缓存 加 i 乘 16 加 8、js对象。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    做 内存_写64 用 AI_DOM缓存、dom节点。
+    做 内存_写64 用 AI_DOM缓存 加 8、js对象。
+完。
+
+Web接口_打印统计 接受 零参：
+    统计 为 做 Web统计_获取。
+    若 统计 等于 0：
+        返还。
+    完。
+    做 打印 用 「[Web接口] ═══════════ Web接口统计 ═══════════」。
+    做 打印 用 做 字符串拼接 用 「  DOM查询次数:       」、做 转字符串 用 统计 的 统计_DOM查询次数。
+    做 打印 用 做 字符串拼接 用 「  DOM创建次数:       」、做 转字符串 用 统计 的 统计_DOM创建次数。
+    做 打印 用 做 字符串拼接 用 「  事件监听注册次数:  」、做 转字符串 用 统计 的 统计_事件监听注册次数。
+    做 打印 用 做 字符串拼接 用 「  事件派发次数:      」、做 转字符串 用 统计 的 统计_事件派发次数。
+    做 打印 用 做 字符串拼接 用 「  定时器创建次数:    」、做 转字符串 用 统计 的 统计_定时器创建次数。
+    做 打印 用 做 字符串拼接 用 「  存储访问次数:      」、做 转字符串 用 统计 的 统计_存储访问次数。
+    做 打印 用 做 字符串拼接 用 「  fetch请求次数:     」、做 转字符串 用 统计 的 统计_fetch请求次数。
+    做 打印 用 做 字符串拼接 用 「  console输出次数:   」、做 转字符串 用 统计 的 统计_console输出次数。
+    做 打印 用 做 字符串拼接 用 「  AI DOM缓存命中:    」、做 转字符串 用 统计 的 统计_AI缓存命中次数。
+    做 打印 用 「[Web接口] ═══════════════════════════════════════」。
+完。
+
+本章 收束。

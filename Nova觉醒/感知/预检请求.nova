@@ -1,0 +1,126 @@
+《预检请求》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·跨域控制请求》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·安全策主机》。
+
+引用《.·暴露头过滤》。
+
+引用《.·来源解析》。
+
+引用《..·外联·HTTP发送与解析》。
+
+引用《..·外联·域名缓存》。
+
+引用《..·中枢·字符串替换》。
+
+PreflightRequest 是 一种 事物，含 目标URL、源、方法、自定义头、自定义头数。
+
+CORS_发送预检 接受 preflight：
+    若 preflight 等于 0：
+        返还 0。
+    完。
+    options_request 为 做 堆_分配 用 64。
+    响应 为 做 取数_完整链路 用 options_request。
+    若 响应 等于 0：
+        返还 做 CORS_拒绝 用 「预检请求失败」。
+    完。
+    result 为 做 CORS_检查响应 用 preflight 的 源、响应、假。
+    若 非 result 的 允许：
+        返还 result。
+    完。
+    allow_methods 为 做 HTTP_获取响应头 用 响应、「Access-Control-Allow-Methods」。
+    若 allow_methods 不等于 0：
+        若 非 做 字符串_包含 用 allow_methods、preflight 的 方法 并且 非 做 字符串_相等 用 allow_methods、「*」：
+            result 的 允许 为 假。
+            result 的 错误 为 「方法不在Access-Control-Allow-Methods中」。
+            返还 result。
+        完。
+    完。
+    allow_headers 为 做 HTTP_获取响应头 用 响应、「Access-Control-Allow-Headers」。
+    若 allow_headers 不等于 0：
+        result 的 允许头 为 allow_headers。
+    完。
+    max_age 为 做 HTTP_获取响应头 用 响应、「Access-Control-Max-Age」。
+    若 max_age 不等于 0：
+        result 的 最大缓存秒 为 做 字符串转整数 用 max_age。
+    完。
+    返还 result。
+完。
+
+Preflight缓存Entry 是 一种 事物，含 源、目标URL、允许方法、允许头、过期时间、下一个。
+
+可变 预检缓存头 为 0。
+
+Preflight缓存_查找 接受 源、url：
+    可变 entry 为 预检缓存头。
+    现在 为 做 平台_获取时间ms。
+    只要 entry 不等于 0：
+        若 做 字符串_相等 用 entry 的 目标URL、url 并且 现在 小于 entry 的 过期时间：
+            返还 entry。
+        完。
+        entry 为 entry 的 下一个。
+    完。
+    返还 0。
+完。
+
+Preflight缓存_存储 接受 源、url、result：
+    若 result 等于 0：
+        返还。
+    完。
+    entry 为 做 堆_分配 用 Preflight缓存Entry。
+    entry 的 源 为 源。
+    entry 的 目标URL 为 url。
+    entry 的 允许方法 为 result 的 允许方法。
+    entry 的 允许头 为 result 的 允许头。
+    ttl 为 result 的 最大缓存秒。
+    若 ttl 等于 0：
+        ttl 为 5。
+    完。
+    若 ttl 大于 7200：
+        ttl 为 7200。
+    完。
+    entry 的 过期时间 为 做 平台_获取时间ms 加 ttl 乘 1000。
+    entry 的 下一个 为 预检缓存头。
+    预检缓存头 为 entry。
+完。
+
+CORS_完整检查 接受 请求URL、请求方法、请求头、头数、文档URL、含凭证：
+    请求源 为 做 Origin_解析 用 文档URL。
+    目标源 为 做 Origin_解析 用 请求URL。
+    若 做 Origin_相等 用 请求源、目标源：
+        返还 做 CORS_允许。
+    完。
+    若 做 CORS_需要预检 用 请求方法、请求头、头数：
+        cached 为 做 Preflight缓存_查找 用 请求源、请求URL。
+        若 cached 等于 0：
+            pf 为 做 堆_分配 用 PreflightRequest。
+            pf 的 目标URL 为 请求URL。
+            pf 的 源 为 请求源。
+            pf 的 方法 为 请求方法。
+            pf 的 自定义头 为 请求头。
+            pf 的 自定义头数 为 头数。
+            pf_result 为 做 CORS_发送预检 用 pf。
+            若 非 pf_result 的 允许：
+                返还 pf_result。
+            完。
+            做 Preflight缓存_存储 用 请求源、请求URL、pf_result。
+        完。
+    完。
+    返还 做 CORS_允许。
+完。
+
+CORS_允许 接受 零参：
+    r 为 做 堆_分配 用 CORSResult。
+    r 的 允许 为 真。
+    r 的 错误 为 0。
+    返还 r。
+完。
+
+本章 收束。

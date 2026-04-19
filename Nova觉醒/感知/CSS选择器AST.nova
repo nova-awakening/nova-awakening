@@ -1,0 +1,131 @@
+《CSS选择器AST》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+SEL_TAG 为 1。
+
+SEL_CLASS 为 2。
+
+SEL_ID 为 3。
+
+SEL_UNIVERSAL 为 4。
+
+SEL_ATTR 为 5。
+
+SEL_PSEUDO_CLASS 为 6。
+
+SEL_PSEUDO_ELEM 为 7。
+
+SEL_COMPOUND 为 8。
+
+SEL_COMPLEX 为 9。
+
+COMB_DESCENDANT 为 0。
+
+COMB_CHILD 为 1。
+
+COMB_NEXT_SIBLING 为 2。
+
+COMB_SUBSEQUENT 为 3。
+
+COMB_COLUMN 为 4。
+
+ATTR_EXISTS 为 0。
+
+ATTR_EXACT 为 1。
+
+ATTR_INCLUDES 为 2。
+
+ATTR_DASH 为 3。
+
+ATTR_PREFIX 为 4。
+
+ATTR_SUFFIX 为 5。
+
+ATTR_SUBSTRING 为 6。
+
+PC_HOVER 为 1。
+
+PC_FOCUS 为 2。
+
+PC_ACTIVE 为 3。
+
+PC_VISITED 为 4。
+
+PC_LINK 为 5。
+
+PC_FIRST_CHILD 为 10。
+
+PC_LAST_CHILD 为 11。
+
+PC_ONLY_CHILD 为 12。
+
+PC_FIRST_OF_TYPE 为 13。
+
+PC_LAST_OF_TYPE 为 14。
+
+PC_ONLY_OF_TYPE 为 15。
+
+PC_NTH_CHILD 为 20。
+
+PC_NTH_LAST_CHILD 为 21。
+
+PC_NTH_OF_TYPE 为 22。
+
+PC_NTH_LAST_OF_TYPE 为 23。
+
+PC_NOT 为 30。
+
+PC_IS 为 31。
+
+PC_WHERE 为 32。
+
+PC_HAS 为 33。
+
+PC_EMPTY 为 40。
+
+PC_CHECKED 为 41。
+
+PC_DISABLED 为 42。
+
+PC_ENABLED 为 43。
+
+PC_REQUIRED 为 44。
+
+PC_OPTIONAL 为 45。
+
+PC_ROOT 为 46。
+
+PC_TARGET 为 47。
+
+PC_FOCUS_WITHIN 为 48。
+
+PC_FOCUS_VISIBLE 为 49。
+
+PC_PLACEHOLDER_SHOWN 为 50。
+
+PC_AUTOFILL 为 51。
+
+PC_LANG 为 52。
+
+PE_BEFORE 为 1。
+
+PE_AFTER 为 2。
+
+PE_FIRST_LINE 为 3。
+
+PE_FIRST_LETTER 为 4。
+
+PE_SELECTION 为 5。
+
+PE_PLACEHOLDER 为 6。
+
+PE_MARKER 为 7。
+
+PE_BACKDROP 为 8。
+
+Selector节点 是 一种 事物，含 类型、名称、属性名、属性值、属性匹配、属性大小写、伪类ID、伪类参数_a、伪类参数_b、伪类子选择器、伪类子选择器数、伪元素ID、子项列表、子项数量、组合符、左选择器、右选择器。
+
+本章 收束。

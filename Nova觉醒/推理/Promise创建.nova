@@ -1,0 +1,518 @@
+《Promise创建》
+
+引用《.·上下文运行时》。
+
+引用《.·值型系统》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信总线》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·执行·接口绑定》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·定点Q算术》。
+
+PROMISE_PENDING 为 0。
+
+PROMISE_FULFILLED 为 1。
+
+PROMISE_REJECTED 为 2。
+
+REACTION_THEN 为 0。
+
+REACTION_CATCH 为 1。
+
+REACTION_FINALLY 为 2。
+
+MICROTASK_最大容量 为 4096。
+
+AI_异步优化阈值 为 0.5。
+
+Nova承诺 是 一种 事物，含 状态、值、回调链、回调链数量、已处理、Nova运行时实例。
+
+承诺反应 是 一种 事物，含 类型、onFulfilled、onRejected、结果承诺、下一个。
+
+Microtask节点 是 一种 事物，含 承诺、反应、下一个。
+
+PAMC统计 是 一种 事物，含 创建总数、resolve次数、reject次数、then次数、catch次数、finally次数、microtask总数、microtask峰值、all调用数、race调用数、any调用数、AI优化次数。
+
+可变 全局PAMC统计 为 新建 PAMC统计。
+
+可变 microtask队列头 为 0。
+
+可变 microtask队列尾 为 0。
+
+可变 microtask队列长度 为 0。
+
+可变 microtask正在执行 为 假。
+
+Microtask_入队 接受 承诺、反应：
+    若 microtask队列长度 大于或等于 MICROTASK_最大容量：
+        返还。
+    完。
+    node 为 做 堆_分配 用 Microtask节点。
+    若 node 等于 0：
+        返还。
+    完。
+    node 的 承诺 为 承诺。
+    node 的 反应 为 反应。
+    node 的 下一个 为 0。
+    若 microtask队列尾 不等于 0：
+        microtask队列尾 的 下一个 为 node。
+    否则：
+        microtask队列头 为 node。
+    完。
+    microtask队列尾 为 node。
+    microtask队列长度 为 microtask队列长度 加 1。
+    全局PAMC统计 的 microtask总数 为 全局PAMC统计 的 microtask总数 加 1。
+    若 microtask队列长度 大于 全局PAMC统计 的 microtask峰值：
+        全局PAMC统计 的 microtask峰值 为 microtask队列长度。
+    完。
+完。
+
+Microtask_清空队列 接受 零参：
+    若 microtask正在执行：
+        返还。
+    完。
+    microtask正在执行 为 真。
+    只要 microtask队列头 不等于 0：
+        node 为 microtask队列头。
+        microtask队列头 为 node 的 下一个。
+        若 microtask队列头 等于 0：
+            microtask队列尾 为 0。
+        完。
+        microtask队列长度 为 microtask队列长度 减 1。
+        做 Microtask_执行反应 用 node 的 承诺、node 的 反应。
+        做 堆_释放 用 node。
+    完。
+    microtask正在执行 为 假。
+完。
+
+Nova承诺_创建 接受 Nova运行时实例：
+    p 为 做 堆_分配 用 Nova承诺。
+    若 p 等于 0：
+        返还 0。
+    完。
+    p 的 状态 为 PROMISE_PENDING。
+    p 的 值 为 0。
+    p 的 回调链 为 0。
+    p 的 回调链数量 为 0。
+    p 的 已处理 为 假。
+    p 的 Nova运行时实例 为 Nova运行时实例。
+    全局PAMC统计 的 创建总数 为 全局PAMC统计 的 创建总数 加 1。
+    返还 p。
+完。
+
+Nova承诺_构造 接受 Nova运行时实例、executor：
+    p 为 做 Nova承诺_创建 用 Nova运行时实例。
+    若 p 等于 0：
+        返还 0。
+    完。
+    resolve_ctx 为 做 堆_分配 用 16。
+    做 内存_分64 用 resolve_ctx、p。
+    做 内存_分64 用 resolve_ctx 加 8、0。
+    reject_ctx 为 做 堆_分配 用 16。
+    做 内存_分64 用 reject_ctx、p。
+    做 内存_分64 用 reject_ctx 加 8、1。
+    若 executor 不等于 0：
+        resolve_fn 为 做 JSNative_创建 用 Nova运行时实例、NATIVE_PROMISE_RESOLVE、resolve_ctx。
+        reject_fn 为 做 JSNative_创建 用 Nova运行时实例、NATIVE_PROMISE_REJECT、reject_ctx。
+        args 为 做 堆_分配 用 16。
+        做 内存_分64 用 args、resolve_fn。
+        做 内存_分64 用 args 加 8、reject_fn。
+        执行结果 为 做 Nova安全调用 用 executor、Nova运行时实例 的 undefined值、args、2。
+        若 执行结果 的 是异常：
+            做 Nova承诺_reject 用 p、执行结果 的 异常值。
+        完。
+        做 堆_释放 用 args。
+    完。
+    返还 p。
+完。
+
+Nova承诺_resolve 接受 p、值：
+    若 p 等于 0 或者 p 的 状态 不等于 PROMISE_PENDING：
+        返还。
+    完。
+    若 值 等于 p：
+        做 Nova承诺_reject 用 p、做 创建类型错误 用 p 的 Nova运行时实例、「承诺不能 resolve 自己」。
+        返还。
+    完。
+    若 做 Nova承诺_是thenable 用 值：
+        做 Nova承诺_展平 用 p、值。
+        返还。
+    完。
+    p 的 状态 为 PROMISE_FULFILLED。
+    p 的 值 为 值。
+    全局PAMC统计 的 resolve次数 为 全局PAMC统计 的 resolve次数 加 1。
+    做 Nova承诺_触发反应 用 p。
+完。
+
+Nova承诺_reject 接受 p、原因：
+    若 p 等于 0 或者 p 的 状态 不等于 PROMISE_PENDING：
+        返还。
+    完。
+    p 的 状态 为 PROMISE_REJECTED。
+    p 的 值 为 原因。
+    全局PAMC统计 的 reject次数 为 全局PAMC统计 的 reject次数 加 1。
+    做 Nova承诺_触发反应 用 p。
+    若 非 p 的 已处理：
+        做 Microtask_入队 用 p、0。
+    完。
+完。
+
+Nova承诺_是thenable 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    若 做 JS获取类型 用 值 等于 JS_TYPE_PROMISE：
+        返还 真。
+    完。
+    若 做 JS获取类型 用 值 等于 JS_TYPE_OBJECT：
+        then属性 为 做 JS获取属性 用 值、「then」。
+        返还 做 JS是函数 用 then属性。
+    完。
+    返还 假。
+完。
+
+Nova承诺_展平 接受 p、thenable：
+    若 做 JS获取类型 用 thenable 等于 JS_TYPE_PROMISE：
+        inner 为 thenable。
+        若 inner 的 状态 等于 PROMISE_FULFILLED：
+            做 Nova承诺_resolve 用 p、inner 的 值。
+        否则若 inner 的 状态 等于 PROMISE_REJECTED：
+            做 Nova承诺_reject 用 p、inner 的 值。
+        否则：
+            做 Nova承诺_then内部 用 inner、p。
+        完。
+        返还。
+    完。
+    then方法 为 做 JS获取属性 用 thenable、「then」。
+    若 做 JS是函数 用 then方法：
+        resolve_ctx 为 做 堆_分配 用 16。
+        做 内存_分64 用 resolve_ctx、p。
+        做 内存_分64 用 resolve_ctx 加 8、0。
+        reject_ctx 为 做 堆_分配 用 16。
+        做 内存_分64 用 reject_ctx、p。
+        做 内存_分64 用 reject_ctx 加 8、1。
+        res_fn 为 做 JSNative_创建 用 p 的 Nova运行时实例、NATIVE_PROMISE_RESOLVE、resolve_ctx。
+        rej_fn 为 做 JSNative_创建 用 p 的 Nova运行时实例、NATIVE_PROMISE_REJECT、reject_ctx。
+        做 Nova调用 用 then方法、thenable、res_fn、rej_fn。
+    完。
+完。
+
+Nova承诺_触发反应 接受 p：
+    可变 当前 为 p 的 回调链。
+    只要 当前 不等于 0：
+        做 Microtask_入队 用 p、当前。
+        当前 为 当前 的 下一个。
+    完。
+    p 的 回调链 为 0。
+    p 的 回调链数量 为 0。
+完。
+
+Microtask_执行反应 接受 承诺、反应：
+    若 反应 等于 0：
+        若 承诺 不等于 0 并且 承诺 的 状态 等于 PROMISE_REJECTED 并且 非 承诺 的 已处理：
+            做 内核打印 用 「UnhandledPromiseRejection: {}」、承诺 的 值。
+        完。
+        返还。
+    完。
+    handler 为 0。
+    若 承诺 的 状态 等于 PROMISE_FULFILLED：
+        handler 为 反应 的 onFulfilled。
+    否则若 承诺 的 状态 等于 PROMISE_REJECTED：
+        handler 为 反应 的 onRejected。
+        承诺 的 已处理 为 真。
+    完。
+    若 反应 的 类型 等于 REACTION_FINALLY：
+        若 反应 的 onFulfilled 不等于 0：
+            做 Nova安全调用 用 反应 的 onFulfilled、0、0、0。
+        完。
+        若 反应 的 结果承诺 不等于 0：
+            若 承诺 的 状态 等于 PROMISE_FULFILLED：
+                做 Nova承诺_resolve 用 反应 的 结果承诺、承诺 的 值。
+            否则：
+                做 Nova承诺_reject 用 反应 的 结果承诺、承诺 的 值。
+            完。
+        完。
+        返还。
+    完。
+    若 handler 等于 0：
+        若 反应 的 结果承诺 不等于 0：
+            若 承诺 的 状态 等于 PROMISE_FULFILLED：
+                做 Nova承诺_resolve 用 反应 的 结果承诺、承诺 的 值。
+            否则：
+                做 Nova承诺_reject 用 反应 的 结果承诺、承诺 的 值。
+            完。
+        完。
+        返还。
+    完。
+    结果 为 做 Nova安全调用 用 handler、0、承诺 的 值、1。
+    若 反应 的 结果承诺 不等于 0：
+        若 结果 的 是异常：
+            做 Nova承诺_reject 用 反应 的 结果承诺、结果 的 异常值。
+        否则：
+            做 Nova承诺_resolve 用 反应 的 结果承诺、结果 的 返回值。
+        完。
+    完。
+完。
+
+Nova承诺_then 接受 p、onFulfilled、onRejected：
+    若 p 等于 0：
+        返还 0。
+    完。
+    全局PAMC统计 的 then次数 为 全局PAMC统计 的 then次数 加 1。
+    result_p 为 做 Nova承诺_创建 用 p 的 Nova运行时实例。
+    reaction 为 做 堆_分配 用 承诺反应。
+    若 reaction 等于 0：
+        返还 result_p。
+    完。
+    reaction 的 类型 为 REACTION_THEN。
+    reaction 的 onFulfilled 为 onFulfilled。
+    reaction 的 onRejected 为 onRejected。
+    reaction 的 结果承诺 为 result_p。
+    reaction 的 下一个 为 0。
+    若 onRejected 不等于 0：
+        p 的 已处理 为 真。
+    完。
+    若 p 的 状态 等于 PROMISE_PENDING：
+        做 Nova承诺_添加反应 用 p、reaction。
+    否则：
+        做 Microtask_入队 用 p、reaction。
+    完。
+    返还 result_p。
+完。
+
+Nova承诺_catch 接受 p、onRejected：
+    全局PAMC统计 的 catch次数 为 全局PAMC统计 的 catch次数 加 1。
+    返还 做 Nova承诺_then 用 p、0、onRejected。
+完。
+
+Nova承诺_finally 接受 p、onFinally：
+    若 p 等于 0：
+        返还 0。
+    完。
+    全局PAMC统计 的 finally次数 为 全局PAMC统计 的 finally次数 加 1。
+    result_p 为 做 Nova承诺_创建 用 p 的 Nova运行时实例。
+    reaction 为 做 堆_分配 用 承诺反应。
+    若 reaction 等于 0：
+        返还 result_p。
+    完。
+    reaction 的 类型 为 REACTION_FINALLY。
+    reaction 的 onFulfilled 为 onFinally。
+    reaction 的 onRejected 为 0。
+    reaction 的 结果承诺 为 result_p。
+    reaction 的 下一个 为 0。
+    若 p 的 状态 等于 PROMISE_PENDING：
+        做 Nova承诺_添加反应 用 p、reaction。
+    否则：
+        做 Microtask_入队 用 p、reaction。
+    完。
+    返还 result_p。
+完。
+
+Nova承诺_then内部 接受 inner、outer：
+    reaction 为 做 堆_分配 用 承诺反应。
+    若 reaction 等于 0：
+        返还。
+    完。
+    reaction 的 类型 为 REACTION_THEN。
+    reaction 的 onFulfilled 为 0。
+    reaction 的 onRejected 为 0。
+    reaction 的 结果承诺 为 outer。
+    reaction 的 下一个 为 0。
+    做 Nova承诺_添加反应 用 inner、reaction。
+完。
+
+Nova承诺_添加反应 接受 p、reaction：
+    若 p 的 回调链 等于 0：
+        p 的 回调链 为 reaction。
+    否则：
+        可变 尾 为 p 的 回调链。
+        只要 尾 的 下一个 不等于 0：
+            尾 为 尾 的 下一个。
+        完。
+        尾 的 下一个 为 reaction。
+    完。
+    p 的 回调链数量 为 p 的 回调链数量 加 1。
+完。
+
+Nova承诺_all 接受 rt、承诺数组、数量：
+    全局PAMC统计 的 all调用数 为 全局PAMC统计 的 all调用数 加 1。
+    result_p 为 做 Nova承诺_创建 用 rt。
+    若 数量 等于 0：
+        做 Nova承诺_resolve 用 result_p、做 JS创建空数组 用 rt。
+        返还 result_p。
+    完。
+    结果 为 做 堆_分配 用 数量 乘 8。
+    计数器 为 做 堆_分配 用 8。
+    做 内存_分64 用 计数器、数量。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        当前承诺 为 做 内存_读64 用 承诺数组 加 i 乘 8。
+        ctx 为 做 堆_分配 用 32。
+        做 内存_分64 用 ctx、result_p。
+        做 内存_分64 用 ctx 加 8、结果。
+        做 内存_分64 用 ctx 加 16、计数器。
+        做 内存_分32 用 ctx 加 24、i。
+        on_ok 为 做 JSNative_创建 用 rt、NATIVE_PROMISE_ALL_RESOLVE、ctx。
+        on_err 为 做 JSNative_创建 用 rt、NATIVE_PROMISE_ALL_REJECT、result_p。
+        做 Nova承诺_then 用 当前承诺、on_ok、on_err。
+        i 为 i 加 1。
+    完。
+    返还 result_p。
+完。
+
+Nova承诺_all_resolve回调 接受 ctx、值：
+    result_p 为 做 内存_读64 用 ctx。
+    结果 为 做 内存_读64 用 ctx 加 8。
+    计数器 为 做 内存_读64 用 ctx 加 16。
+    index 为 做 内存_读32 用 ctx 加 24。
+    做 内存_分64 用 结果 加 index 乘 8、值。
+    剩余 为 做 内存_读64 用 计数器 减 1。
+    做 内存_分64 用 计数器、剩余。
+    若 剩余 等于 0：
+        做 Nova承诺_resolve 用 result_p、结果。
+    完。
+完。
+
+Nova承诺_race 接受 rt、承诺数组、数量：
+    全局PAMC统计 的 race调用数 为 全局PAMC统计 的 race调用数 加 1。
+    result_p 为 做 Nova承诺_创建 用 rt。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        当前承诺 为 做 内存_读64 用 承诺数组 加 i 乘 8。
+        on_ok 为 做 JSNative_创建 用 rt、NATIVE_PROMISE_RACE_RESOLVE、result_p。
+        on_err 为 做 JSNative_创建 用 rt、NATIVE_PROMISE_RACE_REJECT、result_p。
+        做 Nova承诺_then 用 当前承诺、on_ok、on_err。
+        i 为 i 加 1。
+    完。
+    返还 result_p。
+完。
+
+Nova承诺_any 接受 rt、承诺数组、数量：
+    全局PAMC统计 的 any调用数 为 全局PAMC统计 的 any调用数 加 1。
+    result_p 为 做 Nova承诺_创建 用 rt。
+    若 数量 等于 0：
+        做 Nova承诺_reject 用 result_p、做 创建AggregateError 用 rt、「所有承诺均被拒绝」。
+        返还 result_p。
+    完。
+    错误数组 为 做 堆_分配 用 数量 乘 8。
+    计数器 为 做 堆_分配 用 8。
+    做 内存_分64 用 计数器、数量。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        当前承诺 为 做 内存_读64 用 承诺数组 加 i 乘 8。
+        on_ok 为 做 JSNative_创建 用 rt、NATIVE_PROMISE_ANY_RESOLVE、result_p。
+        ctx 为 做 堆_分配 用 32。
+        做 内存_分64 用 ctx、result_p。
+        做 内存_分64 用 ctx 加 8、错误数组。
+        做 内存_分64 用 ctx 加 16、计数器。
+        做 内存_分32 用 ctx 加 24、i。
+        on_err 为 做 JSNative_创建 用 rt、NATIVE_PROMISE_ANY_REJECT、ctx。
+        做 Nova承诺_then 用 当前承诺、on_ok、on_err。
+        i 为 i 加 1。
+    完。
+    返还 result_p。
+完。
+
+Nova承诺_allSettled 接受 rt、承诺数组、数量：
+    result_p 为 做 Nova承诺_创建 用 rt。
+    若 数量 等于 0：
+        做 Nova承诺_resolve 用 result_p、做 JS创建空数组 用 rt。
+        返还 result_p。
+    完。
+    结果 为 做 堆_分配 用 数量 乘 8。
+    计数器 为 做 堆_分配 用 8。
+    做 内存_分64 用 计数器、数量。
+    可变 i 为 0。
+    只要 i 小于 数量：
+        当前承诺 为 做 内存_读64 用 承诺数组 加 i 乘 8。
+        ctx 为 做 堆_分配 用 32。
+        做 内存_分64 用 ctx、result_p。
+        做 内存_分64 用 ctx 加 8、结果。
+        做 内存_分64 用 ctx 加 16、计数器。
+        做 内存_分32 用 ctx 加 24、i。
+        on_ok 为 做 JSNative_创建 用 rt、NATIVE_PROMISE_SETTLED_OK、ctx。
+        on_err 为 做 JSNative_创建 用 rt、NATIVE_PROMISE_SETTLED_ERR、ctx。
+        做 Nova承诺_then 用 当前承诺、on_ok、on_err。
+        i 为 i 加 1。
+    完。
+    返还 result_p。
+完。
+
+Nova承诺_静态resolve 接受 rt、值：
+    若 做 JS获取类型 用 值 等于 JS_TYPE_PROMISE：
+        返还 值。
+    完。
+    p 为 做 Nova承诺_创建 用 rt。
+    做 Nova承诺_resolve 用 p、值。
+    返还 p。
+完。
+
+Nova承诺_静态reject 接受 rt、原因：
+    p 为 做 Nova承诺_创建 用 rt。
+    做 Nova承诺_reject 用 p、原因。
+    返还 p。
+完。
+
+脚本承诺_创建桥接 接受 rt：
+    返还 做 Nova承诺_创建 用 rt。
+完。
+
+脚本承诺_解决桥接 接受 rt、承诺、值：
+    若 rt 等于 0 或者 承诺 等于 0：
+        返还。
+    完。
+    做 Nova承诺_resolve 用 承诺、值。
+完。
+
+脚本承诺_拒绝桥接 接受 rt、承诺、原因：
+    若 rt 等于 0 或者 承诺 等于 0：
+        返还。
+    完。
+    做 Nova承诺_reject 用 承诺、原因。
+完。
+
+AI_PAMC异步优化 接受 零参：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还。
+    完。
+    feature 为 做 Tensor_创建 用 8。
+    做 Tensor_写 用 feature、0、全局PAMC统计 的 创建总数 除以 10000.0。
+    做 Tensor_写 用 feature、1、全局PAMC统计 的 microtask总数 除以 10000.0。
+    做 Tensor_写 用 feature、2、全局PAMC统计 的 microtask峰值 除以 MICROTASK_最大容量。
+    做 Tensor_写 用 feature、3、全局PAMC统计 的 reject次数 除以 1000.0。
+    做 Tensor_写 用 feature、4、全局PAMC统计 的 all调用数 除以 100.0。
+    做 Tensor_写 用 feature、5、全局PAMC统计 的 race调用数 除以 100.0。
+    做 Tensor_写 用 feature、6、microtask队列长度 除以 MICROTASK_最大容量。
+    做 Tensor_写 用 feature、7、0.0。
+    建议 为 做 AI总线_推理 用 bus、「PAMC_异步调度」、feature。
+    风险 为 做 AI总线_异常检测 用 bus、「PAMC_队列异常」、feature。
+    做 Tensor_释放 用 feature。
+    全局PAMC统计 的 AI优化次数 为 全局PAMC统计 的 AI优化次数 加 1。
+完。
+
+PAMC_获取统计 接受 零参：
+    返还 一本字典：创建总数 对应 全局PAMC统计 的 创建总数、resolve次数 对应 全局PAMC统计 的 resolve次数、reject次数 对应 全局PAMC统计 的 reject次数、then次数 对应 全局PAMC统计 的 then次数、catch次数 对应 全局PAMC统计 的 catch次数、finally次数 对应 全局PAMC统计 的 finally次数、microtask总数 对应 全局PAMC统计 的 microtask总数、microtask峰值 对应 全局PAMC统计 的 microtask峰值、all调用数 对应 全局PAMC统计 的 all调用数、race调用数 对应 全局PAMC统计 的 race调用数、any调用数 对应 全局PAMC统计 的 any调用数、AI优化次数 对应 全局PAMC统计 的 AI优化次数。
+完。
+
+PAMC_打印统计 接受 零参：
+    s 为 做 PAMC_获取统计。
+    做 内核打印 用 「═══ PAMC承诺统计 ═══」。
+    做 内核打印 用 「创建={} resolve={} reject={}」、s 的 创建总数、s 的 resolve次数、s 的 reject次数。
+    做 内核打印 用 「then={} catch={} finally={}」、s 的 then次数、s 的 catch次数、s 的 finally次数。
+    做 内核打印 用 「microtask[总数/峰值]={}/{}」、s 的 microtask总数、s 的 microtask峰值。
+    做 内核打印 用 「all={} race={} any={} AI={}」、s 的 all调用数、s 的 race调用数、s 的 any调用数、s 的 AI优化次数。
+完。
+
+PAMC_重置统计 接受 零参：
+    全局PAMC统计 为 新建 PAMC统计。
+完。
+
+本章 收束。

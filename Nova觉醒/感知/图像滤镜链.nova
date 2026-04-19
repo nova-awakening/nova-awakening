@@ -1,0 +1,176 @@
+《图像滤镜链》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·图位图像素缓》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·内存管理纹》。
+
+IMG_FILTER_BLUR 为 0。
+
+IMG_FILTER_DROP_SHADOW 为 1。
+
+IMG_FILTER_COLOR_MATRIX 为 2。
+
+IMG_FILTER_OFFSET 为 3。
+
+Sk图像Filter 是 一种 事物，含 类型、sigma_x、sigma_y、dx、阴影颜色、矩阵、输入。
+
+Sk图像Filter_模糊 接受 sigma_x、sigma_y：
+    f 为 做 堆_分配 用 Sk图像Filter。
+    f 的 类型 为 IMG_FILTER_BLUR。
+    f 的 sigma_x 为 sigma_x。
+    f 的 sigma_y 为 sigma_y。
+    f 的 输入 为 0。
+    返还 f。
+完。
+
+Sk图像Filter_阴影 接受 dx、dy、sigma、颜色：
+    f 为 做 堆_分配 用 Sk图像Filter。
+    f 的 类型 为 IMG_FILTER_DROP_SHADOW。
+    f 的 dx 为 dx。
+    f 的 dy 为 dy。
+    f 的 sigma_x 为 sigma。
+    f 的 sigma_y 为 sigma。
+    f 的 阴影颜色 为 颜色。
+    f 的 输入 为 0。
+    返还 f。
+完。
+
+Sk图像Filter_应用模糊 接受 bm、sigma_x、sigma_y：
+    若 bm 等于 0 或者 sigma_x 小于或等于 0：
+        返还。
+    完。
+    半径x 为 sigma_x 乘 3 除以 1024 加 1。
+    若 半径x 大于 64：
+        半径x 为 64。
+    完。
+    半径y 为 sigma_y 乘 3 除以 1024 加 1。
+    若 半径y 大于 64：
+        半径y 为 64。
+    完。
+    核x 为 做 堆_分配_数组 用 (半径x 乘 2 加 1) 乘 4。
+    可变 总和 为 0。
+    可变 k 为 负 半径x。
+    只要 k 小于或等于 半径x：
+        d 为 k 乘 1024 除以 (sigma_x 加 1)。
+        v 为 1024 减 d 乘 d 除以 2048。
+        若 v 小于 0：
+            v 为 0。
+        完。
+        做 内存_写32 用 核x 加 (k 加 半径x) 乘 4、v。
+        总和 为 总和 加 v。
+        k 为 k 加 1。
+    完。
+    若 总和 大于 0：
+        k 为 0。
+        只要 k 小于 半径x 乘 2 加 1：
+            v 为 做 内存_读32 用 核x 加 k 乘 4 乘 1024 除以 总和。
+            做 内存_写32 用 核x 加 k 乘 4、v。
+            k 为 k 加 1。
+        完。
+    完。
+    临时 为 做 Nova缓冲itmap_创建 用 bm 的 宽、bm 的 高、bm 的 颜色类型。
+    可变 y 为 0。
+    只要 y 小于 bm 的 高：
+        可变 x 为 0。
+        只要 x 小于 bm 的 宽：
+            可变 sumR 为 0。
+            可变 sumG 为 0。
+            可变 sumB 为 0。
+            可变 sumA 为 0。
+            k 为 负 半径x。
+            只要 k 小于或等于 半径x：
+                sx 为 x 加 k。
+                若 sx 小于 0：
+                    sx 为 0。
+                完。
+                若 sx 大于或等于 bm 的 宽：
+                    sx 为 bm 的 宽 减 1。
+                完。
+                像素 为 做 Nova缓冲itmap_读像素 用 bm、sx、y。
+                权重 为 做 内存_读32 用 核x 加 (k 加 半径x) 乘 4。
+                sumA 为 sumA 加 (像素 右移 24 位与 0xFF) 乘 权重。
+                sumR 为 sumR 加 (像素 右移 16 位与 0xFF) 乘 权重。
+                sumG 为 sumG 加 (像素 右移 8 位与 0xFF) 乘 权重。
+                sumB 为 sumB 加 (像素 位与 0xFF) 乘 权重。
+                k 为 k 加 1。
+            完。
+            sumA 为 sumA 除以 1024。
+            sumR 为 sumR 除以 1024。
+            sumG 为 sumG 除以 1024。
+            sumB 为 sumB 除以 1024。
+            若 sumA 大于 255：
+                sumA 为 255。
+            完。
+            若 sumR 大于 255：
+                sumR 为 255。
+            完。
+            若 sumG 大于 255：
+                sumG 为 255。
+            完。
+            若 sumB 大于 255：
+                sumB 为 255。
+            完。
+            做 Nova缓冲itmap_写像素 用 临时、x、y、sumA 左移 24 位或 sumR 左移 16 位或 sumG 左移 8 位或 sumB。
+            x 为 x 加 1。
+        完。
+        y 为 y 加 1。
+    完。
+    y 为 0。
+    只要 y 小于 bm 的 高：
+        可变 x 为 0。
+        只要 x 小于 bm 的 宽：
+            可变 sumR 为 0。
+            可变 sumG 为 0。
+            可变 sumB 为 0。
+            可变 sumA 为 0。
+            k 为 负 半径y。
+            只要 k 小于或等于 半径y：
+                sy 为 y 加 k。
+                若 sy 小于 0：
+                    sy 为 0。
+                完。
+                若 sy 大于或等于 bm 的 高：
+                    sy 为 bm 的 高 减 1。
+                完。
+                像素 为 做 Nova缓冲itmap_读像素 用 临时、x、sy。
+                权重 为 做 内存_读32 用 核x 加 (k 加 半径y) 乘 4。
+                sumA 为 sumA 加 (像素 右移 24 位与 0xFF) 乘 权重。
+                sumR 为 sumR 加 (像素 右移 16 位与 0xFF) 乘 权重。
+                sumG 为 sumG 加 (像素 右移 8 位与 0xFF) 乘 权重。
+                sumB 为 sumB 加 (像素 位与 0xFF) 乘 权重。
+                k 为 k 加 1。
+            完。
+            sumA 为 sumA 除以 1024。
+            sumR 为 sumR 除以 1024。
+            sumG 为 sumG 除以 1024。
+            sumB 为 sumB 除以 1024。
+            若 sumA 大于 255：
+                sumA 为 255。
+            完。
+            若 sumR 大于 255：
+                sumR 为 255。
+            完。
+            若 sumG 大于 255：
+                sumG 为 255。
+            完。
+            若 sumB 大于 255：
+                sumB 为 255。
+            完。
+            做 Nova缓冲itmap_写像素 用 bm、x、y、sumA 左移 24 位或 sumR 左移 16 位或 sumG 左移 8 位或 sumB。
+            x 为 x 加 1。
+        完。
+        y 为 y 加 1。
+    完。
+    做 堆_释放 用 核x。
+    做 Nova缓冲itmap_释放 用 临时。
+完。
+
+本章 收束。

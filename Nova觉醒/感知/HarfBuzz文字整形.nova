@@ -1,0 +1,129 @@
+《HarfBuzz文字整形》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·字映射字符》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·光栅化》。
+
+HB_DIR_LTR 为 0。
+
+HB_DIR_RTL 为 1。
+
+HB_DIR_TTB 为 2。
+
+HarfBuzz_整形 接受 font、文本、长度、语言、方向：
+    若 font 等于 0 或者 文本 等于 0：
+        返还 0。
+    完。
+    run 为 做 Text布局_排版 用 font、文本、长度、16。
+    若 run 等于 0 或者 run 的 字形数 等于 0：
+        返还 run。
+    完。
+    若 font 的 GSUB偏移 大于 0：
+        数据 为 font 的 数据。
+        gsub 为 font 的 GSUB偏移。
+        lookupList_off 为 gsub 加 做 字体_读u16 用 数据、gsub 加 8。
+        lookupCount 为 做 字体_读u16 用 数据、lookupList_off。
+        可变 li 为 0。
+        只要 li 小于 lookupCount 并且 li 小于 16：
+            lookup_off 为 lookupList_off 加 2 加 做 字体_读u16 用 数据、lookupList_off 加 2 加 li 乘 2。
+            lookupType 为 做 字体_读u16 用 数据、lookup_off。
+            若 lookupType 等于 4：
+                做 HarfBuzz_连字替换 用 font、run。
+            完。
+            li 为 li 加 1。
+        完。
+    完。
+    若 方向 等于 HB_DIR_RTL 并且 run 的 字形数 大于 1：
+        可变 lo 为 0。
+        可变 hi 为 run 的 字形数 减 1。
+        只要 lo 小于 hi：
+            tmp_g 为 做 内存_读16 用 run 的 字形ID 加 lo 乘 2。
+            做 内存_写16 用 run 的 字形ID 加 lo 乘 2、做 内存_读16 用 run 的 字形ID 加 hi 乘 2。
+            做 内存_写16 用 run 的 字形ID 加 hi 乘 2、tmp_g。
+            tmp_x 为 做 内存_读32 用 run 的 位置X 加 lo 乘 4。
+            做 内存_写32 用 run 的 位置X 加 lo 乘 4、做 内存_读32 用 run 的 位置X 加 hi 乘 4。
+            做 内存_写32 用 run 的 位置X 加 hi 乘 4、tmp_x。
+            lo 为 lo 加 1。
+            hi 为 hi 减 1。
+        完。
+    完。
+    返还 run。
+完。
+
+HarfBuzz_连字替换 接受 font、run：
+    若 run 等于 0 或者 run 的 字形数 小于 2：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 run 的 字形数 减 1：
+        g1 为 做 内存_读16 用 run 的 字形ID 加 i 乘 2。
+        g2 为 做 内存_读16 用 run 的 字形ID 加 (i 加 1) 乘 2。
+        c1 为 做 字体_字符到字形_逆 用 font、g1。
+        c2 为 做 字体_字符到字形_逆 用 font、g2。
+        可变 lig_cp 为 0。
+        若 c1 等于 0x66 并且 c2 等于 0x69：
+            lig_cp 为 0xFB01。
+        否则若 c1 等于 0x66 并且 c2 等于 0x6C：
+            lig_cp 为 0xFB02。
+        完。
+        若 lig_cp 不等于 0：
+            lig_glyph 为 做 字体_字符到字形 用 font、lig_cp。
+            若 lig_glyph 不等于 0：
+                做 内存_写16 用 run 的 字形ID 加 i 乘 2、lig_glyph。
+                可变 j 为 i 加 1。
+                只要 j 小于 run 的 字形数 减 1：
+                    做 内存_写16 用 run 的 字形ID 加 j 乘 2、做 内存_读16 用 run 的 字形ID 加 (j 加 1) 乘 2。
+                    做 内存_写32 用 run 的 位置X 加 j 乘 4、做 内存_读32 用 run 的 位置X 加 (j 加 1) 乘 4。
+                    j 为 j 加 1。
+                完。
+                run 的 字形数 为 run 的 字形数 减 1。
+                继续。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+字体_字符到字形_逆 接受 font、glyphID：
+    返还 glyphID。
+完。
+
+字体_读u16 接受 数据、偏移：
+    若 数据 等于 0：
+        返还 0。
+    完。
+    hi 为 做 字节取 用 数据、偏移。
+    lo 为 做 字节取 用 数据、偏移 加 1。
+    返还 hi 乘 256 加 lo。
+完。
+
+字体_读i16 接受 数据、偏移：
+    v 为 做 字体_读u16 用 数据、偏移。
+    若 v 大于或等于 32768：
+        返还 v 减 65536。
+    完。
+    返还 v。
+完。
+
+字体_读u32 接受 数据、偏移：
+    若 数据 等于 0：
+        返还 0。
+    完。
+    b0 为 做 字节取 用 数据、偏移。
+    b1 为 做 字节取 用 数据、偏移 加 1。
+    b2 为 做 字节取 用 数据、偏移 加 2。
+    b3 为 做 字节取 用 数据、偏移 加 3。
+    返还 b0 乘 16777216 加 b1 乘 65536 加 b2 乘 256 加 b3。
+完。
+
+本章 收束。

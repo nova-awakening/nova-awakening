@@ -1,0 +1,98 @@
+《实际安装流程》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·扫描磁盘》。
+
+引用《..·中枢·硬链接》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·外联·IP解析与随机》。
+
+引用《.·辅助UI绘制》。
+
+执行安装 接受 零参：
+    安装 的 当前步骤 为 步骤_安装。
+    安装 的 安装进度 为 0。
+    做 更新进度 用 5、「创建分区表...」。
+    若 安装 的 分区方案 等于 0：
+        做 自动分区 用 安装 的 目标磁盘。
+    完。
+    做 更新进度 用 10、「格式化EFI分区(FAT32)...」。
+    做 格式化_FAT32 用 安装 的 EFI分区。
+    做 格式化_ext4 用 安装 的 根分区。
+    做 格式化_swap 用 安装 的 交换分区。
+    做 更新进度 用 15、「挂载目标分区...」。
+    做 挂载 用 「/mnt」、安装 的 根分区。
+    做 创建目录 用 「/mnt/boot/efi」。
+    做 挂载 用 「/mnt/boot/efi」、安装 的 EFI分区。
+    做 更新进度 用 20、「复制系统文件...」。
+    做 复制_系统文件 用 「/cdrom/nova」、「/mnt」。
+    做 更新进度 用 40、「安装NovaOS内核...」。
+    做 复制_内核 用 「/cdrom/nova/boot/nova-kernel」、「/mnt/boot/nova-kernel」。
+    做 复制_initramfs 用 「/cdrom/nova/boot/initramfs.cpio」、「/mnt/boot/initramfs.cpio」。
+    做 更新进度 用 55、「安装Nova门控循环B引导加载器...」。
+    做 安装_Nova门控循环B 用 「/mnt」、安装 的 目标磁盘。
+    做 生成_Nova门控循环B配置 用 「/mnt/boot/Nova门控循环b/Nova门控循环b.cfg」。
+    做 更新进度 用 65、「初始化AI子系统...」。
+    做 创建目录 用 「/mnt/var/nova」。
+    做 创建目录 用 「/mnt/var/nova/模型」。
+    做 创建目录 用 「/mnt/var/nova/记忆」。
+    做 创建目录 用 「/mnt/var/nova/检查点」。
+    做 更新进度 用 70、「配置AI运行模式...」。
+    做 写文件 用 「/mnt/etc/nova/ai.conf」、做 生成AI配置。
+    若 安装 的 AI模式 等于 0 或者 安装 的 AI模式 等于 2：
+        做 更新进度 用 75、「下载AI基础权重(TNF-256维)...」。
+        做 下载文件 用 「https://nova-ai.dev/models/tnf-base-256d.bin」、「/mnt/var/nova/模型/tnf-base.bin」。
+    完。
+    做 更新进度 用 85、「配置网络和驱动...」。
+    做 生成_fstab 用 「/mnt/etc/fstab」。
+    做 配置_网络 用 「/mnt/etc/nova/network.conf」。
+    做 配置_驱动 用 「/mnt/etc/nova/drivers.conf」。
+    做 更新进度 用 90、「创建用户账户...」。
+    做 创建_用户 用 安装 的 用户名、安装 的 密码哈希。
+    做 设置_主机名 用 安装 的 主机名。
+    做 更新进度 用 95、「生成个性化桌面...」。
+    做 智能_生成初始桌面 用 安装 的 用户名。
+    做 更新进度 用 100、「安装完成!」。
+    做 卸载_全部。
+    安装 的 当前步骤 为 步骤_完成。
+完。
+
+生成_Nova门控循环B配置 接受 路径：
+    内容 为 「# NovaOS Nova门控循环B配置\n」。
+    内容 为 内容 加 「set timeout=3\n」。
+    内容 为 内容 加 「set default=0\n\n」。
+    内容 为 内容 加 「menuentry 'NovaOS' {\n」。
+    内容 为 内容 加 「    set root=(hd0,2)\n」。
+    内容 为 内容 加 「    multiboot2 /boot/nova-kernel\n」。
+    内容 为 内容 加 「    module2 /boot/initramfs.cpio\n」。
+    内容 为 内容 加 「    boot\n」。
+    内容 为 内容 加 「}\n\n」。
+    内容 为 内容 加 「menuentry 'NovaOS (恢复模式)' {\n」。
+    内容 为 内容 加 「    set root=(hd0,2)\n」。
+    内容 为 内容 加 「    multiboot2 /boot/nova-kernel recovery\n」。
+    内容 为 内容 加 「    boot\n」。
+    内容 为 内容 加 「}\n」。
+    做 写文件 用 路径、内容。
+完。
+
+生成AI配置 接受 零参：
+    可变 内容 为 「# NovaOS AI配置\n」。
+    内容 为 内容 加 「ai_mode=」 加 做 整数转字符串 用 安装 的 AI模式 加 「\n」。
+    内容 为 内容 加 「# 0=云端优先 1=本地优先 2=智能混合\n\n」。
+    若 做 字符串长度 用 安装 的 智能_接口密钥 大于 0：
+        内容 为 内容 加 「api_key=」 加 安装 的 智能_接口密钥 加 「\n」。
+    完。
+    内容 为 内容 加 「local_model=/var/nova/模型/tnf-base.bin\n」。
+    内容 为 内容 加 「memory_path=/var/nova/记忆/\n」。
+    内容 为 内容 加 「checkpoint_path=/var/nova/检查点/\n」。
+    内容 为 内容 加 「auto_learn=true\n」。
+    内容 为 内容 加 「cloud_fallback=true\n」。
+    返还 内容。
+完。
+
+本章 收束。

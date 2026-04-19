@@ -1,0 +1,229 @@
+《inotify监控》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·链表后继》。
+
+引用《..·中枢·同步原语》。
+
+引用《..·中枢·整数转字符串》。
+
+IN_ACCESS 为 0x00000001。
+
+IN_MODIFY 为 0x00000002。
+
+IN_ATTRIB 为 0x00000004。
+
+IN_CLOSE_WRITE 为 0x00000008。
+
+IN_CLOSE_NOWRITE 为 0x00000010。
+
+IN_OPEN 为 0x00000020。
+
+IN_MOVED_FROM 为 0x00000040。
+
+IN_MOVED_TO 为 0x00000080。
+
+IN_CREATE 为 0x00000100。
+
+IN_DELETE 为 0x00000200。
+
+IN_DELETE_SELF 为 0x00000400。
+
+IN_MOVE_SELF 为 0x00000800。
+
+IN_ALL_事件S 为 0x00000FFF。
+
+inotify事件 是 一种 事物，含 wd、掩码、cookie、名称。
+
+监控项 是 一种 事物，含 wd、路径、掩码。
+
+inotify实例 是 一种 事物，含 fd、监控列表、事件队列、等待队列、下一个wd。
+
+可变 inotify_列表 为 一组：（空）。
+
+sys_inotify_init 接受 零参：
+    inst 为 新建 inotify实例。
+    inst 的 fd 为 做 分配文件fd。
+    inst 的 监控列表 为 一组：（空）。
+    inst 的 事件队列 为 一组：（空）。
+    inst 的 等待队列 为 做 等待队列_创建。
+    inst 的 下一个wd 为 1。
+    做 追加 用 inotify_列表、inst。
+    返还 inst 的 fd。
+完。
+
+sys_inotify_add_watch 接受 inst_fd、路径、掩码：
+    inst 为 做 inotify_查找 用 inst_fd。
+    若 inst 等于 空：
+        返还 错误_无效参数。
+    完。
+    w 为 新建 监控项。
+    w 的 wd 为 inst 的 下一个wd。
+    inst 的 下一个wd 为 inst 的 下一个wd 加 1。
+    w 的 路径 为 路径。
+    w 的 掩码 为 掩码。
+    做 追加 用 inst 的 监控列表、w。
+    返还 w 的 wd。
+完。
+
+sys_inotify_rm_watch 接受 inst_fd、wd：
+    inst 为 做 inotify_查找 用 inst_fd。
+    若 inst 等于 空：
+        返还 错误_无效参数。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 inst 的 监控列表：
+        若 inst 的 监控列表 的 第 i 项 的 wd 等于 wd：
+            做 链表_删除 用 inst 的 监控列表、i。
+            返还 成功。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 错误_无效参数。
+完。
+
+inotify_发送事件 接受 路径、事件掩码、文件名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 inotify_列表：
+        inst 为 inotify_列表 的 第 i 项。
+        可变 j 为 0。
+        只要 j 小于 做 计数 用 inst 的 监控列表：
+            w 为 inst 的 监控列表 的 第 j 项。
+            若 w 的 路径 等于 路径 并且 w 的 掩码 位与 事件掩码 不等于 0：
+                evt 为 新建 inotify事件。
+                evt 的 wd 为 w 的 wd。
+                evt 的 掩码 为 事件掩码。
+                evt 的 cookie 为 0。
+                evt 的 名称 为 文件名。
+                做 追加 用 inst 的 事件队列、evt。
+                做 等待队列_唤醒一个 用 inst 的 等待队列。
+            完。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+inotify_read 接受 inst：
+    若 inst 等于 空：
+        返还 空。
+    完。
+    若 做 计数 用 inst 的 事件队列 等于 0：
+        只要 做 计数 用 inst 的 事件队列 等于 0：
+            做 调度。
+        完。
+    完。
+    若 做 计数 用 inst 的 事件队列 等于 0：
+        返还 空。
+    完。
+    evt 为 inst 的 事件队列 的 第 0 项。
+    做 链表_删除 用 inst 的 事件队列、0。
+    返还 evt。
+完。
+
+inotify_查找 接受 fd：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 inotify_列表：
+        若 inotify_列表 的 第 i 项 的 fd 等于 fd：
+            返还 inotify_列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+外部。
+
+当前进程。
+
+分配文件fd 接受 零参：
+    若 当前进程 等于 空 或者 当前进程 的 文件表 等于 空：
+        返还 负 1。
+    完。
+    可变 fd 为 0。
+    只要 fd 小于 做 计数 用 当前进程 的 文件表：
+        若 当前进程 的 文件表 的 第 fd 项 等于 空：
+            返还 fd。
+        完。
+        fd 为 fd 加 1。
+    完。
+    做 追加 用 当前进程 的 文件表、空。
+    返还 fd。
+完。
+
+inotify_事件名 接受 掩码：
+    若 掩码 位与 IN_CREATE 不等于 0：
+        返还 「CREATE」。
+    完。
+    若 掩码 位与 IN_DELETE 不等于 0：
+        返还 「DELETE」。
+    完。
+    若 掩码 位与 IN_MODIFY 不等于 0：
+        返还 「MODIFY」。
+    完。
+    若 掩码 位与 IN_OPEN 不等于 0：
+        返还 「OPEN」。
+    完。
+    若 掩码 位与 IN_ACCESS 不等于 0：
+        返还 「ACCESS」。
+    完。
+    若 掩码 位与 IN_MOVED_FROM 不等于 0：
+        返还 「MOVED_FROM」。
+    完。
+    若 掩码 位与 IN_MOVED_TO 不等于 0：
+        返还 「MOVED_TO」。
+    完。
+    若 掩码 位与 IN_CLOSE_WRITE 不等于 0：
+        返还 「CLOSE_WRITE」。
+    完。
+    若 掩码 位与 IN_DELETE_SELF 不等于 0：
+        返还 「DELETE_SELF」。
+    完。
+    返还 「事件_」 加 做 整数转字符串 用 掩码。
+完。
+
+inotify_read_nonblock 接受 inst：
+    若 inst 等于 空：
+        返还 空。
+    完。
+    若 做 计数 用 inst 的 事件队列 等于 0：
+        返还 空。
+    完。
+    evt 为 inst 的 事件队列 的 第 0 项。
+    做 链表_删除 用 inst 的 事件队列、0。
+    返还 evt。
+完。
+
+inotify_待读数 接受 inst：
+    若 inst 等于 空：
+        返还 0。
+    完。
+    返还 做 计数 用 inst 的 事件队列。
+完。
+
+inotify_统计 接受 零参：
+    返还 一组：做 计数 用 inotify_列表。
+完。
+
+inotify_完整统计 接受 零参：
+    返还 一组：做 计数 用 inotify_列表。
+完。
+
+可变 AI_记忆甲乙_运行指标 为 0。
+
+可变 AI_记忆甲乙_异常指标 为 0。
+
+AI_记忆甲乙_自诊断 接受 零参：
+    AI_记忆甲乙_运行指标 为 0。
+    返还 AI_记忆甲乙_运行指标。
+完。
+
+AI_记忆甲乙_优化建议 接受 零参：
+    指标 为 做 AI_记忆甲乙_自诊断。
+    返还 「记忆甲乙状态正常」。
+完。
+
+本章 收束。

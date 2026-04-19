@@ -1,0 +1,158 @@
+《缩放点积注意力》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·定点Q算术》。
+
+引用《..·感知·内核直连层》。
+
+引用《.·激活函数非线》。
+
+引用《.·权重持久》。
+
+ScaledDotProductNova注意力 接受 Q、K、V、掩码：
+    dk 为 Q 的 列数。
+    Kt 为 做 Tensor_转置 用 K。
+    得分 为 做 Tensor_矩阵乘 用 Q、Kt。
+    做 Tensor_释放 用 Kt。
+    缩放因子 为 做 Q开方 用 dk 乘 Q_ONE。
+    若 缩放因子 等于 0：
+        缩放因子 为 Q_ONE。
+    完。
+    可变 i 为 0。
+    总 为 得分 的 行数 乘 得分 的 列数。
+    只要 i 小于 总：
+        v 为 做 内存_读32有符号 用 得分 的 数据 加 i 乘 4。
+        做 内存_写32 用 得分 的 数据 加 i 乘 4、做 Q除 用 v、缩放因子。
+        i 为 i 加 1。
+    完。
+    若 掩码 不等于 0：
+        i 为 0。
+        只要 i 小于 得分 的 行数：
+            可变 j 为 0。
+            只要 j 小于 得分 的 列数：
+                m 为 做 Tensor_读 用 掩码、i、j。
+                若 m 等于 0：
+                    做 Tensor_写 用 得分、i、j、负 10000 乘 Q_ONE。
+                完。
+                j 为 j 加 1。
+            完。
+            i 为 i 加 1。
+        完。
+    完。
+    做 激活_Nova归一化指数 用 得分。
+    输出 为 做 Tensor_矩阵乘 用 得分、V。
+    做 Tensor_释放 用 得分。
+    返还 输出。
+完。
+
+多头Nova注意力 是 一种 事物，含 头数、模型维度、头维度、Wq、Wk、Wv、Wo。
+
+多头Nova注意力_创建 接受 模型维度、头数：
+    mha 为 做 堆_分配 用 多头Nova注意力。
+    mha 的 头数 为 头数。
+    mha 的 模型维度 为 模型维度。
+    mha 的 头维度 为 模型维度 除以 头数。
+    mha 的 Wq 为 做 Tensor_创建 用 模型维度、模型维度。
+    mha 的 Wk 为 做 Tensor_创建 用 模型维度、模型维度。
+    mha 的 Wv 为 做 Tensor_创建 用 模型维度、模型维度。
+    mha 的 Wo 为 做 Tensor_创建 用 模型维度、模型维度。
+    做 权重_增益初始化 用 mha 的 Wq、模型维度、模型维度。
+    做 权重_增益初始化 用 mha 的 Wk、模型维度、模型维度。
+    做 权重_增益初始化 用 mha 的 Wv、模型维度、模型维度。
+    做 权重_增益初始化 用 mha 的 Wo、模型维度、模型维度。
+    返还 mha。
+完。
+
+多头Nova注意力_销毁 接受 mha：
+    若 mha 等于 0：
+        返还。
+    完。
+    若 mha 的 Wq 不等于 0：
+        做 Tensor_释放 用 mha 的 Wq。
+    完。
+    若 mha 的 Wk 不等于 0：
+        做 Tensor_释放 用 mha 的 Wk。
+    完。
+    若 mha 的 Wv 不等于 0：
+        做 Tensor_释放 用 mha 的 Wv。
+    完。
+    若 mha 的 Wo 不等于 0：
+        做 Tensor_释放 用 mha 的 Wo。
+    完。
+    做 堆_释放 用 mha。
+完。
+
+权重_增益初始化 接受 t、输入、输出：
+    范围 为 做 Q开方 用 做 Q除 用 6 乘 Q_ONE、(输入 加 输出) 乘 Q_ONE。
+    总 为 t 的 行数 乘 t 的 列数。
+    可变 i 为 0。
+    只要 i 小于 总：
+        种子 为 i 乘 1103515245 加 12345 位与 0x7FFFFFFF。
+        值 为 种子 取余于 (2 乘 范围 加 1) 减 范围。
+        做 内存_写32 用 t 的 数据 加 i 乘 4、值。
+        i 为 i 加 1。
+    完。
+完。
+
+多头Nova注意力_前向 接受 mha、Q_in、K_in、V_in、掩码：
+    seq_q 为 Q_in 的 行数。
+    seq_k 为 K_in 的 行数。
+    d 为 mha 的 模型维度。
+    h 为 mha 的 头数。
+    dk 为 mha 的 头维度。
+    Q_proj 为 做 Tensor_矩阵乘 用 Q_in、mha 的 Wq。
+    K_proj 为 做 Tensor_矩阵乘 用 K_in、mha 的 Wk。
+    V_proj 为 做 Tensor_矩阵乘 用 V_in、mha 的 Wv。
+    输出合并 为 做 Tensor_创建 用 seq_q、d。
+    可变 头索引 为 0。
+    只要 头索引 小于 h：
+        起始列 为 头索引 乘 dk。
+        Qi 为 做 Tensor_切片列 用 Q_proj、起始列、dk。
+        Ki 为 做 Tensor_切片列 用 K_proj、起始列、dk。
+        Vi 为 做 Tensor_切片列 用 V_proj、起始列、dk。
+        头输出 为 做 ScaledDotProductNova注意力 用 Qi、Ki、Vi、掩码。
+        做 Tensor_写回切片 用 输出合并、头输出、起始列。
+        做 Tensor_释放 用 Qi。
+        做 Tensor_释放 用 Ki。
+        做 Tensor_释放 用 Vi。
+        做 Tensor_释放 用 头输出。
+        头索引 为 头索引 加 1。
+    完。
+    做 Tensor_释放 用 Q_proj。
+    做 Tensor_释放 用 K_proj。
+    做 Tensor_释放 用 V_proj。
+    最终输出 为 做 Tensor_矩阵乘 用 输出合并、mha 的 Wo。
+    做 Tensor_释放 用 输出合并。
+    返还 最终输出。
+完。
+
+Tensor_切片列 接受 A、起始列、宽度：
+    B 为 做 Tensor_创建 用 A 的 行数、宽度。
+    可变 i 为 0。
+    只要 i 小于 A 的 行数：
+        可变 j 为 0。
+        只要 j 小于 宽度：
+            做 Tensor_写 用 B、i、j、做 Tensor_读 用 A、i、起始列 加 j。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 B。
+完。
+
+Tensor_写回切片 接受 目标、源、起始列：
+    可变 i 为 0。
+    只要 i 小于 源 的 行数：
+        可变 j 为 0。
+        只要 j 小于 源 的 列数：
+            做 Tensor_写 用 目标、i、起始列 加 j、做 Tensor_读 用 源、i、j。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

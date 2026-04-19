@@ -1,0 +1,983 @@
+《网络消息管消》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·子进程主循》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·外联·TLS握手》。
+
+MOJO_MSG_MAX 为 65536。
+
+MOJO_PIPE_CAPACITY 为 256。
+
+MOJO_FRAGMENT_SIZE 为 16384。
+
+MOJO_HEADER_SIZE 为 16。
+
+MOJO_EXT_HEADER_SIZE 为 32。
+
+MOJO_MAX_HANDLES 为 8。
+
+MOJO_SHARED_MEM_MIN 为 4096。
+
+MOJO_SHARED_MEM_MAX 为 16777216。
+
+MOJO_RING_SIZE 为 512。
+
+MOJO_BACKPRESSURE_WARN 为 0.85。
+
+MOJO_BACKPRESSURE_DENY 为 0.95。
+
+MOJO_RATE_WINDOW_MS 为 1000。
+
+MOJO_MAX_RATE 为 10000。
+
+MOJO_CRC_POLY 为 0xEDB88320。
+
+MOJO_MAGIC 为 0x4D4F4A4F。
+
+MSG_FLAG_REQUEST 为 0x0000。
+
+MSG_FLAG_RESPONSE 为 0x0001。
+
+MSG_FLAG_ONEWAY 为 0x0002。
+
+MSG_FLAG_FRAGMENT 为 0x0004。
+
+MSG_FLAG_LAST_FRAG 为 0x0008。
+
+MSG_FLAG_URGENT 为 0x0010。
+
+MSG_FLAG_ENCRYPTED 为 0x0020。
+
+MSG_FLAG_COMPRESSED 为 0x0040。
+
+MSG_FLAG_HAS_HANDLES 为 0x0080。
+
+PIPE_STATE_OPEN 为 0。
+
+PIPE_STATE_HALF 为 1。
+
+PIPE_STATE_CLOSED 为 2。
+
+PIPE_STATE_ERROR 为 3。
+
+HANDLE_TYPE_FD 为 0。
+
+HANDLE_TYPE_PIPE 为 1。
+
+HANDLE_TYPE_SHM 为 2。
+
+HANDLE_TYPE_EVENT 为 3。
+
+HANDLE_TYPE_TIMER 为 4。
+
+可变 全局_IPC管道总数 为 0。
+
+可变 全局_IPC消息发送计数 为 0。
+
+可变 全局_IPC消息接收计数 为 0。
+
+可变 全局_IPC字节发送总量 为 0。
+
+可变 全局_IPC字节接收总量 为 0。
+
+可变 全局_IPC分片重组计数 为 0。
+
+可变 全局_IPC流控触发次数 为 0。
+
+可变 全局_IPC异常检测次数 为 0。
+
+可变 全局_IPC句柄传递计数 为 0。
+
+可变 全局_IPC共享内存区数 为 0。
+
+可变 全局_IPC_CRC校验失败 为 0。
+
+MojoMessage 是 一种 事物，含 类型、请求ID、标志、序列号、数据、数据长度、句柄、句柄数、分片索引、分片总数、校验码、时间戳、下一个。
+
+IPC句柄 是 一种 事物，含 类型、原始值、能力掩码、引用计数、所属管道。
+
+共享内存区 是 一种 事物，含 名称、基地址、大小、fd、映射标志、引用计数、所有者进程、创建时间戳。
+
+环形缓冲 是 一种 事物，含 槽位、写指针、读指针、计数、容量、溢出丢弃数。
+
+流控状态 是 一种 事物，含 窗口起始时间、窗口消息数、背压系数、累计拒绝数、上次调整时间、alpha参数、beta参数。
+
+分片重组器 是 一种 事物，含 目标请求ID、期望分片总数、已收分片数、分片位图、缓冲区、累计大小、开始时间、超时毫秒。
+
+MojoPipe 是 一种 事物，含 端口0_fd、端口1_fd、环缓冲0、环缓冲1、流控0、流控1、重组器0、重组器1、进程A、进程B、序列号0、序列号1、状态、已关闭0、已关闭1、发送总数、接收总数、字节发送量、字节接收量、创建时间戳、管道ID。
+
+IPC诊断快照 是 一种 事物，含 管道总数、活跃管道数、消息发送速率、消息接收速率、平均延迟纳秒、背压触发率、异常事件数、共享内存使用量、句柄泄漏嫌疑数。
+
+NIPC_CRC32计算 接受 数据、长度：
+    若 数据 等于 0 或者 长度 等于 0：
+        返还 0。
+    完。
+    可变。
+    crc 为 0xFFFFFFFF。
+    可变。
+    i 为 0。
+    只要 i 小于 长度：
+        字节 为 做 内存_读8 用 数据 加 i。
+        crc 为 crc 位异或 字节。
+        可变。
+        bit 为 0。
+        只要 bit 小于 8：
+            若 crc 位与 1 不等于 0：
+                crc 为 crc 右移 1 位异或 MOJO_CRC_POLY。
+            否则：
+                crc 为 crc 右移 1。
+            完。
+            bit 为 bit 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 crc 位异或 0xFFFFFFFF。
+完。
+
+环缓冲_创建 接受 容量：
+    若 容量 等于 0：
+        容量 为 MOJO_RING_SIZE。
+    完。
+    ring 为 做 堆_分配 用 环形缓冲。
+    ring 的 槽位 为 做 堆_分配 用 容量 乘 8。
+    ring 的 写指针 为 0。
+    ring 的 读指针 为 0。
+    ring 的 计数 为 0。
+    ring 的 容量 为 容量。
+    ring 的 溢出丢弃数 为 0。
+    可变。
+    i 为 0。
+    只要 i 小于 容量：
+        做 内存_写64 用 ring 的 槽位 加 i 乘 8、0。
+        i 为 i 加 1。
+    完。
+    返还 ring。
+完。
+
+环缓冲_入队 接受 ring、msg：
+    若 ring 等于 0 或者 msg 等于 0：
+        返还 假。
+    完。
+    若 ring 的 计数 大于或等于 ring 的 容量：
+        ring 的 溢出丢弃数 为 ring 的 溢出丢弃数 加 1。
+        返还 假。
+    完。
+    pos 为 ring 的 写指针 取余于 ring 的 容量。
+    做 内存_写64 用 ring 的 槽位 加 pos 乘 8、msg。
+    ring 的 写指针 为 ring 的 写指针 加 1。
+    ring 的 计数 为 ring 的 计数 加 1。
+    返还 真。
+完。
+
+环缓冲_出队 接受 ring：
+    若 ring 等于 0 或者 ring 的 计数 等于 0：
+        返还 0。
+    完。
+    pos 为 ring 的 读指针 取余于 ring 的 容量。
+    msg 为 做 内存_读64 用 ring 的 槽位 加 pos 乘 8。
+    做 内存_写64 用 ring 的 槽位 加 pos 乘 8、0。
+    ring 的 读指针 为 ring 的 读指针 加 1。
+    ring 的 计数 为 ring 的 计数 减 1。
+    返还 msg。
+完。
+
+环缓冲_查看头部 接受 ring：
+    若 ring 等于 0 或者 ring 的 计数 等于 0：
+        返还 0。
+    完。
+    pos 为 ring 的 读指针 取余于 ring 的 容量。
+    返还 做 内存_读64 用 ring 的 槽位 加 pos 乘 8。
+完。
+
+环缓冲_深度比 接受 ring：
+    若 ring 等于 0 或者 ring 的 容量 等于 0：
+        返还 0.0。
+    完。
+    返还 ring 的 计数 除以 ring 的 容量。
+完。
+
+流控_创建 接受 零参：
+    fc 为 做 堆_分配 用 流控状态。
+    fc 的 窗口起始时间 为 做 平台_纳秒时间。
+    fc 的 窗口消息数 为 0。
+    fc 的 背压系数 为 0.0。
+    fc 的 累计拒绝数 为 0。
+    fc 的 上次调整时间 为 fc 的 窗口起始时间。
+    fc 的 alpha参数 为 2.0。
+    fc 的 beta参数 为 1.5。
+    返还 fc。
+完。
+
+流控_更新 接受 fc、ring：
+    若 fc 等于 0：
+        返还。
+    完。
+    now 为 做 平台_纳秒时间。
+    elapsed_ms 为 (now 减 fc 的 窗口起始时间) 除以 1000000。
+    若 elapsed_ms 大于或等于 MOJO_RATE_WINDOW_MS：
+        fc 的 窗口起始时间 为 now。
+        fc 的 窗口消息数 为 0。
+    完。
+    fc 的 窗口消息数 为 fc 的 窗口消息数 加 1。
+    depth_ratio 为 做 环缓冲_深度比 用 ring。
+    rate_ratio 为 fc 的 窗口消息数 除以 MOJO_MAX_RATE。
+    x 为 fc 的 alpha参数 乘 depth_ratio 加 fc 的 beta参数 乘 rate_ratio。
+    x2 为 x 乘 x。
+    fc 的 背压系数 为 x 乘 (27.0 加 x2) 除以 (27.0 加 9.0 乘 x2)。
+    若 fc 的 背压系数 小于 0.0：
+        fc 的 背压系数 为 0.0。
+    完。
+    若 fc 的 背压系数 大于 1.0：
+        fc 的 背压系数 为 1.0。
+    完。
+    fc 的 上次调整时间 为 now。
+完。
+
+流控_允许发送 接受 fc：
+    若 fc 等于 0：
+        返还 真。
+    完。
+    若 fc 的 背压系数 大于或等于 MOJO_BACKPRESSURE_DENY：
+        fc 的 累计拒绝数 为 fc 的 累计拒绝数 加 1。
+        全局_IPC流控触发次数 为 全局_IPC流控触发次数 加 1。
+        返还 假。
+    完。
+    返还 真。
+完。
+
+流控_是否预警 接受 fc：
+    若 fc 等于 0：
+        返还 假。
+    完。
+    返还 fc 的 背压系数 大于或等于 MOJO_BACKPRESSURE_WARN。
+完。
+
+MojoPipe_创建 接受 零参：
+    pipe 为 做 堆_分配 用 MojoPipe。
+    fds 为 做 堆_分配 用 8。
+    做 平台_socketpair 用 fds。
+    pipe 的 端口0_fd 为 做 内存_读32 用 fds。
+    pipe 的 端口1_fd 为 做 内存_读32 用 fds 加 4。
+    pipe 的 环缓冲0 为 做 环缓冲_创建 用 MOJO_RING_SIZE。
+    pipe 的 环缓冲1 为 做 环缓冲_创建 用 MOJO_RING_SIZE。
+    pipe 的 流控0 为 做 流控_创建。
+    pipe 的 流控1 为 做 流控_创建。
+    pipe 的 重组器0 为 0。
+    pipe 的 重组器1 为 0。
+    pipe 的 序列号0 为 0。
+    pipe 的 序列号1 为 0。
+    pipe 的 状态 为 PIPE_STATE_OPEN。
+    pipe 的 已关闭0 为 假。
+    pipe 的 已关闭1 为 假。
+    pipe 的 发送总数 为 0。
+    pipe 的 接收总数 为 0。
+    pipe 的 字节发送量 为 0。
+    pipe 的 字节接收量 为 0。
+    pipe 的 创建时间戳 为 做 平台_纳秒时间。
+    pipe 的 管道ID 为 全局_IPC管道总数。
+    全局_IPC管道总数 为 全局_IPC管道总数 加 1。
+    做 堆_释放 用 fds。
+    返还 pipe。
+完。
+
+MojoPipe_获取序列号 接受 pipe、port_idx：
+    若 pipe 等于 0：
+        返还 0。
+    完。
+    可变。
+    seq 为 0。
+    若 port_idx 等于 0：
+        seq 为 pipe 的 序列号0。
+        pipe 的 序列号0 为 pipe 的 序列号0 加 1。
+    否则：
+        seq 为 pipe 的 序列号1。
+        pipe 的 序列号1 为 pipe 的 序列号1 加 1。
+    完。
+    返还 seq。
+完。
+
+MojoPipe_获取环缓冲 接受 pipe、port_idx：
+    若 pipe 等于 0：
+        返还 0。
+    完。
+    若 port_idx 等于 0：
+        返还 pipe 的 环缓冲0。
+    完。
+    返还 pipe 的 环缓冲1。
+完。
+
+MojoPipe_获取流控 接受 pipe、port_idx：
+    若 pipe 等于 0：
+        返还 0。
+    完。
+    若 port_idx 等于 0：
+        返还 pipe 的 流控0。
+    完。
+    返还 pipe 的 流控1。
+完。
+
+NIPC_序列化消息 接受 msg：
+    若 msg 等于 0：
+        返还 0。
+    完。
+    若 msg 的 数据长度 大于 67108864：
+        返还 0。
+    完。
+    total 为 MOJO_EXT_HEADER_SIZE 加 4 加 msg 的 数据长度。
+    buf 为 做 堆_分配 用 total。
+    若 buf 等于 0：
+        返还 0。
+    完。
+    做 内存_写32 用 buf、MOJO_MAGIC。
+    做 内存_写32 用 buf 加 4、msg 的 类型。
+    做 内存_写32 用 buf 加 8、msg 的 请求ID。
+    做 内存_写32 用 buf 加 12、msg 的 标志。
+    做 内存_写32 用 buf 加 16、msg 的 序列号。
+    做 内存_写16 用 buf 加 20、msg 的 分片索引。
+    做 内存_写16 用 buf 加 22、msg 的 分片总数。
+    做 内存_写32 用 buf 加 24、0。
+    做 内存_写64 用 buf 加 28、msg 的 时间戳。
+    做 内存_写32 用 buf 加 36、msg 的 数据长度。
+    若 msg 的 数据长度 大于 0 并且 msg 的 数据 不等于 0：
+        做 内存_复制 用 buf 加 40、msg 的 数据、msg 的 数据长度。
+    完。
+    crc 为 做 NIPC_CRC32计算 用 buf、total。
+    做 内存_写32 用 buf 加 24、crc。
+    msg 的 校验码 为 crc。
+    返还 buf。
+完。
+
+NIPC_反序列化消息 接受 buf、recv_len：
+    若 buf 等于 0 或者 recv_len 小于 40：
+        返还 0。
+    完。
+    magic 为 做 内存_读32 用 buf。
+    若 magic 不等于 MOJO_MAGIC：
+        返还 0。
+    完。
+    msg 为 做 堆_分配 用 MojoMessage。
+    msg 的 类型 为 做 内存_读32 用 buf 加 4。
+    msg 的 请求ID 为 做 内存_读32 用 buf 加 8。
+    msg 的 标志 为 做 内存_读32 用 buf 加 12。
+    msg 的 序列号 为 做 内存_读32 用 buf 加 16。
+    msg 的 分片索引 为 做 内存_读16 用 buf 加 20。
+    msg 的 分片总数 为 做 内存_读16 用 buf 加 22。
+    recv_crc 为 做 内存_读32 用 buf 加 24。
+    msg 的 时间戳 为 做 内存_读64 用 buf 加 28。
+    msg 的 数据长度 为 做 内存_读32 用 buf 加 36。
+    做 内存_写32 用 buf 加 24、0。
+    calc_crc 为 做 NIPC_CRC32计算 用 buf、recv_len。
+    若 calc_crc 不等于 recv_crc：
+        全局_IPC_CRC校验失败 为 全局_IPC_CRC校验失败 加 1。
+        做 堆_释放 用 msg。
+        返还 0。
+    完。
+    msg 的 校验码 为 recv_crc。
+    若 msg 的 数据长度 大于 0 并且 msg 的 数据长度 小于或等于 67108864 并且 msg 的 数据长度 加 40 小于或等于 recv_len：
+        msg 的 数据 为 做 堆_分配 用 msg 的 数据长度。
+        做 内存_复制 用 msg 的 数据、buf 加 40、msg 的 数据长度。
+    否则：
+        msg 的 数据 为 0。
+        msg 的 数据长度 为 0。
+    完。
+    msg 的 句柄 为 0。
+    msg 的 句柄数 为 0。
+    msg 的 下一个 为 0。
+    返还 msg。
+完。
+
+分片重组器_创建 接受 请求ID、总片数、超时ms：
+    ra 为 做 堆_分配 用 分片重组器。
+    ra 的 目标请求ID 为 请求ID。
+    ra 的 期望分片总数 为 总片数。
+    ra 的 已收分片数 为 0。
+    ra 的 分片位图 为 0。
+    ra 的 缓冲区 为 做 堆_分配 用 总片数 乘 8。
+    可变。
+    i 为 0。
+    只要 i 小于 总片数：
+        做 内存_写64 用 ra 的 缓冲区 加 i 乘 8、0。
+        i 为 i 加 1。
+    完。
+    ra 的 累计大小 为 0。
+    ra 的 开始时间 为 做 平台_纳秒时间。
+    ra 的 超时毫秒 为 超时ms。
+    返还 ra。
+完。
+
+分片重组器_投递 接受 ra、msg：
+    若 ra 等于 0 或者 msg 等于 0：
+        返还 假。
+    完。
+    若 msg 的 请求ID 不等于 ra 的 目标请求ID：
+        返还 假。
+    完。
+    若 msg 的 分片索引 大于或等于 ra 的 期望分片总数：
+        返还 假。
+    完。
+    bit 为 1 左移 msg 的 分片索引。
+    若 ra 的 分片位图 位与 bit 不等于 0：
+        返还 假。
+    完。
+    若 msg 的 数据长度 大于 67108864：
+        返还 假。
+    完。
+    frag_data 为 做 堆_分配 用 msg 的 数据长度 加 4。
+    若 frag_data 等于 0：
+        返还 假。
+    完。
+    做 内存_写32 用 frag_data、msg 的 数据长度。
+    若 msg 的 数据长度 大于 0：
+        做 内存_复制 用 frag_data 加 4、msg 的 数据、msg 的 数据长度。
+    完。
+    做 内存_写64 用 ra 的 缓冲区 加 msg 的 分片索引 乘 8、frag_data。
+    ra 的 分片位图 为 ra 的 分片位图 位或 bit。
+    ra 的 已收分片数 为 ra 的 已收分片数 加 1。
+    ra 的 累计大小 为 ra 的 累计大小 加 msg 的 数据长度。
+    返还 真。
+完。
+
+分片重组器_完成 接受 ra：
+    若 ra 等于 0：
+        返还 假。
+    完。
+    返还 ra 的 已收分片数 等于 ra 的 期望分片总数。
+完。
+
+分片重组器_组装 接受 ra：
+    若 ra 等于 0 或者 非 做 分片重组器_完成 用 ra：
+        返还 0。
+    完。
+    result 为 做 堆_分配 用 ra 的 累计大小。
+    可变。
+    offset 为 0。
+    可变。
+    i 为 0。
+    只要 i 小于 ra 的 期望分片总数：
+        frag 为 做 内存_读64 用 ra 的 缓冲区 加 i 乘 8。
+        若 frag 不等于 0：
+            flen 为 做 内存_读32 用 frag。
+            若 flen 大于 0：
+                做 内存_复制 用 result 加 offset、frag 加 4、flen。
+                offset 为 offset 加 flen。
+            完。
+            做 堆_释放 用 frag。
+        完。
+        i 为 i 加 1。
+    完。
+    全局_IPC分片重组计数 为 全局_IPC分片重组计数 加 1。
+    返还 result。
+完。
+
+分片重组器_超时检查 接受 ra：
+    若 ra 等于 0：
+        返还 假。
+    完。
+    now 为 做 平台_纳秒时间。
+    elapsed_ms 为 (now 减 ra 的 开始时间) 除以 1000000。
+    返还 elapsed_ms 大于 ra 的 超时毫秒。
+完。
+
+MojoPipe_发送 接受 pipe、port_idx、msg：
+    若 pipe 等于 0 或者 msg 等于 0：
+        返还 负 1。
+    完。
+    若 pipe 的 状态 大于或等于 PIPE_STATE_CLOSED：
+        返还 负 2。
+    完。
+    is_urgent 为 msg 的 标志 位与 MSG_FLAG_URGENT 不等于 0。
+    fc 为 做 MojoPipe_获取流控 用 pipe、port_idx。
+    ring 为 做 MojoPipe_获取环缓冲 用 pipe、port_idx。
+    若 非 is_urgent：
+        做 流控_更新 用 fc、ring。
+        若 非 做 流控_允许发送 用 fc：
+            返还 负 3。
+        完。
+    完。
+    msg 的 序列号 为 做 MojoPipe_获取序列号 用 pipe、port_idx。
+    msg 的 时间戳 为 做 平台_纳秒时间。
+    若 msg 的 数据长度 大于 MOJO_FRAGMENT_SIZE：
+        返还 做 NIPC_发送分片 用 pipe、port_idx、msg。
+    完。
+    msg 的 分片索引 为 0。
+    msg 的 分片总数 为 1。
+    返还 做 NIPC_发送单条 用 pipe、port_idx、msg。
+完。
+
+NIPC_发送单条 接受 pipe、port_idx、msg：
+    buf 为 做 NIPC_序列化消息 用 msg。
+    若 buf 等于 0：
+        返还 负 4。
+    完。
+    total 为 40 加 msg 的 数据长度。
+    fd 为 若 port_idx 等于 0 则 pipe 的 端口0_fd 否则 pipe 的 端口1_fd。
+    若 msg 的 句柄数 大于 0 并且 msg 的 句柄 不等于 0：
+        msg 的 标志 为 msg 的 标志 位或 MSG_FLAG_HAS_HANDLES。
+        做 平台_sendmsg_with_fds 用 fd、buf、total、msg 的 句柄、msg 的 句柄数。
+        全局_IPC句柄传递计数 为 全局_IPC句柄传递计数 加 msg 的 句柄数。
+    否则：
+        做 平台_socket_发送 用 fd、buf、total。
+    完。
+    做 环缓冲_入队 用 做 MojoPipe_获取环缓冲 用 pipe、port_idx、msg。
+    pipe 的 发送总数 为 pipe 的 发送总数 加 1。
+    pipe 的 字节发送量 为 pipe 的 字节发送量 加 total。
+    全局_IPC消息发送计数 为 全局_IPC消息发送计数 加 1。
+    全局_IPC字节发送总量 为 全局_IPC字节发送总量 加 total。
+    做 堆_释放 用 buf。
+    返还 0。
+完。
+
+NIPC_发送分片 接受 pipe、port_idx、msg：
+    total_data 为 msg 的 数据长度。
+    frag_count 为 (total_data 加 MOJO_FRAGMENT_SIZE 减 1) 除以 MOJO_FRAGMENT_SIZE。
+    若 frag_count 大于 64：
+        返还 负 5。
+    完。
+    可变。
+    offset 为 0。
+    可变。
+    i 为 0。
+    只要 i 小于 frag_count：
+        chunk_size 为 MOJO_FRAGMENT_SIZE。
+        若 offset 加 chunk_size 大于 total_data：
+            chunk_size 为 total_data 减 offset。
+        完。
+        frag 为 做 堆_分配 用 MojoMessage。
+        frag 的 类型 为 msg 的 类型。
+        frag 的 请求ID 为 msg 的 请求ID。
+        frag 的 标志 为 msg 的 标志 位或 MSG_FLAG_FRAGMENT。
+        若 i 等于 frag_count 减 1：
+            frag 的 标志 为 frag 的 标志 位或 MSG_FLAG_LAST_FRAG。
+        完。
+        frag 的 序列号 为 msg 的 序列号 加 i。
+        frag 的 分片索引 为 i。
+        frag 的 分片总数 为 frag_count。
+        frag 的 数据 为 msg 的 数据 加 offset。
+        frag 的 数据长度 为 chunk_size。
+        frag 的 句柄 为 0。
+        frag 的 句柄数 为 0。
+        若 i 等于 0 并且 msg 的 句柄数 大于 0：
+            frag 的 句柄 为 msg 的 句柄。
+            frag 的 句柄数 为 msg 的 句柄数。
+        完。
+        frag 的 时间戳 为 做 平台_纳秒时间。
+        frag 的 校验码 为 0。
+        rc 为 做 NIPC_发送单条 用 pipe、port_idx、frag。
+        做 堆_释放 用 frag。
+        若 rc 不等于 0：
+            返还 rc。
+        完。
+        offset 为 offset 加 chunk_size。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+MojoPipe_接收 接受 pipe、port_idx：
+    若 pipe 等于 0：
+        返还 0。
+    完。
+    若 pipe 的 状态 大于或等于 PIPE_STATE_CLOSED：
+        返还 0。
+    完。
+    fd 为 若 port_idx 等于 0 则 pipe 的 端口0_fd 否则 pipe 的 端口1_fd。
+    buf 为 做 堆_分配 用 MOJO_MSG_MAX。
+    句柄buf 为 做 堆_分配 用 MOJO_MAX_HANDLES 乘 4。
+    可变。
+    句柄数 为 0。
+    recv_len 为 做 平台_recvmsg_with_fds 用 fd、buf、MOJO_MSG_MAX、句柄buf、句柄数。
+    若 recv_len 小于 40：
+        做 堆_释放 用 buf。
+        做 堆_释放 用 句柄buf。
+        返还 0。
+    完。
+    msg 为 做 NIPC_反序列化消息 用 buf、recv_len。
+    若 msg 等于 0：
+        做 堆_释放 用 buf。
+        做 堆_释放 用 句柄buf。
+        返还 0。
+    完。
+    若 句柄数 大于 0：
+        msg 的 句柄 为 句柄buf。
+        msg 的 句柄数 为 句柄数。
+    否则：
+        做 堆_释放 用 句柄buf。
+    完。
+    pipe 的 接收总数 为 pipe 的 接收总数 加 1。
+    pipe 的 字节接收量 为 pipe 的 字节接收量 加 recv_len。
+    全局_IPC消息接收计数 为 全局_IPC消息接收计数 加 1。
+    全局_IPC字节接收总量 为 全局_IPC字节接收总量 加 recv_len。
+    做 NIPC_AI异常检测 用 pipe、msg。
+    若 msg 的 标志 位与 MSG_FLAG_FRAGMENT 不等于 0：
+        result 为 做 NIPC_处理分片接收 用 pipe、port_idx、msg。
+        做 堆_释放 用 buf。
+        返还 result。
+    完。
+    做 堆_释放 用 buf。
+    返还 msg。
+完。
+
+NIPC_处理分片接收 接受 pipe、port_idx、msg：
+    可变。
+    ra 为 0。
+    若 port_idx 等于 0：
+        ra 为 pipe 的 重组器0。
+    否则：
+        ra 为 pipe 的 重组器1。
+    完。
+    若 ra 等于 0 或者 ra 的 目标请求ID 不等于 msg 的 请求ID：
+        ra 为 做 分片重组器_创建 用 msg 的 请求ID、msg 的 分片总数、5000。
+        若 port_idx 等于 0：
+            pipe 的 重组器0 为 ra。
+        否则：
+            pipe 的 重组器1 为 ra。
+        完。
+    完。
+    做 分片重组器_投递 用 ra、msg。
+    若 做 分片重组器_完成 用 ra：
+        合并数据 为 做 分片重组器_组装 用 ra。
+        完整msg 为 做 堆_分配 用 MojoMessage。
+        完整msg 的 类型 为 msg 的 类型。
+        完整msg 的 请求ID 为 msg 的 请求ID。
+        完整msg 的 标志 为 msg 的 标志 位与 按位取反 MSG_FLAG_FRAGMENT 位与 按位取反 MSG_FLAG_LAST_FRAG。
+        完整msg 的 序列号 为 msg 的 序列号。
+        完整msg 的 数据 为 合并数据。
+        完整msg 的 数据长度 为 ra 的 累计大小。
+        完整msg 的 句柄 为 msg 的 句柄。
+        完整msg 的 句柄数 为 msg 的 句柄数。
+        完整msg 的 分片索引 为 0。
+        完整msg 的 分片总数 为 1。
+        完整msg 的 时间戳 为 msg 的 时间戳。
+        完整msg 的 校验码 为 0。
+        完整msg 的 下一个 为 0。
+        做 堆_释放 用 ra。
+        若 port_idx 等于 0：
+            pipe 的 重组器0 为 0。
+        否则：
+            pipe 的 重组器1 为 0。
+        完。
+        返还 完整msg。
+    完。
+    返还 0。
+完。
+
+IPC共享内存_创建 接受 名称、大小：
+    若 大小 小于 MOJO_SHARED_MEM_MIN：
+        大小 为 MOJO_SHARED_MEM_MIN。
+    完。
+    若 大小 大于 MOJO_SHARED_MEM_MAX：
+        返还 0。
+    完。
+    shm 为 做 堆_分配 用 共享内存区。
+    shm 的 名称 为 名称。
+    shm 的 大小 为 大小。
+    shm 的 fd 为 做 平台_shm_open 用 名称、大小。
+    若 shm 的 fd 小于 0：
+        做 堆_释放 用 shm。
+        返还 0。
+    完。
+    shm 的 基地址 为 做 平台_mmap 用 0、大小、3、shm 的 fd。
+    若 shm 的 基地址 等于 0：
+        做 平台_close 用 shm 的 fd。
+        做 堆_释放 用 shm。
+        返还 0。
+    完。
+    shm 的 映射标志 为 3。
+    shm 的 引用计数 为 1。
+    shm 的 所有者进程 为 做 平台_getpid。
+    shm 的 创建时间戳 为 做 平台_纳秒时间。
+    全局_IPC共享内存区数 为 全局_IPC共享内存区数 加 1。
+    返还 shm。
+完。
+
+IPC共享内存_映射 接受 shm、只读：
+    若 shm 等于 0 或者 shm 的 fd 小于 0：
+        返还 0。
+    完。
+    prot 为 若 只读 则 1 否则 3。
+    addr 为 做 平台_mmap 用 0、shm 的 大小、prot、shm 的 fd。
+    若 addr 不等于 0：
+        shm 的 引用计数 为 shm 的 引用计数 加 1。
+    完。
+    返还 addr。
+完。
+
+IPC共享内存_解除映射 接受 shm、地址：
+    若 shm 等于 0 或者 地址 等于 0：
+        返还。
+    完。
+    做 平台_munmap 用 地址、shm 的 大小。
+    shm 的 引用计数 为 shm 的 引用计数 减 1。
+    若 shm 的 引用计数 小于或等于 0：
+        做 平台_close 用 shm 的 fd。
+        做 堆_释放 用 shm。
+        全局_IPC共享内存区数 为 全局_IPC共享内存区数 减 1。
+    完。
+完。
+
+IPC共享内存_通过管道传递 接受 pipe、port_idx、shm：
+    若 pipe 等于 0 或者 shm 等于 0：
+        返还 负 1。
+    完。
+    msg 为 做 堆_分配 用 MojoMessage。
+    msg 的 类型 为 0xFFFF0001。
+    msg 的 请求ID 为 0。
+    msg 的 标志 为 MSG_FLAG_ONEWAY 位或 MSG_FLAG_HAS_HANDLES。
+    name_len 为 做 平台_strlen 用 shm 的 名称。
+    data_len 为 12 加 name_len。
+    msg 的 数据 为 做 堆_分配 用 data_len。
+    做 内存_写64 用 msg 的 数据、shm 的 大小。
+    做 内存_写32 用 msg 的 数据 加 8、name_len。
+    若 name_len 大于 0：
+        做 内存_复制 用 msg 的 数据 加 12、shm 的 名称、name_len。
+    完。
+    msg 的 数据长度 为 data_len。
+    msg 的 句柄 为 做 堆_分配 用 4。
+    做 内存_写32 用 msg 的 句柄、shm 的 fd。
+    msg 的 句柄数 为 1。
+    msg 的 分片索引 为 0。
+    msg 的 分片总数 为 1。
+    msg 的 校验码 为 0。
+    msg 的 时间戳 为 0。
+    msg 的 序列号 为 0。
+    msg 的 下一个 为 0。
+    返还 做 MojoPipe_发送 用 pipe、port_idx、msg。
+完。
+
+CAP_READ 为 0x01。
+
+CAP_WRITE 为 0x02。
+
+CAP_MAP 为 0x04。
+
+CAP_EXEC 为 0x08。
+
+CAP_SHARE 为 0x10。
+
+IPC句柄_创建 接受 类型、原始值、能力：
+    h 为 做 堆_分配 用 IPC句柄。
+    h 的 类型 为 类型。
+    h 的 原始值 为 原始值。
+    h 的 能力掩码 为 能力。
+    h 的 引用计数 为 1。
+    h 的 所属管道 为 0。
+    返还 h。
+完。
+
+IPC句柄_检查能力 接受 h、需要能力：
+    若 h 等于 0：
+        返还 假。
+    完。
+    返还 h 的 能力掩码 位与 需要能力 等于 需要能力。
+完。
+
+IPC句柄_委托 接受 h、新能力掩码：
+    若 h 等于 0：
+        返还 0。
+    完。
+    实际能力 为 新能力掩码 位与 h 的 能力掩码。
+    新h 为 做 IPC句柄_创建 用 h 的 类型、h 的 原始值、实际能力。
+    h 的 引用计数 为 h 的 引用计数 加 1。
+    返还 新h。
+完。
+
+IPC句柄_释放 接受 h：
+    若 h 等于 0：
+        返还。
+    完。
+    h 的 引用计数 为 h 的 引用计数 减 1。
+    若 h 的 引用计数 小于或等于 0：
+        若 h 的 类型 等于 HANDLE_TYPE_FD 或者 h 的 类型 等于 HANDLE_TYPE_SHM：
+            做 平台_close 用 h 的 原始值。
+        完。
+        做 堆_释放 用 h。
+    完。
+完。
+
+MojoPipe_关闭 接受 pipe、port_idx：
+    若 pipe 等于 0：
+        返还。
+    完。
+    若 port_idx 等于 0：
+        若 pipe 的 已关闭0：
+            返还。
+        完。
+        pipe 的 已关闭0 为 真。
+        做 平台_close 用 pipe 的 端口0_fd。
+        pipe 的 端口0_fd 为 负 1。
+    否则：
+        若 pipe 的 已关闭1：
+            返还。
+        完。
+        pipe 的 已关闭1 为 真。
+        做 平台_close 用 pipe 的 端口1_fd。
+        pipe 的 端口1_fd 为 负 1。
+    完。
+    若 pipe 的 已关闭0 并且 pipe 的 已关闭1：
+        pipe 的 状态 为 PIPE_STATE_CLOSED。
+    否则：
+        pipe 的 状态 为 PIPE_STATE_HALF。
+    完。
+完。
+
+MojoPipe_销毁 接受 pipe：
+    若 pipe 等于 0：
+        返还。
+    完。
+    做 MojoPipe_关闭 用 pipe、0。
+    做 MojoPipe_关闭 用 pipe、1。
+    做 NIPC_清空环缓冲 用 pipe 的 环缓冲0。
+    做 NIPC_清空环缓冲 用 pipe 的 环缓冲1。
+    若 pipe 的 流控0 不等于 0：
+        做 堆_释放 用 pipe 的 流控0。
+    完。
+    若 pipe 的 流控1 不等于 0：
+        做 堆_释放 用 pipe 的 流控1。
+    完。
+    若 pipe 的 重组器0 不等于 0：
+        做 堆_释放 用 pipe 的 重组器0。
+    完。
+    若 pipe 的 重组器1 不等于 0：
+        做 堆_释放 用 pipe 的 重组器1。
+    完。
+    做 堆_释放 用 pipe。
+完。
+
+NIPC_清空环缓冲 接受 ring：
+    若 ring 等于 0：
+        返还。
+    完。
+    只要 ring 的 计数 大于 0：
+        msg 为 做 环缓冲_出队 用 ring。
+        若 msg 不等于 0：
+            若 msg 的 数据 不等于 0：
+                做 堆_释放 用 msg 的 数据。
+            完。
+            做 堆_释放 用 msg。
+        完。
+    完。
+    若 ring 的 槽位 不等于 0：
+        做 堆_释放 用 ring 的 槽位。
+    完。
+    做 堆_释放 用 ring。
+完。
+
+可变 NIPC_AI历史速率均值 为 100.0。
+
+可变 NIPC_AI历史大小均值 为 1024.0。
+
+可变 NIPC_AI上次序列号 为 0。
+
+可变 NIPC_AI检测窗口消息数 为 0。
+
+可变 NIPC_AI检测窗口句柄数 为 0。
+
+可变 NIPC_AI衰减因子 为 0.95。
+
+NIPC_AI异常检测 接受 pipe、msg：
+    若 pipe 等于 0 或者 msg 等于 0：
+        返还。
+    完。
+    若 全局AI总线 等于 0：
+        返还。
+    完。
+    NIPC_AI检测窗口消息数 为 NIPC_AI检测窗口消息数 加 1。
+    NIPC_AI检测窗口句柄数 为 NIPC_AI检测窗口句柄数 加 msg 的 句柄数。
+    tensor 为 做 Tensor_创建 用 8。
+    速率偏差 为 若 NIPC_AI历史速率均值 大于 0 则 NIPC_AI检测窗口消息数 除以 NIPC_AI历史速率均值 否则 0。
+    做 Tensor_写 用 tensor、0、速率偏差。
+    大小偏差 为 若 NIPC_AI历史大小均值 大于 0 则 msg 的 数据长度 除以 NIPC_AI历史大小均值 否则 0。
+    做 Tensor_写 用 tensor、1、大小偏差。
+    seq_gap 为 msg 的 序列号 减 NIPC_AI上次序列号。
+    gap_异常 为 若 seq_gap 大于 1 则 seq_gap 除以 10.0 否则 0.0。
+    做 Tensor_写 用 tensor、2、gap_异常。
+    NIPC_AI上次序列号 为 msg 的 序列号。
+    句柄密度 为 NIPC_AI检测窗口句柄数 除以 (NIPC_AI检测窗口消息数 加 1)。
+    做 Tensor_写 用 tensor、3、句柄密度。
+    fc 为 做 MojoPipe_获取流控 用 pipe、0。
+    做 Tensor_写 用 tensor、4、若 fc 不等于 0 则 fc 的 背压系数 否则 0.0。
+    crc_fail_rate 为 全局_IPC_CRC校验失败 除以 (全局_IPC消息接收计数 加 1)。
+    做 Tensor_写 用 tensor、5、crc_fail_rate。
+    做 Tensor_写 用 tensor、6、0.0。
+    做 Tensor_写 用 tensor、7、0.0。
+    异常分 为 做 AI总线_异常检测 用 全局AI总线、tensor、8。
+    若 异常分 大于 0.7：
+        全局_IPC异常检测次数 为 全局_IPC异常检测次数 加 1。
+        做 NIPC_记录异常事件 用 pipe、msg、异常分。
+    完。
+    NIPC_AI历史速率均值 为 NIPC_AI衰减因子 乘 NIPC_AI历史速率均值 加 (1.0 减 NIPC_AI衰减因子) 乘 NIPC_AI检测窗口消息数。
+    NIPC_AI历史大小均值 为 NIPC_AI衰减因子 乘 NIPC_AI历史大小均值 加 (1.0 减 NIPC_AI衰减因子) 乘 msg 的 数据长度。
+    做 Tensor_释放 用 tensor。
+完。
+
+NIPC_记录异常事件 接受 pipe、msg、异常分：
+    做 平台_日志 用 「[NIPC-AI] 管道#」、pipe 的 管道ID、「 异常分=」、异常分、「 type=」、msg 的 类型、「 seq=」、msg 的 序列号、「 size=」、msg 的 数据长度。
+完。
+
+NIPC_获取诊断快照 接受 零参：
+    snap 为 做 堆_分配 用 IPC诊断快照。
+    snap 的 管道总数 为 全局_IPC管道总数。
+    snap 的 活跃管道数 为 全局_IPC管道总数。
+    snap 的 消息发送速率 为 全局_IPC消息发送计数。
+    snap 的 消息接收速率 为 全局_IPC消息接收计数。
+    snap 的 平均延迟纳秒 为 0。
+    snap 的 背压触发率 为 全局_IPC流控触发次数。
+    snap 的 异常事件数 为 全局_IPC异常检测次数。
+    snap 的 共享内存使用量 为 全局_IPC共享内存区数。
+    snap 的 句柄泄漏嫌疑数 为 0。
+    返还 snap。
+完。
+
+NIPC_管道统计 接受 pipe：
+    若 pipe 等于 0：
+        返还。
+    完。
+    做 平台_日志 用 「[NIPC] 管道#」、pipe 的 管道ID、「 发送=」、pipe 的 发送总数、「 接收=」、pipe 的 接收总数、「 字节发=」、pipe 的 字节发送量、「 字节收=」、pipe 的 字节接收量、「 状态=」、pipe 的 状态。
+    ring0 为 pipe 的 环缓冲0。
+    ring1 为 pipe 的 环缓冲1。
+    若 ring0 不等于 0：
+        做 平台_日志 用 「  环缓冲0: 计数=」、ring0 的 计数、「/」、ring0 的 容量、「 溢出=」、ring0 的 溢出丢弃数。
+    完。
+    若 ring1 不等于 0：
+        做 平台_日志 用 「  环缓冲1: 计数=」、ring1 的 计数、「/」、ring1 的 容量、「 溢出=」、ring1 的 溢出丢弃数。
+    完。
+    fc0 为 pipe 的 流控0。
+    若 fc0 不等于 0：
+        做 平台_日志 用 「  流控0: 背压=」、fc0 的 背压系数、「 拒绝=」、fc0 的 累计拒绝数。
+    完。
+完。
+
+NIPC_全局统计 接受 零参：
+    做 平台_日志 用 「[NIPC全局] 管道=」、全局_IPC管道总数、「 发送=」、全局_IPC消息发送计数、「 接收=」、全局_IPC消息接收计数、「 字节发=」、全局_IPC字节发送总量、「 字节收=」、全局_IPC字节接收总量。
+    做 平台_日志 用 「  分片重组=」、全局_IPC分片重组计数、「 流控触发=」、全局_IPC流控触发次数、「 AI异常=」、全局_IPC异常检测次数、「 CRC失败=」、全局_IPC_CRC校验失败、「 句柄传递=」、全局_IPC句柄传递计数、「 共享内存区=」、全局_IPC共享内存区数。
+完。
+
+NIPC_初始化 接受 零参：
+    全局_IPC管道总数 为 0。
+    全局_IPC消息发送计数 为 0。
+    全局_IPC消息接收计数 为 0。
+    全局_IPC字节发送总量 为 0。
+    全局_IPC字节接收总量 为 0。
+    全局_IPC分片重组计数 为 0。
+    全局_IPC流控触发次数 为 0。
+    全局_IPC异常检测次数 为 0。
+    全局_IPC句柄传递计数 为 0。
+    全局_IPC共享内存区数 为 0。
+    全局_IPC_CRC校验失败 为 0。
+    NIPC_AI历史速率均值 为 100.0。
+    NIPC_AI历史大小均值 为 1024.0。
+    NIPC_AI上次序列号 为 0。
+    NIPC_AI检测窗口消息数 为 0。
+    NIPC_AI检测窗口句柄数 为 0。
+    做 平台_日志 用 「[NIPC] Nova IPC Pipeline Communication 引擎已初始化」。
+完。
+
+本章 收束。

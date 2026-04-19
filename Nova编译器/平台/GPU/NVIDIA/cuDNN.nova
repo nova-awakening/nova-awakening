@@ -1,0 +1,237 @@
+《cuDNN》
+
+引用《..·内存·显存管理》。
+
+引用《..·核心·FFI桥接》。
+
+引用《..·核心·设备管理》。
+
+cuDNN_浮点 为 0。
+
+cuDNN_双精度 为 1。
+
+cuDNN_半精度 为 2。
+
+cuDNN_整8 为 3。
+
+cuDNN_BF16精度 为 8。
+
+cuDNN_批通道高宽 为 0。
+
+cuDNN_批高宽通道 为 1。
+
+cuDNN_卷积 为 0。
+
+cuDNN_互相关 为 1。
+
+cuDNN_算法_隐式矩阵乘 为 0。
+
+cuDNN_算法_隐式预计算矩阵乘 为 1。
+
+cuDNN_算法_通用矩阵乘 为 2。
+
+cuDNN_算法_维诺格拉德 为 6。
+
+cuDNN_算法_维诺格拉德非融合 为 7。
+
+cuDNN_最大池化 为 0。
+
+cuDNN_池化_平均 为 1。
+
+cuDNN_池化_平均填充 为 2。
+
+cuDNN_激活_Sigmoid 为 0。
+
+cuDNN_激活_修正线性 为 1。
+
+cuDNN_激活_Tanh 为 2。
+
+cuDNN_激活_裁剪 为 3。
+
+cuDNN_激活_ELU 为 4。
+
+cuDNN_激活_自门控激活 为 5。
+
+cuDNN_批归一_逐激活 为 0。
+
+cuDNN_批归一_空间 为 1。
+
+cuDNN_归一化指数_快速 为 0。
+
+cuDNN_归一化指数_精确 为 1。
+
+cuDNN_归一化指数_对数 为 2。
+
+可变 _cuDNN库 为 0。
+
+可变 _cuDNN句柄 为 0。
+
+cuDNN_加载 接受 零参：
+    若 _cuDNN库 不等于 0：
+        返还 _cuDNN库。
+    完。
+    _cuDNN库 为 做 GPU_加载CUDA候选 用 一组：「cudnn64_9.dll」、「cudnn64_8.dll」、「libcudnn.so.9」、「libcudnn.so.8」、「libcudnn.so」。
+    返还 _cuDNN库。
+完。
+
+cuDNN_初始化 接受 零参：
+    若 _cuDNN句柄 不等于 0：
+        返还 _cuDNN句柄。
+    完。
+    lib 为 做 cuDNN_加载。
+    若 lib 等于 0：
+        返还 0。
+    完。
+    _cuDNN句柄 为 做 外部调用 用 lib、「cudnnCreate」、0、0、0、0、0。
+    返还 _cuDNN句柄。
+完。
+
+cuDNN_版本 接受 零参：
+    lib 为 做 cuDNN_加载。
+    若 lib 等于 0：
+        返还 0。
+    完。
+    返还 做 外部调用 用 lib、「cudnnGetVersion」、0、0、0、0、0。
+完。
+
+cuDNN_创建张量描述 接受 N、C、H、W、格式、数据类型：
+    lib 为 做 cuDNN_加载。
+    「cudnnCreateTensorDescriptor」。
+    做 外部调用6 用 lib、「cudnnSetTensor4dDescriptor」、desc、格式、数据类型、N、C、H、W。
+    返还 desc。
+完。
+
+cuDNN_销毁张量描述 接受 desc：
+    做 外部调用 用 做 cuDNN_加载、「cudnnDestroyTensorDescriptor」、desc、0、0、0、0。
+完。
+
+cuDNN_创建卷积描述 接受 pad_h、pad_w、stride_h、stride_w、dilation_h、dilation_w、模式：
+    lib 为 做 cuDNN_加载。
+    「cudnnCreateConvolutionDescriptor」。
+    做 外部调用N 用 lib、「cudnnSetConvolution2dDescriptor」、一组：desc、pad_h、pad_w、stride_h、stride_w、dilation_h、dilation_w、模式、cuDNN_浮点。
+    返还 desc。
+完。
+
+cuDNN_创建滤波器描述 接受 K、C、R、S、格式、数据类型：
+    lib 为 做 cuDNN_加载。
+    「cudnnCreateFilterDescriptor」。
+    做 外部调用6 用 lib、「cudnnSetFilter4dDescriptor」、desc、数据类型、格式、K、C、R、S。
+    返还 desc。
+完。
+
+cuDNN_卷积前向 接受 输入desc、输入、滤波desc、滤波、卷积desc、算法、输出desc、输出：
+    handle 为 做 cuDNN_初始化。
+    若 handle 等于 0：
+        返还 假。
+    完。
+    lib 为 做 cuDNN_加载。
+    返还 做 外部调用N 用 lib、「cudnnConvolutionForward」、一组：handle、1.0、输入desc、输入、滤波desc、滤波、卷积desc、算法、0、0.0、输出desc、输出 等于 0。
+完。
+
+cuDNN_卷积反向数据 接受 滤波desc、滤波、梯度输出desc、梯度输出、卷积desc、算法、梯度输入desc、梯度输入：
+    handle 为 做 cuDNN_初始化。
+    lib 为 做 cuDNN_加载。
+    返还 做 外部调用N 用 lib、「cudnnConvolutionBackwardData」、一组：handle、1.0、滤波desc、滤波、梯度输出desc、梯度输出、卷积desc、算法、0、0.0、梯度输入desc、梯度输入 等于 0。
+完。
+
+cuDNN_卷积反向滤波 接受 输入desc、输入、梯度输出desc、梯度输出、卷积desc、算法、梯度滤波desc、梯度滤波：
+    handle 为 做 cuDNN_初始化。
+    lib 为 做 cuDNN_加载。
+    返还 做 外部调用N 用 lib、「cudnnConvolutionBackwardFilter」、一组：handle、1.0、输入desc、输入、梯度输出desc、梯度输出、卷积desc、算法、0、0.0、梯度滤波desc、梯度滤波 等于 0。
+完。
+
+cuDNN_卷积最优算法 接受 输入desc、滤波desc、卷积desc、输出desc：
+    handle 为 做 cuDNN_初始化。
+    lib 为 做 cuDNN_加载。
+    返还 做 外部调用N 用 lib、「cudnnGetConvolutionForwardAlgorithm_v7」、一组：handle、输入desc、滤波desc、卷积desc、输出desc、1、0。
+完。
+
+cuDNN_创建池化描述 接受 模式、窗口H、窗口W、pad_h、pad_w、stride_h、stride_w：
+    lib 为 做 cuDNN_加载。
+    「cudnnCreatePoolingDescriptor」。
+    做 外部调用N 用 lib、「cudnnSetPooling2dDescriptor」、一组：desc、模式、0、窗口H、窗口W、pad_h、pad_w、stride_h、stride_w。
+    返还 desc。
+完。
+
+cuDNN_池化前向 接受 池化desc、输入desc、输入、输出desc、输出：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnPoolingForward」、一组：handle、池化desc、1.0、输入desc、输入、0.0、输出desc、输出 等于 0。
+完。
+
+cuDNN_池化反向 接受 池化desc、输出desc、输出、梯度输出desc、梯度输出、输入desc、输入、梯度输入desc、梯度输入：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnPoolingBackward」、一组：handle、池化desc、1.0、输出desc、输出、梯度输出desc、梯度输出、输入desc、输入、0.0、梯度输入desc、梯度输入 等于 0。
+完。
+
+cuDNN_创建激活描述 接受 模式、参数：
+    lib 为 做 cuDNN_加载。
+    「cudnnCreateActivationDescriptor」。
+    做 外部调用4 用 lib、「cudnnSetActivationDescriptor」、desc、模式、0、参数、0。
+    返还 desc。
+完。
+
+cuDNN_激活前向 接受 激活desc、输入desc、输入、输出desc、输出：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnActivationForward」、一组：handle、激活desc、1.0、输入desc、输入、0.0、输出desc、输出 等于 0。
+完。
+
+cuDNN_激活反向 接受 激活desc、输出desc、输出、梯度输出desc、梯度输出、输入desc、输入、梯度输入desc、梯度输入：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnActivationBackward」、一组：handle、激活desc、1.0、输出desc、输出、梯度输出desc、梯度输出、输入desc、输入、0.0、梯度输入desc、梯度输入 等于 0。
+完。
+
+cuDNN_批归一化前向_训练 接受 模式、输入desc、输入、输出desc、输出、BN参数desc、scale、bias、动量、均值、方差、epsilon：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnBatchNormalizationForwardTraining」、一组：handle、模式、1.0、0.0、输入desc、输入、输出desc、输出、BN参数desc、scale、bias、动量、均值、方差、epsilon 等于 0。
+完。
+
+cuDNN_批归一化前向_推理 接受 模式、输入desc、输入、输出desc、输出、BN参数desc、scale、bias、均值、方差、epsilon：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnBatchNormalizationForwardInference」、一组：handle、模式、1.0、0.0、输入desc、输入、输出desc、输出、BN参数desc、scale、bias、均值、方差、epsilon 等于 0。
+完。
+
+cuDNN_批归一化反向 接受 模式、输入desc、输入、梯度输出desc、梯度输出、梯度输入desc、梯度输入、BN参数desc、scale、梯度scale、梯度bias、epsilon、均值、方差：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnBatchNormalizationBackward」、一组：handle、模式、1.0、0.0、1.0、0.0、输入desc、输入、梯度输出desc、梯度输出、梯度输入desc、梯度输入、BN参数desc、scale、梯度scale、梯度bias、epsilon、均值、方差 等于 0。
+完。
+
+cuDNN_Softmax前向 接受 模式、输入desc、输入、输出desc、输出：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnSoftmaxForward」、一组：handle、模式、1、1.0、输入desc、输入、0.0、输出desc、输出 等于 0。
+完。
+
+cuDNN_Softmax反向 接受 模式、输出desc、输出、梯度输出desc、梯度输出、梯度输入desc、梯度输入：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnnSoftmaxBackward」、一组：handle、模式、1、1.0、输出desc、输出、梯度输出desc、梯度输出、0.0、梯度输入desc、梯度输入 等于 0。
+完。
+
+cuDNN_创建随机丢弃描述 接受 概率、种子：
+    handle 为 做 cuDNN_初始化。
+    lib 为 做 cuDNN_加载。
+    「cudnnCreate随机丢弃Descriptor」。
+    状态大小 为 做 外部调用2 用 lib、「cudnn随机丢弃GetStatesSize」、handle、0。
+    状态内存 为 做 GPU_分配 用 状态大小。
+    做 外部调用6 用 lib、「cudnnSet随机丢弃Descriptor」、desc、handle、概率、做 GPU内存块_指针 用 状态内存、状态大小、种子、0。
+    返还 desc。
+完。
+
+cuDNN_随机丢弃前向 接受 dropout_desc、输入desc、输入、输出desc、输出、保留空间、保留大小：
+    handle 为 做 cuDNN_初始化。
+    返还 做 外部调用N 用 做 cuDNN_加载、「cudnn随机丢弃Forward」、一组：handle、dropout_desc、输入desc、输入、输出desc、输出、保留空间、保留大小 等于 0。
+完。
+
+cuDNN_创建注意力描述 接受 头数、embed_dim、_kv_dim、_q_proj、_k_proj、_v_proj、_o_proj：
+    lib 为 做 cuDNN_加载。
+    「cudnnCreateAttnDescriptor」。
+    做 外部调用N 用 lib、「cudnnSetAttnDescriptor」、一组：desc、0、头数、1.0、cuDNN_浮点、cuDNN_浮点、0、0、embed_dim、embed_dim、embed_dim、0。
+    返还 desc。
+完。
+
+cuDNN_清理 接受 零参：
+    若 _cuDNN句柄 不等于 0：
+        做 外部调用 用 做 cuDNN_加载、「cudnnDestroy」、_cuDNN句柄、0、0、0、0。
+        _cuDNN句柄 为 0。
+    完。
+完。
+
+本章 收束。

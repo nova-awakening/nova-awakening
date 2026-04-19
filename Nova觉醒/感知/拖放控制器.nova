@@ -1,0 +1,107 @@
+《拖放控制器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·事件系统核心》。
+
+引用《.·拖动放置控制》。
+
+引用《.·原子驻留》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·文档事件》。
+
+DragController 是 一种 事物，含 正在拖放、拖放源、数据传输、当前目标、起始x、起始y、当前x、当前y。
+
+可变 全局拖放控制器 为 0。
+
+DragController_获取 接受 零参：
+    若 全局拖放控制器 等于 0：
+        全局拖放控制器 为 做 堆_分配 用 DragController。
+        全局拖放控制器 的 正在拖放 为 假。
+        全局拖放控制器 的 拖放源 为 0。
+        全局拖放控制器 的 数据传输 为 0。
+        全局拖放控制器 的 当前目标 为 0。
+    完。
+    返还 全局拖放控制器。
+完。
+
+DragController_开始拖放 接受 元素、x、y：
+    dc 为 做 DragController_获取。
+    若 dc 的 正在拖放：
+        返还。
+    完。
+    draggable 为 做 元素_getAttribute 用 元素、「draggable」。
+    若 draggable 等于 0 或者 非 做 字符串_相等 用 draggable、「true」：
+        返还。
+    完。
+    dc 的 正在拖放 为 真。
+    dc 的 拖放源 为 元素。
+    dc 的 起始x 为 x。
+    dc 的 起始y 为 y。
+    dc 的 当前x 为 x。
+    dc 的 当前y 为 y。
+    dc 的 数据传输 为 做 DataTransfer_创建。
+    事件 为 做 Drag事件_创建 用 「dragstart」、x、y、dc 的 数据传输。
+    做 事件Target_dispatch事件 用 元素、事件。
+完。
+
+DragController_拖动中 接受 x、y：
+    dc 为 做 DragController_获取。
+    若 非 dc 的 正在拖放：
+        返还。
+    完。
+    dc 的 当前x 为 x。
+    dc 的 当前y 为 y。
+    drag事件 为 做 Drag事件_创建 用 「drag」、x、y、dc 的 数据传输。
+    做 事件Target_dispatch事件 用 dc 的 拖放源、drag事件。
+    目标 为 做 命中测试_查找元素 用 x、y。
+    若 目标 不等于 dc 的 当前目标：
+        若 dc 的 当前目标 不等于 0：
+            leave事件 为 做 Drag事件_创建 用 「dragleave」、x、y、dc 的 数据传输。
+            做 事件Target_dispatch事件 用 dc 的 当前目标、leave事件。
+        完。
+        若 目标 不等于 0：
+            enter事件 为 做 Drag事件_创建 用 「dr智能体er」、x、y、dc 的 数据传输。
+            做 事件Target_dispatch事件 用 目标、enter事件。
+        完。
+        dc 的 当前目标 为 目标。
+    完。
+    若 目标 不等于 0：
+        dc 的 数据传输 的 是只读 为 真。
+        over事件 为 做 Drag事件_创建 用 「dragover」、x、y、dc 的 数据传输。
+        over事件 的 可取消 为 真。
+        做 事件Target_dispatch事件 用 目标、over事件。
+    完。
+完。
+
+DragController_释放 接受 x、y：
+    dc 为 做 DragController_获取。
+    若 非 dc 的 正在拖放：
+        返还。
+    完。
+    目标 为 做 命中测试_查找元素 用 x、y。
+    若 目标 不等于 0：
+        dc 的 数据传输 的 是只读 为 真。
+        drop事件 为 做 Drag事件_创建 用 「drop」、x、y、dc 的 数据传输。
+        drop事件 的 可取消 为 真。
+        做 事件Target_dispatch事件 用 目标、drop事件。
+    完。
+    end事件 为 做 Drag事件_创建 用 「dragend」、x、y、dc 的 数据传输。
+    做 事件Target_dispatch事件 用 dc 的 拖放源、end事件。
+    dc 的 正在拖放 为 假。
+    dc 的 拖放源 为 0。
+    dc 的 当前目标 为 0。
+    dc 的 数据传输 为 0。
+完。
+
+Drag事件_创建 接受 类型、x、y、dataTransfer：
+    事件 为 做 事件_创建 用 类型、真、真。
+    事件 的 是受信任的 为 真。
+    返还 事件。
+完。
+
+本章 收束。

@@ -1,0 +1,118 @@
+《DOM变更通知》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·兼容桥》。
+
+引用《..·外联·域名初始化》。
+
+引用《.·帧管线获取》。
+
+引用《..·外联·TLS创建》。
+
+引用《.·安全策执行检》。
+
+引用《.·子进程主循》。
+
+引用《.·文档事件》。
+
+DOM_通知样式变更 接受 元素：
+    fp 为 做 FramePipeline_获取。
+    fp 的 需要样式 为 真。
+完。
+
+DOM_通知布局变更 接受 元素：
+    fp 为 做 FramePipeline_获取。
+    fp 的 需要样式 为 真。
+    fp 的 需要布局 为 真。
+完。
+
+DOM_通知绘制变更 接受 元素：
+    fp 为 做 FramePipeline_获取。
+    fp 的 需要绘制 为 真。
+完。
+
+Nova_设置内联样式 接受 元素、属性ID、值：
+    若 元素 等于 0：
+        返还。
+    完。
+    做 DOM_通知样式变更 用 元素。
+完。
+
+Nova_追加子节点 接受 父、子：
+    若 父 等于 0 或者 子 等于 0：
+        返还。
+    完。
+    做 DOM_通知布局变更 用 父。
+完。
+
+Nova_添加类名 接受 元素、类名：
+    若 元素 等于 0：
+        返还。
+    完。
+    做 DOM_通知样式变更 用 元素。
+完。
+
+取数_完整链路 接受 request：
+    若 request 等于 0：
+        返还 0。
+    完。
+    sw 为 做 Service工线_获取当前。
+    若 sw 不等于 0 并且 sw 的 状态 等于 4：
+        sw_response 为 做 Service工线_fetch事件 用 sw、request。
+        若 sw_response 不等于 0：
+            返还 sw_response。
+        完。
+    完。
+    cached 为 做 HTTP缓存_查找 用 request 的 url。
+    若 cached 不等于 0 并且 做 HTTP缓存_新鲜 用 cached：
+        返还 cached。
+    完。
+    host 为 做 URL_提取主机名 用 request 的 url。
+    ip 为 做 域名_解析 用 host。
+    若 ip 等于 0：
+        返还 0。
+    完。
+    is_https 为 做 URL_是HTTPS 用 request 的 url。
+    port 为 若 is_https 则 443 否则 80。
+    socket 为 做 平台_tcp_连接 用 ip、port。
+    若 socket 小于 0：
+        返还 0。
+    完。
+    可变 tls 为 0。
+    若 is_https：
+        tls 为 做 安全_创建 用 socket、host。
+        握手结果 为 做 安全_握手 用 tls。
+        若 握手结果 小于 0：
+            返还 0。
+        完。
+    完。
+    response 为 做 HTTP_发送请求 用 socket、tls、request。
+    若 response 不等于 0 并且 做 HTTP缓存_可缓存 用 response：
+        做 HTTP缓存_存储 用 request 的 url、response。
+    完。
+    返还 response。
+完。
+
+Navigation_导航到 接受 url：
+    若 url 等于 0：
+        返还。
+    完。
+    renderer 为 做 SiteIsolation_获取或创建渲染er 用 url。
+    若 renderer 等于 0：
+        返还。
+    完。
+    response 为 做 取数_完整链路 用 做 URL_创建请求 用 url。
+    若 response 等于 0：
+        返还。
+    完。
+    msg 为 做 堆_分配 用 MojoMessage。
+    msg 的 类型 为 1。
+    msg 的 数据 为 response。
+    msg 的 数据长度 为 0。
+    做 MojoPipe_发送 用 renderer 的 Nova通信_管道、0、msg。
+完。
+
+本章 收束。

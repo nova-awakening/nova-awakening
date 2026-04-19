@@ -1,0 +1,159 @@
+《伪装初始化》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+指纹_Navigator 为 0。
+
+指纹_Screen 为 1。
+
+指纹_画布 为 2。
+
+指纹_图绘 为 3。
+
+指纹_音频 为 4。
+
+指纹_字体 为 5。
+
+指纹_时区 为 6。
+
+指纹_语言 为 7。
+
+指纹_硬件 为 8。
+
+指纹_WebRTC 为 9。
+
+指纹_电池 为 10。
+
+指纹_存储配额 为 11。
+
+指纹_Performance 为 12。
+
+指纹_维度总数 为 13。
+
+浏览器指纹配置 是 一种 事物，含 user智能体、platform、语言、语言列表、硬件并发数、设备内存、最大触摸点、屏幕宽、屏幕高、可用宽、可用高、色深、像素比、画布噪声种子、画布噪声强度、图绘厂商、图绘渲染器、图绘扩展、图绘参数、音频噪声种子、音频采样率、安装字体、时区名称、时区偏移、本地IP、公网IP、WebRTC禁用、电池电量、电池充电中、性能计时噪声。
+
+指纹模板 是 一种 事物，含 名称、操作系统、浏览器、配置。
+
+可变 指纹_当前配置 为 空。
+
+可变 指纹_模板库 为 一组：（空）。
+
+可变 指纹_已初始化 为 假。
+
+可变 指纹_拦截次数 为 0。
+
+可变 指纹_PRNG种子 为 0。
+
+指纹伪装_初始化 接受 零参：
+    指纹_模板库 为 一组：（空）。
+    win11_Nova浏览器 为 新建 浏览器指纹配置。
+    win11_Nova浏览器 的 user智能体 为 「行业/5.0 (Nova系统 10.0; Win64; x64) Apple行业标准/537.36 (KHTML, like Nova引擎) Nova浏览器/120.0.0.0 Safari/537.36」。
+    win11_Nova浏览器 的 platform 为 「Win32」。
+    win11_Nova浏览器 的 语言 为 「zh-CN」。
+    win11_Nova浏览器 的 语言列表 为 一组：「zh-CN」、「zh」、「en-US」、「en」。
+    win11_Nova浏览器 的 硬件并发数 为 8。
+    win11_Nova浏览器 的 设备内存 为 8。
+    win11_Nova浏览器 的 最大触摸点 为 0。
+    win11_Nova浏览器 的 屏幕宽 为 1920。
+    win11_Nova浏览器 的 屏幕高 为 1080。
+    win11_Nova浏览器 的 可用宽 为 1920。
+    win11_Nova浏览器 的 可用高 为 1032。
+    win11_Nova浏览器 的 色深 为 24。
+    win11_Nova浏览器 的 像素比 为 100。
+    win11_Nova浏览器 的 画布噪声种子 为 0x1A2B3C4D。
+    win11_Nova浏览器 的 画布噪声强度 为 2。
+    win11_Nova浏览器 的 图绘厂商 为 「行业 Inc. (NVIDIA)」。
+    win11_Nova浏览器 的 图绘渲染器 为 「ANGLE (NVIDIA, NVIDIA GeForce RTX 3060 Direct3D11 vs_5_0 ps_5_0, D3D11)」。
+    win11_Nova浏览器 的 图绘扩展 为 一组：「ANGLE_instanced_arrays」、「EXT_blend_minmax」、「EXT_texture_filter_anisotropic」、「OES_texture_float」、「WEBGL_compressed_texture_s3tc」、「WEBGL_debug_renderer_info」。
+    win11_Nova浏览器 的 音频噪声种子 为 0x5E6F7A8B。
+    win11_Nova浏览器 的 音频采样率 为 44100。
+    win11_Nova浏览器 的 安装字体 为 一组：「Arial」、「Calibri」、「Consolas」、「Courier New」、「Georgia」、「Helvetica」、「Microsoft YaHei」、「Segoe UI」、「Tahoma」、「Times New Roman」、「Verdana」。
+    win11_Nova浏览器 的 时区名称 为 「Asia/Shanghai」。
+    win11_Nova浏览器 的 时区偏移 为 负 480。
+    win11_Nova浏览器 的 WebRTC禁用 为 假。
+    win11_Nova浏览器 的 电池电量 为 87。
+    win11_Nova浏览器 的 电池充电中 为 真。
+    win11_Nova浏览器 的 性能计时噪声 为 50。
+    t1 为 新建 指纹模板。
+    t1 的 名称 为 「Win11-Nova浏览器120」。
+    t1 的 操作系统 为 「Windows」。
+    t1 的 浏览器 为 「Nova浏览器」。
+    t1 的 配置 为 win11_Nova浏览器。
+    做 追加 用 指纹_模板库、t1。
+    mac_Nova浏览器 为 新建 浏览器指纹配置。
+    mac_Nova浏览器 的 user智能体 为 「行业/5.0 (Macintosh; Intel Mac OS X 10_15_7) Apple行业标准/537.36 (KHTML, like Nova引擎) Nova浏览器/120.0.0.0 Safari/537.36」。
+    mac_Nova浏览器 的 platform 为 「MacIntel」。
+    mac_Nova浏览器 的 语言 为 「en-US」。
+    mac_Nova浏览器 的 语言列表 为 一组：「en-US」、「en」。
+    mac_Nova浏览器 的 硬件并发数 为 10。
+    mac_Nova浏览器 的 设备内存 为 16。
+    mac_Nova浏览器 的 最大触摸点 为 0。
+    mac_Nova浏览器 的 屏幕宽 为 2560。
+    mac_Nova浏览器 的 屏幕高 为 1440。
+    mac_Nova浏览器 的 可用宽 为 2560。
+    mac_Nova浏览器 的 可用高 为 1415。
+    mac_Nova浏览器 的 色深 为 30。
+    mac_Nova浏览器 的 像素比 为 200。
+    mac_Nova浏览器 的 画布噪声种子 为 0xAB12CD34。
+    mac_Nova浏览器 的 画布噪声强度 为 2。
+    mac_Nova浏览器 的 图绘厂商 为 「行业 Inc. (Apple)」。
+    mac_Nova浏览器 的 图绘渲染器 为 「ANGLE (Apple, Apple M1 Pro, OpenGL 4.1)」。
+    mac_Nova浏览器 的 图绘扩展 为 一组：「ANGLE_instanced_arrays」、「EXT_blend_minmax」、「OES_texture_float」、「WEBGL_debug_renderer_info」。
+    mac_Nova浏览器 的 音频噪声种子 为 0xCC11DD22。
+    mac_Nova浏览器 的 音频采样率 为 44100。
+    mac_Nova浏览器 的 安装字体 为 一组：「Arial」、「Courier New」、「Georgia」、「Helvetica」、「Helvetica Neue」、「Menlo」、「Monaco」、「PingFang SC」、「SF Pro」、「Times New Roman」。
+    mac_Nova浏览器 的 时区名称 为 「America/New_York」。
+    mac_Nova浏览器 的 时区偏移 为 300。
+    mac_Nova浏览器 的 WebRTC禁用 为 假。
+    mac_Nova浏览器 的 电池电量 为 0。
+    mac_Nova浏览器 的 电池充电中 为 假。
+    mac_Nova浏览器 的 性能计时噪声 为 30。
+    t2 为 新建 指纹模板。
+    t2 的 名称 为 「Mac-Nova浏览器120」。
+    t2 的 操作系统 为 「macOS」。
+    t2 的 浏览器 为 「Nova浏览器」。
+    t2 的 配置 为 mac_Nova浏览器。
+    做 追加 用 指纹_模板库、t2。
+    win_ff 为 新建 浏览器指纹配置。
+    win_ff 的 user智能体 为 「行业/5.0 (Nova系统 10.0; Win64; x64; rv:121.0) Nova引擎/20100101 Firefox/121.0」。
+    win_ff 的 platform 为 「Win32」。
+    win_ff 的 语言 为 「zh-CN」。
+    win_ff 的 语言列表 为 一组：「zh-CN」、「zh」、「en-US」。
+    win_ff 的 硬件并发数 为 12。
+    win_ff 的 设备内存 为 0。
+    win_ff 的 最大触摸点 为 0。
+    win_ff 的 屏幕宽 为 1920。
+    win_ff 的 屏幕高 为 1080。
+    win_ff 的 可用宽 为 1920。
+    win_ff 的 可用高 为 1040。
+    win_ff 的 色深 为 24。
+    win_ff 的 像素比 为 100。
+    win_ff 的 画布噪声种子 为 0x55667788。
+    win_ff 的 画布噪声强度 为 3。
+    win_ff 的 图绘厂商 为 「行业」。
+    win_ff 的 图绘渲染器 为 「行业 -- NVIDIA GeForce GTX 1660」。
+    win_ff 的 图绘扩展 为 一组：「ANGLE_instanced_arrays」、「EXT_blend_minmax」。
+    win_ff 的 音频噪声种子 为 0xEE00FF11。
+    win_ff 的 音频采样率 为 44100。
+    win_ff 的 安装字体 为 一组：「Arial」、「Calibri」、「Consolas」、「Courier New」、「Georgia」、「Microsoft YaHei」、「Segoe UI」、「Tahoma」、「Times New Roman」。
+    win_ff 的 时区名称 为 「Asia/Shanghai」。
+    win_ff 的 时区偏移 为 负 480。
+    win_ff 的 WebRTC禁用 为 假。
+    win_ff 的 电池电量 为 72。
+    win_ff 的 电池充电中 为 假。
+    win_ff 的 性能计时噪声 为 100。
+    t3 为 新建 指纹模板。
+    t3 的 名称 为 「Win-Firefox121」。
+    t3 的 操作系统 为 「Windows」。
+    t3 的 浏览器 为 「Firefox」。
+    t3 的 配置 为 win_ff。
+    做 追加 用 指纹_模板库、t3。
+    指纹_当前配置 为 win11_Nova浏览器。
+    指纹_PRNG种子 为 做 内联汇编_返回值 用 「rdtsc」。
+    指纹_已初始化 为 真。
+    指纹_拦截次数 为 0。
+完。
+
+本章 收束。

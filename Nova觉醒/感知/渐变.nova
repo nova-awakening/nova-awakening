@@ -1,0 +1,110 @@
+《渐变》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+GradientStop 是 一种 事物，含 偏移、颜色。
+
+画布Gradient 是 一种 事物，含 类型、x0、r0、startAngle、stops、stop数。
+
+画布_createLinearGradient 接受 x0、y0、x1、y1：
+    g 为 做 堆_分配 用 画布Gradient。
+    g 的 类型 为 0。
+    g 的 x0 为 x0。
+    g 的 y0 为 y0。
+    g 的 x1 为 x1。
+    g 的 y1 为 y1。
+    g 的 stop数 为 0。
+    返还 g。
+完。
+
+画布_createRadialGradient 接受 x0、y0、r0、x1、y1、r1：
+    g 为 做 堆_分配 用 画布Gradient。
+    g 的 类型 为 1。
+    g 的 x0 为 x0。
+    g 的 y0 为 y0。
+    g 的 r0 为 r0。
+    g 的 x1 为 x1。
+    g 的 y1 为 y1。
+    g 的 r1 为 r1。
+    g 的 stop数 为 0。
+    返还 g。
+完。
+
+画布_createConicGradient 接受 startAngle、cx、cy：
+    g 为 做 堆_分配 用 画布Gradient。
+    g 的 类型 为 2。
+    g 的 x0 为 cx。
+    g 的 y0 为 cy。
+    g 的 startAngle 为 startAngle。
+    g 的 stop数 为 0。
+    返还 g。
+完。
+
+Gradient_addColorStop 接受 g、offset、颜色：
+    若 g 等于 0 或者 g 的 stop数 大于或等于 16：
+        返还。
+    完。
+    g 的 stops 的 第 g 的 stop数 项 的 偏移 为 offset。
+    g 的 stops 的 第 g 的 stop数 项 的 颜色 为 颜色。
+    g 的 stop数 为 g 的 stop数 加 1。
+完。
+
+Gradient_采样 接受 g、t：
+    若 g 等于 0 或者 g 的 stop数 等于 0：
+        返还 0xFF000000。
+    完。
+    若 g 的 stop数 等于 1：
+        返还 g 的 stops 的 第 0 项 的 颜色。
+    完。
+    若 t 小于或等于 g 的 stops 的 第 0 项 的 偏移：
+        返还 g 的 stops 的 第 0 项 的 颜色。
+    完。
+    若 t 大于或等于 g 的 stops 的 第 g 的 stop数 减 1 项 的 偏移：
+        返还 g 的 stops 的 第 g 的 stop数 减 1 项 的 颜色。
+    完。
+    可变 i 为 0。
+    只要 i 小于 g 的 stop数 减 1：
+        若 t 大于或等于 g 的 stops 的 第 i 项 的 偏移 并且 t 小于或等于 g 的 stops 的 第 i 加 1 项 的 偏移：
+            范围 为 g 的 stops 的 第 i 加 1 项 的 偏移 减 g 的 stops 的 第 i 项 的 偏移。
+            若 范围 等于 0：
+                返还 g 的 stops 的 第 i 项 的 颜色。
+            完。
+            比例 为 (t 减 g 的 stops 的 第 i 项 的 偏移) 乘 1024 除以 范围。
+            返还 做 颜色_插值 用 g 的 stops 的 第 i 项 的 颜色、g 的 stops 的 第 i 加 1 项 的 颜色、比例。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 g 的 stops 的 第 0 项 的 颜色。
+完。
+
+颜色_插值 接受 c1、c2、t：
+    r1 为 c1 右移 16 位与 0xFF。
+    g1 为 c1 右移 8 位与 0xFF。
+    b1 为 c1 位与 0xFF。
+    a1 为 c1 右移 24 位与 0xFF。
+    r2 为 c2 右移 16 位与 0xFF。
+    g2 为 c2 右移 8 位与 0xFF。
+    b2 为 c2 位与 0xFF。
+    a2 为 c2 右移 24 位与 0xFF。
+    r 为 r1 加 (r2 减 r1) 乘 t 除以 1024。
+    g 为 g1 加 (g2 减 g1) 乘 t 除以 1024。
+    b 为 b1 加 (b2 减 b1) 乘 t 除以 1024。
+    a 为 a1 加 (a2 减 a1) 乘 t 除以 1024。
+    返还 a 左移 24 位或 r 左移 16 位或 g 左移 8 位或 b。
+完。
+
+画布Pattern 是 一种 事物，含 图像、重复X、重复Y、变换。
+
+画布_createPattern 接受 image、repetition：
+    p 为 做 堆_分配 用 画布Pattern。
+    p 的 图像 为 image。
+    p 的 重复X 为 真。
+    p 的 重复Y 为 真。
+    p 的 变换 的 第 0 项 为 1024。
+    p 的 变换 的 第 3 项 为 1024。
+    返还 p。
+完。
+
+本章 收束。

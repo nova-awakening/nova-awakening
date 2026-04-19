@@ -1,0 +1,125 @@
+《来源解析》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·内核直连层》。
+
+Origin 是 一种 事物，含 scheme、host、port。
+
+Origin_解析 接受 url：
+    若 url 等于 0：
+        返还 0。
+    完。
+    o 为 做 堆_分配 用 Origin。
+    o 的 scheme 为 0。
+    o 的 host 为 0。
+    o 的 port 为 0。
+    len 为 做 字节长度 用 url。
+    可变 pos 为 0。
+    可变 scheme_end 为 0。
+    只要 scheme_end 小于 len 并且 做 字节取 用 url、scheme_end 不等于 0x3A：
+        scheme_end 为 scheme_end 加 1。
+    完。
+    若 scheme_end 大于 0 并且 scheme_end 小于 len：
+        o 的 scheme 为 做 堆_分配 用 scheme_end 加 1。
+        做 内存_复制 用 o 的 scheme、url、scheme_end。
+        做 字节写 用 o 的 scheme、scheme_end、0。
+    完。
+    pos 为 scheme_end 加 3。
+    host_start 为 pos。
+    只要 pos 小于 len 并且 做 字节取 用 url、pos 不等于 0x2F 并且 做 字节取 用 url、pos 不等于 0x3A：
+        pos 为 pos 加 1。
+    完。
+    host_len 为 pos 减 host_start。
+    若 host_len 大于 0：
+        o 的 host 为 做 堆_分配 用 host_len 加 1。
+        做 内存_复制 用 o 的 host、url 加 host_start、host_len。
+        做 字节写 用 o 的 host、host_len、0。
+    完。
+    若 pos 小于 len 并且 做 字节取 用 url、pos 等于 0x3A：
+        pos 为 pos 加 1。
+        可变 port_val 为 0。
+        只要 pos 小于 len 并且 做 字节取 用 url、pos 大于或等于 0x30 并且 做 字节取 用 url、pos 小于或等于 0x39：
+            port_val 为 port_val 乘 10 加 (做 字节取 用 url、pos 减 0x30)。
+            pos 为 pos 加 1。
+        完。
+        o 的 port 为 port_val。
+    完。
+    返还 o。
+完。
+
+Origin_相等 接受 a、b：
+    若 a 等于 0 或者 b 等于 0：
+        返还 假。
+    完。
+    若 非 做 字符串_相等 用 a 的 scheme、b 的 scheme：
+        返还 假。
+    完。
+    若 非 做 字符串_相等 用 a 的 host、b 的 host：
+        返还 假。
+    完。
+    port_a 为 做 Origin_有效端口 用 a。
+    port_b 为 做 Origin_有效端口 用 b。
+    返还 port_a 等于 port_b。
+完。
+
+Origin_有效端口 接受 o：
+    若 o 等于 0：
+        返还 0。
+    完。
+    若 o 的 port 不等于 0：
+        返还 o 的 port。
+    完。
+    若 做 字符串_相等 用 o 的 scheme、「https」：
+        返还 443。
+    完。
+    若 做 字符串_相等 用 o 的 scheme、「http」：
+        返还 80。
+    完。
+    返还 0。
+完。
+
+Origin_序列化 接受 o：
+    若 o 等于 0：
+        返还 「null」。
+    完。
+    buf 为 做 堆_分配 用 256。
+    可变 pos 为 0。
+    若 o 的 scheme 不等于 0：
+        slen 为 做 字节长度 用 o 的 scheme。
+        做 内存_复制 用 buf 加 pos、o 的 scheme、slen。
+        pos 为 pos 加 slen。
+    完。
+    做 内存_复制 用 buf 加 pos、「://」、3。
+    pos 为 pos 加 3。
+    若 o 的 host 不等于 0：
+        hlen 为 做 字节长度 用 o 的 host。
+        做 内存_复制 用 buf 加 pos、o 的 host、hlen。
+        pos 为 pos 加 hlen。
+    完。
+    eff_port 为 做 Origin_有效端口 用 o。
+    default_port 为 0。
+    若 做 字符串_相等 用 o 的 scheme、「https」：
+        default_port 为 443。
+    否则若 做 字符串_相等 用 o 的 scheme、「http」：
+        default_port 为 80。
+    完。
+    若 eff_port 不等于 default_port 并且 eff_port 大于 0：
+        做 字节写 用 buf、pos、0x3A。
+        pos 为 pos 加 1。
+        port_str 为 做 整数转字符串 用 eff_port。
+        plen 为 做 字节长度 用 port_str。
+        做 内存_复制 用 buf 加 pos、port_str、plen。
+        pos 为 pos 加 plen。
+    完。
+    做 字节写 用 buf、pos、0。
+    返还 buf。
+完。
+
+本章 收束。

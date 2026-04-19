@@ -1,0 +1,139 @@
+《HTML_Select》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+HTMLOption元素 是 一种 事物，含 节点、值、文本、selected、disabled、defaultSelected、optgroup、下一个。
+
+HTMLOptGroup元素 是 一种 事物，含 节点、label、disabled。
+
+HTMLSelect元素 是 一种 事物，含 节点、name、multiple、size、required、disabled、autofocus、选项头、选项数、selectedIndex、form、打开、onchange、oninput。
+
+Select_创建 接受 零参：
+    sel 为 做 堆_分配 用 HTMLSelect元素。
+    sel 的 节点 为 0。
+    sel 的 name 为 0。
+    sel 的 multiple 为 假。
+    sel 的 size 为 1。
+    sel 的 required 为 假。
+    sel 的 disabled 为 假。
+    sel 的 autofocus 为 假。
+    sel 的 选项头 为 0。
+    sel 的 选项数 为 0。
+    sel 的 selectedIndex 为 负 1。
+    sel 的 form 为 0。
+    sel 的 打开 为 假。
+    sel 的 onchange 为 0。
+    sel 的 oninput 为 0。
+    返还 sel。
+完。
+
+Select_add 接受 sel、option、before：
+    若 sel 等于 0 或者 option 等于 0：
+        返还。
+    完。
+    若 before 等于 0：
+        若 sel 的 选项头 等于 0：
+            sel 的 选项头 为 option。
+        否则：
+            可变 last 为 sel 的 选项头。
+            只要 last 的 下一个 不等于 0：
+                last 为 last 的 下一个。
+            完。
+            last 的 下一个 为 option。
+        完。
+    完。
+    sel 的 选项数 为 sel 的 选项数 加 1。
+    若 option 的 selected 并且 非 sel 的 multiple：
+        sel 的 selectedIndex 为 sel 的 选项数 减 1。
+    完。
+完。
+
+Select_remove 接受 sel、index：
+    若 sel 等于 0 或者 index 小于 0 或者 index 大于或等于 sel 的 选项数：
+        返还。
+    完。
+    可变 prev 为 0。
+    可变 opt 为 sel 的 选项头。
+    可变 i 为 0。
+    只要 opt 不等于 0 并且 i 小于 index：
+        prev 为 opt。
+        opt 为 opt 的 下一个。
+        i 为 i 加 1。
+    完。
+    若 opt 不等于 0：
+        若 prev 等于 0：
+            sel 的 选项头 为 opt 的 下一个。
+        否则：
+            prev 的 下一个 为 opt 的 下一个。
+        完。
+        sel 的 选项数 为 sel 的 选项数 减 1。
+        若 sel 的 selectedIndex 等于 index：
+            sel 的 selectedIndex 为 负 1。
+        否则若 sel 的 selectedIndex 大于 index：
+            sel 的 selectedIndex 为 sel 的 selectedIndex 减 1。
+        完。
+    完。
+完。
+
+Select_item 接受 sel、index：
+    若 sel 等于 0 或者 index 小于 0 或者 index 大于或等于 sel 的 选项数：
+        返还 0。
+    完。
+    可变 opt 为 sel 的 选项头。
+    可变 i 为 0。
+    只要 opt 不等于 0 并且 i 小于 index：
+        opt 为 opt 的 下一个。
+        i 为 i 加 1。
+    完。
+    返还 opt。
+完。
+
+Select_value 接受 sel：
+    若 sel 等于 0 或者 sel 的 selectedIndex 小于 0：
+        返还 「」。
+    完。
+    opt 为 做 Select_item 用 sel、sel 的 selectedIndex。
+    若 opt 不等于 0：
+        返还 opt 的 值。
+    完。
+    返还 「」。
+完。
+
+Select_setValue 接受 sel、值：
+    若 sel 等于 0 或者 值 等于 0：
+        返还。
+    完。
+    可变 opt 为 sel 的 选项头。
+    可变 i 为 0。
+    只要 opt 不等于 0：
+        若 做 字符串_相等 用 opt 的 值、值：
+            sel 的 selectedIndex 为 i。
+            opt 的 selected 为 真。
+            返还。
+        完。
+        opt 为 opt 的 下一个。
+        i 为 i 加 1。
+    完。
+完。
+
+Select_selectedOptions 接受 sel、结果、最大数：
+    若 sel 等于 0 或者 结果 等于 0：
+        返还 0。
+    完。
+    可变 count 为 0。
+    可变 opt 为 sel 的 选项头。
+    只要 opt 不等于 0 并且 count 小于 最大数：
+        若 opt 的 selected：
+            做 内存_写64 用 结果 加 count 乘 8、opt。
+            count 为 count 加 1。
+        完。
+        opt 为 opt 的 下一个。
+    完。
+    返还 count。
+完。
+
+本章 收束。

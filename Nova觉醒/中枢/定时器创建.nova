@@ -1,0 +1,591 @@
+《定时器创建》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·自动扩容》。
+
+引用《.·系统调用表》。
+
+引用《.·字符串替换》。
+
+引用《..·引导·端口IO》。
+
+引用《.·整数转字符串》。
+
+引用《.·注册扩展系统》。
+
+引用《.·接口》。
+
+定时器创建_注册内存高级 接受 零参：
+    做 系统调用_注册 用 SYS_memfd_create、sys_memfd_create。
+    做 系统调用_注册 用 SYS_mlock、sys_mlock。
+    做 系统调用_注册 用 SYS_munlock、sys_munlock。
+    做 系统调用_注册 用 SYS_mremap、sys_mremap。
+    做 系统调用_注册 用 SYS_msync、sys_msync。
+    做 系统调用_注册 用 SYS_mincore、sys_mincore。
+    做 系统调用_注册 用 SYS_accept4、sys_accept4。
+    做 系统调用_注册 用 SYS_recvmmsg、sys_recvmmsg。
+    做 系统调用_注册 用 SYS_sendmmsg、sys_sendmmsg。
+    做 系统调用_注册 用 SYS_socketpair、sys_socketpair。
+    做 系统调用_注册 用 SYS_getrandom、sys_getrandom。
+    做 系统调用_注册 用 SYS_seccomp、sys_seccomp。
+    做 系统调用_注册 用 SYS_dup3、sys_dup3。
+    做 系统调用_注册 用 SYS_pipe2、sys_pipe2。
+    做 系统调用_注册 用 SYS_Nova事件轮询_pwait、sys_Nova事件轮询_pwait。
+    做 系统调用_注册 用 SYS_ppoll、sys_ppoll。
+    做 系统调用_注册 用 SYS_pselect6、sys_pselect6。
+    做 系统调用_注册 用 SYS_set_robust_list、sys_set_robust_list。
+    做 系统调用_注册 用 SYS_get_robust_list、sys_get_robust_list。
+    做 系统调用_注册 用 SYS_Nova快速锁、sys_Nova快速锁_入口。
+    做 系统调用_注册 用 SYS_ioprio_set、sys_ioprio_set。
+    做 系统调用_注册 用 SYS_ioprio_get、sys_ioprio_get。
+    做 内核信息 用 「扩展Nova系统调用: 注册 」 加 做 整数转字符串 用 做 系统调用_已注册数 加 「 个(含扩展)」。
+完。
+
+可变 timerfd_列表 为 一组：（空）。
+
+可变 timerfd_下一个ID 为 100。
+
+timerfd 是 一种 事物，含 fd、clockid、间隔_sec、间隔_nsec、到期_sec、到期_nsec、触发次数、已启用。
+
+sys_timerfd_create 接受 clockid、flags、_c、_d、_e、_f：
+    tfd 为 新建 timerfd。
+    tfd 的 fd 为 timerfd_下一个ID。
+    timerfd_下一个ID 为 timerfd_下一个ID 加 1。
+    tfd 的 clockid 为 clockid。
+    tfd 的 已启用 为 假。
+    tfd 的 触发次数 为 0。
+    做 追加 用 timerfd_列表、tfd。
+    返还 tfd 的 fd。
+完。
+
+sys_timerfd_settime 接受 fd、flags、new_value、old_value、_e、_f：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 timerfd_列表：
+        若 timerfd_列表 的 第 i 项 的 fd 等于 fd：
+            若 new_value 不等于 0：
+                timerfd_列表 的 第 i 项 的 间隔_sec 为 做 内存读64 用 new_value。
+                timerfd_列表 的 第 i 项 的 间隔_nsec 为 做 内存读64 用 new_value 加 8。
+                timerfd_列表 的 第 i 项 的 到期_sec 为 做 内存读64 用 new_value 加 16。
+                timerfd_列表 的 第 i 项 的 到期_nsec 为 做 内存读64 用 new_value 加 24。
+                timerfd_列表 的 第 i 项 的 已启用 为 真。
+            完。
+            返还 0。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 错误_无效FD。
+完。
+
+sys_timerfd_gettime 接受 fd、curr_value、_c、_d、_e、_f：
+    若 定时器句柄 等于 0：
+        返还 负 1。
+    完。
+    剩余 为 做 内存_读64 用 定时器句柄 加 16 减 做 中枢_当前时间纳秒。
+    若 剩余 小于 0：
+        剩余 为 0。
+    完。
+    返还 剩余。
+完。
+
+可变 事件fd_列表 为 一组：（空）。
+
+可变 事件fd_下一个ID 为 200。
+
+事件fd_obj 是 一种 事物，含 fd、计数器、标志。
+
+sys_事件fd2 接受 initval、flags、_c、_d、_e、_f：
+    efd 为 新建 事件fd_obj。
+    efd 的 fd 为 事件fd_下一个ID。
+    事件fd_下一个ID 为 事件fd_下一个ID 加 1。
+    efd 的 计数器 为 initval。
+    efd 的 标志 为 flags。
+    做 追加 用 事件fd_列表、efd。
+    返还 efd 的 fd。
+完。
+
+sys_signalfd4 接受 fd、掩码、掩码大小、标志、_e、_f：
+    新fd 为 做 分配FD。
+    若 掩码 不等于 0 并且 掩码大小 大于 0：
+        做 signalfd_关联 用 新fd、掩码、掩码大小。
+    完。
+    signalfd_次数 为 signalfd_次数 加 1。
+    定时器_速率窗口 为 定时器_速率窗口 加 1。
+    返还 新fd。
+完。
+
+可变 定时器_已初始化 为 假。
+
+可变 timerfd_create_次数 为 0。
+
+可变 timerfd_settime_次数 为 0。
+
+可变 timerfd_gettime_次数 为 0。
+
+可变 eventfd_读_次数 为 0。
+
+可变 eventfd_写_次数 为 0。
+
+可变 signalfd_次数 为 0。
+
+可变 定时器_错误数 为 0。
+
+可变 定时器_延迟总计 为 0。
+
+可变 定时器_延迟样本 为 0。
+
+可变 定时器_最大延迟 为 0。
+
+可变 定时器_速率 为 0。
+
+可变 定时器_速率窗口 为 0。
+
+可变 定时器_速率时刻 为 0。
+
+可变 定时器_峰值速率 为 0。
+
+CLOCK_REALTIME_定时 为 0。
+
+CLOCK_MONOTONIC_定时 为 1。
+
+TFD_NONBLOCK 为 0x800。
+
+TFD_CLOEXEC 为 0x80000。
+
+TFD_TIMER_ABSTIME 为 1。
+
+sys_timerfd_create_扩展 接受 clockid、flags、_c、_d、_e、_f：
+    若 clockid 不等于 CLOCK_REALTIME_定时 并且 clockid 不等于 CLOCK_MONOTONIC_定时：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 22。
+    完。
+    fd 为 做 分配FD。
+    若 fd 小于 0：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 12。
+    完。
+    timerfd_create_次数 为 timerfd_create_次数 加 1。
+    定时器_速率窗口 为 定时器_速率窗口 加 1。
+    返还 fd。
+完。
+
+sys_timerfd_settime_扩展 接受 fd、flags、new_value、old_value、_e、_f：
+    若 fd 小于 0：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 9。
+    完。
+    若 new_value 等于 空：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 22。
+    完。
+    值秒 为 new_value 的 第 0 项。
+    值纳秒 为 new_value 的 第 1 项。
+    间隔秒 为 new_value 的 第 2 项。
+    间隔纳秒 为 new_value 的 第 3 项。
+    若 old_value 不等于 空：
+    完。
+    timerfd_settime_次数 为 timerfd_settime_次数 加 1。
+    定时器_速率窗口 为 定时器_速率窗口 加 1。
+    返还 0。
+完。
+
+sys_timerfd_gettime_扩展 接受 fd、curr_value、_c、_d、_e、_f：
+    若 fd 小于 0：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 9。
+    完。
+    若 curr_value 等于 空：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 22。
+    完。
+    做 设置 用 curr_value、0、0。
+    做 设置 用 curr_value、1、0。
+    做 设置 用 curr_value、2、0。
+    做 设置 用 curr_value、3、0。
+    timerfd_gettime_次数 为 timerfd_gettime_次数 加 1。
+    返还 0。
+完。
+
+eventfd_读取 接受 efd：
+    若 efd 等于 空：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0。
+    完。
+    值 为 efd 的 计数器。
+    efd 的 计数器 为 0。
+    eventfd_读_次数 为 eventfd_读_次数 加 1。
+    返还 值。
+完。
+
+eventfd_写入 接受 efd、值：
+    若 efd 等于 空：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 22。
+    完。
+    efd 的 计数器 为 efd 的 计数器 加 值。
+    eventfd_写_次数 为 eventfd_写_次数 加 1。
+    返还 8。
+完。
+
+eventfd_查找 接受 fd：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 事件fd_列表：
+        若 事件fd_列表 的 第 i 项 的 fd 等于 fd：
+            返还 事件fd_列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+定时器_记录延迟 接受 延迟：
+    定时器_延迟样本 为 定时器_延迟样本 加 1。
+    定时器_延迟总计 为 定时器_延迟总计 加 延迟。
+    若 延迟 大于 定时器_最大延迟：
+        定时器_最大延迟 为 延迟。
+    完。
+完。
+
+定时器_平均延迟 接受 零参：
+    若 定时器_延迟样本 等于 0：
+        返还 0。
+    完。
+    返还 定时器_延迟总计 除以 定时器_延迟样本。
+完。
+
+定时器_更新速率 接受 零参：
+    现在 为 做 读取纳秒_定时。
+    间隔 为 现在 减 定时器_速率时刻。
+    若 间隔 大于或等于 1000000000：
+        定时器_速率 为 定时器_速率窗口 乘 1000000000 除以 间隔。
+        若 定时器_速率 大于 定时器_峰值速率：
+            定时器_峰值速率 为 定时器_速率。
+        完。
+        定时器_速率窗口 为 0。
+        定时器_速率时刻 为 现在。
+    完。
+完。
+
+定时器_初始化 接受 零参：
+    若 定时器_已初始化 等于 真：
+        返还 0 减 17。
+    完。
+    定时器_已初始化 为 真。
+    做 打印 用 「[定时器创建] 初始化完成」。
+    返还 0。
+完。
+
+定时器创建_完整统计 接受 零参：
+    总操作 为 timerfd_create_次数 加 timerfd_settime_次数 加 timerfd_gettime_次数 加 eventfd_读_次数 加 eventfd_写_次数 加 signalfd_次数 加 做 计数 用 事件fd_列表。
+    统计 为 做 字典。
+    做 字典设 用 统计、「已初始化」、定时器_已初始化。
+    做 字典设 用 统计、「timerfd_create」、timerfd_create_次数。
+    做 字典设 用 统计、「timerfd_settime」、timerfd_settime_次数。
+    做 字典设 用 统计、「timerfd_gettime」、timerfd_gettime_次数。
+    做 字典设 用 统计、「eventfd_读」、eventfd_读_次数。
+    做 字典设 用 统计、「eventfd_写」、eventfd_写_次数。
+    做 字典设 用 统计、「eventfd实例数」、做 计数 用 事件fd_列表。
+    做 字典设 用 统计、「signalfd」、signalfd_次数。
+    做 字典设 用 统计、「总操作」、总操作。
+    做 字典设 用 统计、「平均延迟(ns)」、做 定时器_平均延迟。
+    做 字典设 用 统计、「最大延迟(ns)」、定时器_最大延迟。
+    做 字典设 用 统计、「速率」、定时器_速率。
+    做 字典设 用 统计、「峰值速率」、定时器_峰值速率。
+    做 字典设 用 统计、「错误数」、定时器_错误数。
+    返还 统计。
+完。
+
+定时器创建_打印统计 接受 零参：
+    统计 为 做 定时器创建_完整统计。
+    做 打印 用 「[定时器创建] ═══════ 完整统计 ═══════」。
+    做 打印 用 「  timerfd_create:  」 加 做 转字符串 用 做 字典取 用 统计、「timerfd_create」。
+    做 打印 用 「  timerfd_settime: 」 加 做 转字符串 用 做 字典取 用 统计、「timerfd_settime」。
+    做 打印 用 「  timerfd_gettime: 」 加 做 转字符串 用 做 字典取 用 统计、「timerfd_gettime」。
+    做 打印 用 「  eventfd_读:      」 加 做 转字符串 用 做 字典取 用 统计、「eventfd_读」。
+    做 打印 用 「  eventfd_写:      」 加 做 转字符串 用 做 字典取 用 统计、「eventfd_写」。
+    做 打印 用 「  eventfd实例:     」 加 做 转字符串 用 做 字典取 用 统计、「eventfd实例数」。
+    做 打印 用 「  signalfd:        」 加 做 转字符串 用 做 字典取 用 统计、「signalfd」。
+    做 打印 用 「  总操作:          」 加 做 转字符串 用 做 字典取 用 统计、「总操作」。
+    做 打印 用 「  平均延迟:        」 加 做 转字符串 用 做 字典取 用 统计、「平均延迟(ns)」 加 「ns」。
+    做 打印 用 「  速率:            」 加 做 转字符串 用 做 字典取 用 统计、「速率」 加 「 次/秒」。
+    做 打印 用 「  错误数:          」 加 做 转字符串 用 做 字典取 用 统计、「错误数」。
+    做 打印 用 「[定时器创建] ═════════════════════════」。
+    返还 0。
+完。
+
+定时器创建_dump 接受 零参：
+    做 打印 用 「[定时器创建 dump] ──────────────────」。
+    做 打印 用 「  timerfd_create: 」 加 做 转字符串 用 timerfd_create_次数。
+    做 打印 用 「  timerfd_settime: 」 加 做 转字符串 用 timerfd_settime_次数。
+    做 打印 用 「  eventfd_读: 」 加 做 转字符串 用 eventfd_读_次数。
+    做 打印 用 「  eventfd_写: 」 加 做 转字符串 用 eventfd_写_次数。
+    做 打印 用 「  eventfd实例: 」 加 做 转字符串 用 做 计数 用 事件fd_列表。
+    做 打印 用 「  signalfd: 」 加 做 转字符串 用 signalfd_次数。
+    做 打印 用 「  速率: 」 加 做 转字符串 用 定时器_速率。
+    做 打印 用 「  错误: 」 加 做 转字符串 用 定时器_错误数。
+    做 打印 用 「[定时器创建 dump] ──────────────────」。
+完。
+
+定时器创建_销毁 接受 零参：
+    事件fd_列表 为 一组：（空）。
+    定时器_已初始化 为 假。
+    做 打印 用 「[定时器创建] 已销毁」。
+    返还 0。
+完。
+
+定时器创建_为procfs提供统计 接受 零参：
+    返还 一组：timerfd_create_次数、timerfd_settime_次数、timerfd_gettime_次数、eventfd_读_次数、eventfd_写_次数、signalfd_次数、做 计数 用 事件fd_列表。
+完。
+
+定时器创建_为AI提供事件模式 接受 零参：
+    返还 一组：timerfd_create_次数、eventfd_读_次数 加 eventfd_写_次数、signalfd_次数、做 定时器_平均延迟。
+完。
+
+定时器创建_为定时器子系统提供timerfd负载 接受 零参：
+    返还 一组：timerfd_create_次数、timerfd_settime_次数、timerfd_gettime_次数。
+完。
+
+定时器创建_为信号子系统提供signalfd负载 接受 零参：
+    返还 一组：signalfd_次数。
+完。
+
+定时器创建_重置统计 接受 零参：
+    timerfd_create_次数 为 0。
+    timerfd_settime_次数 为 0。
+    timerfd_gettime_次数 为 0。
+    eventfd_读_次数 为 0。
+    eventfd_写_次数 为 0。
+    signalfd_次数 为 0。
+    定时器_错误数 为 0。
+    定时器_延迟总计 为 0。
+    定时器_延迟样本 为 0。
+    定时器_最大延迟 为 0。
+    定时器_速率 为 0。
+    定时器_速率窗口 为 0。
+    定时器_峰值速率 为 0。
+    做 打印 用 「[定时器创建] 统计已重置」。
+    返还 0。
+完。
+
+定时器创建_注册全部 接受 零参：
+    返还 0。
+    返还 0。
+完。
+
+定时器创建_为调度器提供定时负载 接受 零参：
+    返还 一组：定时器_速率、定时器_峰值速率、timerfd_create_次数 加 timerfd_settime_次数。
+完。
+
+定时器创建_为电源管理挂起 接受 零参：
+    可变 已挂起 为 0。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 timerfd_列表：
+        若 timerfd_列表 的 第 i 项 的 已启用：
+            timerfd_列表 的 第 i 项 的 已启用 为 假。
+            已挂起 为 已挂起 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 已挂起。
+完。
+
+定时器创建_获取总操作数 接受 零参：
+    返还 timerfd_create_次数 加 timerfd_settime_次数 加 timerfd_gettime_次数 加 eventfd_读_次数 加 eventfd_写_次数 加 signalfd_次数。
+完。
+
+可变 alarm_次数 为 0。
+
+可变 setitimer_次数 为 0。
+
+可变 getitimer_次数 为 0。
+
+ITIMER_REAL 为 0。
+
+ITIMER_VIRTUAL 为 1。
+
+ITIMER_PROF 为 2。
+
+sys_alarm 接受 seconds、_b、_c、_d、_e、_f：
+    当前 为 做 获取当前进程_定时。
+    若 当前 等于 空：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0。
+    完。
+    剩余 为 做 进程_取消alarm 用 当前。
+    若 seconds 大于 0：
+        做 进程_设置alarm 用 当前、seconds。
+    完。
+    alarm_次数 为 alarm_次数 加 1。
+    定时器_速率窗口 为 定时器_速率窗口 加 1。
+    返还 剩余。
+完。
+
+sys_setitimer 接受 which、new_value、old_value、_d、_e、_f：
+    若 which 大于 ITIMER_PROF：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 22。
+    完。
+    若 new_value 等于 空：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 22。
+    完。
+    若 old_value 不等于 空：
+        做 sys_getitimer 用 which、old_value、0、0、0、0。
+    完。
+    setitimer_次数 为 setitimer_次数 加 1。
+    定时器_速率窗口 为 定时器_速率窗口 加 1。
+    返还 0。
+完。
+
+sys_getitimer 接受 which、curr_value、_c、_d、_e、_f：
+    若 which 大于 ITIMER_PROF：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 22。
+    完。
+    若 curr_value 等于 空：
+        定时器_错误数 为 定时器_错误数 加 1。
+        返还 0 减 22。
+    完。
+    做 设置 用 curr_value、0、0。
+    做 设置 用 curr_value、1、0。
+    做 设置 用 curr_value、2、0。
+    做 设置 用 curr_value、3、0。
+    getitimer_次数 为 getitimer_次数 加 1。
+    返还 0。
+完。
+
+定时器类型名 接受 which：
+    若 which 等于 ITIMER_REAL：
+        返还 「REAL(SIGALRM)」。
+    完。
+    若 which 等于 ITIMER_VIRTUAL：
+        返还 「VIRTUAL(SIGVTALRM)」。
+    完。
+    若 which 等于 ITIMER_PROF：
+        返还 「PROF(SIGPROF)」。
+    完。
+    返还 「未知」。
+完。
+
+可变 定时器_到期总数 为 0。
+
+可变 定时器_回调错误 为 0。
+
+定时器_到期回调 接受 fd：
+    定时器_到期总数 为 定时器_到期总数 加 1。
+    返还 0。
+完。
+
+eventfd_到期回调 接受 fd、值：
+    efd 为 做 eventfd_查找 用 fd。
+    若 efd 等于 空：
+        定时器_回调错误 为 定时器_回调错误 加 1。
+        返还 0 减 9。
+    完。
+    efd 的 计数器 为 efd 的 计数器 加 值。
+    返还 0。
+完。
+
+定时器创建_为APIC定时器提供用户定时需求 接受 零参：
+    返还 一组：timerfd_create_次数、timerfd_settime_次数、alarm_次数、setitimer_次数。
+完。
+
+定时器创建_为hrtimer提供负载 接受 零参：
+    返还 一组：timerfd_create_次数、定时器_到期总数、定时器_速率。
+完。
+
+定时器创建_为进程管理提供alarm信息 接受 零参：
+    返还 一组：alarm_次数、setitimer_次数、getitimer_次数。
+完。
+
+定时器创建_为AI提供定时模式 接受 零参：
+    现代 为 timerfd_create_次数 加 timerfd_settime_次数。
+    传统 为 alarm_次数 加 setitimer_次数。
+    返还 一组：现代、传统、eventfd_读_次数 加 eventfd_写_次数、signalfd_次数。
+完。
+
+定时器创建_获取现代API比例 接受 零参：
+    现代 为 timerfd_create_次数 加 eventfd_读_次数 加 eventfd_写_次数 加 signalfd_次数。
+    传统 为 alarm_次数 加 setitimer_次数 加 getitimer_次数。
+    总 为 现代 加 传统。
+    若 总 等于 0：
+        返还 0。
+    完。
+    返还 现代 乘 100 除以 总。
+完。
+
+signalfd_关联 接受 fd、掩码、大小：
+    若 fd 小于 0：
+        返还。
+    完。
+    sfd 为 做 查找fd描述符 用 fd。
+    若 sfd 等于 空：
+        返还。
+    完。
+    sfd 的 信号掩码 为 掩码。
+    sfd 的 掩码大小 为 大小。
+完。
+
+获取当前进程_定时 接受 零参：
+    pid 为 做 获取当前PID。
+    若 pid 小于或等于 0：
+        返还 空。
+    完。
+    返还 做 查找进程 用 pid。
+完。
+
+进程_取消alarm 接受 进程：
+    若 进程 等于 空：
+        返还 0。
+    完。
+    剩余 为 0。
+    若 进程 的 alarm到期时间 大于 0：
+        当前 为 做 读取纳秒_定时 除以 1000000000。
+        剩余 为 进程 的 alarm到期时间 减 当前。
+        若 剩余 小于 0：
+            剩余 为 0。
+        完。
+        进程 的 alarm到期时间 为 0。
+    完。
+    返还 剩余。
+完。
+
+进程_设置alarm 接受 进程、秒：
+    若 进程 等于 空：
+        返还。
+    完。
+    若 秒 等于 0：
+        进程 的 alarm到期时间 为 0。
+    否则：
+        当前秒 为 做 读取纳秒_定时 除以 1000000000。
+        进程 的 alarm到期时间 为 当前秒 加 秒。
+    完。
+完。
+
+读取纳秒_定时 接受 零参：
+    可变 值 为 0。
+    汇编。
+    块：
+        「rdtsc」。
+        「shl rdx, 32」。
+        「or rax, rdx」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+分配FD 接受 零参：
+    返还 3。
+完。
+
+定时器创建_为电源管理提供定时活跃度 接受 零参：
+    返还 一组：timerfd_create_次数 加 alarm_次数 加 setitimer_次数、定时器_到期总数、定时器_速率。
+完。
+
+定时器创建_获取经典定时器操作数 接受 零参：
+    返还 alarm_次数 加 setitimer_次数 加 getitimer_次数。
+完。
+
+本章 收束。

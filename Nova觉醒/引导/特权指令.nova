@@ -1,0 +1,395 @@
+《特权指令》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+关中断 接受 零参：
+    汇编。
+    块：
+        「cli」。
+    完。
+完。
+
+开中断 接受 零参：
+    汇编。
+    块：
+        「sti」。
+    完。
+完。
+
+停机 接受 零参：
+    汇编。
+    块：
+        「hlt」。
+    完。
+完。
+
+暂停 接受 零参：
+    汇编。
+    块：
+        「pause」。
+    完。
+完。
+
+读CR0 接受 零参：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rax, cr0」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+写CR0 接受 值：
+    汇编。
+    块：
+        「mov rax, [rbp+16]」。
+        「mov cr0, rax」。
+    完。
+完。
+
+读CR2 接受 零参：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rax, cr2」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+读CR3 接受 零参：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rax, cr3」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+写CR3 接受 值：
+    汇编。
+    块：
+        「mov rax, [rbp+16]」。
+        「mov cr3, rax」。
+    完。
+完。
+
+读CR4 接受 零参：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rax, cr4」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+写CR4 接受 值：
+    汇编。
+    块：
+        「mov rax, [rbp+16]」。
+        「mov cr4, rax」。
+    完。
+完。
+
+加载GDT 接受 基址、界限：
+    汇编。
+    块：
+        「sub rsp, 16」。
+        「mov rax, [rbp+24]」。
+        「mov [rsp], ax」。
+        「mov rax, [rbp+16]」。
+        「mov [rsp+2], rax」。
+        「lgdt [rsp]」。
+        「add rsp, 16」。
+    完。
+完。
+
+加载IDT 接受 基址、界限：
+    汇编。
+    块：
+        「sub rsp, 16」。
+        「mov rax, [rbp+24]」。
+        「mov [rsp], ax」。
+        「mov rax, [rbp+16]」。
+        「mov [rsp+2], rax」。
+        「lidt [rsp]」。
+        「add rsp, 16」。
+    完。
+完。
+
+加载TR 接受 选择子：
+    汇编。
+    块：
+        「mov ax, [rbp+16]」。
+        「ltr ax」。
+    完。
+完。
+
+刷新TLB 接受 地址：
+    汇编。
+    块：
+        「mov rax, [rbp+16]」。
+        「invlpg [rax]」。
+    完。
+完。
+
+刷新全部TLB 接受 零参：
+    cr3 为 做 读CR3。
+    做 写CR3 用 cr3。
+完。
+
+读取时间戳 接受 零参：
+    可变 值 为 0。
+    汇编。
+    块：
+        「rdtsc」。
+        「shl rdx, 32」。
+        「or rax, rdx」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+读取CR3 接受 零参：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov rax, cr3」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+特权_读取MSR 接受 寄存器：
+    返还 做 rdmsr 用 寄存器。
+完。
+
+rdmsr 接受 寄存器：
+    可变 值 为 0。
+    汇编。
+    块：
+        「mov ecx, [rbp+16]」。
+        「rdmsr」。
+        「shl rdx, 32」。
+        「or rax, rdx」。
+        「mov [rbp-8], rax」。
+    完。
+    返还 值。
+完。
+
+wrmsr 接受 寄存器、值：
+    汇编。
+    块：
+        「mov ecx, [rbp+24]」。
+        「mov rax, [rbp+16]」。
+        「mov rdx, rax」。
+        「shr rdx, 32」。
+        「wrmsr」。
+    完。
+完。
+
+MSR_IA32_接口C_BASE 为 0x1B。
+
+MSR_IA32_SYSENTER_CS 为 0x174。
+
+MSR_IA32_SYSENTER_ESP 为 0x175。
+
+MSR_IA32_SYSENTER_EIP 为 0x176。
+
+MSR_IA32_EFER 为 0xC0000080。
+
+MSR_IA32_STAR 为 0xC0000081。
+
+MSR_IA32_LSTAR 为 0xC0000082。
+
+MSR_IA32_CSTAR 为 0xC0000083。
+
+MSR_IA32_FMASK 为 0xC0000084。
+
+MSR_IA32_FS_BASE 为 0xC0000100。
+
+MSR_IA32_GS_BASE 为 0xC0000101。
+
+MSR_IA32_KERNEL_GS_BASE 为 0xC0000102。
+
+MSR_IA32_TSC_AUX 为 0xC0000103。
+
+设置Nova系统调用 接受 入口地址：
+    star 为 0x001B0008 左移 32。
+    做 wrmsr 用 MSR_IA32_STAR、star。
+    做 wrmsr 用 MSR_IA32_LSTAR、入口地址。
+    做 wrmsr 用 MSR_IA32_FMASK、0x700。
+完。
+
+cpuid 接受 叶、子叶：
+    可变 eax 为 0。
+    可变 ebx 为 0。
+    可变 ecx 为 0。
+    可变 edx 为 0。
+    汇编。
+    块：
+        「mov eax, [rbp+24]」。
+        「mov ecx, [rbp+16]」。
+        「cpuid」。
+        「mov [rbp-8], rax」。
+        「mov [rbp-16], rbx」。
+        「mov [rbp-24], rcx」。
+        「mov [rbp-32], rdx」。
+    完。
+    返还 一组：eax、ebx、ecx、edx。
+完。
+
+swapgs 接受 零参：
+    汇编。
+    块：
+        「swapgs」。
+    完。
+完。
+
+特权_设置GS基址 接受 基址：
+    做 wrmsr 用 MSR_IA32_GS_BASE、基址。
+完。
+
+特权_设置内核GS基址 接受 基址：
+    做 wrmsr 用 MSR_IA32_KERNEL_GS_BASE、基址。
+完。
+
+特权_读取GS基址 接受 零参：
+    返还 做 rdmsr 用 MSR_IA32_GS_BASE。
+完。
+
+xsave 接受 地址、掩码：
+    汇编。
+    块：
+        「mov rdi, [rbp+24]」。
+        「mov eax, [rbp+16]」。
+        「xor edx, edx」。
+        「xsave [rdi]」。
+    完。
+完。
+
+xrstor 接受 地址、掩码：
+    汇编。
+    块：
+        「mov rdi, [rbp+24]」。
+        「mov eax, [rbp+16]」。
+        「xor edx, edx」。
+        「xrstor [rdi]」。
+    完。
+完。
+
+fxsave 接受 地址：
+    汇编。
+    块：
+        「mov rdi, [rbp+16]」。
+        「fxsave [rdi]」。
+    完。
+完。
+
+fxrstor 接受 地址：
+    汇编。
+    块：
+        「mov rdi, [rbp+16]」。
+        「fxrstor [rdi]」。
+    完。
+完。
+
+wbinvd 接受 零参：
+    汇编。
+    块：
+        「wbinvd」。
+    完。
+完。
+
+clflush 接受 地址：
+    汇编。
+    块：
+        「mov rdi, [rbp+16]」。
+        「clflush [rdi]」。
+    完。
+完。
+
+特权指令_完整统计 接受 零参：
+    返还 一组：特权指令_执行次数。
+完。
+
+特权指令_健康检查 接受 零参：
+    返还 「特权指令子系统健康」。
+完。
+
+CR0_PE 为 0x01。
+
+CR0_MP 为 0x02。
+
+CR0_EM 为 0x04。
+
+CR0_TS 为 0x08。
+
+CR0_PG 为 0x80000000。
+
+CR4_PAE 为 0x20。
+
+CR4_PSE 为 0x10。
+
+CR4_OSFXSR 为 0x200。
+
+CR4_OSXMMEXCPT 为 0x400。
+
+特权指令_CR0标志名 接受 位：
+    若 位 等于 CR0_PE：
+        返还 「PE」。
+    完。
+    若 位 等于 CR0_MP：
+        返还 「MP」。
+    完。
+    若 位 等于 CR0_PG：
+        返还 「PG」。
+    完。
+    返还 「BIT_」 加 做 十六进制 用 位。
+完。
+
+特权指令_CR4标志名 接受 位：
+    若 位 等于 CR4_PAE：
+        返还 「PAE」。
+    完。
+    若 位 等于 CR4_PSE：
+        返还 「PSE」。
+    完。
+    若 位 等于 CR4_OSFXSR：
+        返还 「OSFXSR」。
+    完。
+    返还 「BIT_」 加 做 十六进制 用 位。
+完。
+
+特权指令_重置统计 接受 零参：
+    特权指令_执行次数 为 0。
+完。
+
+可变 AI_特权指令_风暴阈值 为 10000。
+
+可变 AI_特权指令_预测IRQ 为 0。
+
+AI_特权指令_风暴检测 接受 触发频率：
+    若 触发频率 大于 AI_特权指令_风暴阈值：
+        AI_特权指令_风暴阈值 为 AI_特权指令_风暴阈值 乘 3 除以 2。
+        返还 真。
+    完。
+    返还 假。
+完。
+
+AI_特权指令_自适应合并 接受 当前延迟：
+    若 当前延迟 小于 100：
+        返还 16。
+    完。
+    若 当前延迟 小于 500：
+        返还 8。
+    完。
+    返还 1。
+完。
+
+本章 收束。

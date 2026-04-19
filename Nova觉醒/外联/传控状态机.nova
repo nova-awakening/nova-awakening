@@ -1,0 +1,230 @@
+《传控状态机》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+传控_CLOSED 为 0。
+
+传控_LISTEN 为 1。
+
+传控_SYN_SENT 为 2。
+
+传控_SYN_RECV 为 3。
+
+传控_ESTABLISHED 为 4。
+
+传控_FIN_WAIT1 为 5。
+
+传控_FIN_WAIT2 为 6。
+
+传控_CLOSE_WAIT 为 7。
+
+传控_CLOSING 为 8。
+
+传控_LAST_ACK 为 9。
+
+传控_TIME_WAIT 为 10。
+
+传控_FLAG_FIN 为 0x01。
+
+传控_FLAG_SYN 为 0x02。
+
+传控_FLAG_RST 为 0x04。
+
+传控_FLAG_PSH 为 0x08。
+
+传控_FLAG_ACK 为 0x10。
+
+传控_FLAG_URG 为 0x20。
+
+传控控制块 是 一种 事物，含 状态、snd_una、snd_nxt、rcv_nxt、snd_wnd、rcv_wnd、Nova拥塞窗口、Nova慢启动阈值、rto_ms、重传次数。
+
+传控_处理段 接受 tcb、标志、seq、ack、数据长度：
+    若 tcb 的 状态 等于 传控_LISTEN：
+        若 标志 位与 传控_FLAG_SYN 不等于 0：
+            tcb 的 rcv_nxt 为 seq 加 1。
+            tcb 的 状态 为 传控_SYN_RECV。
+            返还 传控_FLAG_SYN 位或 传控_FLAG_ACK。
+        完。
+    否则若 tcb 的 状态 等于 传控_SYN_SENT：
+        若 标志 位与 (传控_FLAG_SYN 位或 传控_FLAG_ACK) 等于 传控_FLAG_SYN 位或 传控_FLAG_ACK：
+            tcb 的 rcv_nxt 为 seq 加 1。
+            tcb 的 snd_una 为 ack。
+            tcb 的 状态 为 传控_ESTABLISHED。
+            返还 传控_FLAG_ACK。
+        完。
+    否则若 tcb 的 状态 等于 传控_SYN_RECV：
+        若 标志 位与 传控_FLAG_ACK 不等于 0：
+            tcb 的 snd_una 为 ack。
+            tcb 的 状态 为 传控_ESTABLISHED。
+        完。
+    否则若 tcb 的 状态 等于 传控_ESTABLISHED：
+        若 标志 位与 传控_FLAG_ACK 不等于 0：
+            tcb 的 snd_una 为 ack。
+        完。
+        若 数据长度 大于 0：
+            tcb 的 rcv_nxt 为 tcb 的 rcv_nxt 加 数据长度。
+            返还 传控_FLAG_ACK。
+        完。
+        若 标志 位与 传控_FLAG_FIN 不等于 0：
+            tcb 的 rcv_nxt 为 tcb 的 rcv_nxt 加 1。
+            tcb 的 状态 为 传控_CLOSE_WAIT。
+            返还 传控_FLAG_ACK。
+        完。
+    否则若 tcb 的 状态 等于 传控_FIN_WAIT1：
+        若 标志 位与 传控_FLAG_ACK 不等于 0：
+            tcb 的 状态 为 传控_FIN_WAIT2。
+        完。
+    否则若 tcb 的 状态 等于 传控_FIN_WAIT2：
+        若 标志 位与 传控_FLAG_FIN 不等于 0：
+            tcb 的 rcv_nxt 为 tcb 的 rcv_nxt 加 1。
+            tcb 的 状态 为 传控_TIME_WAIT。
+            返还 传控_FLAG_ACK。
+        完。
+    否则若 tcb 的 状态 等于 传控_LAST_ACK：
+        若 标志 位与 传控_FLAG_ACK 不等于 0：
+            tcb 的 状态 为 传控_CLOSED。
+        完。
+    完。
+    返还 0。
+完。
+
+传控_发起连接 接受 tcb：
+    tcb 的 状态 为 传控_SYN_SENT。
+    tcb 的 snd_nxt 为 tcb 的 snd_nxt 加 1。
+完。
+
+传控_发起关闭 接受 tcb：
+    若 tcb 的 状态 等于 传控_ESTABLISHED：
+        tcb 的 状态 为 传控_FIN_WAIT1。
+    否则若 tcb 的 状态 等于 传控_CLOSE_WAIT：
+        tcb 的 状态 为 传控_LAST_ACK。
+    完。
+完。
+
+传控_创建控制块 接受 零参：
+    tcb 为 新建 传控控制块。
+    tcb 的 状态 为 传控_CLOSED。
+    tcb 的 snd_una 为 0。
+    tcb 的 snd_nxt 为 1000。
+    tcb 的 rcv_nxt 为 0。
+    tcb 的 snd_wnd 为 65535。
+    tcb 的 rcv_wnd 为 65535。
+    tcb 的 Nova拥塞窗口 为 10。
+    tcb 的 Nova慢启动阈值 为 65535。
+    tcb 的 rto_ms 为 1000。
+    tcb 的 重传次数 为 0。
+    返还 tcb。
+完。
+
+传控_拥塞控制_ACK 接受 tcb：
+    若 tcb 的 Nova拥塞窗口 小于 tcb 的 Nova慢启动阈值：
+        tcb 的 Nova拥塞窗口 为 tcb 的 Nova拥塞窗口 加 1。
+    否则：
+    完。
+完。
+
+传控_拥塞控制_丢包 接受 tcb：
+    tcb 的 Nova慢启动阈值 为 tcb 的 Nova拥塞窗口 除以 2。
+    若 tcb 的 Nova慢启动阈值 小于 2：
+        tcb 的 Nova慢启动阈值 为 2。
+    完。
+    tcb 的 Nova拥塞窗口 为 1。
+完。
+
+传控_状态名_详细 接受 状态：
+    若 状态 等于 传控_CLOSED：
+        返还 「CLOSED」。
+    完。
+    若 状态 等于 传控_LISTEN：
+        返还 「LISTEN」。
+    完。
+    若 状态 等于 传控_SYN_SENT：
+        返还 「SYN_SENT」。
+    完。
+    若 状态 等于 传控_SYN_RECV：
+        返还 「SYN_RECV」。
+    完。
+    若 状态 等于 传控_ESTABLISHED：
+        返还 「ESTABLISHED」。
+    完。
+    若 状态 等于 传控_FIN_WAIT1：
+        返还 「FIN_WAIT1」。
+    完。
+    若 状态 等于 传控_FIN_WAIT2：
+        返还 「FIN_WAIT2」。
+    完。
+    若 状态 等于 传控_CLOSE_WAIT：
+        返还 「CLOSE_WAIT」。
+    完。
+    若 状态 等于 传控_CLOSING：
+        返还 「CLOSING」。
+    完。
+    若 状态 等于 传控_LAST_ACK：
+        返还 「LAST_ACK」。
+    完。
+    若 状态 等于 传控_TIME_WAIT：
+        返还 「TIME_WAIT」。
+    完。
+    返还 「UNKNOWN」。
+完。
+
+传控_重传超时 接受 tcb：
+    tcb 的 重传次数 为 tcb 的 重传次数 加 1。
+    tcb 的 rto_ms 为 tcb 的 rto_ms 乘 2。
+    若 tcb 的 rto_ms 大于 120000：
+        tcb 的 rto_ms 为 120000。
+    完。
+    做 传控_拥塞控制_丢包 用 tcb。
+完。
+
+传控_RST处理 接受 tcb：
+    tcb 的 状态 为 传控_CLOSED。
+    tcb 的 Nova拥塞窗口 为 1。
+    tcb 的 重传次数 为 0。
+完。
+
+传控_是已建立 接受 tcb：
+    返还 tcb 的 状态 等于 传控_ESTABLISHED。
+完。
+
+传控_飞行中字节数 接受 tcb：
+    若 tcb 的 snd_nxt 大于或等于 tcb 的 snd_una：
+        返还 tcb 的 snd_nxt 减 tcb 的 snd_una。
+    完。
+    返还 0。
+完。
+
+传控_标志名 接受 标志：
+    可变 名 为 「」。
+    若 标志 位与 传控_FLAG_SYN 不等于 0：
+        名 为 名 加 「S」。
+    完。
+    若 标志 位与 传控_FLAG_ACK 不等于 0：
+        名 为 名 加 「A」。
+    完。
+    若 标志 位与 传控_FLAG_FIN 不等于 0：
+        名 为 名 加 「F」。
+    完。
+    若 标志 位与 传控_FLAG_RST 不等于 0：
+        名 为 名 加 「R」。
+    完。
+    若 标志 位与 传控_FLAG_PSH 不等于 0：
+        名 为 名 加 「P」。
+    完。
+    若 标志 位与 传控_FLAG_URG 不等于 0：
+        名 为 名 加 「U」。
+    完。
+    返还 名。
+完。
+
+传控_连接摘要 接受 tcb：
+    返还 一组：tcb 的 状态、tcb 的 Nova拥塞窗口、tcb 的 Nova慢启动阈值、tcb 的 rto_ms、tcb 的 重传次数。
+完。
+
+传控状态机_完整统计 接受 零参：
+    返还 一组：传控_状态转换总数。
+完。
+
+本章 收束。

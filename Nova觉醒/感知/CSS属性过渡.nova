@@ -1,0 +1,105 @@
+《CSS属性过渡》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·函数创建》。
+
+引用《.·关键帧》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·辅助存根》。
+
+TransitionSpec 是 一种 事物，含 属性ID、持续时间、延迟、缓动。
+
+Transition_检查并启动 接受 元素、旧样式、新样式：
+    若 元素 等于 0 或者 旧样式 等于 0 或者 新样式 等于 0：
+        返还。
+    完。
+    若 新样式 的 transition_duration 小于或等于 0：
+        返还。
+    完。
+    持续时间 为 新样式 的 transition_duration。
+    延迟 为 新样式 的 transition_delay。
+    缓动 为 做 TimingFunction_创建 用 新样式 的 transition_timing。
+    若 旧样式 的 opacity 不等于 新样式 的 opacity：
+        做 Transition_创建动画 用 元素、CSS属性_opacity、0、旧样式 的 opacity、新样式 的 opacity、持续时间、延迟、缓动。
+    完。
+    若 旧样式 的 color 不等于 新样式 的 color：
+        做 Transition_创建动画 用 元素、CSS属性_color、1、旧样式 的 color、新样式 的 color、持续时间、延迟、缓动。
+    完。
+    若 旧样式 的 background_color 不等于 新样式 的 background_color：
+        做 Transition_创建动画 用 元素、CSS属性_background_color、1、旧样式 的 background_color、新样式 的 background_color、持续时间、延迟、缓动。
+    完。
+    若 旧样式 的 width 不等于 新样式 的 width 并且 旧样式 的 width 大于或等于 0 并且 新样式 的 width 大于或等于 0：
+        做 Transition_创建动画 用 元素、CSS属性_width、2、旧样式 的 width、新样式 的 width、持续时间、延迟、缓动。
+    完。
+    若 旧样式 的 height 不等于 新样式 的 height 并且 旧样式 的 height 大于或等于 0 并且 新样式 的 height 大于或等于 0：
+        做 Transition_创建动画 用 元素、CSS属性_height、2、旧样式 的 height、新样式 的 height、持续时间、延迟、缓动。
+    完。
+    若 旧样式 的 font_size 不等于 新样式 的 font_size：
+        做 Transition_创建动画 用 元素、CSS属性_font_size、2、旧样式 的 font_size、新样式 的 font_size、持续时间、延迟、缓动。
+    完。
+    若 旧样式 的 top 不等于 新样式 的 top 并且 旧样式 的 top 大于或等于 0 并且 新样式 的 top 大于或等于 0：
+        做 Transition_创建动画 用 元素、CSS属性_top、2、旧样式 的 top、新样式 的 top、持续时间、延迟、缓动。
+    完。
+    若 旧样式 的 left 不等于 新样式 的 left 并且 旧样式 的 left 大于或等于 0 并且 新样式 的 left 大于或等于 0：
+        做 Transition_创建动画 用 元素、CSS属性_left、2、旧样式 的 left、新样式 的 left、持续时间、延迟、缓动。
+    完。
+完。
+
+Transition_创建动画 接受 元素、属性ID、值类型、旧值、新值、持续时间、延迟、缓动：
+    ke 为 做 KeyframeEffect_创建 用 「transition」、元素、持续时间。
+    ke 的 延迟 为 延迟。
+    ke 的 迭代次数 为 100。
+    ke 的 填充模式 为 1。
+    ke 的 缓动 为 缓动。
+    kf0 为 做 KeyframeEffect_添加关键帧 用 ke、0。
+    做 Keyframe_添加属性 用 kf0、属性ID、值类型、旧值、旧值。
+    kf1 为 做 KeyframeEffect_添加关键帧 用 ke、10000。
+    做 Keyframe_添加属性 用 kf1、属性ID、值类型、新值、新值。
+    anim 为 做 Animation_创建 用 ke。
+    做 Animation_play 用 anim。
+完。
+
+KeyframesRule 是 一种 事物，含 名称、关键帧规则、规则数量、规则容量。
+
+可变 全局Keyframes表 为 0。
+
+可变 全局Keyframes数量 为 0。
+
+可变 全局Keyframes容量 为 0。
+
+Keyframes_注册 接受 名称、规则：
+    若 全局Keyframes表 等于 0：
+        全局Keyframes容量 为 64。
+        全局Keyframes表 为 做 堆_分配_数组 用 全局Keyframes容量 乘 16。
+        全局Keyframes数量 为 0。
+    完。
+    若 全局Keyframes数量 大于或等于 全局Keyframes容量：
+        返还。
+    完。
+    偏移 为 全局Keyframes表 加 全局Keyframes数量 乘 16。
+    做 内存_写64 用 偏移、做 字符串_复制 用 名称。
+    做 内存_写64 用 偏移 加 8、规则。
+    全局Keyframes数量 为 全局Keyframes数量 加 1。
+完。
+
+Keyframes_查找 接受 名称：
+    若 全局Keyframes表 等于 0：
+        返还 0。
+    完。
+    可变 i 为 0。
+    只要 i 小于 全局Keyframes数量：
+        偏移 为 全局Keyframes表 加 i 乘 16。
+        若 做 字符串_相等 用 做 内存_读64 用 偏移、名称：
+            返还 做 内存_读64 用 偏移 加 8。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+本章 收束。

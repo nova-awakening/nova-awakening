@@ -1,0 +1,178 @@
+《kswapd守护线程》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·内存回收》。
+
+引用《.·物理页描述符》。
+
+SWAP_CLUSTER_MAX 为 32。
+
+DEF_PRIORITY 为 12。
+
+MIN_PRIORITY 为 0。
+
+LRU_INACTIVE_ANON 为 0。
+
+LRU_ACTIVE_ANON 为 1。
+
+LRU_INACTIVE_FILE 为 2。
+
+LRU_ACTIVE_FILE 为 3。
+
+NR_LRU_LISTS 为 4。
+
+lruvec 是 一种 事物，含 链表、计数、最小代、最大代。
+
+可变 kswapd_运行中 为 假。
+
+可变 kswapd_目标zone 为 0。
+
+可变 kswapd_目标阶 为 0。
+
+可变 kswapd_睡眠中 为 真。
+
+可变 回收_扫描总数 为 0。
+
+可变 回收_回收总数 为 0。
+
+可变 回收_回写总数 为 0。
+
+可变 直接回收_次数 为 0。
+
+可变 kswapd_唤醒次数 为 0。
+
+可变 全局lru 为 新建 lruvec。
+
+kswapd_初始化 接受 零参：
+    可变 i 为 0。
+    只要 i 小于 NR_LRU_LISTS：
+        全局lru 的 链表 的 第 i 项 为 做 列表_创建。
+        全局lru 的 计数 的 第 i 项 为 0。
+        i 为 i 加 1。
+    完。
+    全局lru 的 最小代 为 0。
+    全局lru 的 最大代 为 0。
+    kswapd_运行中 为 真。
+    kswapd_睡眠中 为 真。
+    做 内核信息 用 「kswapd: 页面回收守护进程已启动」。
+完。
+
+kswapd_线程 接受 零参：
+    只要 kswapd_运行中：
+        kswapd_睡眠中 为 真。
+        只要 kswapd_睡眠中 并且 kswapd_运行中：
+            做 调度。
+        完。
+        若 非 kswapd_运行中：
+            中断。
+        完。
+        kswapd_唤醒次数 为 kswapd_唤醒次数 加 1。
+        做 balance_pgdat 用 kswapd_目标zone、kswapd_目标阶。
+    完。
+完。
+
+balance_pgdat 接受 目标zone、目标阶：
+    可变 优先级 为 DEF_PRIORITY。
+    只要 优先级 大于或等于 MIN_PRIORITY：
+        若 做 zone_水位OK_全部 用 目标阶：
+            返还。
+        完。
+        回收数 为 做 shrink_节点 用 优先级。
+        若 回收数 等于 0：
+            优先级 为 优先级 减 1。
+        完。
+    完。
+完。
+
+shrink_节点 接受 优先级：
+    可变 总回收 为 0。
+    扫描分母 为 1 左移 优先级。
+    file回收 为 做 shrink_lru 用 LRU_INACTIVE_FILE、扫描分母。
+    总回收 为 总回收 加 file回收。
+    若 总回收 小于 SWAP_CLUSTER_MAX：
+        anon回收 为 做 shrink_lru 用 LRU_INACTIVE_ANON、扫描分母。
+        总回收 为 总回收 加 anon回收。
+    完。
+    做 老化active页 用 LRU_ACTIVE_FILE。
+    若 总回收 小于 SWAP_CLUSTER_MAX：
+        做 老化active页 用 LRU_ACTIVE_ANON。
+    完。
+    返还 总回收。
+完。
+
+shrink_lru 接受 lru类型、扫描分母：
+    lru大小 为 全局lru 的 计数 的 第 lru类型 项。
+    若 lru大小 等于 0：
+        返还 0。
+    完。
+    扫描数 为 若 扫描分母 大于 0 则 lru大小 除以 扫描分母 否则 lru大小。
+    若 扫描数 等于 0：
+        扫描数 为 1。
+    完。
+    若 扫描数 大于 SWAP_CLUSTER_MAX：
+        扫描数 为 SWAP_CLUSTER_MAX。
+    完。
+    可变 已扫描 为 0。
+    可变 已回收 为 0。
+    只要 已扫描 小于 扫描数 并且 全局lru 的 计数 的 第 lru类型 项 大于 0：
+        页 为 做 列表_取尾 用 全局lru 的 链表 的 第 lru类型 项。
+        若 页 等于 空：
+            中断。
+        完。
+        全局lru 的 计数 的 第 lru类型 项 为 全局lru 的 计数 的 第 lru类型 项 减 1。
+        已扫描 为 已扫描 加 1。
+        回收_扫描总数 为 回收_扫描总数 加 1。
+        若 做 尝试回收页 用 页、lru类型：
+            已回收 为 已回收 加 1。
+            回收_回收总数 为 回收_回收总数 加 1。
+        否则：
+            做 列表_加头 用 全局lru 的 链表 的 第 lru类型 项、页。
+            全局lru 的 计数 的 第 lru类型 项 为 全局lru 的 计数 的 第 lru类型 项 加 1。
+        完。
+    完。
+    返还 已回收。
+完。
+
+尝试回收页 接受 页、lru类型：
+    若 做 页描述符_引用数 用 页 大于 1：
+        返还 假。
+    完。
+    若 做 页_已锁定 用 页：
+        返还 假。
+    完。
+    若 lru类型 等于 LRU_INACTIVE_FILE：
+        若 做 页_是脏 用 页：
+            做 页_提交回写 用 页。
+            回收_回写总数 为 回收_回写总数 加 1。
+            返还 假。
+        完。
+        做 页_释放到伙伴 用 页。
+        返还 真。
+    完。
+    若 lru类型 等于 LRU_INACTIVE_ANON：
+        返还 假。
+    完。
+    返还 假。
+完。
+
+可变 AI_交换守护初_运行指标 为 0。
+
+可变 AI_交换守护初_异常指标 为 0。
+
+AI_交换守护初_自诊断 接受 零参：
+    AI_交换守护初_运行指标 为 回收_扫描总数。
+    返还 AI_交换守护初_运行指标。
+完。
+
+AI_交换守护初_优化建议 接受 零参：
+    指标 为 做 AI_交换守护初_自诊断。
+    若 AI_交换守护初_运行指标 大于 10000：
+        返还 「交换守护初负载较高」。
+    完。
+    返还 「交换守护初状态正常」。
+完。
+
+本章 收束。

@@ -1,0 +1,130 @@
+《数据传输拖》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·整数转字符串》。
+
+DROP_EFFECT_NONE 为 0。
+
+DROP_EFFECT_COPY 为 1。
+
+DROP_EFFECT_MOVE 为 2。
+
+DROP_EFFECT_LINK 为 3。
+
+EFFECT_ALLOWED_NONE 为 0。
+
+EFFECT_ALLOWED_COPY 为 1。
+
+EFFECT_ALLOWED_MOVE 为 2。
+
+EFFECT_ALLOWED_LINK 为 3。
+
+EFFECT_ALLOWED_COPYMOVE 为 4。
+
+EFFECT_ALLOWED_COPYLINK 为 5。
+
+EFFECT_ALLOWED_LINKMOVE 为 6。
+
+EFFECT_ALLOWED_ALL 为 7。
+
+EFFECT_ALLOWED_UNINITIALIZED 为 8。
+
+DataTransferItem 是 一种 事物，含 种类、类型、数据、数据长度。
+
+DataTransfer 是 一种 事物，含 dropEffect、effectAllowed、项列表、项数量、项容量、文件列表、文件数量、拖放图像、拖放偏移x、拖放偏移y、是只读。
+
+DataTransfer_创建 接受 零参：
+    dt 为 做 堆_分配 用 DataTransfer。
+    dt 的 dropEffect 为 DROP_EFFECT_NONE。
+    dt 的 effectAllowed 为 EFFECT_ALLOWED_UNINITIALIZED。
+    dt 的 项容量 为 32。
+    dt 的 项列表 为 做 堆_分配_数组 用 32 乘 8。
+    dt 的 项数量 为 0。
+    dt 的 文件列表 为 做 堆_分配_数组 用 16 乘 8。
+    dt 的 文件数量 为 0。
+    dt 的 拖放图像 为 0。
+    dt 的 拖放偏移x 为 0。
+    dt 的 拖放偏移y 为 0。
+    dt 的 是只读 为 假。
+    返还 dt。
+完。
+
+DataTransfer_setData 接受 dt、类型、数据：
+    若 dt 等于 0 或者 dt 的 是只读：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 dt 的 项数量：
+        item 为 做 内存_读64 用 dt 的 项列表 加 i 乘 8。
+        若 item 不等于 0 并且 做 字符串_相等 用 item 的 类型、类型：
+            item 的 数据 为 做 字符串_复制 用 数据。
+            item 的 数据长度 为 做 字符串_长度 用 数据。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    若 dt 的 项数量 大于或等于 dt 的 项容量：
+        返还。
+    完。
+    item 为 做 堆_分配 用 DataTransferItem。
+    item 的 种类 为 0。
+    item 的 类型 为 做 字符串_复制 用 类型。
+    item 的 数据 为 做 字符串_复制 用 数据。
+    item 的 数据长度 为 做 字符串_长度 用 数据。
+    做 内存_写64 用 dt 的 项列表 加 dt 的 项数量 乘 8、item。
+    dt 的 项数量 为 dt 的 项数量 加 1。
+完。
+
+DataTransfer_getData 接受 dt、类型：
+    若 dt 等于 0：
+        返还 「」。
+    完。
+    可变 i 为 0。
+    只要 i 小于 dt 的 项数量：
+        item 为 做 内存_读64 用 dt 的 项列表 加 i 乘 8。
+        若 item 不等于 0 并且 item 的 种类 等于 0 并且 做 字符串_相等 用 item 的 类型、类型：
+            返还 item 的 数据。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 「」。
+完。
+
+DataTransfer_clearData 接受 dt、类型：
+    若 dt 等于 0 或者 dt 的 是只读：
+        返还。
+    完。
+    若 类型 等于 0：
+        dt 的 项数量 为 0。
+        返还。
+    完。
+    可变 写 为 0。
+    可变 i 为 0。
+    只要 i 小于 dt 的 项数量：
+        item 为 做 内存_读64 用 dt 的 项列表 加 i 乘 8。
+        若 item 不等于 0 并且 非 做 字符串_相等 用 item 的 类型、类型：
+            做 内存_写64 用 dt 的 项列表 加 写 乘 8、item。
+            写 为 写 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    dt 的 项数量 为 写。
+完。
+
+DataTransfer_setDrag图像 接受 dt、图像、x、y：
+    若 dt 等于 0 或者 dt 的 是只读：
+        返还。
+    完。
+    dt 的 拖放图像 为 图像。
+    dt 的 拖放偏移x 为 x。
+    dt 的 拖放偏移y 为 y。
+完。
+
+本章 收束。

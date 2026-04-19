@@ -1,0 +1,109 @@
+《管理命令》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·引导·端口IO》。
+
+引用《.·E1000收发初始化》。
+
+引用《.·中断处理》。
+
+引用《..·中枢·APIC任务优先级》。
+
+引用《.·NVMe驱动辅助》。
+
+引用《..·记忆·cpio解压》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·设备号创建》。
+
+NVMe_提交管理命令 接受 ctl、sqe：
+    q 为 ctl 的 管理队列。
+    尾 为 q 的 SQ尾指针。
+    地址 为 q 的 SQ地址 加 尾 乘 64。
+    做 内存写32 用 地址 加 0、sqe 的 操作码 位或 sqe 的 标志 左移 8 位或 sqe 的 命令ID 左移 16。
+    做 内存写32 用 地址 加 4、sqe 的 NSID。
+    做 内存写64 用 地址 加 24、sqe 的 PRP1。
+    做 内存写64 用 地址 加 32、sqe 的 PRP2。
+    做 内存写32 用 地址 加 40、sqe 的 CDW10。
+    做 内存写32 用 地址 加 44、sqe 的 CDW11。
+    做 内存写32 用 地址 加 48、sqe 的 CDW12。
+    q 的 SQ尾指针 为 (尾 加 1) 取余于 q 的 深度。
+    做 MMIO写32 用 q 的 SQ门铃、q 的 SQ尾指针。
+    返还 做 NVMe_等待完成 用 ctl、q、sqe 的 命令ID。
+完。
+
+NVMe_等待完成 接受 ctl、q、cmd_id：
+    可变 等待 为 0。
+    只要 等待 小于 100000：
+        cqe_addr 为 q 的 CQ地址 加 q 的 CQ头指针 乘 16。
+        状态字 为 做 内存读16 用 cqe_addr 加 14。
+        phase 为 状态字 位与 1。
+        若 phase 等于 q 的 Phase位：
+            cid 为 做 内存读16 用 cqe_addr 加 12。
+            状态码 为 状态字 右移 1 位与 0x7FF。
+            q 的 CQ头指针 为 q 的 CQ头指针 加 1。
+            若 q 的 CQ头指针 大于或等于 q 的 深度：
+                q 的 CQ头指针 为 0。
+                q 的 Phase位 为 q 的 Phase位 位异或 1。
+            完。
+            做 MMIO写32 用 q 的 CQ门铃、q 的 CQ头指针。
+            若 状态码 不等于 0：
+                做 内核警告 用 「NVMe: 命令失败 ID=」 加 做 整数转字符串 用 cid 加 「 状态=」 加 做 整数转十六进制 用 状态码。
+                返还 错误_IO。
+            完。
+            返还 做 内存读32 用 cqe_addr。
+        完。
+        做 延迟_us 用 10。
+        等待 为 等待 加 1。
+    完。
+    做 内核警告 用 「NVMe: 命令超时 ID=」 加 做 整数转字符串 用 cmd_id。
+    返还 错误_超时。
+完。
+
+NVMe_识别控制器 接受 ctl：
+    buf 为 做 直传_分配_对齐 用 4096、4096。
+    做 内存填零 用 buf、4096。
+    sqe 为 新建 NVMe_SQE。
+    sqe 的 操作码 为 NVME_ADM_IDENTIFY。
+    sqe 的 命令ID 为 做 NVMe_分配命令ID 用 ctl。
+    sqe 的 PRP1 为 buf。
+    sqe 的 CDW10 为 NVME_ID_CNS_CTRL。
+    做 NVMe_提交管理命令 用 ctl、sqe。
+    ctl 的 序列号 为 做 NVMe_读字符串 用 buf、4、23。
+    ctl 的 型号 为 做 NVMe_读字符串 用 buf、24、63。
+    ctl 的 固件版本 为 做 NVMe_读字符串 用 buf、64、71。
+    做 内核信息 用 「NVMe: 」 加 ctl 的 型号 加 「 SN=」 加 ctl 的 序列号 加 「 FW=」 加 ctl 的 固件版本。
+完。
+
+NVMe_识别命名空间 接受 ctl：
+    buf 为 做 直传_分配_对齐 用 4096、4096。
+    做 内存填零 用 buf、4096。
+    sqe 为 新建 NVMe_SQE。
+    sqe 的 操作码 为 NVME_ADM_IDENTIFY。
+    sqe 的 命令ID 为 做 NVMe_分配命令ID 用 ctl。
+    sqe 的 NSID 为 1。
+    sqe 的 PRP1 为 buf。
+    sqe 的 CDW10 为 NVME_ID_CNS_NS。
+    做 NVMe_提交管理命令 用 ctl、sqe。
+    ns 为 新建 NVMe命名空间。
+    ns 的 NSID 为 1。
+    ns 的 容量 为 做 内存读64 用 buf。
+    flbas 为 做 内存读8 用 buf 加 26。
+    lbaf_idx 为 flbas 位与 0xF。
+    lbaf 为 做 内存读32 用 buf 加 128 加 lbaf_idx 乘 4。
+    lba_ds 为 lbaf 右移 16 位与 0xFF。
+    ns 的 块大小 为 1 左移 lba_ds。
+    ns 的 名称 为 「nvme0n1」。
+    做 追加 用 ctl 的 命名空间、ns。
+    容量GB 为 ns 的 容量 乘 ns 的 块大小 除以 (1024 乘 1024 乘 1024)。
+    做 内核信息 用 「NVMe: 命名空间1 容量=」 加 做 整数转字符串 用 容量GB 加 「GB 块大小=」 加 做 整数转字符串 用 ns 的 块大小。
+    做 块设备_注册 用 「nvme0n1」、ns。
+完。
+
+本章 收束。

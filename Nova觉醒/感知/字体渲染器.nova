@@ -1,0 +1,65 @@
+《字体渲染器》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·字形度量》。
+
+字体File 是 一种 事物，含 数据、大小、cmap偏移、glyf偏移、loca偏移、head偏移、hhea偏移、hmtx偏移、kern偏移、GPOS偏移、GSUB偏移、name偏移、OS2偏移、post偏移、字形数、unitsPerEm、ascender、descender、lineGap、cmap格式、loca格式。
+
+GlyphOutline 是 一种 事物，含 点X、点Y、标志、点数、轮廓结束、轮廓数、xMin、yMin、xMax、yMax、是复合。
+
+GlyphMetrics 是 一种 事物，含 advanceWidth、lsb、xMin、yMin、xMax、yMax。
+
+字体_加载 接受 数据、大小：
+    若 数据 等于 0 或者 大小 小于 12：
+        返还 0。
+    完。
+    font 为 做 堆_分配 用 字体File。
+    font 的 数据 为 数据。
+    font 的 大小 为 大小。
+    版本 为 做 字体_读u32 用 数据、0。
+    表数 为 做 字体_读u16 用 数据、4。
+    可变 i 为 0。
+    只要 i 小于 表数：
+        偏移 为 12 加 i 乘 16。
+        tag 为 做 字体_读u32 用 数据、偏移。
+        表偏移 为 做 字体_读u32 用 数据、偏移 加 8。
+        若 tag 等于 0x636D6170：
+            font 的 cmap偏移 为 表偏移。
+        否则若 tag 等于 0x676C7966：
+            font 的 glyf偏移 为 表偏移。
+        否则若 tag 等于 0x6C6F6361：
+            font 的 loca偏移 为 表偏移。
+        否则若 tag 等于 0x68656164：
+            font 的 head偏移 为 表偏移。
+        否则若 tag 等于 0x68686561：
+            font 的 hhea偏移 为 表偏移。
+        否则若 tag 等于 0x686D7478：
+            font 的 hmtx偏移 为 表偏移。
+        否则若 tag 等于 0x6B65726E：
+            font 的 kern偏移 为 表偏移。
+        否则若 tag 等于 0x47504F53：
+            font 的 GPOS偏移 为 表偏移。
+        否则若 tag 等于 0x47535542：
+            font 的 GSUB偏移 为 表偏移。
+        否则若 tag 等于 0x4F532F32：
+            font 的 OS2偏移 为 表偏移。
+        完。
+        i 为 i 加 1。
+    完。
+    若 font 的 head偏移 大于 0：
+        font 的 unitsPerEm 为 做 字体_读u16 用 数据、font 的 head偏移 加 18。
+        font 的 loca格式 为 做 字体_读u16 用 数据、font 的 head偏移 加 50。
+    完。
+    若 font 的 hhea偏移 大于 0：
+        font 的 ascender 为 做 字体_读i16 用 数据、font 的 hhea偏移 加 4。
+        font 的 descender 为 做 字体_读i16 用 数据、font 的 hhea偏移 加 6。
+        font 的 lineGap 为 做 字体_读i16 用 数据、font 的 hhea偏移 加 8。
+        font 的 字形数 为 做 字体_读u16 用 数据、font 的 hhea偏移 加 34。
+    完。
+    返还 font。
+完。
+
+本章 收束。

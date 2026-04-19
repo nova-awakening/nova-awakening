@@ -1,0 +1,358 @@
+《TLS握手初始化》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·TLS握手消息》。
+
+引用《.·TLS密钥派生》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·TLS握手》。
+
+引用《.·密码学原语》。
+
+引用《.·TLS数据收发》。
+
+引用《..·感知·内核直连层》。
+
+安全_创建 接受 socket_fd、主机名：
+    conn 为 做 堆_分配 用 安全Connection。
+    若 conn 等于 0：
+        返还 0。
+    完。
+    conn 的 socket_fd 为 socket_fd。
+    conn 的 版本 为 安全_1_3。
+    conn 的 状态 为 安全_STATE_INIT。
+    conn 的 密码套件 为 0。
+    conn 的 主机名 为 主机名。
+    conn 的 client_seq 为 0。
+    conn 的 server_seq 为 0。
+    conn 的 最后错误 为 0。
+    conn 的 ticket_长度 为 0。
+    conn 的 alpn_协议 为 0。
+    做 平台_随机字节 用 conn 的 client_random、32。
+    做 X25519_生成密钥对 用 conn 的 私钥、conn 的 公钥。
+    返还 conn。
+完。
+
+安全_握手 接受 conn：
+    若 conn 等于 0：
+        返还 负 1。
+    完。
+    hello_buf 为 做 堆_分配 用 512。
+    若 hello_buf 等于 0：
+        返还 0。
+    完。
+    hello_len 为 做 安全_构造ClientHello 用 conn、hello_buf、512。
+    若 hello_len 小于或等于 0：
+        做 堆_释放 用 hello_buf。
+        conn 的 状态 为 安全_STATE_ERROR。
+        返还 负 1。
+    完。
+    若 做 安全_发送记录 用 conn、REC_HANDSHAKE、hello_buf、hello_len 小于 0：
+        做 堆_释放 用 hello_buf。
+        conn 的 状态 为 安全_STATE_ERROR。
+        返还 负 1。
+    完。
+    conn 的 状态 为 安全_STATE_CLIENT_HELLO。
+    做 SHA256_更新 用 conn 的 transcript_hash、hello_buf、hello_len。
+    recv_buf 为 做 堆_分配 用 16384。
+    若 recv_buf 等于 0：
+        返还 0。
+    完。
+    recv_len 为 做 安全_接收记录 用 conn、recv_buf、16384。
+    若 recv_len 小于或等于 0：
+        做 堆_释放 用 hello_buf。
+        做 堆_释放 用 recv_buf。
+        conn 的 状态 为 安全_STATE_ERROR。
+        返还 负 1。
+    完。
+    解析结果 为 做 安全_解析ServerHello 用 conn、recv_buf、recv_len。
+    若 解析结果 小于 0：
+        做 堆_释放 用 hello_buf。
+        做 堆_释放 用 recv_buf。
+        conn 的 状态 为 安全_STATE_ERROR。
+        返还 负 1。
+    完。
+    做 SHA256_更新 用 conn 的 transcript_hash、recv_buf、recv_len。
+    做 X25519_计算共享 用 conn 的 共享密钥、conn 的 私钥、conn 的 对方公钥。
+    若 conn 的 版本 等于 安全_1_3：
+        做 安全13_派生握手密钥 用 conn。
+        conn 的 状态 为 安全_STATE_ENCRYPTED。
+        recv_len 为 做 安全_接收记录 用 conn、recv_buf、16384。
+        若 recv_len 大于 0：
+            明文 为 做 堆_分配 用 recv_len。
+            若 明文 等于 0：
+                返还 0。
+            完。
+            明文长 为 做 AES_GCM_解密 用 conn 的 server_hs_key、conn 的 server_hs_iv、conn 的 server_seq、recv_buf、recv_len、明文。
+            conn 的 server_seq 为 conn 的 server_seq 加 1。
+            若 明文长 大于 0：
+                做 安全13_处理握手消息 用 conn、明文、明文长。
+            完。
+            做 堆_释放 用 明文。
+        完。
+        若 conn 的 服务器证书 不等于 0：
+            验证ok 为 做 X509_验证证书链 用 conn 的 服务器证书、conn 的 主机名。
+            若 非 验证ok：
+                conn 的 状态 为 安全_STATE_ERROR。
+                conn 的 最后错误 为 ALERT_BAD_CERTIFICATE。
+                做 堆_释放 用 hello_buf。
+                做 堆_释放 用 recv_buf。
+                返还 负 1。
+            完。
+        完。
+        做 安全13_派生应用密钥 用 conn。
+        fin_buf 为 做 堆_分配 用 64。
+        若 fin_buf 等于 0：
+            返还 0。
+        完。
+        fin_len 为 做 安全13_构造Finished 用 conn、fin_buf、64。
+        加密fin 为 做 堆_分配 用 fin_len 加 16。
+        若 加密fin 等于 0：
+            返还 0。
+        完。
+        加密长 为 做 AES_GCM_加密 用 conn 的 client_hs_key、conn 的 client_hs_iv、conn 的 client_seq、fin_buf、fin_len、加密fin。
+        若 做 安全_发送记录 用 conn、REC_APPLICATION、加密fin、加密长 小于 0：
+            做 堆_释放 用 fin_buf。
+            做 堆_释放 用 加密fin。
+            conn 的 状态 为 安全_STATE_ERROR。
+            返还 负 1。
+        完。
+        做 堆_释放 用 fin_buf。
+        做 堆_释放 用 加密fin。
+        conn 的 client_seq 为 0。
+        conn 的 server_seq 为 0。
+    否则：
+        做 安全12_完成握手 用 conn、recv_buf、recv_len。
+    完。
+    conn 的 状态 为 安全_STATE_CONNECTED。
+    做 堆_释放 用 hello_buf。
+    做 堆_释放 用 recv_buf。
+    返还 0。
+完。
+
+安全_构造ClientHello 接受 conn、buf、最大：
+    若 conn 等于 0 或者 buf 等于 0：
+        返还 0。
+    完。
+    可变 pos 为 0。
+    做 字节写 用 buf、pos、HS_CLIENT_HELLO。
+    pos 为 pos 加 1。
+    len_pos 为 pos。
+    pos 为 pos 加 3。
+    做 字节写 用 buf、pos、0x03。
+    做 字节写 用 buf、pos 加 1、0x03。
+    pos 为 pos 加 2。
+    做 内存_复制 用 buf 加 pos、conn 的 client_random、32。
+    pos 为 pos 加 32。
+    做 字节写 用 buf、pos、32。
+    pos 为 pos 加 1。
+    做 平台_随机字节 用 buf 加 pos、32。
+    pos 为 pos 加 32。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、10。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x13。
+    做 字节写 用 buf、pos 加 1、0x01。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x13。
+    做 字节写 用 buf、pos 加 1、0x02。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x13。
+    做 字节写 用 buf、pos 加 1、0x03。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0xC0。
+    做 字节写 用 buf、pos 加 1、0x2F。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0xC0。
+    做 字节写 用 buf、pos 加 1、0x30。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、1。
+    做 字节写 用 buf、pos 加 1、0。
+    pos 为 pos 加 2。
+    ext_start 为 pos。
+    pos 为 pos 加 2。
+    若 conn 的 主机名 不等于 0：
+        host_len 为 做 字节长度 用 conn 的 主机名。
+        做 字节写 用 buf、pos、0。
+        做 字节写 用 buf、pos 加 1、0。
+        pos 为 pos 加 2。
+        sni_len 为 host_len 加 5。
+        做 字节写 用 buf、pos、sni_len 右移 8。
+        做 字节写 用 buf、pos 加 1、sni_len 位与 0xFF。
+        pos 为 pos 加 2。
+        做 字节写 用 buf、pos、sni_len 减 2 右移 8。
+        做 字节写 用 buf、pos 加 1、sni_len 减 2 位与 0xFF。
+        pos 为 pos 加 2。
+        做 字节写 用 buf、pos、0。
+        pos 为 pos 加 1。
+        做 字节写 用 buf、pos、host_len 右移 8。
+        做 字节写 用 buf、pos 加 1、host_len 位与 0xFF。
+        pos 为 pos 加 2。
+        做 内存_复制 用 buf 加 pos、conn 的 主机名、host_len。
+        pos 为 pos 加 host_len。
+    完。
+    做 字节写 用 buf、pos、0x00。
+    做 字节写 用 buf、pos 加 1、0x2B。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、5。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、4。
+    pos 为 pos 加 1。
+    做 字节写 用 buf、pos、0x03。
+    做 字节写 用 buf、pos 加 1、0x04。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x03。
+    做 字节写 用 buf、pos 加 1、0x03。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x00。
+    做 字节写 用 buf、pos 加 1、0x0A。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、6。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、4。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x00。
+    做 字节写 用 buf、pos 加 1、0x1D。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x00。
+    做 字节写 用 buf、pos 加 1、0x17。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x00。
+    做 字节写 用 buf、pos 加 1、0x33。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、38。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、36。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x00。
+    做 字节写 用 buf、pos 加 1、0x1D。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、32。
+    pos 为 pos 加 2。
+    做 内存_复制 用 buf 加 pos、conn 的 公钥、32。
+    pos 为 pos 加 32。
+    做 字节写 用 buf、pos、0x00。
+    做 字节写 用 buf、pos 加 1、0x0D。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、8。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、6。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x08。
+    做 字节写 用 buf、pos 加 1、0x04。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x04。
+    做 字节写 用 buf、pos 加 1、0x03。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x08。
+    做 字节写 用 buf、pos 加 1、0x07。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0x00。
+    做 字节写 用 buf、pos 加 1、0x10。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、11。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、0。
+    做 字节写 用 buf、pos 加 1、9。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、2。
+    pos 为 pos 加 1。
+    做 字节写 用 buf、pos、0x68。
+    做 字节写 用 buf、pos 加 1、0x32。
+    pos 为 pos 加 2。
+    做 字节写 用 buf、pos、8。
+    pos 为 pos 加 1。
+    做 内存_复制 用 buf 加 pos、「http/1.1」、8。
+    pos 为 pos 加 8。
+    ext_len 为 pos 减 ext_start 减 2。
+    做 字节写 用 buf、ext_start、ext_len 右移 8。
+    做 字节写 用 buf、ext_start 加 1、ext_len 位与 0xFF。
+    msg_len 为 pos 减 4。
+    做 字节写 用 buf、len_pos、msg_len 右移 16 位与 0xFF。
+    做 字节写 用 buf、len_pos 加 1、msg_len 右移 8 位与 0xFF。
+    做 字节写 用 buf、len_pos 加 2、msg_len 位与 0xFF。
+    返还 pos。
+完。
+
+安全_解析ServerHello 接受 conn、buf、len：
+    若 conn 等于 0 或者 buf 等于 0 或者 len 小于 38：
+        返还 负 1。
+    完。
+    若 做 字节取 用 buf、0 不等于 HS_SERVER_HELLO：
+        返还 负 1。
+    完。
+    可变 pos 为 4。
+    pos 为 pos 加 2。
+    做 内存_复制 用 conn 的 server_random、buf 加 pos、32。
+    pos 为 pos 加 32。
+    sid_len 为 做 字节取 用 buf、pos。
+    pos 为 pos 加 1 加 sid_len。
+    若 pos 加 2 大于 len：
+        返还 负 1。
+    完。
+    conn 的 密码套件 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+    pos 为 pos 加 2。
+    pos 为 pos 加 1。
+    若 pos 加 2 小于或等于 len：
+        ext_len 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+        pos 为 pos 加 2。
+        ext_end 为 pos 加 ext_len。
+        只要 pos 加 4 小于或等于 ext_end 并且 pos 加 4 小于或等于 len：
+            ext_type 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+            pos 为 pos 加 2。
+            ext_data_len 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+            pos 为 pos 加 2。
+            若 ext_type 等于 0x002B 并且 ext_data_len 大于或等于 2：
+                conn 的 版本 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+            完。
+            若 ext_type 等于 0x0033 并且 ext_data_len 大于或等于 36：
+                group 为 做 字节取 用 buf、pos 左移 8 位或 做 字节取 用 buf、pos 加 1。
+                key_len 为 做 字节取 用 buf、pos 加 2 左移 8 位或 做 字节取 用 buf、pos 加 3。
+                若 group 等于 GROUP_X25519 并且 key_len 等于 32 并且 pos 加 4 加 32 小于或等于 len：
+                    做 内存_复制 用 conn 的 对方公钥、buf 加 pos 加 4、32。
+                完。
+            完。
+            pos 为 pos 加 ext_data_len。
+        完。
+    完。
+    返还 0。
+完。
+
+可变 AI_安全握手项_威胁计数 为 0。
+
+AI_安全握手项_风险评分 接受 操作类型、权限级别、来源可信度：
+    可变 风险 为 0。
+    若 权限级别 大于 500：
+        风险 为 风险 加 300。
+    完。
+    若 来源可信度 小于 200：
+        风险 为 风险 加 400。
+    完。
+    若 风险 大于 500：
+        AI_安全握手项_威胁计数 为 AI_安全握手项_威胁计数 加 1。
+    完。
+    返还 风险。
+完。
+
+AI_安全握手项_异常行为检测 接受 操作频率、基线频率：
+    若 基线频率 大于 0 并且 操作频率 大于 基线频率 乘 5：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

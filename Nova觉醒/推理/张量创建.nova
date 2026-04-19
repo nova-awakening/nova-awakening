@@ -1,0 +1,265 @@
+《张量创建》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·感知·内核直连层》。
+
+引用《..·中枢·内存初始化》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·执行·底层内存操》。
+
+DTYPE_F32 为 0。
+
+DTYPE_F16 为 1。
+
+DTYPE_INT8 为 2。
+
+DTYPE_BF16 为 3。
+
+Tensor 是 一种 事物，含 数据、形状、维度数、元素数、dtype、步长、缩放因子、零点。
+
+Tensor_创建 接受 dim0、dim1、dim2、dim3、维度数、dtype：
+    t 为 做 堆_分配 用 Tensor。
+    t 的 形状 的 第 0 项 为 dim0。
+    t 的 形状 的 第 1 项 为 dim1。
+    t 的 形状 的 第 2 项 为 dim2。
+    t 的 形状 的 第 3 项 为 dim3。
+    t 的 维度数 为 维度数。
+    t 的 dtype 为 dtype。
+    t 的 元素数 为 dim0。
+    若 维度数 大于或等于 2：
+        t 的 元素数 为 t 的 元素数 乘 dim1。
+    完。
+    若 维度数 大于或等于 3：
+        t 的 元素数 为 t 的 元素数 乘 dim2。
+    完。
+    若 维度数 大于或等于 4：
+        t 的 元素数 为 t 的 元素数 乘 dim3。
+    完。
+    若 维度数 等于 1：
+        t 的 步长 的 第 0 项 为 1。
+    完。
+    若 维度数 等于 2：
+        t 的 步长 的 第 0 项 为 dim1。
+        t 的 步长 的 第 1 项 为 1。
+    完。
+    若 维度数 等于 3：
+        t 的 步长 的 第 0 项 为 dim1 乘 dim2。
+        t 的 步长 的 第 1 项 为 dim2。
+        t 的 步长 的 第 2 项 为 1。
+    完。
+    若 维度数 等于 4：
+        t 的 步长 的 第 0 项 为 dim1 乘 dim2 乘 dim3。
+        t 的 步长 的 第 1 项 为 dim2 乘 dim3。
+        t 的 步长 的 第 2 项 为 dim3。
+        t 的 步长 的 第 3 项 为 1。
+    完。
+    字节数 为 t 的 元素数 乘 做 Tensor_元素字节 用 dtype。
+    t 的 数据 为 做 堆_分配 用 字节数。
+    做 内存_清零 用 t 的 数据、字节数。
+    t 的 缩放因子 为 65536。
+    t 的 零点 为 0。
+    返还 t。
+完。
+
+Tensor_元素字节 接受 dtype：
+    若 dtype 等于 DTYPE_F32：
+        返还 4。
+    完。
+    若 dtype 等于 DTYPE_F16 或者 dtype 等于 DTYPE_BF16：
+        返还 2。
+    完。
+    若 dtype 等于 DTYPE_INT8：
+        返还 1。
+    完。
+    返还 4。
+完。
+
+Tensor_读 接受 t、idx：
+    若 t 等于 0 或者 idx 大于或等于 t 的 元素数：
+        返还 0。
+    完。
+    若 t 的 dtype 等于 DTYPE_F32：
+        返还 做 内存_读32 用 t 的 数据 加 idx 乘 4。
+    完。
+    若 t 的 dtype 等于 DTYPE_INT8：
+        val 为 做 字节取 用 t 的 数据、idx 减 t 的 零点。
+        返还 val 乘 t 的 缩放因子 除以 65536。
+    完。
+    返还 0。
+完。
+
+Tensor_写 接受 t、idx、val：
+    若 t 等于 0 或者 idx 大于或等于 t 的 元素数：
+        返还。
+    完。
+    若 t 的 dtype 等于 DTYPE_F32：
+        做 内存_写32 用 t 的 数据 加 idx 乘 4、val。
+    完。
+    若 t 的 dtype 等于 DTYPE_INT8：
+        q 为 val 乘 65536 除以 t 的 缩放因子 加 t 的 零点。
+        若 q 小于 0：
+            q 为 0。
+        否则若 q 大于 255：
+            q 为 255。
+        完。
+        做 字节写 用 t 的 数据、idx、q。
+    完。
+完。
+
+MatMul 接受 A、B、C、M、K、N：
+    若 A 等于 0 或者 B 等于 0 或者 C 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 M：
+        可变 j 为 0。
+        只要 j 小于 N：
+            可变 sum 为 0。
+            可变 k 为 0。
+            只要 k 小于 K：
+                a_val 为 做 Tensor_读 用 A、i 乘 K 加 k。
+                b_val 为 做 Tensor_读 用 B、k 乘 N 加 j。
+                sum 为 sum 加 a_val 乘 b_val 除以 65536。
+                k 为 k 加 1。
+            完。
+            做 Tensor_写 用 C、i 乘 N 加 j、sum。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+VecAdd 接受 A、B、C：
+    若 A 等于 0 或者 B 等于 0 或者 C 等于 0：
+        返还。
+    完。
+    n 为 A 的 元素数。
+    若 B 的 元素数 小于 n：
+        n 为 B 的 元素数。
+    完。
+    可变 i 为 0。
+    只要 i 小于 n：
+        做 Tensor_写 用 C、i、做 Tensor_读 用 A、i 加 做 Tensor_读 用 B、i。
+        i 为 i 加 1。
+    完。
+完。
+
+GELU 接受 t：
+    若 t 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 t 的 元素数：
+        x 为 做 Tensor_读 用 t、i。
+        若 x 小于 负 196608：
+            做 Tensor_写 用 t、i、0。
+        否则若 x 大于 196608：
+        否则：
+            result 为 x 乘 (x 加 131072) 除以 262144。
+            做 Tensor_写 用 t、i、result。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+Nova归一化指数 接受 t、起始、长度：
+    若 t 等于 0 或者 长度 等于 0：
+        返还。
+    完。
+    可变 最大 为 做 Tensor_读 用 t、起始。
+    可变 i 为 1。
+    只要 i 小于 长度：
+        val 为 做 Tensor_读 用 t、起始 加 i。
+        若 val 大于 最大：
+            最大 为 val。
+        完。
+        i 为 i 加 1。
+    完。
+    可变 sum_exp 为 0。
+    i 为 0。
+    只要 i 小于 长度：
+        diff 为 做 Tensor_读 用 t、起始 加 i 减 最大。
+        可变 exp_val 为 65536。
+        若 diff 小于 负 655360：
+            exp_val 为 0。
+        否则若 diff 小于 0：
+            exp_val 为 65536 加 diff 加 diff 乘 diff 除以 131072。
+            若 exp_val 小于 0：
+                exp_val 为 1。
+            完。
+        完。
+        做 Tensor_写 用 t、起始 加 i、exp_val。
+        sum_exp 为 sum_exp 加 exp_val。
+        i 为 i 加 1。
+    完。
+    若 sum_exp 小于或等于 0：
+        sum_exp 为 1。
+    完。
+    i 为 0。
+    只要 i 小于 长度：
+        val 为 做 Tensor_读 用 t、起始 加 i。
+        做 Tensor_写 用 t、起始 加 i、val 乘 65536 除以 sum_exp。
+        i 为 i 加 1。
+    完。
+完。
+
+层归一化 接受 t、gamma、beta、起始、长度：
+    若 t 等于 0 或者 长度 等于 0：
+        返还。
+    完。
+    可变 sum 为 0。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        sum 为 sum 加 做 Tensor_读 用 t、起始 加 i。
+        i 为 i 加 1。
+    完。
+    mean 为 sum 除以 长度。
+    可变 var_sum 为 0。
+    i 为 0。
+    只要 i 小于 长度：
+        diff 为 做 Tensor_读 用 t、起始 加 i 减 mean。
+        var_sum 为 var_sum 加 diff 乘 diff 除以 65536。
+        i 为 i 加 1。
+    完。
+    variance 为 var_sum 除以 长度。
+    inv_std 为 做 Q16_rsqrt 用 variance 加 1。
+    i 为 0。
+    只要 i 小于 长度：
+        normalized 为 (做 Tensor_读 用 t、起始 加 i 减 mean) 乘 inv_std 除以 65536。
+        可变 result 为 normalized。
+        若 gamma 不等于 0：
+            result 为 result 乘 做 Tensor_读 用 gamma、i 除以 65536。
+        完。
+        若 beta 不等于 0：
+            result 为 result 加 做 Tensor_读 用 beta、i。
+        完。
+        做 Tensor_写 用 t、起始 加 i、result。
+        i 为 i 加 1。
+    完。
+完。
+
+Q16_rsqrt 接受 x：
+    若 x 小于或等于 0：
+        返还 65536。
+    完。
+    可变 y 为 65536。
+    若 x 大于 655360：
+        y 为 8192。
+    否则若 x 大于 65536：
+        y 为 32768。
+    完。
+    可变 iter 为 0。
+    只要 iter 小于 3：
+        xy2 为 x 乘 y 除以 65536 乘 y 除以 65536。
+        y 为 y 乘 (196608 减 xy2) 除以 131072。
+        iter 为 iter 加 1。
+    完。
+    返还 y。
+完。
+
+本章 收束。

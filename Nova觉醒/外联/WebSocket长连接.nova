@@ -1,0 +1,142 @@
+《WebSocket长连接》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·WebSocket_IO缓冲》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·TLS创建》。
+
+引用《..·执行·网络创建》。
+
+引用《..·执行·域名解析》。
+
+WS_OPCODE_CONTINUATION 为 0x00。
+
+WS_OPCODE_TEXT 为 0x01。
+
+WS_OPCODE_BINARY 为 0x02。
+
+WS_OPCODE_CLOSE 为 0x08。
+
+WS_OPCODE_PING 为 0x09。
+
+WS_OPCODE_PONG 为 0x0A。
+
+WS_CONNECTING 为 0。
+
+WS_OPEN 为 1。
+
+WS_CLOSING 为 2。
+
+WS_CLOSED 为 3。
+
+WS_CLOSE_NORMAL 为 1000。
+
+WS_CLOSE_GOING_AWAY 为 1001。
+
+WS_CLOSE_PROTOCOL_ERR 为 1002。
+
+WS_CLOSE_UNSUPPORTED 为 1003。
+
+WS_CLOSE_ABNORMAL 为 1006。
+
+WS_CLOSE_INVALID_DATA 为 1007。
+
+WS_CLOSE_POLICY 为 1008。
+
+WS_CLOSE_TOO_LARGE 为 1009。
+
+长连接 是 一种 事物，含 tcp、tls、状态、url、主机、路径、端口、是安全、接收缓冲、接收容量、接收长度、分片缓冲、分片大小、分片操作码、on_open、on_message、on_close、on_error、子协议、扩展。
+
+长连接_创建 接受 url：
+    ws 为 做 堆_分配 用 长连接。
+    ws 的 url 为 url。
+    ws 的 状态 为 WS_CONNECTING。
+    ws 的 接收容量 为 65536。
+    ws 的 接收缓冲 为 做 堆_分配_数组 用 ws 的 接收容量。
+    ws 的 接收长度 为 0。
+    ws 的 分片缓冲 为 做 堆_分配_数组 用 1048576。
+    ws 的 分片大小 为 0。
+    若 做 字符串_前缀匹配 用 url、「wss://」：
+        ws 的 是安全 为 真。
+        ws 的 端口 为 443。
+    否则：
+        ws 的 是安全 为 假。
+        ws 的 端口 为 80。
+    完。
+    返还 ws。
+完。
+
+长连接_连接 接受 ws：
+    若 ws 等于 0：
+        返还 负 1。
+    完。
+    ws 的 tcp 为 做 传控_创建。
+    ret 为 做 传控_连接 用 ws 的 tcp、ws 的 主机、ws 的 端口。
+    若 ret 不等于 0：
+        ws 的 状态 为 WS_CLOSED。
+        返还 负 1。
+    完。
+    若 ws 的 是安全：
+        ws 的 tls 为 做 安全_创建 用 ws 的 tcp。
+        ret 为 做 安全_握手 用 ws 的 tls、ws 的 主机。
+        若 ret 不等于 0：
+            ws 的 状态 为 WS_CLOSED。
+            返还 负 2。
+        完。
+    完。
+    随机 为 做 堆_分配_数组 用 16。
+    做 平台_安全随机 用 随机、16。
+    key 为 做 Base64_编码 用 随机、16。
+    请求 为 做 字符串拼接 用 「GET 」、ws 的 路径。
+    请求 为 做 字符串拼接 用 请求、「 HTTP/1.1\r\n」。
+    请求 为 做 字符串拼接 用 请求、「Host: 」。
+    请求 为 做 字符串拼接 用 请求、ws 的 主机。
+    请求 为 做 字符串拼接 用 请求、「\r\n」。
+    请求 为 做 字符串拼接 用 请求、「Upgrade: websocket\r\n」。
+    请求 为 做 字符串拼接 用 请求、「Connection: Upgrade\r\n」。
+    请求 为 做 字符串拼接 用 请求、「Sec-长连接-Key: 」。
+    请求 为 做 字符串拼接 用 请求、key。
+    请求 为 做 字符串拼接 用 请求、「\r\n」。
+    请求 为 做 字符串拼接 用 请求、「Sec-长连接-Version: 13\r\n\r\n」。
+    做 WS_发送原始 用 ws、请求、做 字节长度 用 请求。
+    响应缓冲 为 做 堆_分配_数组 用 4096。
+    收到 为 做 WS_接收原始 用 ws、响应缓冲、4096。
+    若 收到 小于或等于 0：
+        ws 的 状态 为 WS_CLOSED。
+        返还 负 3。
+    完。
+    若 非 做 字符串_前缀匹配 用 响应缓冲、「HTTP/1.1 101」：
+        ws 的 状态 为 WS_CLOSED。
+        返还 负 4。
+    完。
+    ws 的 状态 为 WS_OPEN。
+    做 堆_释放 用 随机。
+    做 堆_释放 用 响应缓冲。
+    若 ws 的 on_open 不等于 0：
+        做 Nova_调用函数 用 0、ws 的 on_open、0、0。
+    完。
+    返还 0。
+完。
+
+可变 AI_协议栈长连_调用数 为 0。
+
+可变 AI_协议栈长连_异常数 为 0。
+
+AI_协议栈长连_监控 接受 零参：
+    AI_协议栈长连_调用数 为 AI_协议栈长连_调用数 加 1。
+    返还 AI_协议栈长连_异常数 等于 0。
+完。
+
+AI_协议栈长连_健康检查 接受 零参：
+    若 AI_协议栈长连_调用数 大于 0 并且 AI_协议栈长连_异常数 乘 100 除以 AI_协议栈长连_调用数 大于 10：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

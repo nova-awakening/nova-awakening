@@ -1,0 +1,883 @@
+《指令编码》
+
+xe_算术逻辑 接受 op、ty：
+    返还 0x10000000 位或 (op 位与 0xFF) 左移 16 位或 ty 位与 0xFFFF。
+完。
+
+xe_数据传送 接受 op、ty：
+    返还 0x20000000 位或 (op 位与 0xFF) 左移 16 位或 ty 位与 0xFFFF。
+完。
+
+xe_控制流 接受 op：
+    返还 0x30000000 位或 op 位与 0xFFFFFF。
+完。
+
+xe_消息发送 接受 op、sfid：
+    返还 0x40000000 位或 (op 位与 0xFF) 左移 16 位或 sfid 位与 0xFFFF。
+完。
+
+xe_数学运算 接受 op：
+    返还 0x50000000 位或 op 位与 0xFFFFFF。
+完。
+
+xe_点积累加 接受 op：
+    返还 0x60000000 位或 op 位与 0xFFFFFF。
+完。
+
+xe_杂项 接受 op：
+    返还 0x70000000 位或 op 位与 0xFFFFFF。
+完。
+
+编码_xe_add_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 0、32。
+完。
+
+编码_xe_add_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 0、16。
+完。
+
+编码_xe_add_q 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 0、64。
+完。
+
+编码_xe_add_b 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 0、8。
+完。
+
+编码_xe_addc_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 1、32。
+完。
+
+编码_xe_mul_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 2、32。
+完。
+
+编码_xe_mul_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 2、16。
+完。
+
+编码_xe_avg_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 3、32。
+完。
+
+编码_xe_avg_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 3、16。
+完。
+
+编码_xe_avg_b 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 3、8。
+完。
+
+编码_xe_dp4 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 4、32。
+完。
+
+编码_xe_dph 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 5、32。
+完。
+
+编码_xe_dp3 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 6、32。
+完。
+
+编码_xe_dp2 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 7、32。
+完。
+
+编码_xe_sad2 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 8、16。
+完。
+
+编码_xe_sada2 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 9、16。
+完。
+
+编码_xe_subb_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 10、32。
+完。
+
+编码_xe_mac_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 11、32。
+完。
+
+编码_xe_mach_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 12、32。
+完。
+
+编码_xe_line_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 13、32。
+完。
+
+编码_xe_pln_f 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 14、32。
+完。
+
+编码_xe_mad_d 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 15、32。
+完。
+
+编码_xe_mad_w 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 15、16。
+完。
+
+编码_xe_madm_df 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 16、64。
+完。
+
+编码_xe_lzd_d 接受 d、s0：
+    返还 做 xe_算术逻辑 用 17、32。
+完。
+
+编码_xe_fbh_d 接受 d、s0：
+    返还 做 xe_算术逻辑 用 18、32。
+完。
+
+编码_xe_fbl_d 接受 d、s0：
+    返还 做 xe_算术逻辑 用 19、32。
+完。
+
+编码_xe_cbit_d 接受 d、s0：
+    返还 做 xe_算术逻辑 用 20、32。
+完。
+
+编码_xe_bfrev_d 接受 d、s0：
+    返还 做 xe_算术逻辑 用 21、32。
+完。
+
+编码_xe_bfe_d 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 22、32。
+完。
+
+编码_xe_bfi1_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 23、32。
+完。
+
+编码_xe_bfi2_d 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 24、32。
+完。
+
+编码_xe_ror_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 25、32。
+完。
+
+编码_xe_rol_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 26、32。
+完。
+
+编码_xe_and_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 30、32。
+完。
+
+编码_xe_and_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 30、16。
+完。
+
+编码_xe_and_q 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 30、64。
+完。
+
+编码_xe_or_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 31、32。
+完。
+
+编码_xe_or_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 31、16。
+完。
+
+编码_xe_or_q 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 31、64。
+完。
+
+编码_xe_xor_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 32、32。
+完。
+
+编码_xe_xor_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 32、16。
+完。
+
+编码_xe_xor_q 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 32、64。
+完。
+
+编码_xe_not_d 接受 d、s0：
+    返还 做 xe_算术逻辑 用 33、32。
+完。
+
+编码_xe_not_w 接受 d、s0：
+    返还 做 xe_算术逻辑 用 33、16。
+完。
+
+编码_xe_not_q 接受 d、s0：
+    返还 做 xe_算术逻辑 用 33、64。
+完。
+
+编码_xe_shr_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 34、32。
+完。
+
+编码_xe_shr_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 34、16。
+完。
+
+编码_xe_shr_q 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 34、64。
+完。
+
+编码_xe_shl_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 35、32。
+完。
+
+编码_xe_shl_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 35、16。
+完。
+
+编码_xe_shl_q 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 35、64。
+完。
+
+编码_xe_asr_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 36、32。
+完。
+
+编码_xe_asr_w 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 36、16。
+完。
+
+编码_xe_asr_q 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 36、64。
+完。
+
+编码_xe_add_f 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 40、32。
+完。
+
+编码_xe_add_df 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 40、64。
+完。
+
+编码_xe_add_hf 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 40、16。
+完。
+
+编码_xe_add_bf 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 40、8。
+完。
+
+编码_xe_mul_f 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 41、32。
+完。
+
+编码_xe_mul_df 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 41、64。
+完。
+
+编码_xe_mul_hf 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 41、16。
+完。
+
+编码_xe_mad_f 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 42、32。
+完。
+
+编码_xe_mad_df 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 42、64。
+完。
+
+编码_xe_mad_hf 接受 d、s0、s1、s2：
+    返还 做 xe_算术逻辑 用 42、16。
+完。
+
+编码_xe_rndd_f 接受 d、s0：
+    返还 做 xe_算术逻辑 用 43、32。
+完。
+
+编码_xe_rndu_f 接受 d、s0：
+    返还 做 xe_算术逻辑 用 44、32。
+完。
+
+编码_xe_rnde_f 接受 d、s0：
+    返还 做 xe_算术逻辑 用 45、32。
+完。
+
+编码_xe_rndz_f 接受 d、s0：
+    返还 做 xe_算术逻辑 用 46、32。
+完。
+
+编码_xe_rndd_hf 接受 d、s0：
+    返还 做 xe_算术逻辑 用 43、16。
+完。
+
+编码_xe_rndu_hf 接受 d、s0：
+    返还 做 xe_算术逻辑 用 44、16。
+完。
+
+编码_xe_rnde_hf 接受 d、s0：
+    返还 做 xe_算术逻辑 用 45、16。
+完。
+
+编码_xe_rndz_hf 接受 d、s0：
+    返还 做 xe_算术逻辑 用 46、16。
+完。
+
+编码_xe_frc_f 接受 d、s0：
+    返还 做 xe_算术逻辑 用 47、32。
+完。
+
+编码_xe_min_f 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 48、32。
+完。
+
+编码_xe_max_f 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 49、32。
+完。
+
+编码_xe_min_df 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 48、64。
+完。
+
+编码_xe_max_df 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 49、64。
+完。
+
+编码_xe_min_hf 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 48、16。
+完。
+
+编码_xe_max_hf 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 49、16。
+完。
+
+编码_xe_sel_f 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 50、32。
+完。
+
+编码_xe_sel_d 接受 d、s0、s1：
+    返还 做 xe_算术逻辑 用 50、33。
+完。
+
+编码_xe_cmp_f 接受 s0、s1：
+    返还 做 xe_算术逻辑 用 51、32。
+完。
+
+编码_xe_cmp_df 接受 s0、s1：
+    返还 做 xe_算术逻辑 用 51、64。
+完。
+
+编码_xe_cmp_d 接受 s0、s1：
+    返还 做 xe_算术逻辑 用 51、33。
+完。
+
+编码_xe_cmpn_f 接受 s0、s1：
+    返还 做 xe_算术逻辑 用 52、32。
+完。
+
+编码_xe_mov_d 接受 d、s0：
+    返还 做 xe_数据传送 用 0、32。
+完。
+
+编码_xe_mov_w 接受 d、s0：
+    返还 做 xe_数据传送 用 0、16。
+完。
+
+编码_xe_mov_q 接受 d、s0：
+    返还 做 xe_数据传送 用 0、64。
+完。
+
+编码_xe_mov_b 接受 d、s0：
+    返还 做 xe_数据传送 用 0、8。
+完。
+
+编码_xe_mov_f 接受 d、s0：
+    返还 做 xe_数据传送 用 0、34。
+完。
+
+编码_xe_mov_df 接受 d、s0：
+    返还 做 xe_数据传送 用 0、66。
+完。
+
+编码_xe_mov_hf 接受 d、s0：
+    返还 做 xe_数据传送 用 0、18。
+完。
+
+编码_xe_movi_d 接受 d、imm：
+    返还 做 xe_数据传送 用 1、32。
+完。
+
+编码_xe_movi_f 接受 d、imm：
+    返还 做 xe_数据传送 用 1、34。
+完。
+
+编码_xe_smov_d 接受 d、s0：
+    返还 做 xe_数据传送 用 2、32。
+完。
+
+编码_xe_if 接受 jip：
+    返还 做 xe_控制流 用 0。
+完。
+
+编码_xe_else 接受 jip：
+    返还 做 xe_控制流 用 1。
+完。
+
+编码_xe_endif 接受 jip：
+    返还 做 xe_控制流 用 2。
+完。
+
+编码_xe_while 接受 jip：
+    返还 做 xe_控制流 用 3。
+完。
+
+编码_xe_break 接受 jip：
+    返还 做 xe_控制流 用 4。
+完。
+
+编码_xe_cont 接受 jip：
+    返还 做 xe_控制流 用 5。
+完。
+
+编码_xe_halt 接受 jip：
+    返还 做 xe_控制流 用 6。
+完。
+
+编码_xe_call 接受 tgt：
+    返还 做 xe_控制流 用 7。
+完。
+
+编码_xe_ret 接受 零参：
+    返还 做 xe_控制流 用 8。
+完。
+
+编码_xe_goto 接受 jip：
+    返还 做 xe_控制流 用 9。
+完。
+
+编码_xe_join 接受 jip：
+    返还 做 xe_控制流 用 10。
+完。
+
+编码_xe_brd 接受 tgt：
+    返还 做 xe_控制流 用 11。
+完。
+
+编码_xe_brc 接受 tgt：
+    返还 做 xe_控制流 用 12。
+完。
+
+编码_xe_jmpi 接受 tgt：
+    返还 做 xe_控制流 用 13。
+完。
+
+编码_xe_nop 接受 零参：
+    返还 做 xe_控制流 用 14。
+完。
+
+编码_xe_illegal 接受 零参：
+    返还 做 xe_控制流 用 15。
+完。
+
+编码_xe_wait 接受 n：
+    返还 做 xe_控制流 用 16。
+完。
+
+编码_xe_send_urb_write 接受 d、s：
+    返还 做 xe_消息发送 用 0、0。
+完。
+
+编码_xe_send_urb_read 接受 d、s：
+    返还 做 xe_消息发送 用 1、0。
+完。
+
+编码_xe_send_rc_write 接受 d、s：
+    返还 做 xe_消息发送 用 0、1。
+完。
+
+编码_xe_send_rc_read 接受 d、s：
+    返还 做 xe_消息发送 用 1、1。
+完。
+
+编码_xe_send_sampler 接受 d、s：
+    返还 做 xe_消息发送 用 0、2。
+完。
+
+编码_xe_send_sampler_ld 接受 d、s：
+    返还 做 xe_消息发送 用 1、2。
+完。
+
+编码_xe_send_sampler_ld_mcs 接受 d、s：
+    返还 做 xe_消息发送 用 2、2。
+完。
+
+编码_xe_send_sampler_ld_2dms 接受 d、s：
+    返还 做 xe_消息发送 用 3、2。
+完。
+
+编码_xe_send_sampler_gather4 接受 d、s：
+    返还 做 xe_消息发送 用 4、2。
+完。
+
+编码_xe_send_sampler_gather4_c 接受 d、s：
+    返还 做 xe_消息发送 用 5、2。
+完。
+
+编码_xe_send_sampler_gather4_po 接受 d、s：
+    返还 做 xe_消息发送 用 6、2。
+完。
+
+编码_xe_send_sampler_lod 接受 d、s：
+    返还 做 xe_消息发送 用 7、2。
+完。
+
+编码_xe_send_sampler_resinfo 接受 d、s：
+    返还 做 xe_消息发送 用 8、2。
+完。
+
+编码_xe_send_sampler_sampleinfo 接受 d、s：
+    返还 做 xe_消息发送 用 9、2。
+完。
+
+编码_xe_send_dp_read_d32 接受 d、s：
+    返还 做 xe_消息发送 用 0、3。
+完。
+
+编码_xe_send_dp_read_d64 接受 d、s：
+    返还 做 xe_消息发送 用 1、3。
+完。
+
+编码_xe_send_dp_read_d128 接受 d、s：
+    返还 做 xe_消息发送 用 2、3。
+完。
+
+编码_xe_send_dp_write_d32 接受 d、s：
+    返还 做 xe_消息发送 用 3、3。
+完。
+
+编码_xe_send_dp_write_d64 接受 d、s：
+    返还 做 xe_消息发送 用 4、3。
+完。
+
+编码_xe_send_dp_write_d128 接受 d、s：
+    返还 做 xe_消息发送 用 5、3。
+完。
+
+编码_xe_send_dp_atomic_add 接受 d、s：
+    返还 做 xe_消息发送 用 6、3。
+完。
+
+编码_xe_send_dp_atomic_sub 接受 d、s：
+    返还 做 xe_消息发送 用 7、3。
+完。
+
+编码_xe_send_dp_atomic_min 接受 d、s：
+    返还 做 xe_消息发送 用 8、3。
+完。
+
+编码_xe_send_dp_atomic_max 接受 d、s：
+    返还 做 xe_消息发送 用 9、3。
+完。
+
+编码_xe_send_dp_atomic_and 接受 d、s：
+    返还 做 xe_消息发送 用 10、3。
+完。
+
+编码_xe_send_dp_atomic_or 接受 d、s：
+    返还 做 xe_消息发送 用 11、3。
+完。
+
+编码_xe_send_dp_atomic_xor 接受 d、s：
+    返还 做 xe_消息发送 用 12、3。
+完。
+
+编码_xe_send_dp_atomic_cmpxchg 接受 d、s：
+    返还 做 xe_消息发送 用 13、3。
+完。
+
+编码_xe_send_dp_atomic_inc 接受 d、s：
+    返还 做 xe_消息发送 用 14、3。
+完。
+
+编码_xe_send_dp_atomic_dec 接受 d、s：
+    返还 做 xe_消息发送 用 15、3。
+完。
+
+编码_xe_send_dp_oword_block_read 接受 d、s：
+    返还 做 xe_消息发送 用 16、3。
+完。
+
+编码_xe_send_dp_oword_block_write 接受 d、s：
+    返还 做 xe_消息发送 用 17、3。
+完。
+
+编码_xe_send_dp_byte_scattered_read 接受 d、s：
+    返还 做 xe_消息发送 用 18、3。
+完。
+
+编码_xe_send_dp_byte_scattered_write 接受 d、s：
+    返还 做 xe_消息发送 用 19、3。
+完。
+
+编码_xe_send_dp_dword_scattered_read 接受 d、s：
+    返还 做 xe_消息发送 用 20、3。
+完。
+
+编码_xe_send_dp_dword_scattered_write 接受 d、s：
+    返还 做 xe_消息发送 用 21、3。
+完。
+
+编码_xe_send_dp_qword_scattered_read 接受 d、s：
+    返还 做 xe_消息发送 用 22、3。
+完。
+
+编码_xe_send_dp_qword_scattered_write 接受 d、s：
+    返还 做 xe_消息发送 用 23、3。
+完。
+
+编码_xe_send_slm_read_d32 接受 d、s：
+    返还 做 xe_消息发送 用 0、4。
+完。
+
+编码_xe_send_slm_read_d64 接受 d、s：
+    返还 做 xe_消息发送 用 1、4。
+完。
+
+编码_xe_send_slm_read_d128 接受 d、s：
+    返还 做 xe_消息发送 用 2、4。
+完。
+
+编码_xe_send_slm_write_d32 接受 d、s：
+    返还 做 xe_消息发送 用 3、4。
+完。
+
+编码_xe_send_slm_write_d64 接受 d、s：
+    返还 做 xe_消息发送 用 4、4。
+完。
+
+编码_xe_send_slm_write_d128 接受 d、s：
+    返还 做 xe_消息发送 用 5、4。
+完。
+
+编码_xe_send_slm_atomic_add 接受 d、s：
+    返还 做 xe_消息发送 用 6、4。
+完。
+
+编码_xe_send_slm_atomic_sub 接受 d、s：
+    返还 做 xe_消息发送 用 7、4。
+完。
+
+编码_xe_send_slm_atomic_min 接受 d、s：
+    返还 做 xe_消息发送 用 8、4。
+完。
+
+编码_xe_send_slm_atomic_max 接受 d、s：
+    返还 做 xe_消息发送 用 9、4。
+完。
+
+编码_xe_send_slm_atomic_and 接受 d、s：
+    返还 做 xe_消息发送 用 10、4。
+完。
+
+编码_xe_send_slm_atomic_or 接受 d、s：
+    返还 做 xe_消息发送 用 11、4。
+完。
+
+编码_xe_send_slm_atomic_xor 接受 d、s：
+    返还 做 xe_消息发送 用 12、4。
+完。
+
+编码_xe_send_slm_atomic_cmpxchg 接受 d、s：
+    返还 做 xe_消息发送 用 13、4。
+完。
+
+编码_xe_send_gateway_eot 接受 零参：
+    返还 做 xe_消息发送 用 0、5。
+完。
+
+编码_xe_send_gateway_barrier 接受 d、s：
+    返还 做 xe_消息发送 用 1、5。
+完。
+
+编码_xe_send_gateway_monitor 接受 d、s：
+    返还 做 xe_消息发送 用 2、5。
+完。
+
+编码_xe_send_gateway_unmonitor 接受 d、s：
+    返还 做 xe_消息发送 用 3、5。
+完。
+
+编码_xe_send_spawner 接受 d、s：
+    返还 做 xe_消息发送 用 0、6。
+完。
+
+编码_xe_math_inv 接受 d、s：
+    返还 做 xe_数学运算 用 0。
+完。
+
+编码_xe_math_log 接受 d、s：
+    返还 做 xe_数学运算 用 1。
+完。
+
+编码_xe_math_exp 接受 d、s：
+    返还 做 xe_数学运算 用 2。
+完。
+
+编码_xe_math_sqrt 接受 d、s：
+    返还 做 xe_数学运算 用 3。
+完。
+
+编码_xe_math_rsq 接受 d、s：
+    返还 做 xe_数学运算 用 4。
+完。
+
+编码_xe_math_sin 接受 d、s：
+    返还 做 xe_数学运算 用 5。
+完。
+
+编码_xe_math_cos 接受 d、s：
+    返还 做 xe_数学运算 用 6。
+完。
+
+编码_xe_math_fdiv 接受 d、s0、s1：
+    返还 做 xe_数学运算 用 7。
+完。
+
+编码_xe_math_pow 接受 d、s0、s1：
+    返还 做 xe_数学运算 用 8。
+完。
+
+编码_xe_math_idiv_quot_s32 接受 d、s0、s1：
+    返还 做 xe_数学运算 用 9。
+完。
+
+编码_xe_math_idiv_rem_s32 接受 d、s0、s1：
+    返还 做 xe_数学运算 用 10。
+完。
+
+编码_xe_math_idiv_quot_u32 接受 d、s0、s1：
+    返还 做 xe_数学运算 用 11。
+完。
+
+编码_xe_math_idiv_rem_u32 接受 d、s0、s1：
+    返还 做 xe_数学运算 用 12。
+完。
+
+编码_xe_math_invm 接受 d、s0、s1：
+    返还 做 xe_数学运算 用 13。
+完。
+
+编码_xe_math_rsqrtm 接受 d、s0：
+    返还 做 xe_数学运算 用 14。
+完。
+
+编码_xe_math_sqrt_df 接受 d、s：
+    返还 做 xe_数学运算 用 15。
+完。
+
+编码_xe_math_inv_df 接受 d、s：
+    返还 做 xe_数学运算 用 16。
+完。
+
+编码_xe_dpas_8x8_f32_f16 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 0。
+完。
+
+编码_xe_dpas_8x8_f32_bf16 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 1。
+完。
+
+编码_xe_dpas_8x8_s32_s8 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 2。
+完。
+
+编码_xe_dpas_8x8_s32_u8 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 3。
+完。
+
+编码_xe_dpas_8x8_s32_s4 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 4。
+完。
+
+编码_xe_dpas_8x8_s32_u4 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 5。
+完。
+
+编码_xe_dpas_8x8_s32_s2 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 6。
+完。
+
+编码_xe_dpas_8x8_s32_u2 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 7。
+完。
+
+编码_xe_dpas_8x8_f32_tf32 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 8。
+完。
+
+编码_xe_dpasw_8x8_f32_f16 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 10。
+完。
+
+编码_xe_dpasw_8x8_f32_bf16 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 11。
+完。
+
+编码_xe_dpasw_8x8_s32_s8 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 12。
+完。
+
+编码_xe_dpasw_8x8_s32_u8 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 13。
+完。
+
+编码_xe_dpas_1x8_f32_f16 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 20。
+完。
+
+编码_xe_dpas_2x8_f32_f16 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 21。
+完。
+
+编码_xe_dpas_4x8_f32_f16 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 22。
+完。
+
+编码_xe_dpas_1x8_s32_s8 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 23。
+完。
+
+编码_xe_dpas_2x8_s32_s8 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 24。
+完。
+
+编码_xe_dpas_4x8_s32_s8 接受 d、c、a、b：
+    返还 做 xe_点积累加 用 25。
+完。
+
+编码_xe_sync_nop 接受 sbid：
+    返还 做 xe_杂项 用 0。
+完。
+
+编码_xe_sync_allrd 接受 sbid：
+    返还 做 xe_杂项 用 1。
+完。
+
+编码_xe_sync_allwr 接受 sbid：
+    返还 做 xe_杂项 用 2。
+完。
+
+编码_xe_sync_fence 接受 scope：
+    返还 做 xe_杂项 用 3。
+完。
+
+编码_xe_sync_bar 接受 barid：
+    返还 做 xe_杂项 用 4。
+完。
+
+编码_xe_sync_host 接受 零参：
+    返还 做 xe_杂项 用 5。
+完。
+
+编码_xe_eot 接受 零参：
+    返还 做 xe_杂项 用 6。
+完。
+
+本章 收束。

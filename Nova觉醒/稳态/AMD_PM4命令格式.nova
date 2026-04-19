@@ -1,0 +1,156 @@
+《AMD_PM4命令格式》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·哈希函数》。
+
+PM4_TYPE0 为 0x00000000。
+
+PM4_TYPE2 为 0x80000000。
+
+PM4_TYPE3 为 0xC0000000。
+
+PM4_NOP 为 0x10。
+
+PM4_SET_BASE 为 0x11。
+
+PM4_INDEX_BASE 为 0x12。
+
+PM4_DRAW_INDEX_2 为 0x27。
+
+PM4_DRAW_INDEX_AUTO 为 0x2D。
+
+PM4_NUM_INSTANCES 为 0x2F。
+
+PM4_INDIRECT_BUFFER 为 0x3F。
+
+PM4_事件_WRITE 为 0x46。
+
+PM4_事件_WRITE_EOP 为 0x47。
+
+PM4_RELEASE_MEM 为 0x49。
+
+PM4_SET_SH_REG 为 0x76。
+
+PM4_SET_CONTEXT_REG 为 0x69。
+
+PM4_SET_UCONFIG_REG 为 0x79。
+
+PM4_DISPATCH_DIRECT 为 0x15。
+
+PM4_DISPATCH_INDIRECT 为 0x16。
+
+PM4_直传_DATA 为 0x50。
+
+PM4_ACQUIRE_MEM 为 0x58。
+
+PM4_WAIT_REG_MEM 为 0x3C。
+
+PM4_WRITE_DATA 为 0x37。
+
+PM4_SURFACE_SYNC 为 0x43。
+
+AMD_ARCH_GCN1 为 10。
+
+AMD_ARCH_GCN2 为 20。
+
+AMD_ARCH_GCN3 为 30。
+
+AMD_ARCH_GCN4 为 40。
+
+AMD_ARCH_GCN5 为 50。
+
+AMD_ARCH_RDNA1 为 100。
+
+AMD_ARCH_RDNA2 为 200。
+
+AMD_ARCH_RDNA3 为 300。
+
+AMD_ARCH_RDNA4 为 400。
+
+AMD_ARCH_CDNA1 为 1000。
+
+AMD_ARCH_CDNA2 为 2000。
+
+AMD_ARCH_CDNA3 为 3000。
+
+AMD驱动状态 是 一种 事物，含 mmio、gpu、架构代、显存类型、显存总线宽、SE数、SH_每SE、CU_每SH、CU总数、WGP模式、GFX环_地址、GFX环_大小、GFX环_WPTR、计算环_地址、计算环_大小、计算环_WPTR、S直传环_地址、S直传环_大小、S直传环_WPTR、IH环_地址、IH环_大小、DCN版本、OTG数、已初始化、栅栏值。
+
+可变 AMD状态 为 新建 AMD驱动状态。
+
+AMD_识别完整型号 接受 gpu：
+    did 为 gpu 的 设备ID。
+    若 did 大于或等于 0x7500 并且 did 小于或等于 0x75FF：
+        gpu 的 型号名 为 「RX 9070系列」。
+        AMD状态 的 CU总数 为 64。
+        AMD状态 的 架构代 为 AMD_ARCH_RDNA4。
+        AMD状态 的 显存类型 为 「GDDR6」。
+        AMD状态 的 显存总线宽 为 256。
+        AMD状态 的 WGP模式 为 真。
+        AMD状态 的 DCN版本 为 4。
+    完。
+    做 否则如果 用 did 等于 0x744C。
+    块：
+        gpu 的 型号名 为 「RX 7900 XTX」。
+        AMD状态 的 CU总数 为 96。
+        AMD状态 的 架构代 为 AMD_ARCH_RDNA3。
+        AMD状态 的 显存类型 为 「GDDR6」。
+        AMD状态 的 显存总线宽 为 384。
+        AMD状态 的 WGP模式 为 真。
+        AMD状态 的 DCN版本 为 3。
+    完。
+    做 否则如果 用 did 等于 0x744D。
+    块：
+        gpu 的 型号名 为 「RX 7900 XT」。
+        AMD状态 的 CU总数 为 84。
+        AMD状态 的 架构代 为 AMD_ARCH_RDNA3。
+        AMD状态 的 显存类型 为 「GDDR6」。
+        AMD状态 的 显存总线宽 为 320。
+        AMD状态 的 WGP模式 为 真。
+        AMD状态 的 DCN版本 为 3。
+    完。
+    做 否则如果 用 did 等于 0x7470。
+    块：
+        gpu 的 型号名 为 「RX 7900 GRE」。
+        AMD状态 的 CU总数 为 80。
+        AMD状态 的 架构代 为 AMD_ARCH_RDNA3。
+        AMD状态 的 显存类型 为 「GDDR6」。
+        AMD状态 的 显存总线宽 为 256。
+        AMD状态 的 WGP模式 为 真。
+        AMD状态 的 DCN版本 为 3。
+    完。
+    做 否则如果 用 did 等于 0x7480。
+    块：
+        gpu 的 型号名 为 「RX 7800 XT」。
+        AMD状态 的 CU总数 为 60。
+        AMD状态 的 架构代 为 AMD_ARCH_RDNA3。
+        AMD状态 的 显存类型 为 「GDDR6」。
+        AMD状态 的 显存总线宽 为 256。
+        AMD状态 的 WGP模式 为 真。
+        AMD状态 的 DCN版本 为 3。
+    完。
+    做 否则如果 用 did 等于 0x7481。
+    块：
+        gpu 的 型号名 为 「RX 7700 XT」。
+        AMD状态 的 CU总数 为 54。
+        AMD状态 的 架构代 为 AMD_ARCH_RDNA3。
+        AMD状态 的 显存类型 为 「GDDR6」。
+        AMD状态 的 显存总线宽 为 192。
+        AMD状态 的 WGP模式 为 真。
+        AMD状态 的 DCN版本 为 3。
+    完。
+    做 否则如果 用 did 等于 0x7489。
+    块：
+        gpu 的 型号名 为 「RX 7600」。
+        AMD状态 的 CU总数 为 32。
+        AMD状态 的 架构代 为 AMD_ARCH_RDNA3。
+        AMD状态 的 显存类型 为 「GDDR6」。
+        AMD状态 的 显存总线宽 为 128。
+        AMD状态 的 WGP模式 为 真。
+        AMD状态 的 DCN版本 为 3。
+    完。
+完。
+
+本章 收束。

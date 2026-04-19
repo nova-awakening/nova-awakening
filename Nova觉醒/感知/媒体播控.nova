@@ -1,0 +1,513 @@
+《媒体播控》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·执行·平台时间》。
+
+引用《..·中枢·辅助存根》。
+
+引用《..·中枢·时钟中枢》。
+
+引用《..·中枢·字符串替换》。
+
+HTML媒体元素_setVolume 接受 me、v：
+    若 me 等于 0：
+        返还。
+    完。
+    若 v 小于 0：
+        v 为 0。
+    完。
+    若 v 大于 100：
+        v 为 100。
+    完。
+    若 me 的 volume 不等于 v：
+        me 的 volume 为 v。
+        做 媒体元素_触发事件 用 me、「volumechange」。
+    完。
+完。
+
+HTML媒体元素_setMuted 接受 me、m：
+    若 me 等于 0：
+        返还。
+    完。
+    若 me 的 muted 不等于 m：
+        me 的 muted 为 m。
+        做 媒体元素_触发事件 用 me、「volumechange」。
+    完。
+完。
+
+HTML媒体元素_setPlaybackRate 接受 me、rate：
+    若 me 等于 0：
+        返还。
+    完。
+    若 me 的 playbackRate 不等于 rate：
+        me 的 playbackRate 为 rate。
+        做 媒体元素_触发事件 用 me、「ratechange」。
+    完。
+完。
+
+HTML媒体元素_canPlayType 接受 me、类型：
+    若 类型 等于 0：
+        返还 CANPLAY_EMPTY。
+    完。
+    若 做 字符串_包含 用 类型、「video/mp4」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「video/webm」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「video/ogg」：
+        返还 CANPLAY_MAYBE。
+    完。
+    若 做 字符串_包含 用 类型、「audio/mp4」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「audio/mpeg」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「audio/mp3」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「audio/ogg」：
+        返还 CANPLAY_MAYBE。
+    完。
+    若 做 字符串_包含 用 类型、「audio/wav」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「audio/webm」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「audio/flac」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「audio/aac」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「codecs=\"vp8\"」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「codecs=\"vp9\"」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「codecs=\"av01\"」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「codecs=\"opus\"」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「codecs=\"avc1\"」：
+        返还 CANPLAY_PROBABLY。
+    完。
+    若 做 字符串_包含 用 类型、「codecs=\"hevc\"」：
+        返还 CANPLAY_MAYBE。
+    完。
+    返还 CANPLAY_EMPTY。
+完。
+
+媒体元素_启动timeupdate 接受 me：
+    若 me 等于 0：
+        返还。
+    完。
+    me 的 上次timeupdate 为 做 平台_获取高精度时间。
+完。
+
+媒体元素_tick 接受 me、当前时间：
+    若 me 等于 0 或者 me 的 paused：
+        返还。
+    完。
+    经过 为 当前时间 减 me 的 播放起始时间。
+    推进 为 经过 乘 me 的 playbackRate 除以 100。
+    me 的 currentTime 为 me 的 currentTime 加 推进 除以 1000。
+    me 的 播放起始时间 为 当前时间。
+    若 当前时间 减 me 的 上次timeupdate 大于或等于 250000：
+        做 媒体元素_触发事件 用 me、「timeupdate」。
+        me 的 上次timeupdate 为 当前时间。
+    完。
+    若 me 的 duration 大于 0 并且 me 的 currentTime 大于或等于 me 的 duration：
+        me 的 currentTime 为 me 的 duration。
+        做 媒体元素_播放结束 用 me。
+    完。
+完。
+
+TT_SUBTITLES 为 0。
+
+TT_CAPTIONS 为 1。
+
+TT_DESCRIPTIONS 为 2。
+
+TT_CHAPTERS 为 3。
+
+TT_METADATA 为 4。
+
+TT_MODE_DISABLED 为 0。
+
+TT_MODE_HIDDEN 为 1。
+
+TT_MODE_SHOWING 为 2。
+
+TextTrackCue 是 一种 事物，含 ID、起始时间、结束时间、文本、下一个。
+
+TextTrack 是 一种 事物，含 种类、标签、语言、模式、cue列表、cue数量、src。
+
+HTML媒体元素_addTextTrack 接受 me、种类、标签、语言：
+    若 me 等于 0：
+        返还 0。
+    完。
+    tt 为 做 堆_分配 用 TextTrack。
+    tt 的 种类 为 种类。
+    tt 的 标签 为 标签。
+    tt 的 语言 为 语言。
+    tt 的 模式 为 TT_MODE_DISABLED。
+    tt 的 cue列表 为 0。
+    tt 的 cue数量 为 0。
+    返还 tt。
+完。
+
+TextTrack_获取当前Cue 接受 tt、当前时间：
+    若 tt 等于 0 或者 tt 的 模式 等于 TT_MODE_DISABLED：
+        返还 0。
+    完。
+    可变 cue 为 tt 的 cue列表。
+    只要 cue 不等于 0：
+        若 当前时间 大于或等于 cue 的 起始时间 并且 当前时间 小于 cue 的 结束时间：
+            返还 cue。
+        完。
+        cue 为 cue 的 下一个。
+    完。
+    返还 0。
+完。
+
+TextTrack_添加Cue 接受 tt、起始、结束、文本：
+    若 tt 等于 0：
+        返还。
+    完。
+    cue 为 新建 TextTrackCue。
+    cue 的 起始时间 为 起始。
+    cue 的 结束时间 为 结束。
+    cue 的 文本 为 文本。
+    cue 的 下一个 为 tt 的 cue列表。
+    tt 的 cue列表 为 cue。
+    tt 的 cue数量 为 tt 的 cue数量 加 1。
+完。
+
+TextTrack_移除Cue 接受 tt、cue_id：
+    若 tt 等于 0：
+        返还。
+    完。
+    可变 前驱 为 0。
+    可变 当前 为 tt 的 cue列表。
+    只要 当前 不等于 0：
+        若 当前 的 ID 等于 cue_id：
+            若 前驱 等于 0：
+                tt 的 cue列表 为 当前 的 下一个。
+            否则：
+                前驱 的 下一个 为 当前 的 下一个。
+            完。
+            tt 的 cue数量 为 tt 的 cue数量 减 1。
+            返还。
+        完。
+        前驱 为 当前。
+        当前 为 当前 的 下一个。
+    完。
+完。
+
+TextTrack_设置模式 接受 tt、模式：
+    若 tt 等于 0：
+        返还。
+    完。
+    tt 的 模式 为 模式。
+完。
+
+TextTrack_种类名 接受 种类：
+    若 种类 等于 TT_SUBTITLES：
+        返还 「subtitles」。
+    完。
+    若 种类 等于 TT_CAPTIONS：
+        返还 「captions」。
+    完。
+    若 种类 等于 TT_DESCRIPTIONS：
+        返还 「descriptions」。
+    完。
+    若 种类 等于 TT_CHAPTERS：
+        返还 「chapters」。
+    完。
+    若 种类 等于 TT_METADATA：
+        返还 「metadata」。
+    完。
+    返还 「unknown」。
+完。
+
+TextTrack_模式名 接受 模式：
+    若 模式 等于 TT_MODE_DISABLED：
+        返还 「disabled」。
+    完。
+    若 模式 等于 TT_MODE_HIDDEN：
+        返还 「hidden」。
+    完。
+    若 模式 等于 TT_MODE_SHOWING：
+        返还 「showing」。
+    完。
+    返还 「unknown」。
+完。
+
+WebVTT_解析 接受 文本、tt：
+    若 文本 等于 0 或者 tt 等于 0：
+        返还。
+    完。
+    长度 为 做 字节长度 用 文本。
+    可变 位置 为 0。
+    只要 位置 小于 长度 并且 做 字节取 用 文本、位置 不等于 10：
+        位置 为 位置 加 1。
+    完。
+    位置 为 位置 加 1。
+    只要 位置 小于 长度：
+        只要 位置 小于 长度 并且 (做 字节取 用 文本、位置 等于 10 或者 做 字节取 用 文本、位置 等于 13)：
+            位置 为 位置 加 1。
+        完。
+        若 位置 大于或等于 长度：
+            跳出。
+        完。
+        时间行开始 为 位置。
+        只要 位置 小于 长度 并且 做 字节取 用 文本、位置 不等于 10：
+            位置 为 位置 加 1。
+        完。
+        位置 为 位置 加 1。
+        若 位置 大于或等于 长度：
+            跳出。
+        完。
+        文本行开始 为 位置。
+        只要 位置 小于 长度 并且 非 (做 字节取 用 文本、位置 等于 10 并且 位置 加 1 小于 长度 并且 做 字节取 用 文本、位置 加 1 等于 10)：
+            位置 为 位置 加 1。
+        完。
+        做 TextTrack_添加Cue 用 tt、0、0、做 字符串_子串 用 文本、文本行开始、位置 减 文本行开始。
+        位置 为 位置 加 2。
+    完。
+完。
+
+CANPLAY_EMPTY 为 0。
+
+CANPLAY_MAYBE 为 1。
+
+CANPLAY_PROBABLY 为 2。
+
+canPlayType_名称 接受 结果：
+    若 结果 等于 CANPLAY_EMPTY：
+        返还 「」。
+    完。
+    若 结果 等于 CANPLAY_MAYBE：
+        返还 「maybe」。
+    完。
+    若 结果 等于 CANPLAY_PROBABLY：
+        返还 「probably」。
+    完。
+    返还 「」。
+完。
+
+MediaSource 是 一种 事物，含 就绪状态、时长、源缓冲列表、源缓冲数、已结束。
+
+MS_CLOSED 为 0。
+
+MS_OPEN 为 1。
+
+MS_ENDED 为 2。
+
+MediaSource_创建 接受 零参：
+    ms 为 新建 MediaSource。
+    ms 的 就绪状态 为 MS_CLOSED。
+    ms 的 时长 为 负 1。
+    ms 的 源缓冲列表 为 一组：（空）。
+    ms 的 源缓冲数 为 0。
+    ms 的 已结束 为 假。
+    返还 ms。
+完。
+
+MediaSource_打开 接受 ms：
+    若 ms 等于 0：
+        返还。
+    完。
+    ms 的 就绪状态 为 MS_OPEN。
+完。
+
+MediaSource_结束 接受 ms：
+    若 ms 等于 0：
+        返还。
+    完。
+    ms 的 就绪状态 为 MS_ENDED。
+    ms 的 已结束 为 真。
+完。
+
+MediaSource_添加源缓冲 接受 ms、mime类型：
+    若 ms 等于 0 或者 ms 的 就绪状态 不等于 MS_OPEN：
+        返还 0。
+    完。
+    sb 为 一本字典：mime 对应 mime类型、数据 对应 一组：（空）、更新中 对应 假。
+    做 追加 用 ms 的 源缓冲列表、sb。
+    ms 的 源缓冲数 为 ms 的 源缓冲数 加 1。
+    返还 sb。
+完。
+
+MediaSource_就绪状态名 接受 状态：
+    若 状态 等于 MS_CLOSED：
+        返还 「closed」。
+    完。
+    若 状态 等于 MS_OPEN：
+        返还 「open」。
+    完。
+    若 状态 等于 MS_ENDED：
+        返还 「ended」。
+    完。
+    返还 「unknown」。
+完。
+
+AudioContext 是 一种 事物，含 采样率、状态、当前时间、目标节点、节点列表、节点数。
+
+AC_SUSPENDED 为 0。
+
+AC_RUNNING 为 1。
+
+AC_CLOSED 为 2。
+
+AudioContext_创建 接受 采样率：
+    ctx 为 新建 AudioContext。
+    ctx 的 采样率 为 采样率。
+    ctx 的 状态 为 AC_SUSPENDED。
+    ctx 的 当前时间 为 0。
+    ctx 的 目标节点 为 0。
+    ctx 的 节点列表 为 一组：（空）。
+    ctx 的 节点数 为 0。
+    返还 ctx。
+完。
+
+AudioContext_恢复 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    ctx 的 状态 为 AC_RUNNING。
+完。
+
+AudioContext_挂起 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    ctx 的 状态 为 AC_SUSPENDED。
+完。
+
+AudioContext_关闭 接受 ctx：
+    若 ctx 等于 0：
+        返还。
+    完。
+    ctx 的 状态 为 AC_CLOSED。
+完。
+
+AudioContext_状态名 接受 状态：
+    若 状态 等于 AC_SUSPENDED：
+        返还 「suspended」。
+    完。
+    若 状态 等于 AC_RUNNING：
+        返还 「running」。
+    完。
+    若 状态 等于 AC_CLOSED：
+        返还 「closed」。
+    完。
+    返还 「unknown」。
+完。
+
+可变 媒体_音量变化数 为 0。
+
+可变 媒体_速率变化数 为 0。
+
+可变 媒体_字幕显示数 为 0。
+
+可变 媒体_canPlayType查询数 为 0。
+
+媒体扩展_统计 接受 零参：
+    返还 一本字典：音量变化 对应 媒体_音量变化数、速率变化 对应 媒体_速率变化数、字幕显示 对应 媒体_字幕显示数、canPlayType 对应 媒体_canPlayType查询数。
+完。
+
+媒体扩展_健康检查 接受 零参：
+    返还 「媒体扩展子系统健康」。
+完。
+
+媒体扩展_重置统计 接受 零参：
+    媒体_音量变化数 为 0。
+    媒体_速率变化数 为 0。
+    媒体_字幕显示数 为 0。
+    媒体_canPlayType查询数 为 0。
+完。
+
+媒体扩展_完整统计 接受 零参：
+    返还 一组：媒体_音量变化数、媒体_速率变化数、媒体_字幕显示数、媒体_canPlayType查询数。
+完。
+
+媒体元素_触发事件 接受 me、事件名：
+    若 me 等于 0：
+        返还。
+    完。
+完。
+
+媒体元素_播放结束 接受 me：
+    若 me 等于 0：
+        返还。
+    完。
+    me 的 paused 为 真。
+    me 的 ended 为 真。
+    做 媒体元素_触发事件 用 me、「ended」。
+完。
+
+可变 AI_媒体播控_热节点缓存 为 0。
+
+AI_媒体播控_节点热度 接受 节点、操作类型：
+    若 操作类型 等于 「查询」：
+        返还 「缓存」。
+    完。
+    若 操作类型 等于 「修改」：
+        AI_媒体播控_热节点缓存 为 0。
+        返还 「失效」。
+    完。
+    返还 「普通」。
+完。
+
+AI_媒体播控_批量DOM优化 接受 操作数：
+    若 操作数 大于 100：
+        返还 「延迟重排」。
+    完。
+    若 操作数 大于 10：
+        返还 「批量重排」。
+    完。
+    返还 「即时重排」。
+完。
+
+媒体播控_统计 接受 零参：
+    返还 一本字典：模块 对应 「媒体播控」、媒体_音量变化数 对应 媒体_音量变化数、媒体_速率变化数 对应 媒体_速率变化数、媒体_字幕显示数 对应 媒体_字幕显示数、媒体_canPlayType查询数 对应 媒体_canPlayType查询数、AI_媒体播控_热节点缓存 对应 AI_媒体播控_热节点缓存。
+完。
+
+媒体播控_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+媒体播控_综合报告 接受 零参：
+    做 打印 用 「[媒体播控] ═══ 综合报告 ═══」。
+    做 打印 用 「  媒体_音量变化数: 」 加 做 整数转字符串 用 媒体_音量变化数。
+    做 打印 用 「  媒体_速率变化数: 」 加 做 整数转字符串 用 媒体_速率变化数。
+    做 打印 用 「  媒体_字幕显示数: 」 加 做 整数转字符串 用 媒体_字幕显示数。
+    做 打印 用 「  媒体_canPlayType查询数: 」 加 做 整数转字符串 用 媒体_canPlayType查询数。
+    做 打印 用 「  AI_媒体播控_热节点缓存: 」 加 做 整数转字符串 用 AI_媒体播控_热节点缓存。
+    做 打印 用 「  健康: 」 加 若 做 媒体播控_健康评估 则 「正常」 否则 「异常」。
+完。
+
+媒体播控_全局重置 接受 零参：
+    媒体_音量变化数 为 0。
+    媒体_速率变化数 为 0。
+    媒体_字幕显示数 为 0。
+    媒体_canPlayType查询数 为 0。
+    AI_媒体播控_热节点缓存 为 0。
+    做 打印 用 「[媒体播控] 全局统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

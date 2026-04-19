@@ -1,0 +1,111 @@
+《图绘VAO》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+VertexAttrib 是 一种 事物，含 启用、缓冲ID、大小、类型、归一化、步幅、偏移、除数。
+
+VAO 是 一种 事物，含 ID、属性、索引缓冲ID、已删除。
+
+可变 VAO_池 为 0。
+
+可变 VAO_池大小 为 0。
+
+可变 VAO_池容量 为 0。
+
+可变 VAO_下一个ID 为 1。
+
+可变 当前VAO 为 0。
+
+图绘2_createVertex数组 接受 零参：
+    若 VAO_池 等于 0：
+        VAO_池容量 为 64。
+        VAO_池 为 做 堆_分配_数组 用 64 乘 做 大小of 用 VAO。
+        VAO_池大小 为 0。
+    完。
+    若 VAO_池大小 大于或等于 VAO_池容量：
+        返还 0。
+    完。
+    vao 为 VAO_池 加 VAO_池大小 乘 做 大小of 用 VAO。
+    vao 的 ID 为 VAO_下一个ID。
+    VAO_下一个ID 为 VAO_下一个ID 加 1。
+    vao 的 索引缓冲ID 为 0。
+    vao 的 已删除 为 假。
+    可变 i 为 0。
+    只要 i 小于 16：
+        vao 的 属性 的 第 i 项 的 启用 为 假。
+        i 为 i 加 1。
+    完。
+    VAO_池大小 为 VAO_池大小 加 1。
+    返还 vao 的 ID。
+完。
+
+图绘2_bindVertex数组 接受 id：
+    若 id 等于 0：
+        当前VAO 为 0。
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 VAO_池大小：
+        vao 为 VAO_池 加 i 乘 做 大小of 用 VAO。
+        若 vao 的 ID 等于 id 并且 非 vao 的 已删除：
+            当前VAO 为 vao。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+图绘2_deleteVertex数组 接受 id：
+    可变 i 为 0。
+    只要 i 小于 VAO_池大小：
+        vao 为 VAO_池 加 i 乘 做 大小of 用 VAO。
+        若 vao 的 ID 等于 id：
+            vao 的 已删除 为 真。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+图绘2_vertexAttribDivisor 接受 index、divisor：
+    若 当前VAO 等于 0 或者 index 大于或等于 16：
+        返还。
+    完。
+    当前VAO 的 属性 的 第 index 项 的 除数 为 divisor。
+完。
+
+Uniform块级 是 一种 事物，含 名称、绑定点、缓冲ID、偏移、大小。
+
+可变 UBO_绑定点 为 一组：64。
+
+u64。
+
+图绘2_uniform块级Binding 接受 program、blockIndex、blockBinding：
+    若 program 等于 0 或者 blockBinding 大于或等于 64：
+        返还。
+    完。
+完。
+
+图绘2_bindBufferBase 接受 target、index、buffer：
+    若 target 等于 GL_UNIFORM_BUFFER 并且 index 小于 64：
+        UBO_绑定点 的 第 index 项 为 buffer。
+    否则若 target 等于 GL_TRANSFORM_FEEDBACK_BUFFER：
+    完。
+完。
+
+图绘2_bindBufferRange 接受 target、index、buffer、offset、size：
+    若 target 等于 GL_UNIFORM_BUFFER 并且 index 小于 64：
+        UBO_绑定点 的 第 index 项 为 buffer。
+    完。
+完。
+
+图绘2_getUniform块级Index 接受 program、blockName：
+    若 program 等于 0 或者 blockName 等于 0：
+        返还 0xFFFFFFFF。
+    完。
+    返还 0。
+完。
+
+本章 收束。

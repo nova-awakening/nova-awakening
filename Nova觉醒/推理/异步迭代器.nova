@@ -1,0 +1,468 @@
+《异步迭代器》
+
+引用《..·中枢·系统调用表》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·Promise辅助》。
+
+引用《.·Promise创建》。
+
+引用《.·定点Q算术》。
+
+引用《..·中枢·辅助有符号读》。
+
+引用《.·小整数SMI判定》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·总线悬浮球》。
+
+引用《.·AI鼠标事件处理》。
+
+引用《..·中枢·内核打印》。
+
+引用《..·标准·原生列表》。
+
+Q_ONE 为 1024。
+
+ITER_状态_初始 为 0。
+
+ITER_状态_运行 为 1。
+
+ITER_状态_挂起 为 2。
+
+ITER_状态_完成 为 3。
+
+ITER_状态_错误 为 4。
+
+BACKPRESSURE_高水位 为 64。
+
+BACKPRESSURE_低水位 为 16。
+
+IteratorResult 是 一种 事物，含 值、完成。
+
+异步迭代器 是 一种 事物，含 对象、next方法、return方法、throw方法、状态、当前值、累计迭代数、总耗时_us。
+
+异步生成器 是 一种 事物，含 字节码、字节码长度、上下文、PC、状态、挂起值、异常、背压队列、背压水位、最大水位。
+
+微任务 是 一种 事物，含 回调、参数、下一个。
+
+可变 微任务_队列头 为 0。
+
+可变 微任务_队列尾 为 0。
+
+可变 微任务_计数 为 0。
+
+可变 微任务_总处理数 为 0。
+
+ForAwaitOf_获取异步迭代器 接受 rt、对象：
+    异步方法 为 做 Nova对象_获取属性 用 rt、对象、符号_asyncIterator。
+    若 异步方法 不等于 0 并且 做 JSValue_IsFunction 用 异步方法：
+        iter_obj 为 做 Nova函数_Call 用 rt、异步方法、对象。
+        若 iter_obj 等于 0：
+            做 TryCatch_抛出 用 rt、「异步迭代器初始化失败」。
+            返还 0。
+        完。
+        返还 做 异步迭代器_包装 用 rt、iter_obj。
+    完。
+    同步方法 为 做 Nova对象_获取属性 用 rt、对象、符号_iterator。
+    若 同步方法 不等于 0 并且 做 JSValue_IsFunction 用 同步方法：
+        sync_iter 为 做 Nova函数_Call 用 rt、同步方法、对象。
+        返还 做 同步转异步适配器_创建 用 rt、sync_iter。
+    完。
+    做 TryCatch_抛出 用 rt、「对象不可迭代」。
+    返还 0。
+完。
+
+异步迭代器_包装 接受 rt、iter_obj：
+    ai 为 新建 异步迭代器。
+    ai 的 对象 为 iter_obj。
+    ai 的 next方法 为 做 Nova对象_获取属性 用 rt、iter_obj、「next」。
+    ai 的 return方法 为 做 Nova对象_获取属性 用 rt、iter_obj、「return」。
+    ai 的 throw方法 为 做 Nova对象_获取属性 用 rt、iter_obj、「throw」。
+    ai 的 状态 为 ITER_状态_初始。
+    ai 的 累计迭代数 为 0。
+    ai 的 总耗时_us 为 0。
+    返还 ai。
+完。
+
+IteratorResult_创建 接受 值、完成：
+    r 为 新建 IteratorResult。
+    r 的 值 为 值。
+    r 的 完成 为 完成。
+    返还 r。
+完。
+
+IteratorResult_从对象 接受 rt、obj：
+    若 obj 等于 0：
+        返还 做 IteratorResult_创建 用 0、真。
+    完。
+    done_val 为 做 Nova对象_获取属性 用 rt、obj、「done」。
+    value_val 为 做 Nova对象_获取属性 用 rt、obj、「value」。
+    返还 做 IteratorResult_创建 用 value_val、做 JSValue_ToBoolean 用 done_val。
+完。
+
+ForAwaitOf_执行 接受 rt、迭代器、循环体回调、上下文：
+    若 迭代器 等于 0：
+        返还。
+    完。
+    迭代器 的 状态 为 ITER_状态_运行。
+    做 ForAwaitOf_下一步 用 rt、迭代器、循环体回调、上下文。
+完。
+
+ForAwaitOf_下一步 接受 rt、迭代器、循环体回调、上下文：
+    若 迭代器 的 状态 不等于 ITER_状态_运行：
+        返还。
+    完。
+    next_promise 为 0。
+    若 迭代器 的 next方法 不等于 0：
+        next_promise 为 做 Nova函数_Call 用 rt、迭代器 的 next方法、迭代器 的 对象。
+    否则：
+        迭代器 的 状态 为 ITER_状态_错误。
+        做 TryCatch_抛出 用 rt、「iterator.next不是函数」。
+        返还。
+    完。
+    若 next_promise 等于 0 或者 非 做 JSValue_IsPromise 用 next_promise：
+        next_promise 为 做 Promise_Resolve 用 rt、next_promise。
+    完。
+    当前时间 为 做 平台_获取时间戳_us。
+    做 Promise_Then 用 rt、next_promise、以 结果 为 引，其做法是：耗时 为 做 平台_获取时间戳_us 减 当前时间。 迭代器 的 总耗时_us 为 迭代器 的 总耗时_us 加 耗时。 迭代器 的 累计迭代数 为 迭代器 的 累计迭代数 加 1。 ir 为 做 IteratorResult_从对象 用 rt、结果。 若 ir 的 完成： 迭代器 的 状态 为 ITER_状态_完成。 做 智能_异步迭代_AI完成反馈 用 迭代器。 返还。 完。 继续 为 做 循环体回调 用 rt、ir 的 值、上下文。 若 继续： 做 微任务_入队 用 以 零参 为 引，其做法是：做 ForAwaitOf_下一步 用 rt、迭代器、循环体回调、上下文。、0。 否则： 做 ForAwaitOf_关闭迭代器 用 rt、迭代器。 完。、以 错误 为 引，其做法是：迭代器 的 状态 为 ITER_状态_错误。 做 TryCatch_抛出 用 rt、错误。
+完。
+
+ForAwaitOf_关闭迭代器 接受 rt、迭代器：
+    迭代器 的 状态 为 ITER_状态_完成。
+    若 迭代器 的 return方法 不等于 0 并且 做 JSValue_IsFunction 用 迭代器 的 return方法：
+        ret 为 做 Nova函数_Call 用 rt、迭代器 的 return方法、迭代器 的 对象。
+        若 做 JSValue_IsPromise 用 ret：
+            做 Promise_Then 用 rt、ret、以 v 为 引，其做法是：、以 e 为 引，其做法是：做 TryCatch_抛出 用 rt、e。
+        完。
+    完。
+完。
+
+同步转异步适配器 是 一种 事物，含 同步迭代器、运行时。
+
+同步转异步适配器_创建 接受 rt、sync_iter：
+    adapter 为 新建 同步转异步适配器。
+    adapter 的 同步迭代器 为 sync_iter。
+    adapter 的 运行时 为 rt。
+    ai 为 新建 异步迭代器。
+    ai 的 对象 为 adapter。
+    ai 的 next方法 为 同步转异步_next。
+    ai 的 return方法 为 同步转异步_return。
+    ai 的 throw方法 为 0。
+    ai 的 状态 为 ITER_状态_初始。
+    ai 的 累计迭代数 为 0。
+    ai 的 总耗时_us 为 0。
+    返还 ai。
+完。
+
+同步转异步_next 接受 adapter：
+    rt 为 adapter 的 运行时。
+    sync 为 adapter 的 同步迭代器。
+    next_fn 为 做 Nova对象_获取属性 用 rt、sync、「next」。
+    若 next_fn 等于 0：
+        返还 做 Promise_Resolve 用 rt、做 IteratorResult_创建 用 0、真。
+    完。
+    result 为 做 Nova函数_Call 用 rt、next_fn、sync。
+    返还 做 Promise_Resolve 用 rt、result。
+完。
+
+同步转异步_return 接受 adapter：
+    rt 为 adapter 的 运行时。
+    sync 为 adapter 的 同步迭代器。
+    ret_fn 为 做 Nova对象_获取属性 用 rt、sync、「return」。
+    若 ret_fn 不等于 0 并且 做 JSValue_IsFunction 用 ret_fn：
+        result 为 做 Nova函数_Call 用 rt、ret_fn、sync。
+        返还 做 Promise_Resolve 用 rt、result。
+    完。
+    返还 做 Promise_Resolve 用 rt、做 IteratorResult_创建 用 0、真。
+完。
+
+异步生成器_创建 接受 rt、字节码、长度、上下文：
+    gen 为 新建 异步生成器。
+    gen 的 字节码 为 字节码。
+    gen 的 字节码长度 为 长度。
+    gen 的 上下文 为 上下文。
+    gen 的 PC 为 0。
+    gen 的 状态 为 ITER_状态_初始。
+    gen 的 背压队列 为 一组：（空）。
+    gen 的 背压水位 为 0。
+    gen 的 最大水位 为 BACKPRESSURE_高水位。
+    返还 gen。
+完。
+
+异步生成器_next 接受 rt、gen、参数：
+    若 gen 的 状态 等于 ITER_状态_完成：
+        返还 做 Promise_Resolve 用 rt、做 IteratorResult_创建 用 0、真。
+    完。
+    若 gen 的 状态 等于 ITER_状态_错误：
+        返还 做 Promise_Reject 用 rt、gen 的 异常。
+    完。
+    gen 的 状态 为 ITER_状态_运行。
+    gen 的 挂起值 为 参数。
+    p 为 做 脚本承诺_创建桥接 用 rt。
+    结果 为 做 Bytecode_执行_从偏移 用 rt、gen 的 字节码、gen 的 字节码长度、gen 的 PC、gen 的 上下文。
+    若 rt 的 异常标记：
+        gen 的 状态 为 ITER_状态_错误。
+        gen 的 异常 为 rt 的 异常。
+        做 脚本承诺_拒绝桥接 用 rt、p、rt 的 异常。
+    完。
+    做 否则如果 用 rt 的 返回标记。
+    块：
+        gen 的 状态 为 ITER_状态_完成。
+        做 脚本承诺_解决桥接 用 rt、p、做 IteratorResult_创建 用 rt 的 累加器、真。
+    完。
+    否则。
+    块：
+        gen 的 状态 为 ITER_状态_挂起。
+        gen 的 PC 为 rt 的 PC。
+        yield_val 为 rt 的 累加器。
+        若 做 JSValue_IsPromise 用 yield_val：
+            做 Promise_Then 用 rt、yield_val、以 v 为 引，其做法是：做 脚本承诺_解决桥接 用 rt、p、做 IteratorResult_创建 用 v、假。、以 e 为 引，其做法是：做 脚本承诺_拒绝桥接 用 rt、p、e。
+        否则：
+            做 脚本承诺_解决桥接 用 rt、p、做 IteratorResult_创建 用 yield_val、假。
+        完。
+    完。
+    返还 p。
+完。
+
+异步生成器_return 接受 rt、gen、值：
+    gen 的 状态 为 ITER_状态_完成。
+    返还 做 Promise_Resolve 用 rt、做 IteratorResult_创建 用 值、真。
+完。
+
+异步生成器_throw 接受 rt、gen、异常：
+    若 gen 的 状态 等于 ITER_状态_挂起：
+        gen 的 状态 为 ITER_状态_运行。
+        gen 的 异常 为 异常。
+        返还 做 异步生成器_next 用 rt、gen、0。
+    完。
+    gen 的 状态 为 ITER_状态_错误。
+    返还 做 Promise_Reject 用 rt、异常。
+完。
+
+微任务_入队 接受 回调、参数：
+    task 为 新建 微任务。
+    task 的 回调 为 回调。
+    task 的 参数 为 参数。
+    task 的 下一个 为 0。
+    若 微任务_队列尾 不等于 0：
+        微任务_队列尾 的 下一个 为 task。
+    否则：
+        微任务_队列头 为 task。
+    完。
+    微任务_队列尾 为 task。
+    微任务_计数 为 微任务_计数 加 1。
+完。
+
+微任务_处理队列 接受 零参：
+    可变 处理数 为 0。
+    可变 最大批次 为 1000。
+    只要 微任务_队列头 不等于 0 并且 处理数 小于 最大批次：
+        task 为 微任务_队列头。
+        微任务_队列头 为 task 的 下一个。
+        若 微任务_队列头 等于 0：
+            微任务_队列尾 为 0。
+        完。
+        微任务_计数 为 微任务_计数 减 1。
+        做 task 的 回调 用 task 的 参数。
+        处理数 为 处理数 加 1。
+        微任务_总处理数 为 微任务_总处理数 加 1。
+    完。
+    返还 处理数。
+完。
+
+EWMA_ALPHA 为 205。
+
+背压_检查 接受 gen：
+    返还 gen 的 背压水位 大于或等于 gen 的 最大水位。
+完。
+
+背压_生产 接受 gen、值：
+    若 做 背压_检查 用 gen：
+        返还 假。
+    完。
+    做 追加 用 gen 的 背压队列、值。
+    gen 的 背压水位 为 gen 的 背压水位 加 1。
+    返还 真。
+完。
+
+背压_消费 接受 gen：
+    若 gen 的 背压水位 等于 0：
+        返还 0。
+    完。
+    值 为 gen 的 背压队列 的 第 0 项。
+    gen 的 背压队列 为 做 列表_切片 用 gen 的 背压队列、1、gen 的 背压水位。
+    gen 的 背压水位 为 gen 的 背压水位 减 1。
+    返还 值。
+完。
+
+背压_自适应水位 接受 gen、生产速率、消费速率：
+    比率 为 0。
+    若 消费速率 大于 0：
+        比率 为 生产速率 乘 Q_ONE 除以 消费速率。
+    完。
+    若 比率 大于 Q_ONE 乘 2：
+        gen 的 最大水位 为 gen 的 最大水位 加 8。
+        若 gen 的 最大水位 大于 256：
+            gen 的 最大水位 为 256。
+        完。
+    完。
+    做 否则如果 用 比率 小于 Q_ONE 除以 2。
+    块：
+        gen 的 最大水位 为 gen 的 最大水位 减 4。
+        若 gen 的 最大水位 小于 BACKPRESSURE_低水位：
+            gen 的 最大水位 为 BACKPRESSURE_低水位。
+        完。
+    完。
+完。
+
+智能_异步迭代_AI初始化 接受 零参：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还。
+    完。
+完。
+
+智能_异步迭代_AI热路径反馈 接受 函数哈希、执行时间：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还。
+    完。
+    特征 为 做 Tensor_创建 用 1、4。
+    做 Tensor_写 用 特征、0、0、函数哈希 位与 0xFFFF。
+    做 Tensor_写 用 特征、0、1、若 执行时间 大于 10000 则 Q_ONE 否则 执行时间 乘 Q_ONE 除以 10000。
+    做 AI总线_反馈 用 bus、「async_iter_hot」、特征。
+    做 Tensor_释放 用 特征。
+完。
+
+智能_异步迭代_AI应该优化 接受 函数哈希、执行次数、平均时间：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还 假。
+    完。
+    特征 为 做 Tensor_创建 用 1、8。
+    做 Tensor_写 用 特征、0、0、若 执行次数 大于 2000 则 Q_ONE 否则 执行次数 乘 Q_ONE 除以 2000。
+    做 Tensor_写 用 特征、0、1、若 平均时间 大于 1000 则 Q_ONE 否则 平均时间 乘 Q_ONE 除以 1000。
+    分数 为 做 AI总线_注意力权重 用 bus、特征。
+    做 Tensor_释放 用 特征。
+    返还 分数 大于 512。
+完。
+
+智能_异步迭代_AI完成反馈 接受 迭代器：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+        返还。
+    完。
+    若 迭代器 的 累计迭代数 等于 0：
+        返还。
+    完。
+    平均耗时 为 迭代器 的 总耗时_us 除以 迭代器 的 累计迭代数。
+    特征 为 做 Tensor_创建 用 1、4。
+    做 Tensor_写 用 特征、0、0、若 迭代器 的 累计迭代数 大于 10000 则 Q_ONE 否则 迭代器 的 累计迭代数 乘 Q_ONE 除以 10000。
+    做 Tensor_写 用 特征、0、1、若 平均耗时 大于 5000 则 Q_ONE 否则 平均耗时 乘 Q_ONE 除以 5000。
+    做 Tensor_写 用 特征、0、2、若 迭代器 的 总耗时_us 大于 1000000 则 Q_ONE 否则 迭代器 的 总耗时_us 乘 Q_ONE 除以 1000000。
+    做 AI总线_反馈 用 bus、「async_iter_done」、特征。
+    做 Tensor_释放 用 特征。
+完。
+
+Nova运行时实例_获取当前执行帧 接受 i：
+    若 i 等于 0：
+        返还 0。
+    完。
+    返还 i 的 当前栈帧。
+完。
+
+Nova运行时实例_设置寄存器 接受 i、idx、v：
+    若 i 不等于 0 并且 idx 大于或等于 0 并且 idx 小于 256：
+        i 的 寄存器 的 第 idx 项 为 v。
+    完。
+完。
+
+Nova运行时实例_获取寄存器 接受 i、idx：
+    若 i 不等于 0 并且 idx 大于或等于 0 并且 idx 小于 256：
+        返还 i 的 寄存器 的 第 idx 项。
+    完。
+    返还 0。
+完。
+
+Nova运行时实例_栈推入 接受 i、v：
+    若 i 不等于 0：
+        做 追加 用 i 的 操作数栈、v。
+        i 的 栈深度 为 i 的 栈深度 加 1。
+    完。
+完。
+
+Nova运行时实例_栈读取 接受 i、idx：
+    若 i 不等于 0 并且 idx 小于 做 计数 用 i 的 操作数栈：
+        返还 i 的 操作数栈 的 第 idx 项。
+    完。
+    返还 0。
+完。
+
+Nova运行时实例_设置累加器 接受 i、v：
+    若 i 不等于 0：
+        i 的 累加器 为 v。
+    完。
+完。
+
+Nova运行时实例_设置返回标记 接受 i、v：
+    若 i 不等于 0：
+        i 的 返回标记 为 v。
+    完。
+完。
+
+Nova运行时实例_设置异常标记 接受 i、v：
+    若 i 不等于 0：
+        i 的 异常标记 为 v。
+    完。
+完。
+
+Nova运行时实例_获取栈深度2 接受 i：
+    若 i 不等于 0：
+        返还 做 计数 用 i 的 操作数栈。
+    完。
+    返还 0。
+完。
+
+Bytecode_执行_从偏移 接受 i、bc、len、pc、ctx：
+    若 i 等于 0 或者 bc 等于 0：
+        返还 0。
+    完。
+    i 的 PC 为 pc。
+    返还 做 Bytecode_执行 用 i、bc、len、ctx。
+完。
+
+异步迭代_创建承诺 接受 i：
+    返还 做 脚本承诺_创建桥接 用 i。
+完。
+
+异步迭代_解决承诺 接受 i、p、v：
+    做 脚本承诺_解决桥接 用 i、p、v。
+完。
+
+异步迭代_拒绝承诺 接受 i、p、e：
+    做 脚本承诺_拒绝桥接 用 i、p、e。
+完。
+
+TryCatch_抛出 接受 i、e：
+    若 i 不等于 0：
+        i 的 异常 为 e。
+        i 的 异常标记 为 真。
+    完。
+完。
+
+微任务_统计 接受 零参：
+    返还 一组：微任务_计数、微任务_总处理数。
+完。
+
+异步迭代_打印统计 接受 零参：
+    做 打印行 用 「=== 异步迭代统计 ===」。
+    做 打印行 用 「微任务待处理: 」 加 做 整数转字符串 用 微任务_计数。
+    做 打印行 用 「微任务已处理: 」 加 做 整数转字符串 用 微任务_总处理数。
+完。
+
+本章 收束。

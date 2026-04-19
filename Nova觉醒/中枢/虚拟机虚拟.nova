@@ -1,0 +1,323 @@
+《虚拟机虚拟》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·哈希整数》。
+
+引用《.·尾部零》。
+
+引用《..·标准·内存》。
+
+引用《..·感知·内核直连层》。
+
+引用《.·内存初始化》。
+
+引用《.·环形缓冲》。
+
+BPF_REG_数量 为 11。
+
+BPF_栈大小 为 512。
+
+BPF_最大指令数 为 1000000。
+
+BPF_最大嵌套 为 8。
+
+BPF_ALU64 为 0x07。
+
+BPF_ALU32 为 0x04。
+
+BPF_JMP64 为 0x05。
+
+BPF_JMP32 为 0x06。
+
+BPF_LD 为 0x00。
+
+BPF_LDX 为 0x01。
+
+BPF_ST 为 0x02。
+
+BPF_STX 为 0x03。
+
+BPF_ADD 为 0x00。
+
+BPF_SUB 为 0x10。
+
+BPF_MUL 为 0x20。
+
+BPF_DIV 为 0x30。
+
+BPF_OR 为 0x40。
+
+BPF_AND 为 0x50。
+
+BPF_LSH 为 0x60。
+
+BPF_RSH 为 0x70。
+
+BPF_XOR 为 0xa0。
+
+BPF_MOV 为 0xb0。
+
+BPF_ARSH 为 0xc0。
+
+BPF_JEQ 为 0x10。
+
+BPF_JGT 为 0x20。
+
+BPF_JGE 为 0x30。
+
+BPF_JSGT 为 0x60。
+
+BPF_JSGE 为 0x70。
+
+BPF_CALL 为 0x80。
+
+BPF_EXIT 为 0x90。
+
+BPF_PROG_KPROBE 为 1。
+
+BPF_PROG_TRACEPOINT 为 2。
+
+BPF_PROG_XDP 为 3。
+
+BPF_PROG_TC 为 4。
+
+BPF_PROG_CGROUP 为 5。
+
+BPF_PROG_LSM 为 6。
+
+BPF_PROG_SCHED 为 7。
+
+BPF指令 是 一种 事物，含 操作码、目标寄存器、源寄存器、偏移、立即数。
+
+BPF程序 是 一种 事物，含 类型、指令数、指令、JIT代码、JIT大小、已验证、Map列表、辅助函数表、名称。
+
+BPF_验证 接受 程序：
+    指令数 为 程序 的 指令数。
+    若 指令数 大于 BPF_最大指令数：
+        返还 错误_程序过大。
+    完。
+    可变 寄存器类型 为 做 数组_创建 用 BPF_REG_数量。
+    可变 寄存器范围 为 做 数组_创建 用 BPF_REG_数量。
+    做 数组_设置 用 寄存器类型、1、类型_CTX指针。
+    做 数组_设置 用 寄存器类型、10、类型_帧指针。
+    可变 已访问 为 做 位图_创建 用 指令数。
+    可变 栈 为 一组：一组：0、寄存器类型、寄存器范围。
+    只要 做 计数 用 栈 大于 0：
+        当前 为 做 弹出 用 栈。
+        pc 为 当前 的 第 0 项。
+        reg 为 当前 的 第 1 项。
+        range 为 当前 的 第 2 项。
+        若 pc 大于或等于 指令数：
+            返还 错误_越界跳转。
+        完。
+        若 做 位图_测试 用 已访问、pc：
+            继续。
+        完。
+        做 位图_设置 用 已访问、pc。
+        insn 为 做 BPF_取指令 用 程序、pc。
+        结果 为 做 BPF_验证指令 用 insn、reg、range、程序 的 类型。
+        若 结果 不等于 0：
+            返还 结果。
+        完。
+        做 BPF_更新寄存器状态 用 insn、reg、range。
+        操作 为 insn 的 操作码 位与 0xf0。
+        若 insn 的 操作码 位与 0x07 等于 BPF_JMP64 并且 操作 不等于 BPF_CALL 并且 操作 不等于 BPF_EXIT：
+            做 追加 用 栈、一组：pc 加 1 加 insn 的 偏移、做 数组_复制 用 reg、做 数组_复制 用 range。
+            做 追加 用 栈、一组：pc 加 1、做 数组_复制 用 reg、做 数组_复制 用 range。
+        否则若 操作 等于 BPF_EXIT：
+        否则：
+            做 追加 用 栈、一组：pc 加 1、reg、range。
+        完。
+    完。
+    程序 的 已验证 为 真。
+    返还 0。
+完。
+
+BPF_执行 接受 程序、上下文：
+    若 非 程序 的 已验证：
+        返还 错误_未验证。
+    完。
+    若 程序 的 JIT代码 不等于 0：
+        返还 做 调用本机 用 程序 的 JIT代码、上下文。
+    完。
+    可变 R 为 做 数组_创建 用 BPF_REG_数量。
+    做 数组_设置 用 R、1、上下文。
+    做 数组_设置 用 R、10、做 栈_分配 用 BPF_栈大小。
+    可变 pc 为 0。
+    只要 pc 小于 程序 的 指令数：
+        insn 为 做 BPF_取指令 用 程序、pc。
+        dst 为 insn 的 目标寄存器。
+        src 为 insn 的 源寄存器。
+        cls 为 insn 的 操作码 位与 0x07。
+        op 为 insn 的 操作码 位与 0xf0。
+        若 cls 等于 BPF_ALU64：
+            若 op 等于 BPF_ADD：
+                R 的 第 dst 项 为 R 的 第 dst 项 加 R 的 第 src 项。
+            否则若 op 等于 BPF_SUB：
+                R 的 第 dst 项 为 R 的 第 dst 项 减 R 的 第 src 项。
+            否则若 op 等于 BPF_MUL：
+                R 的 第 dst 项 为 R 的 第 dst 项 乘 R 的 第 src 项。
+            否则若 op 等于 BPF_DIV：
+                若 R 的 第 src 项 不等于 0：
+                    R 的 第 dst 项 为 R 的 第 dst 项 除以 R 的 第 src 项。
+                完。
+            否则若 op 等于 BPF_AND：
+                R 的 第 dst 项 为 R 的 第 dst 项 位与 R 的 第 src 项。
+            否则若 op 等于 BPF_OR：
+                R 的 第 dst 项 为 R 的 第 dst 项 位或 R 的 第 src 项。
+            否则若 op 等于 BPF_XOR：
+                R 的 第 dst 项 为 R 的 第 dst 项 位异或 R 的 第 src 项。
+            否则若 op 等于 BPF_LSH：
+                R 的 第 dst 项 为 R 的 第 dst 项 左移 R 的 第 src 项。
+            否则若 op 等于 BPF_RSH：
+                R 的 第 dst 项 为 R 的 第 dst 项 右移 R 的 第 src 项。
+            否则若 op 等于 BPF_MOV：
+                R 的 第 dst 项 为 R 的 第 src 项。
+            完。
+        否则若 cls 等于 BPF_JMP64：
+            若 op 等于 BPF_JEQ 并且 R 的 第 dst 项 等于 R 的 第 src 项：
+                pc 为 pc 加 insn 的 偏移。
+            否则若 op 等于 BPF_JGT 并且 R 的 第 dst 项 大于 R 的 第 src 项：
+                pc 为 pc 加 insn 的 偏移。
+            否则若 op 等于 BPF_JGE 并且 R 的 第 dst 项 大于或等于 R 的 第 src 项：
+                pc 为 pc 加 insn 的 偏移。
+            否则若 op 等于 BPF_CALL：
+                R 的 第 0 项 为 做 BPF_调用辅助函数 用 insn 的 立即数、R 的 第 1 项、R 的 第 2 项、R 的 第 3 项、R 的 第 4 项、R 的 第 5 项。
+            否则若 op 等于 BPF_EXIT：
+                返还 R 的 第 0 项。
+            完。
+        否则若 cls 等于 BPF_LDX：
+            地址 为 R 的 第 src 项 加 insn 的 偏移。
+            若 op 等于 0x18：
+                R 的 第 dst 项 为 做 内存_读64 用 地址。
+            否则若 op 等于 0x40：
+                R 的 第 dst 项 为 做 内存_读32 用 地址。
+            否则若 op 等于 0x28：
+                R 的 第 dst 项 为 做 内存_读16 用 地址。
+            否则若 op 等于 0x10：
+                R 的 第 dst 项 为 做 内存_读8 用 地址。
+            完。
+        否则若 cls 等于 BPF_STX：
+            地址 为 R 的 第 dst 项 加 insn 的 偏移。
+            若 op 等于 0x18：
+                做 内存_写64 用 地址、R 的 第 src 项。
+            否则若 op 等于 0x40：
+                做 内存_写32 用 地址、R 的 第 src 项。
+            完。
+        完。
+        pc 为 pc 加 1。
+    完。
+    返还 R 的 第 0 项。
+完。
+
+BPF_MAP_HASH 为 1。
+
+BPF_MAP_ARRAY 为 2。
+
+BPF_MAP_RINGBUF 为 3。
+
+BPF_MAP_LPM_TRIE 为 4。
+
+BPF_MAP_PERCPU 为 5。
+
+BPFMap 是 一种 事物，含 类型、键大小、值大小、最大项数、数据。
+
+BPFMap_创建 接受 类型、键大小、值大小、最大项数：
+    可变 map 为 新建 BPFMap。
+    map 的 类型 为 类型。
+    map 的 键大小 为 键大小。
+    map 的 值大小 为 值大小。
+    map 的 最大项数 为 最大项数。
+    若 类型 等于 BPF_MAP_HASH：
+        map 的 数据 为 做 哈希表_创建 用 最大项数、键大小、值大小。
+    否则若 类型 等于 BPF_MAP_ARRAY：
+        map 的 数据 为 做 内存_分配 用 最大项数 乘 值大小。
+    否则若 类型 等于 BPF_MAP_RINGBUF：
+        map 的 数据 为 做 环形缓冲_创建 用 最大项数 乘 值大小。
+    完。
+    返还 map。
+完。
+
+BPFMap_查找 接受 map、键：
+    若 map 的 类型 等于 BPF_MAP_HASH：
+        返还 做 哈希表_查找 用 map 的 数据、键、map 的 键大小。
+    完。
+    若 map 的 类型 等于 BPF_MAP_ARRAY：
+        索引 为 做 内存_读32 用 键。
+        若 索引 大于或等于 map 的 最大项数：
+            返还 空。
+        完。
+        返还 map 的 数据 加 索引 乘 map 的 值大小。
+    完。
+    返还 空。
+完。
+
+BPFMap_更新 接受 map、键、值：
+    若 map 的 类型 等于 BPF_MAP_HASH：
+        返还 做 哈希表_插入 用 map 的 数据、键、map 的 键大小、值、map 的 值大小。
+    完。
+    若 map 的 类型 等于 BPF_MAP_ARRAY：
+        索引 为 做 内存_读32 用 键。
+        若 索引 大于或等于 map 的 最大项数：
+            返还 错误_越界。
+        完。
+        做 内存_复制 用 map 的 数据 加 索引 乘 map 的 值大小、值、map 的 值大小。
+        返还 0。
+    完。
+    返还 错误_不支持。
+完。
+
+可变 BPF_程序数 为 0。
+
+可变 BPF_执行次数 为 0。
+
+可变 BPF_错误次数 为 0。
+
+BPF_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 BPF_错误次数 大于 BPF_执行次数 除以 10 并且 BPF_执行次数 大于 100：
+        做 追加 用 问题、「BPF错误率过高」。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「BPF虚拟机健康」。
+    完。
+    返还 问题。
+完。
+
+BPF_统计 接受 零参：
+    返还 一本字典：程序数 对应 BPF_程序数、执行次数 对应 BPF_执行次数、错误次数 对应 BPF_错误次数。
+完。
+
+BPF_重置统计 接受 零参：
+    BPF_程序数 为 0。
+    BPF_执行次数 为 0。
+    BPF_错误次数 为 0。
+完。
+
+可变 AI_虚拟机虚拟_威胁计数 为 0。
+
+AI_虚拟机虚拟_风险评分 接受 操作类型、权限级别、来源可信度：
+    可变 风险 为 0。
+    若 权限级别 大于 500：
+        风险 为 风险 加 300。
+    完。
+    若 来源可信度 小于 200：
+        风险 为 风险 加 400。
+    完。
+    若 风险 大于 500：
+        AI_虚拟机虚拟_威胁计数 为 AI_虚拟机虚拟_威胁计数 加 1。
+    完。
+    返还 风险。
+完。
+
+AI_虚拟机虚拟_异常行为检测 接受 操作频率、基线频率：
+    若 基线频率 大于 0 并且 操作频率 大于 基线频率 乘 5：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

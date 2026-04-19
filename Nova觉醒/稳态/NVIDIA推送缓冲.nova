@@ -1,0 +1,127 @@
+《NVIDIA推送缓冲》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·完成量完成》。
+
+引用《..·中枢·APIC任务优先级》。
+
+引用《..·引导·端口IO》。
+
+NV_CMD_TYPE_INCREASING 为 0x20000000。
+
+NV_CMD_TYPE_NONINC 为 0x60000000。
+
+NV_CMD_TYPE_INLINE 为 0xA0000000。
+
+NV_METHOD_SET_OBJECT 为 0x0000。
+
+NV_METHOD_2D_SRC_FORMAT 为 0x0200。
+
+NV_METHOD_2D_DST_FORMAT 为 0x0204。
+
+NV_METHOD_2D_SRC_PITCH 为 0x0214。
+
+NV_METHOD_2D_DST_PITCH 为 0x0218。
+
+NV_METHOD_2D_SRC_POS 为 0x08C0。
+
+NV_METHOD_2D_DST_POS 为 0x08C4。
+
+NV_METHOD_2D_SIZE 为 0x08C8。
+
+NV_METHOD_2D_BLIT 为 0x0300。
+
+NV_METHOD_COMPUTE_LAUNCH 为 0x02FC。
+
+NV_METHOD_COMPUTE_GRID 为 0x0A04。
+
+NV_METHOD_COMPUTE_BLOCK 为 0x0A08。
+
+NV_METHOD_SEMAPHORE_ADDR 为 0x0010。
+
+NV_METHOD_SEMAPHORE_REL 为 0x0018。
+
+NV_METHOD_FENCE_ADDR 为 0x0070。
+
+NV_METHOD_FENCE_VAL 为 0x0074。
+
+NV_推送_开始 接受 通道：
+    若 通道 的 写偏移 大于 通道 的 推送缓冲大小 减 1024：
+        通道 的 写偏移 为 0。
+    完。
+完。
+
+NV_推送_方法 接受 通道、方法、值：
+    地址 为 通道 的 推送缓冲地址 的 CPU地址 加 通道 的 写偏移。
+    做 内存写32 用 地址、NV_CMD_TYPE_INCREASING 位或 方法 右移 2 位或 1 左移 16。
+    做 内存写32 用 地址 加 4、值。
+    通道 的 写偏移 为 通道 的 写偏移 加 8。
+完。
+
+NV_推送_提交 接受 通道：
+    mmio 为 NV状态 的 mmio。
+    做 内存屏障_写。
+    控制偏移 为 NV_PFIFO_CHAN_BASE 加 通道 的 ID 乘 0x200。
+    做 MMIO写32 用 mmio 加 控制偏移 加 0x40、通道 的 写偏移。
+完。
+
+NV_2D_矩形填充 接受 x、y、宽、高、颜色：
+    若 非 NV状态 的 已初始化 或者 做 计数 用 NV状态 的 通道列表 等于 0：
+        返还。
+    完。
+    通道 为 NV状态 的 通道列表 的 第 0 项。
+    做 NV_推送_开始 用 通道。
+    做 NV_推送_方法 用 通道、NV_METHOD_2D_DST_FORMAT、0x0E。
+    做 NV_推送_方法 用 通道、NV_METHOD_2D_DST_POS、y 左移 16 位或 x。
+    做 NV_推送_方法 用 通道、NV_METHOD_2D_SIZE、高 左移 16 位或 宽。
+    做 NV_推送_方法 用 通道、0x0588、颜色。
+    做 NV_推送_方法 用 通道、NV_METHOD_2D_BLIT、0。
+    做 NV_推送_提交 用 通道。
+完。
+
+NV_2D_位块传输 接受 源x、源y、目x、目y、宽、高：
+    若 非 NV状态 的 已初始化 或者 做 计数 用 NV状态 的 通道列表 等于 0：
+        返还。
+    完。
+    通道 为 NV状态 的 通道列表 的 第 0 项。
+    做 NV_推送_开始 用 通道。
+    做 NV_推送_方法 用 通道、NV_METHOD_2D_SRC_POS、源y 左移 16 位或 源x。
+    做 NV_推送_方法 用 通道、NV_METHOD_2D_DST_POS、目y 左移 16 位或 目x。
+    做 NV_推送_方法 用 通道、NV_METHOD_2D_SIZE、高 左移 16 位或 宽。
+    做 NV_推送_方法 用 通道、NV_METHOD_2D_BLIT、0。
+    做 NV_推送_提交 用 通道。
+完。
+
+NV_计算分发 接受 核函数地址、网格X、网格Y、网格Z、块X、块Y、块Z：
+    若 非 NV状态 的 已初始化：
+        返还 错误_未就绪。
+    完。
+    可变 通道 为 空。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 NV状态 的 通道列表：
+        若 NV状态 的 通道列表 的 第 i 项 的 引擎 等于 2：
+            通道 为 NV状态 的 通道列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    若 通道 等于 空：
+        返还 错误_不存在。
+    完。
+    做 NV_推送_开始 用 通道。
+    做 NV_推送_方法 用 通道、0x02B0、核函数地址 位与 0xFFFFFFFF。
+    做 NV_推送_方法 用 通道、0x02B4、核函数地址 右移 32 位与 0xFF。
+    做 NV_推送_方法 用 通道、NV_METHOD_COMPUTE_GRID、网格X。
+    做 NV_推送_方法 用 通道、NV_METHOD_COMPUTE_GRID 加 4、网格Y。
+    做 NV_推送_方法 用 通道、NV_METHOD_COMPUTE_GRID 加 8、网格Z。
+    做 NV_推送_方法 用 通道、NV_METHOD_COMPUTE_BLOCK、块X。
+    做 NV_推送_方法 用 通道、NV_METHOD_COMPUTE_BLOCK 加 4、块Y。
+    做 NV_推送_方法 用 通道、NV_METHOD_COMPUTE_BLOCK 加 8、块Z。
+    做 NV_推送_方法 用 通道、NV_METHOD_COMPUTE_LAUNCH、1。
+    做 NV_推送_提交 用 通道。
+    返还 成功。
+完。
+
+本章 收束。

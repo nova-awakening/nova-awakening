@@ -1,0 +1,358 @@
+《扩展属性应》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·应用样式声明》。
+
+引用《.·样式解析边》。
+
+Computed样式_应用扩展声明 接受 style、属性、值：
+    若 值 等于 0：
+        返还。
+    完。
+    若 属性 等于 CSS属性_text_transform：
+        若 值 的 关键字ID 等于 5：
+            style 的 text_transform 为 0。
+        否则若 值 的 关键字ID 等于 44：
+            style 的 text_transform 为 1。
+        否则若 值 的 关键字ID 等于 45：
+            style 的 text_transform 为 2。
+        否则若 值 的 关键字ID 等于 46：
+            style 的 text_transform 为 3。
+        完。
+    否则若 属性 等于 CSS属性_text_indent：
+        若 值 的 类型 等于 CSS值_长度 或者 值 的 类型 等于 CSS值_百分比：
+            style 的 text_indent 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_text_overflow：
+        若 值 的 关键字ID 等于 85：
+            style 的 text_overflow 为 0。
+        否则若 值 的 关键字ID 等于 84：
+            style 的 text_overflow 为 1。
+        完。
+    否则若 属性 等于 CSS属性_letter_spacing：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 letter_spacing 为 值 的 数值。
+        否则若 值 的 关键字ID 等于 22：
+            style 的 letter_spacing 为 0。
+        完。
+    否则若 属性 等于 CSS属性_word_spacing：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 word_spacing 为 值 的 数值。
+        否则若 值 的 关键字ID 等于 22：
+            style 的 word_spacing 为 0。
+        完。
+    否则若 属性 等于 CSS属性_overflow_wrap 或者 属性 等于 CSS属性_word_wrap：
+        若 值 的 关键字ID 等于 22：
+            style 的 overflow_wrap 为 0。
+        否则若 值 的 关键字ID 等于 52：
+            style 的 overflow_wrap 为 1。
+        完。
+    否则若 属性 等于 CSS属性_white_space：
+        若 值 的 关键字ID 等于 22：
+            style 的 white_space 为 0。
+        否则若 值 的 关键字ID 等于 26：
+            style 的 white_space 为 1。
+        否则若 值 的 关键字ID 等于 49：
+            style 的 white_space 为 2。
+        否则若 值 的 关键字ID 等于 50：
+            style 的 white_space 为 3。
+        否则若 值 的 关键字ID 等于 51：
+            style 的 white_space 为 4。
+        完。
+    否则若 属性 等于 CSS属性_font_style：
+        若 值 的 关键字ID 等于 22：
+            style 的 font_style 为 0。
+        否则若 值 的 关键字ID 等于 47：
+            style 的 font_style 为 1。
+        否则若 值 的 关键字ID 等于 48：
+            style 的 font_style 为 2。
+        完。
+    否则若 属性 等于 CSS属性_text_decoration：
+        style 的 text_decoration 为 0。
+        若 值 的 关键字ID 等于 41：
+            style 的 text_decoration 为 1。
+        否则若 值 的 关键字ID 等于 42：
+            style 的 text_decoration 为 2。
+        否则若 值 的 关键字ID 等于 43：
+            style 的 text_decoration 为 4。
+        否则若 值 的 关键字ID 等于 5：
+            style 的 text_decoration 为 0。
+        完。
+    否则若 属性 等于 CSS属性_word_break：
+        若 值 的 关键字ID 等于 22：
+            style 的 word_break 为 0。
+        否则若 值 的 关键字ID 等于 53：
+            style 的 word_break 为 1。
+        否则若 值 的 关键字ID 等于 54：
+            style 的 word_break 为 2。
+        完。
+    否则若 属性 等于 CSS属性_vertical_align：
+        若 值 的 关键字ID 等于 40：
+            style 的 vertical_align 为 0。
+        否则若 值 的 关键字ID 等于 37：
+            style 的 vertical_align 为 1。
+        否则若 值 的 关键字ID 等于 39：
+            style 的 vertical_align 为 2。
+        否则若 值 的 关键字ID 等于 38：
+            style 的 vertical_align 为 3。
+        完。
+    否则若 属性 等于 CSS属性_border_style：
+        bs 为 做 CSS解析_边框样式值 用 值 的 关键字ID。
+        style 的 border_top_style 为 bs。
+        style 的 border_right_style 为 bs。
+        style 的 border_bottom_style 为 bs。
+        style 的 border_left_style 为 bs。
+    否则若 属性 等于 CSS属性_border_top_style：
+        style 的 border_top_style 为 做 CSS解析_边框样式值 用 值 的 关键字ID。
+    否则若 属性 等于 CSS属性_border_right_style：
+        style 的 border_right_style 为 做 CSS解析_边框样式值 用 值 的 关键字ID。
+    否则若 属性 等于 CSS属性_border_bottom_style：
+        style 的 border_bottom_style 为 做 CSS解析_边框样式值 用 值 的 关键字ID。
+    否则若 属性 等于 CSS属性_border_left_style：
+        style 的 border_left_style 为 做 CSS解析_边框样式值 用 值 的 关键字ID。
+    否则若 属性 等于 CSS属性_border_collapse：
+        若 值 的 关键字ID 等于 35：
+            style 的 border_collapse 为 0。
+        否则若 值 的 关键字ID 等于 34：
+            style 的 border_collapse 为 1。
+        完。
+    否则若 属性 等于 CSS属性_border_spacing：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 border_spacing 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_border_top_left_radius：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 border_radius_tl 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_border_top_right_radius：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 border_radius_tr 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_border_bottom_left_radius：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 border_radius_bl 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_border_bottom_right_radius：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 border_radius_br 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_border_color：
+        若 值 的 类型 等于 CSS值_颜色：
+            style 的 border_top_color 为 值 的 颜色。
+            style 的 border_right_color 为 值 的 颜色。
+            style 的 border_bottom_color 为 值 的 颜色。
+            style 的 border_left_color 为 值 的 颜色。
+        完。
+    否则若 属性 等于 CSS属性_border_width：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 border_top_width 为 值 的 数值。
+            style 的 border_right_width 为 值 的 数值。
+            style 的 border_bottom_width 为 值 的 数值。
+            style 的 border_left_width 为 值 的 数值。
+        否则若 值 的 关键字ID 等于 63：
+            style 的 border_top_width 为 100。
+            style 的 border_right_width 为 100。
+            style 的 border_bottom_width 为 100。
+            style 的 border_left_width 为 100。
+        否则若 值 的 关键字ID 等于 64：
+            style 的 border_top_width 为 500。
+            style 的 border_right_width 为 500。
+            style 的 border_bottom_width 为 500。
+            style 的 border_left_width 为 500。
+        完。
+    否则若 属性 等于 CSS属性_background_repeat：
+        若 值 的 关键字ID 等于 83：
+            style 的 background_repeat 为 0。
+        否则若 值 的 关键字ID 等于 80：
+            style 的 background_repeat 为 1。
+        否则若 值 的 关键字ID 等于 81：
+            style 的 background_repeat 为 2。
+        否则若 值 的 关键字ID 等于 82：
+            style 的 background_repeat 为 3。
+        完。
+    否则若 属性 等于 CSS属性_background_size：
+        若 值 的 关键字ID 等于 4：
+            style 的 background_size 为 0。
+        否则若 值 的 关键字ID 等于 75：
+            style 的 background_size 为 1。
+        否则若 值 的 关键字ID 等于 76：
+            style 的 background_size 为 2。
+        完。
+    否则若 属性 等于 CSS属性_background_attachment：
+        若 值 的 关键字ID 等于 33：
+            style 的 background_attachment 为 0。
+        否则若 值 的 关键字ID 等于 15：
+            style 的 background_attachment 为 1。
+        完。
+    否则若 属性 等于 CSS属性_background_clip 或者 属性 等于 CSS属性_background_origin：
+        变量 为 0。
+        若 值 的 关键字ID 等于 31：
+            变量 为 0。
+        否则若 值 的 关键字ID 等于 86：
+            变量 为 1。
+        否则若 值 的 关键字ID 等于 32：
+            变量 为 2。
+        完。
+        若 属性 等于 CSS属性_background_clip：
+            style 的 background_clip 为 变量。
+        否则：
+            style 的 background_origin 为 变量。
+        完。
+    否则若 属性 等于 CSS属性_flex_grow：
+        若 值 的 类型 等于 CSS值_数字：
+            style 的 flex_grow 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_flex_shrink：
+        若 值 的 类型 等于 CSS值_数字：
+            style 的 flex_shrink 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_flex_basis：
+        style 的 flex_basis 为 做 Computed样式_解析长度值 用 值。
+    否则若 属性 等于 CSS属性_flex_wrap：
+        若 值 的 关键字ID 等于 26：
+            style 的 flex_wrap 为 0。
+        否则若 值 的 关键字ID 等于 25：
+            style 的 flex_wrap 为 1。
+        否则若 值 的 关键字ID 等于 67：
+            style 的 flex_wrap 为 2。
+        完。
+    否则若 属性 等于 CSS属性_align_self：
+        若 值 的 关键字ID 等于 4：
+            style 的 align_self 为 0。
+        否则若 值 的 关键字ID 等于 69：
+            style 的 align_self 为 1。
+        否则若 值 的 关键字ID 等于 70：
+            style 的 align_self 为 2。
+        否则若 值 的 关键字ID 等于 18：
+            style 的 align_self 为 3。
+        否则若 值 的 关键字ID 等于 29：
+            style 的 align_self 为 5。
+        完。
+    否则若 属性 等于 CSS属性_align_content：
+        若 值 的 关键字ID 等于 69：
+            style 的 align_content 为 JC_flex_start。
+        否则若 值 的 关键字ID 等于 70：
+            style 的 align_content 为 JC_flex_end。
+        否则若 值 的 关键字ID 等于 18：
+            style 的 align_content 为 JC_center。
+        否则若 值 的 关键字ID 等于 27：
+            style 的 align_content 为 JC_space_between。
+        否则若 值 的 关键字ID 等于 28：
+            style 的 align_content 为 JC_space_around。
+        否则若 值 的 关键字ID 等于 29：
+            style 的 align_content 为 JC_stretch。
+        完。
+    否则若 属性 等于 CSS属性_order：
+        若 值 的 类型 等于 CSS值_数字：
+            style 的 order 为 值 的 数值 除以 100。
+        完。
+    否则若 属性 等于 CSS属性_column_gap：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 column_gap 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_row_gap：
+        若 值 的 类型 等于 CSS值_长度：
+            style 的 row_gap 为 值 的 数值。
+        完。
+    否则若 属性 等于 CSS属性_object_fit：
+        若 值 的 关键字ID 等于 77：
+            style 的 object_fit 为 0。
+        否则若 值 的 关键字ID 等于 76：
+            style 的 object_fit 为 1。
+        否则若 值 的 关键字ID 等于 75：
+            style 的 object_fit 为 2。
+        否则若 值 的 关键字ID 等于 5：
+            style 的 object_fit 为 3。
+        否则若 值 的 关键字ID 等于 78：
+            style 的 object_fit 为 4。
+        完。
+    否则若 属性 等于 CSS属性_float：
+        若 值 的 关键字ID 等于 5：
+            style 的 float_val 为 浮动_none。
+        否则若 值 的 关键字ID 等于 19：
+            style 的 float_val 为 浮动_left。
+        否则若 值 的 关键字ID 等于 20：
+            style 的 float_val 为 浮动_right。
+        完。
+    否则若 属性 等于 CSS属性_clear：
+        若 值 的 关键字ID 等于 5：
+            style 的 clear 为 0。
+        否则若 值 的 关键字ID 等于 19：
+            style 的 clear 为 1。
+        否则若 值 的 关键字ID 等于 20：
+            style 的 clear 为 2。
+        否则若 值 的 关键字ID 等于 36：
+            style 的 clear 为 3。
+        完。
+    否则若 属性 等于 CSS属性_overflow_x：
+        style 的 overflow_x 为 做 CSS解析_overflow值 用 值 的 关键字ID。
+    否则若 属性 等于 CSS属性_overflow_y：
+        style 的 overflow_y 为 做 CSS解析_overflow值 用 值 的 关键字ID。
+    否则若 属性 等于 CSS属性_resize：
+        若 值 的 关键字ID 等于 5：
+            style 的 resize 为 0。
+        否则若 值 的 关键字ID 等于 36：
+            style 的 resize 为 1。
+        完。
+    否则若 属性 等于 CSS属性_table_layout：
+        若 值 的 关键字ID 等于 4：
+            style 的 table_layout 为 0。
+        否则若 值 的 关键字ID 等于 15：
+            style 的 table_layout 为 1。
+        完。
+    否则若 属性 等于 CSS属性_direction：
+        若 值 的 关键字ID 等于 19：
+            style 的 direction 为 0。
+        完。
+    否则若 属性 等于 CSS属性_scroll_behavior：
+        若 值 的 关键字ID 等于 4：
+            style 的 scroll_behavior 为 0。
+        否则若 值 的 关键字ID 等于 79：
+            style 的 scroll_behavior 为 1。
+        完。
+    否则若 属性 等于 CSS属性_pointer_事件s：
+        若 值 的 关键字ID 等于 4：
+            style 的 pointer_事件s 为 0。
+        否则若 值 的 关键字ID 等于 5：
+            style 的 pointer_事件s 为 1。
+        完。
+    否则若 属性 等于 CSS属性_user_select：
+        若 值 的 关键字ID 等于 4：
+            style 的 user_select 为 0。
+        否则若 值 的 关键字ID 等于 5：
+            style 的 user_select 为 1。
+        完。
+    否则若 属性 等于 CSS属性_appearance：
+        若 值 的 关键字ID 等于 5：
+            style 的 appearance 为 0。
+        否则若 值 的 关键字ID 等于 4：
+            style 的 appearance 为 1。
+        完。
+    否则若 属性 等于 CSS属性_accent_color：
+        若 值 的 类型 等于 CSS值_颜色：
+            style 的 accent_color 为 值 的 颜色。
+        完。
+    完。
+完。
+
+可变 AI_扩展属性应_样式缓存命中 为 0。
+
+AI_扩展属性应_选择器复杂度 接受 选择器长度、组合子数：
+    若 组合子数 大于 5：
+        返还 「高复杂度」。
+    完。
+    若 组合子数 大于 2：
+        返还 「中复杂度」。
+    完。
+    返还 「低复杂度」。
+完。
+
+AI_扩展属性应_布局缓存 接受 元素哈希：
+    AI_扩展属性应_样式缓存命中 为 AI_扩展属性应_样式缓存命中 加 1。
+    返还 元素哈希。
+完。
+
+本章 收束。

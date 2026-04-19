@@ -1,0 +1,330 @@
+《proc_meminfo》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《..·中枢·硬链接》。
+
+引用《.·proc挂载》。
+
+引用《..·中枢·整数转字符串》。
+
+proc_meminfo_读 接受 数据：
+    总KB 为 做 物理内存_总页数 乘 4。
+    空闲KB 为 做 物理内存_空闲页数 乘 4。
+    可用KB 为 做 物理内存_可用页数 乘 4。
+    缓冲KB 为 做 缓冲区_页数 乘 4。
+    缓存KB 为 做 页缓存_页数 乘 4。
+    交换缓存KB 为 0。
+    活跃KB 为 做 活跃页数 乘 4。
+    非活跃KB 为 做 非活跃页数 乘 4。
+    活跃匿名KB 为 做 活跃匿名页数 乘 4。
+    非活跃匿名KB 为 做 非活跃匿名页数 乘 4。
+    活跃文件KB 为 做 活跃文件页数 乘 4。
+    非活跃文件KB 为 做 非活跃文件页数 乘 4。
+    脏KB 为 做 脏页数 乘 4。
+    回写KB 为 做 回写页数 乘 4。
+    匿名KB 为 做 匿名页数 乘 4。
+    映射KB 为 做 映射页数 乘 4。
+    共享KB 为 做 共享页数 乘 4。
+    内核回收KB 为 做 内核可回收页数 乘 4。
+    Nova块缓存总KB 为 做 Nova块缓存_总页数 乘 4。
+    Nova块缓存可回收KB 为 做 Nova块缓存_可回收页数 乘 4。
+    Nova块缓存不可回收KB 为 Nova块缓存总KB 减 Nova块缓存可回收KB。
+    内核栈KB 为 做 内核栈_页数 乘 4。
+    页表KB 为 做 页表_页数 乘 4。
+    交换总KB 为 做 交换_总页数 乘 4。
+    交换空闲KB 为 做 交换_空闲页数 乘 4。
+    可变 输出 为 「」。
+    输出 为 输出 加 做 meminfo_行 用 「MemTotal:」、总KB。
+    输出 为 输出 加 做 meminfo_行 用 「MemFree:」、空闲KB。
+    输出 为 输出 加 做 meminfo_行 用 「MemAvailable:」、可用KB。
+    输出 为 输出 加 做 meminfo_行 用 「Buffers:」、缓冲KB。
+    输出 为 输出 加 做 meminfo_行 用 「缓存d:」、缓存KB。
+    输出 为 输出 加 做 meminfo_行 用 「Swap缓存d:」、交换缓存KB。
+    输出 为 输出 加 做 meminfo_行 用 「Active:」、活跃KB。
+    输出 为 输出 加 做 meminfo_行 用 「Inactive:」、非活跃KB。
+    输出 为 输出 加 做 meminfo_行 用 「Active(anon):」、活跃匿名KB。
+    输出 为 输出 加 做 meminfo_行 用 「Inactive(anon):」、非活跃匿名KB。
+    输出 为 输出 加 做 meminfo_行 用 「Active(file):」、活跃文件KB。
+    输出 为 输出 加 做 meminfo_行 用 「Inactive(file):」、非活跃文件KB。
+    输出 为 输出 加 做 meminfo_行 用 「Dirty:」、脏KB。
+    输出 为 输出 加 做 meminfo_行 用 「Writeback:」、回写KB。
+    输出 为 输出 加 做 meminfo_行 用 「AnonPages:」、匿名KB。
+    输出 为 输出 加 做 meminfo_行 用 「Mapped:」、映射KB。
+    输出 为 输出 加 做 meminfo_行 用 「Shmem:」、共享KB。
+    输出 为 输出 加 做 meminfo_行 用 「KReclaimable:」、内核回收KB。
+    输出 为 输出 加 做 meminfo_行 用 「Nova块缓存:」、Nova块缓存总KB。
+    输出 为 输出 加 做 meminfo_行 用 「SReclaimable:」、Nova块缓存可回收KB。
+    输出 为 输出 加 做 meminfo_行 用 「SUnreclaim:」、Nova块缓存不可回收KB。
+    输出 为 输出 加 做 meminfo_行 用 「KernelStack:」、内核栈KB。
+    输出 为 输出 加 做 meminfo_行 用 「PageTables:」、页表KB。
+    输出 为 输出 加 做 meminfo_行 用 「SwapTotal:」、交换总KB。
+    输出 为 输出 加 做 meminfo_行 用 「SwapFree:」、交换空闲KB。
+    输出 为 输出 加 做 meminfo_行 用 「CommitLimit:」、总KB 加 交换总KB。
+    输出 为 输出 加 做 meminfo_行 用 「Committed_AS:」、0。
+    输出 为 输出 加 做 meminfo_行 用 「VmallocTotal:」、34359738367。
+    输出 为 输出 加 做 meminfo_行 用 「VmallocUsed:」、0。
+    输出 为 输出 加 做 meminfo_行 用 「HugePages_Total:」、0。
+    输出 为 输出 加 做 meminfo_行 用 「HugePages_Free:」、0。
+    输出 为 输出 加 做 meminfo_行 用 「Hugepagesize:」、2048。
+    返还 输出。
+完。
+
+meminfo_行 接受 标签、值KB：
+    填充 为 16 减 做 字符串长度 用 标签。
+    若 填充 小于 1：
+        填充 为 1。
+    完。
+    可变 空格 为 「」。
+    可变 i 为 0。
+    只要 i 小于 填充：
+        空格 为 空格 加 「 」。
+        i 为 i 加 1。
+    完。
+    值字符串 为 做 整数转字符串 用 值KB。
+    数值填充 为 8 减 做 字符串长度 用 值字符串。
+    若 数值填充 小于 0：
+        数值填充 为 0。
+    完。
+    可变 前导空格 为 「」。
+    i 为 0。
+    只要 i 小于 数值填充：
+        前导空格 为 前导空格 加 「 」。
+        i 为 i 加 1。
+    完。
+    返还 标签 加 空格 加 前导空格 加 值字符串 加 「 kB\n」。
+完。
+
+可变 vm_stat_总页数 为 0。
+
+可变 vm_stat_空闲页数 为 0。
+
+可变 vm_stat_活跃匿名 为 0。
+
+可变 vm_stat_非活跃匿名 为 0。
+
+可变 vm_stat_活跃文件 为 0。
+
+可变 vm_stat_非活跃文件 为 0。
+
+可变 vm_stat_脏页 为 0。
+
+可变 vm_stat_回写页 为 0。
+
+可变 vm_stat_匿名页 为 0。
+
+可变 vm_stat_映射页 为 0。
+
+可变 vm_stat_共享页 为 0。
+
+可变 vm_stat_Nova块缓存可回收 为 0。
+
+可变 vm_stat_Nova块缓存不可回收 为 0。
+
+可变 vm_stat_内核栈页 为 0。
+
+可变 vm_stat_页表页 为 0。
+
+可变 vm_stat_缓冲页 为 0。
+
+可变 vm_stat_缓存页 为 0。
+
+可变 vm_stat_交换总页 为 0。
+
+可变 vm_stat_交换空闲页 为 0。
+
+物理内存_总页数 接受 零参：
+    返还 vm_stat_总页数。
+完。
+
+物理内存_空闲页数 接受 零参：
+    返还 vm_stat_空闲页数。
+完。
+
+物理内存_可用页数 接受 零参：
+    空闲 为 vm_stat_空闲页数。
+    可回收 为 vm_stat_缓存页 加 vm_stat_Nova块缓存可回收。
+    低水位 为 vm_stat_总页数 除以 32。
+    可用 为 空闲 加 可回收 减 低水位。
+    若 可用 小于 0：
+        可用 为 0。
+    完。
+    返还 可用。
+完。
+
+缓冲区_页数 接受 零参：
+    返还 vm_stat_缓冲页。
+完。
+
+页缓存_页数_meminfo 接受 零参：
+    返还 vm_stat_缓存页。
+完。
+
+活跃页数 接受 零参：
+    返还 vm_stat_活跃匿名 加 vm_stat_活跃文件。
+完。
+
+非活跃页数 接受 零参：
+    返还 vm_stat_非活跃匿名 加 vm_stat_非活跃文件。
+完。
+
+活跃匿名页数 接受 零参：
+    返还 vm_stat_活跃匿名。
+完。
+
+非活跃匿名页数 接受 零参：
+    返还 vm_stat_非活跃匿名。
+完。
+
+活跃文件页数 接受 零参：
+    返还 vm_stat_活跃文件。
+完。
+
+非活跃文件页数 接受 零参：
+    返还 vm_stat_非活跃文件。
+完。
+
+脏页数_meminfo 接受 零参：
+    返还 vm_stat_脏页。
+完。
+
+回写页数 接受 零参：
+    返还 vm_stat_回写页。
+完。
+
+匿名页数 接受 零参：
+    返还 vm_stat_匿名页。
+完。
+
+映射页数 接受 零参：
+    返还 vm_stat_映射页。
+完。
+
+共享页数 接受 零参：
+    返还 vm_stat_共享页。
+完。
+
+内核可回收页数 接受 零参：
+    返还 vm_stat_Nova块缓存可回收。
+完。
+
+Nova块缓存_总页数 接受 零参：
+    返还 vm_stat_Nova块缓存可回收 加 vm_stat_Nova块缓存不可回收。
+完。
+
+Nova块缓存_可回收页数 接受 零参：
+    返还 vm_stat_Nova块缓存可回收。
+完。
+
+内核栈_页数 接受 零参：
+    返还 vm_stat_内核栈页。
+完。
+
+页表_页数 接受 零参：
+    返还 vm_stat_页表页。
+完。
+
+交换_总页数 接受 零参：
+    返还 vm_stat_交换总页。
+完。
+
+交换_空闲页数 接受 零参：
+    返还 vm_stat_交换空闲页。
+完。
+
+vm_stat_初始化 接受 总页数：
+    vm_stat_总页数 为 总页数。
+    vm_stat_空闲页数 为 总页数。
+完。
+
+vm_stat_更新_空闲 接受 增量：
+    vm_stat_空闲页数 为 vm_stat_空闲页数 加 增量。
+完。
+
+vm_stat_更新_活跃匿名 接受 增量：
+    vm_stat_活跃匿名 为 vm_stat_活跃匿名 加 增量。
+完。
+
+vm_stat_更新_非活跃匿名 接受 增量：
+    vm_stat_非活跃匿名 为 vm_stat_非活跃匿名 加 增量。
+完。
+
+vm_stat_更新_活跃文件 接受 增量：
+    vm_stat_活跃文件 为 vm_stat_活跃文件 加 增量。
+完。
+
+vm_stat_更新_非活跃文件 接受 增量：
+    vm_stat_非活跃文件 为 vm_stat_非活跃文件 加 增量。
+完。
+
+vm_stat_更新_脏页 接受 增量：
+    vm_stat_脏页 为 vm_stat_脏页 加 增量。
+完。
+
+vm_stat_更新_回写页 接受 增量：
+    vm_stat_回写页 为 vm_stat_回写页 加 增量。
+完。
+
+vm_stat_更新_匿名 接受 增量：
+    vm_stat_匿名页 为 vm_stat_匿名页 加 增量。
+完。
+
+vm_stat_更新_映射 接受 增量：
+    vm_stat_映射页 为 vm_stat_映射页 加 增量。
+完。
+
+vm_stat_更新_Nova块缓存 接受 可回收增量、不可回收增量：
+    vm_stat_Nova块缓存可回收 为 vm_stat_Nova块缓存可回收 加 可回收增量。
+    vm_stat_Nova块缓存不可回收 为 vm_stat_Nova块缓存不可回收 加 不可回收增量。
+完。
+
+vm_stat_更新_缓存 接受 增量：
+    vm_stat_缓存页 为 vm_stat_缓存页 加 增量。
+完。
+
+proc_meminfo_注册 接受 零参：
+    做 proNova公平调度_注册 用 「meminfo」、proc_meminfo_读。
+完。
+
+内存使用率_百分比 接受 零参：
+    若 vm_stat_总页数 等于 0：
+        返还 0。
+    完。
+    返还 (vm_stat_总页数 减 vm_stat_空闲页数) 乘 100 除以 vm_stat_总页数。
+完。
+
+交换使用率_百分比 接受 零参：
+    若 vm_stat_交换总页 等于 0：
+        返还 0。
+    完。
+    返还 (vm_stat_交换总页 减 vm_stat_交换空闲页) 乘 100 除以 vm_stat_交换总页。
+完。
+
+meminfo_摘要 接受 零参：
+    总 为 vm_stat_总页数 乘 4 除以 1024。
+    空闲 为 vm_stat_空闲页数 乘 4 除以 1024。
+    可用 为 做 物理内存_可用页数 乘 4 除以 1024。
+    返还 一组：总、总 减 空闲、空闲、可用。
+完。
+
+meminfo_完整统计 接受 零参：
+    返还 一组：vm_stat_总页数、vm_stat_空闲页数、做 内存使用率_百分比、做 交换使用率_百分比。
+完。
+
+可变 AI_记忆己_运行指标 为 0。
+
+可变 AI_记忆己_异常指标 为 0。
+
+AI_记忆己_自诊断 接受 零参：
+    AI_记忆己_运行指标 为 0。
+    返还 AI_记忆己_运行指标。
+完。
+
+AI_记忆己_优化建议 接受 零参：
+    指标 为 做 AI_记忆己_自诊断。
+    返还 「记忆己状态正常」。
+完。
+
+本章 收束。

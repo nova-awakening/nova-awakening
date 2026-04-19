@@ -1,0 +1,296 @@
+《进程凭证》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·链表后继》。
+
+引用《.·整数转字符串》。
+
+进程凭证 是 一种 事物，含 uid、gid、euid、egid、suid、sgid、fsuid、fsgid、cap_effective、cap_permitted、cap_inheritable、补充组、引用计数。
+
+CAP_CHOWN 为 1 左移 0。
+
+CAP_DAC_OVERRIDE 为 1 左移 1。
+
+CAP_DAC_READ_SEARCH 为 1 左移 2。
+
+CAP_FOWNER 为 1 左移 3。
+
+CAP_FSETID 为 1 左移 4。
+
+CAP_KILL 为 1 左移 5。
+
+CAP_SETGID 为 1 左移 6。
+
+CAP_SETUID 为 1 左移 7。
+
+CAP_NET_BIND_SERVICE 为 1 左移 10。
+
+CAP_NET_RAW 为 1 左移 13。
+
+CAP_SYS_BOOT 为 1 左移 22。
+
+CAP_SYS_ADMIN 为 1 左移 21。
+
+CAP_SYS_TIME 为 1 左移 25。
+
+CAP_ALL 为 0xFFFFFFFF。
+
+凭证_创建 接受 uid、gid：
+    cred 为 新建 进程凭证。
+    cred 的 uid 为 uid。
+    cred 的 gid 为 gid。
+    cred 的 euid 为 uid。
+    cred 的 egid 为 gid。
+    cred 的 suid 为 uid。
+    cred 的 sgid 为 gid。
+    cred 的 fsuid 为 uid。
+    cred 的 fsgid 为 gid。
+    cred 的 cap_effective 为 0。
+    cred 的 cap_permitted 为 0。
+    cred 的 cap_inheritable 为 0。
+    cred 的 补充组 为 一组：（空）。
+    cred 的 引用计数 为 1。
+    若 uid 等于 0：
+        cred 的 cap_effective 为 CAP_ALL。
+        cred 的 cap_permitted 为 CAP_ALL。
+    完。
+    返还 cred。
+完。
+
+凭证_创建_root 接受 零参：
+    返还 做 凭证_创建 用 0、0。
+完。
+
+凭证_复制 接受 旧cred：
+    新cred 为 做 凭证_创建 用 旧cred 的 uid、旧cred 的 gid。
+    新cred 的 euid 为 旧cred 的 euid。
+    新cred 的 egid 为 旧cred 的 egid。
+    新cred 的 suid 为 旧cred 的 suid。
+    新cred 的 sgid 为 旧cred 的 sgid。
+    新cred 的 fsuid 为 旧cred 的 fsuid。
+    新cred 的 fsgid 为 旧cred 的 fsgid。
+    新cred 的 cap_effective 为 旧cred 的 cap_effective。
+    新cred 的 cap_permitted 为 旧cred 的 cap_permitted。
+    新cred 的 cap_inheritable 为 旧cred 的 cap_inheritable。
+    新cred 的 补充组 为 旧cred 的 补充组。
+    返还 新cred。
+完。
+
+do_setuid 接受 cred、新uid：
+    若 cred 的 euid 等于 0：
+        cred 的 uid 为 新uid。
+        cred 的 euid 为 新uid。
+        cred 的 suid 为 新uid。
+        cred 的 fsuid 为 新uid。
+        若 新uid 不等于 0：
+            cred 的 cap_effective 为 0。
+        完。
+        返还 成功。
+    完。
+    若 新uid 等于 cred 的 uid 或者 新uid 等于 cred 的 suid：
+        cred 的 euid 为 新uid。
+        cred 的 fsuid 为 新uid。
+        返还 成功。
+    完。
+    返还 错误_权限。
+完。
+
+do_setgid 接受 cred、新gid：
+    若 cred 的 euid 等于 0：
+        cred 的 gid 为 新gid。
+        cred 的 egid 为 新gid。
+        cred 的 sgid 为 新gid。
+        cred 的 fsgid 为 新gid。
+        返还 成功。
+    完。
+    若 新gid 等于 cred 的 gid 或者 新gid 等于 cred 的 sgid：
+        cred 的 egid 为 新gid。
+        cred 的 fsgid 为 新gid。
+        返还 成功。
+    完。
+    返还 错误_权限。
+完。
+
+凭证_有能力 接受 cred、能力：
+    返还 cred 的 cap_effective 位与 能力 不等于 0。
+完。
+
+凭证_是root 接受 cred：
+    返还 cred 的 euid 等于 0。
+完。
+
+凭证_检查文件权限 接受 cred、文件uid、文件gid、文件模式、请求模式：
+    若 做 凭证_有能力 用 cred、CAP_DAC_OVERRIDE：
+        返还 真。
+    完。
+    若 cred 的 fsuid 等于 文件uid：
+        返还 文件模式 右移 6 位与 请求模式 等于 请求模式。
+    完。
+    若 cred 的 fsgid 等于 文件gid 或者 做 凭证_在补充组 用 cred、文件gid：
+        返还 文件模式 右移 3 位与 请求模式 等于 请求模式。
+    完。
+    返还 文件模式 位与 请求模式 等于 请求模式。
+完。
+
+凭证_在补充组 接受 cred、gid：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 cred 的 补充组：
+        若 cred 的 补充组 的 第 i 项 等于 gid：
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+凭证_获取 接受 cred：
+    若 cred 不等于 空：
+        cred 的 引用计数 为 cred 的 引用计数 加 1。
+    完。
+    返还 cred。
+完。
+
+凭证_释放 接受 cred：
+    若 cred 等于 空：
+        返还。
+    完。
+    cred 的 引用计数 为 cred 的 引用计数 减 1。
+完。
+
+凭证_添加补充组 接受 cred、gid：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 cred 的 补充组：
+        若 cred 的 补充组 的 第 i 项 等于 gid：
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    做 追加 用 cred 的 补充组、gid。
+完。
+
+凭证_移除补充组 接受 cred、gid：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 cred 的 补充组：
+        若 cred 的 补充组 的 第 i 项 等于 gid：
+            做 链表_删除 用 cred 的 补充组、i。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+凭证_授予能力 接受 cred、能力：
+    cred 的 cap_permitted 为 cred 的 cap_permitted 位或 能力。
+    cred 的 cap_effective 为 cred 的 cap_effective 位或 能力。
+完。
+
+凭证_撤销能力 接受 cred、能力：
+    cred 的 cap_effective 为 cred 的 cap_effective 位与 按位取反 能力。
+完。
+
+凭证_清除全部能力 接受 cred：
+    cred 的 cap_effective 为 0。
+    cred 的 cap_permitted 为 0。
+    cred 的 cap_inheritable 为 0。
+完。
+
+能力名 接受 能力：
+    若 能力 等于 CAP_CHOWN：
+        返还 「CHOWN」。
+    完。
+    若 能力 等于 CAP_DAC_OVERRIDE：
+        返还 「DAC_OVERRIDE」。
+    完。
+    若 能力 等于 CAP_KILL：
+        返还 「KILL」。
+    完。
+    若 能力 等于 CAP_SETUID：
+        返还 「SETUID」。
+    完。
+    若 能力 等于 CAP_SETGID：
+        返还 「SETGID」。
+    完。
+    若 能力 等于 CAP_NET_RAW：
+        返还 「NET_RAW」。
+    完。
+    若 能力 等于 CAP_SYS_ADMIN：
+        返还 「SYS_ADMIN」。
+    完。
+    若 能力 等于 CAP_SYS_BOOT：
+        返还 「SYS_BOOT」。
+    完。
+    返还 「CAP_」 加 做 整数转字符串 用 能力。
+完。
+
+凭证_摘要 接受 cred：
+    返还 一组：cred 的 uid、cred 的 euid、cred 的 gid、cred 的 egid、做 计数 用 cred 的 补充组。
+完。
+
+凭证_完整统计 接受 cred：
+    返还 一组：cred 的 uid、cred 的 euid、cred 的 gid、cred 的 egid、做 计数 用 cred 的 补充组。
+完。
+
+凭证_有补充组 接受 cred、gid：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 cred 的 补充组：
+        若 cred 的 补充组 的 第 i 项 等于 gid：
+            返还 真。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 假。
+完。
+
+凭证_权限检查 接受 cred、所需uid：
+    若 cred 的 euid 等于 0：
+        返还 真。
+    完。
+    返还 cred 的 euid 等于 所需uid。
+完。
+
+ROOT_UID 为 0。
+
+ROOT_GID 为 0。
+
+NOBODY_UID 为 65534。
+
+NOBODY_GID 为 65534。
+
+可变 凭证_创建数 为 0。
+
+可变 凭证_切换数 为 0。
+
+凭证_统计 接受 零参：
+    返还 一本字典：创建 对应 凭证_创建数、切换 对应 凭证_切换数。
+完。
+
+凭证_健康检查 接受 零参：
+    返还 「凭证子系统健康」。
+完。
+
+可变 AI_进程凭证_负载窗口 为 一组：（空）。
+
+AI_进程凭证_负载预测 接受 当前负载：
+    做 追加 用 AI_进程凭证_负载窗口、当前负载。
+    若 做 计数 用 AI_进程凭证_负载窗口 大于 20：
+        做 列表_移除 用 AI_进程凭证_负载窗口、0。
+    完。
+    若 做 计数 用 AI_进程凭证_负载窗口 小于 3：
+        返还 当前负载。
+    完。
+    n 为 做 计数 用 AI_进程凭证_负载窗口。
+    趋势 为 AI_进程凭证_负载窗口 的 第 n 减 1 项 减 AI_进程凭证_负载窗口 的 第 n 减 3 项。
+    返还 当前负载 加 趋势。
+完。
+
+AI_进程凭证_迁移建议 接受 源CPU负载、目标CPU负载：
+    若 源CPU负载 大于 目标CPU负载 乘 2：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+本章 收束。

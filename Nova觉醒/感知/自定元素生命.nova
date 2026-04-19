@@ -1,0 +1,393 @@
+《自定元素生命》
+
+※ §4 Custom 元素生命周期
+
+※ 元素升级: 将已存在的unknown 元素升级为custom 元素
+
+引用《.·内核直连层》。
+引用《..·中枢·整数转字符串》。
+引用《.·获取注册表》。
+引用《..·中枢·辅助存根》。
+引用《..·执行·控制台输出》。
+引用《..·中枢·字符串替换》。
+
+CE_升级元素 接受 元素、def)：
+    若 元素 等于 0 或者 def 等于 0：
+    ※ 1. 设置状态为precustomized
+    ※ 元素.ceState = CE_STATE_PRECUSTOMIZED
+
+    ※ 2. 调用构造器
+    ※ 注意: 构造器中不能读属性/子元素(它们尚未被处理)
+    ※ new def.构造器()
+
+    ※ 3. 处理observedAttributes → 对每个已有属性触发attributeChangedCallback
+    若 def.attributeChangedCallback 不等于 0 并且 def.观察属性数 大于 0：
+        ※ 遍历元素的属性, 如果在observedAttributes中, 触发回调
+    完。
+
+    ※ 4. 如果已在文档中 → 触发connectedCallback
+    ※ 如果 (元素在文档中 && def.connectedCallback != 0) {
+    ※ def.connectedCallback(元素)
+    ※
+    ※ 5. 设置状态为custom
+    ※ 元素.ceState = CE_STATE_CUSTOM
+完。
+
+CE_升级已有元素 接受 def)：
+    若 def 等于 0：
+    ※ 遍历文档中所有tagName匹配的元素, 升级它们
+    ※ querySelectorAll(def.名称).forEach(el => CE_升级元素(el, def))
+完。
+
+※ custom元素s.upgrade(root)
+CE_upgrade 接受 root)：
+    若 root 等于 0：
+    ※ 遍历root子树中所有未定义的custom 元素, 尝试升级
+完。
+
+※ DOM插入时触发
+CE_connected回调 接受 元素)：
+    若 元素 等于 0：
+    def 为 做 CE_查找定义 用 0
+    若 def 不等于 0 并且 def.connectedCallback 不等于 0：
+        ※ 入队微任务: def.connectedCallback.call(元素)
+    完。
+完。
+
+※ DOM移除时触发
+CE_disconnected回调 接受 元素)：
+    若 元素 等于 0：
+    def 为 做 CE_查找定义 用 0。
+    若 def 不等于 0 并且 def.disconnectedCallback 不等于 0：
+        ※ 入队微任务: def.disconnectedCallback.call(元素)
+    完。
+完。
+
+※ 属性变化时触发
+CE_attribute变化 接受 元素、属性名、旧值、新值)：
+    若 元素 等于 0 或者 属性名 等于 0：
+    def 为 做 CE_查找定义 用 0。
+    若 def 等于 0 或者 def.attributeChangedCallback 等于 0：
+    ※ 检查属性是否在observedAttributes中
+    可变 在列表中 为 假。
+    可变 i 为 0。
+    只要 i 小于 def.观察属性数：
+        attr 为 做 内存_读64 用 def.观察属性 加 i 乘 8。
+        若 做 字符串_相等 用 attr、属性名：
+        i 为 i 加 1。
+    完。
+    若 在列表中：
+        ※ 入队微任务: def.attributeChangedCallback.call(元素, name, oldVal, newVal)
+    完。
+完。
+
+※ 文档转移时触发
+CE_adopted回调 接受 元素、旧文档、新文档)：
+    若 元素 等于 0：
+    def 为 做 CE_查找定义 用 0。
+    若 def 不等于 0 并且 def.adoptedCallback 不等于 0：
+        ※ def.adoptedCallback.call(元素, oldDocument, newDocument)
+    完。
+完。
+
+※ §5 Shadow DOM
+
+ShadowRoot 是 一种 事物：
+    ※ 基类: DocumentFragment行为
+    宿主,
+    模式,
+    delegatesFocus,。
+    slotAssignment,
+    ※ DOM树
+    子节点头,
+    子节点尾,。
+    子节点数,。
+    ※ 样式表
+    adopted样式Sheets,
+    样式表数,。
+    ※ Slot缓存
+    slot列表,
+    slot数,。
+完。
+
+ShadowRoot_创建 接受 宿主、模式、delegatesFocus)：
+    若 宿主 等于 0：
+    ※ 检查是否可以attachShadow
+    ※ 不允许: img, input, textarea, select, ...
+    sr 为 做 堆_分配 用 ShadowRoot。
+    sr.宿主 为 宿主; sr.模式 = 模式; sr.delegatesFocus = delegatesFocus。
+    sr.slotAssignment 为 0。
+    sr.子节点头 为 0; sr.子节点尾 = 0; sr.子节点数 = 0。
+    sr.adopted样式Sheets 为 0; sr.样式表数 = 0。
+    sr.slot列表 为 0; sr.slot数 = 0。
+    返还 sr。
+完。
+
+※ 元素.attachShadow({mode, delegatesFocus, slotAssignment})
+元素_attachShadow 接受 元素、模式、delegatesFocus)：
+    若 元素 等于 0：
+    ※ 检查: 已有shadowRoot → 抛出NotSupported错误
+    ※ 检查: 不允许的元素 → 抛出NotSupported错误
+    sr 为 做 ShadowRoot_创建 用 元素、模式、delegatesFocus。
+    ※ 元素.shadowRoot = sr (open模式下可通过JS访问)
+    返还 sr。
+完。
+
+※ shadowRoot.innerHTML = "..."
+ShadowRoot_setInnerHTML 接受 sr、html)：
+    若 sr 等于 0 或者 html 等于 0：
+    ※ 清除现有子节点
+    sr.子节点头 为 0; sr.子节点尾 = 0; sr.子节点数 = 0。
+    ※ 解析HTML并添加为子节点
+    ※ HTML解析器生成DOM树 → 附加到sr
+完。
+
+※ shadowRoot.querySelector(selector)
+ShadowRoot_querySelector 接受 sr、selector)：
+    若 sr 等于 0 或者 selector 等于 0：
+    ※ 在shadow tree中查询
+    返还 0。
+完。
+
+※ §6 Custom元素定义结构
+
+CE_STATE_UNDEFINED 为 0。
+CE_STATE_FAILED 为 1。
+CE_STATE_UNCUSTOMIZED 为 2。
+CE_STATE_PRECUSTOMIZED 为 3。
+CE_STATE_CUSTOM 为 4。
+
+SHADOW_OPEN 为 0。
+SHADOW_CLOSED 为 1。
+
+CE定义 是 一种 事物：
+    名称,。
+    构造器,。
+    观察属性,。
+    观察属性数,。
+    connectedCallback,。
+    disconnectedCallback,。
+    attributeChangedCallback,。
+    adoptedCallback,。
+    formAssociatedCallback,。
+    extends标签,。
+    已升级元素数,。
+完。
+
+可变 CE注册表 为 []。
+可变 CE注册表_数量 为 0。
+
+CE_注册 接受 名称、构造器)：
+    若 名称 等于 0 或者 构造器 等于 0：
+    若 !做 CE_是有效名称 用 名称：
+    若 做 CE_查找定义_按名称 用 名称 不等于 空：
+    def 为 CE定义 {}。
+    def.名称 为 做 字符串_复制 用 名称。
+    def.构造器 为 构造器。
+    def.观察属性 为 0。
+    def.观察属性数 为 0。
+    def.connectedCallback 为 0。
+    def.disconnectedCallback 为 0。
+    def.attributeChangedCallback 为 0。
+    def.adoptedCallback 为 0。
+    def.formAssociatedCallback 为 0。
+    def.extends标签 为 0。
+    def.已升级元素数 为 0。
+    做 追加 用 CE注册表、def。
+    CE注册表_数量 为 CE注册表_数量 加 1。
+    做 CE_升级已有元素 用 def。
+    返还 0。
+完。
+
+CE_查找定义_按名称 接受 名称)：
+    可变 i 为 0。
+    只要 i 小于 CE注册表_数量：
+        若 做 字符串_相等 用 CE注册表[i].名称、名称：
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+CE_是有效名称 接受 名称)：
+    若 名称 等于 0：
+    长度 为 做 字符串_长度 用 名称。
+    若 长度 小于 2：
+    可变 有横杠 为 假。
+    第一个 为 做 字节取 用 名称、0。
+    若 第一个 小于 97 或者 第一个 大于 122：
+    可变 i 为 1。
+    只要 i 小于 长度：
+        ch 为 做 字节取 用 名称、i。
+        若 ch 等于 45：
+        i 为 i 加 1。
+    完。
+    返还 有横杠。
+完。
+
+CE_设置回调 接受 def、回调名、函数)：
+    若 def 等于 0：
+    若 做 字符串_相等 用 回调名、「connectedCallback」：
+    否则 若 (做 字符串_相等 用 回调名、「disconnectedCallback」) { def.disconnectedCallback = 函数 }。
+    否则 若 (做 字符串_相等 用 回调名、「attributeChangedCallback」) { def.attributeChangedCallback = 函数 }。
+    否则 若 (做 字符串_相等 用 回调名、「adoptedCallback」) { def.adoptedCallback = 函数 }。
+完。
+
+CE_设置观察属性 接受 def、属性列表、数量)：
+    若 def 等于 0：
+    def.观察属性 为 属性列表。
+    def.观察属性数 为 数量。
+完。
+
+※ §7 ShadowRoot操作扩展
+
+ShadowRoot_添加子节点 接受 sr、节点)：
+    若 sr 等于 0 或者 节点 等于 0：
+    若 sr.子节点尾 不等于 0：
+        sr.子节点尾 为 节点。
+    否则：
+        sr.子节点头 为 节点。
+        sr.子节点尾 为 节点。
+    完。
+    sr.子节点数 为 sr.子节点数 加 1。
+完。
+
+ShadowRoot_清空子节点 接受 sr)：
+    若 sr 等于 0：
+    sr.子节点头 为 0。
+    sr.子节点尾 为 0。
+    sr.子节点数 为 0。
+完。
+
+ShadowRoot_获取模式名 接受 模式)：
+    若 模式 等于 SHADOW_OPEN：
+    返还 「closed」。
+完。
+
+ShadowRoot_添加样式表 接受 sr、样式表)：
+    若 sr 等于 0 或者 样式表 等于 0：
+    sr.样式表数 为 sr.样式表数 加 1。
+完。
+
+ShadowRoot_获取宿主 接受 sr)：
+    若 sr 等于 0：
+    返还 sr.宿主。
+完。
+
+※ §8 Slot分发
+
+Slot 是 一种 事物：
+    名称,。
+    分配节点,。
+    分配数,。
+完。
+
+Slot_创建 接受 名称)：
+    slot 为 Slot {}。
+    slot.名称 为 名称。
+    slot.分配节点 为 []。
+    slot.分配数 为 0。
+    返还 slot。
+完。
+
+Slot_分配 接受 slot、节点)：
+    若 slot 等于 0 或者 节点 等于 0：
+    做 追加 用 slot.分配节点、节点。
+    slot.分配数 为 slot.分配数 加 1。
+完。
+
+Slot_获取已分配 接受 slot)：
+    若 slot 等于 0：
+    返还 slot.分配节点。
+完。
+
+ShadowRoot_查找Slot 接受 sr、名称)：
+    若 sr 等于 0：
+    可变 i 为 0。
+    只要 i 小于 sr.slot数：
+        若 做 字符串_相等 用 sr.slot列表[i].名称、名称：
+            返还 sr.slot列表[i]。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+ShadowRoot_添加Slot 接受 sr、slot)：
+    若 sr 等于 0 或者 slot 等于 0：
+    做 追加 用 sr.slot列表、slot。
+    sr.slot数 为 sr.slot数 加 1。
+完。
+
+※ §9 模板(Template)
+
+模板内容 是 一种 事物：
+    文档片段,。
+    已克隆,。
+完。
+
+Template_获取内容 接受 模板元素)：
+    若 模板元素 等于 0：
+    返还 模板元素。
+完。
+
+Template_克隆内容 接受 模板元素)：
+    若 模板元素 等于 0：
+    返还 模板元素。
+完。
+
+※ §10 Web组件统计与健康检查
+
+可变 CE_注册总数 为 0。
+可变 CE_升级总数 为 0。
+可变 CE_回调总数 为 0。
+可变 CE_错误总数 为 0。
+可变 Shadow_创建总数 为 0。
+
+WebComponent_统计 接受 )：
+    返还 ：
+        注册定义数。
+        注册总数。
+        升级总数。
+        回调触发。
+        错误数。
+        ShadowRoot创建。
+    完。
+完。
+
+WebComponent_健康检查 接受 )：
+    可变 问题 为 []。
+    若 CE_错误总数 大于 10：
+        做 追加 用 问题、「自定义元素错误过多: 」 加 做 整数转字符串 用 CE_错误总数。
+    完。
+    若 CE注册表_数量 大于 1000：
+        做 追加 用 问题、「自定义元素定义过多: 」 加 做 整数转字符串 用 CE注册表_数量。
+    完。
+    若 做 计数 用 问题 等于 0：
+    返还 问题。
+完。
+
+WebComponent_重置统计 接受 )：
+    CE_注册总数 为 0。
+    CE_升级总数 为 0。
+    CE_回调总数 为 0。
+    CE_错误总数 为 0。
+    Shadow_创建总数 为 0。
+完。
+
+CE状态_名称 接受 状态)：
+    若 状态 等于 CE_STATE_UNDEFINED：
+    若 状态 等于 CE_STATE_FAILED：
+    若 状态 等于 CE_STATE_UNCUSTOMIZED：
+    若 状态 等于 CE_STATE_PRECUSTOMIZED：
+    若 状态 等于 CE_STATE_CUSTOM：
+    返还 「unknown」。
+完。
+
+WebComponent_完整统计 接受 )：
+    返还 [CE注册表_数量, CE_升级总数, CE_回调总数, CE_错误总数, Shadow_创建总数]。
+完。
+
+错误_无效参数 为 -22。
+错误_已存在 为 -17。
+
+本章 收束。

@@ -1,0 +1,169 @@
+《Fetch_Headers》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《.·资源取数》。
+
+引用《..·中枢·辅助存根》。
+
+METHOD_GET 为 0。
+
+METHOD_POST 为 1。
+
+METHOD_PUT 为 2。
+
+METHOD_DELETE 为 3。
+
+METHOD_PATCH 为 4。
+
+METHOD_HEAD 为 5。
+
+METHOD_OPTIONS 为 6。
+
+MODE_CORS 为 0。
+
+MODE_NO_CORS 为 1。
+
+MODE_SAME_ORIGIN 为 2。
+
+MODE_NAVIGATE 为 3。
+
+CRED_OMIT 为 0。
+
+CRED_SAME_ORIGIN 为 1。
+
+CRED_INCLUDE 为 2。
+
+CACHE_DEFAULT 为 0。
+
+CACHE_NO_STORE 为 1。
+
+CACHE_RELOAD 为 2。
+
+CACHE_NO_CACHE 为 3。
+
+CACHE_FORCE_CACHE 为 4。
+
+CACHE_ONLY_IF_CACHED 为 5。
+
+REDIRECT_FOLLOW 为 0。
+
+REDIRECT_ERROR 为 1。
+
+REDIRECT_MANUAL 为 2。
+
+RESP_BASIC 为 0。
+
+RESP_CORS 为 1。
+
+RESP_OPAQUE 为 2。
+
+RESP_OPAQUE_REDIRECT 为 3。
+
+RESP_ERROR 为 4。
+
+PRIORITY_HIGH 为 0。
+
+PRIORITY_LOW 为 1。
+
+PRIORITY_AUTO 为 2。
+
+HeaderEntry 是 一种 事物，含 名称、值、下一个。
+
+Headers 是 一种 事物，含 头、数量、guard。
+
+Headers_创建 接受 零参：
+    h 为 做 堆_分配 用 Headers。
+    h 的 头 为 0。
+    h 的 数量 为 0。
+    h 的 guard 为 0。
+    返还 h。
+完。
+
+Headers_append 接受 h、名称、值：
+    若 h 等于 0 或者 名称 等于 0 或者 值 等于 0：
+        返还。
+    完。
+    若 h 的 guard 等于 1：
+        返还。
+    完。
+    entry 为 做 堆_分配 用 HeaderEntry。
+    entry 的 名称 为 做 字符串_小写化 用 做 字符串_复制 用 名称。
+    entry 的 值 为 做 字符串_复制 用 值。
+    entry 的 下一个 为 h 的 头。
+    h 的 头 为 entry。
+    h 的 数量 为 h 的 数量 加 1。
+完。
+
+Headers_set 接受 h、名称、值：
+    若 h 等于 0 或者 名称 等于 0 或者 值 等于 0：
+        返还。
+    完。
+    若 h 的 guard 等于 1：
+        返还。
+    完。
+    小写名 为 做 字符串_小写化 用 做 字符串_复制 用 名称。
+    做 Headers_delete 用 h、小写名。
+    做 Headers_append 用 h、名称、值。
+完。
+
+Headers_get 接受 h、名称：
+    若 h 等于 0 或者 名称 等于 0：
+        返还 0。
+    完。
+    小写名 为 做 字符串_小写化 用 做 字符串_复制 用 名称。
+    可变 entry 为 h 的 头。
+    只要 entry 不等于 0：
+        若 做 字符串_相等 用 entry 的 名称、小写名：
+            返还 entry 的 值。
+        完。
+        entry 为 entry 的 下一个。
+    完。
+    返还 0。
+完。
+
+Headers_has 接受 h、名称：
+    返还 做 Headers_get 用 h、名称 不等于 0。
+完。
+
+Headers_delete 接受 h、名称：
+    若 h 等于 0 或者 名称 等于 0：
+        返还。
+    完。
+    若 h 的 guard 等于 1：
+        返还。
+    完。
+    小写名 为 做 字符串_小写化 用 做 字符串_复制 用 名称。
+    可变 prev 为 0。
+    可变 entry 为 h 的 头。
+    只要 entry 不等于 0：
+        若 做 字符串_相等 用 entry 的 名称、小写名：
+            若 prev 等于 0：
+                h 的 头 为 entry 的 下一个。
+            否则：
+                prev 的 下一个 为 entry 的 下一个。
+            完。
+            h 的 数量 为 h 的 数量 减 1。
+            entry 为 若 prev 等于 0 则 h 的 头 否则 prev 的 下一个。
+            继续。
+        完。
+        prev 为 entry。
+        entry 为 entry 的 下一个。
+    完。
+完。
+
+Headers_遍历 接受 h、回调：
+    若 h 等于 0 或者 回调 等于 0：
+        返还。
+    完。
+    可变 entry 为 h 的 头。
+    只要 entry 不等于 0：
+        entry 为 entry 的 下一个。
+    完。
+完。
+
+本章 收束。

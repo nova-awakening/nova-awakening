@@ -1,0 +1,133 @@
+《HTMLTreeBuilder_head》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·样式解析》。
+
+引用《.·元素栈创建》。
+
+引用《.·requestAnimationFrame》。
+
+引用《.·节点行为统计》。
+
+引用《.·文档接口属》。
+
+引用《.·文档节点》。
+
+引用《.·原子驻留》。
+
+引用《.·树构建器》。
+
+HTMLTreeBuilder_head前模式 接受 tb、令牌：
+    若 令牌 的 类型 等于 令牌类型_字符：
+        返还。
+    完。
+    若 令牌 的 类型 等于 令牌类型_开始标签：
+        标签原子 为 做 原子_驻留 用 令牌 的 标签名。
+        若 标签原子 等于 原子_head：
+            head 为 做 HTMLTreeBuilder_创建元素并插入 用 tb、令牌、0。
+            tb 的 head指针 为 head。
+            做 元素栈_压入 用 tb 的 开放元素栈、head。
+            做 Document_设置head 用 tb 的 文档、head。
+            tb 的 插入模式 为 插入模式_head中。
+            返还。
+        完。
+    完。
+    head 为 做 Document_create元素 用 tb 的 文档、「head」。
+    当前 为 做 元素栈_顶部 用 tb 的 开放元素栈。
+    做 节点_appendChild 用 当前、head。
+    tb 的 head指针 为 head。
+    做 元素栈_压入 用 tb 的 开放元素栈、head。
+    做 Document_设置head 用 tb 的 文档、head。
+    tb 的 插入模式 为 插入模式_head中。
+    做 HTMLTreeBuilder_处理令牌 用 tb、令牌。
+完。
+
+HTMLTreeBuilder_head中模式 接受 tb、令牌：
+    若 令牌 的 类型 等于 令牌类型_字符：
+        做 HTMLTreeBuilder_插入文本 用 tb、令牌 的 数据、令牌 的 数据长度。
+        返还。
+    完。
+    若 令牌 的 类型 等于 令牌类型_注释：
+        注释 为 做 Comment_创建 用 令牌 的 数据。
+        当前 为 做 元素栈_顶部 用 tb 的 开放元素栈。
+        做 节点_appendChild 用 当前、注释。
+        返还。
+    完。
+    若 令牌 的 类型 等于 令牌类型_开始标签：
+        标签原子 为 做 原子_驻留 用 令牌 的 标签名。
+        若 标签原子 等于 原子_title：
+            做 HTMLTreeBuilder_创建元素并插入 用 tb、令牌、0。
+            做 HTML令牌izer_切换到RCDATA 用 tb 的 令牌izer。
+            tb 的 原始插入模式 为 tb 的 插入模式。
+            tb 的 插入模式 为 插入模式_文本。
+            返还。
+        完。
+        若 标签原子 等于 原子_style：
+            做 HTMLTreeBuilder_创建元素并插入 用 tb、令牌、0。
+            做 HTML令牌izer_切换到RAWTEXT 用 tb 的 令牌izer。
+            tb 的 原始插入模式 为 tb 的 插入模式。
+            tb 的 插入模式 为 插入模式_文本。
+            返还。
+        完。
+        若 标签原子 等于 原子_script：
+            做 HTMLTreeBuilder_创建元素并插入 用 tb、令牌、0。
+            做 HTML令牌izer_切换到脚本数据 用 tb 的 令牌izer。
+            tb 的 原始插入模式 为 tb 的 插入模式。
+            tb 的 插入模式 为 插入模式_文本。
+            返还。
+        完。
+        若 标签原子 等于 原子_meta 或者 标签原子 等于 原子_link：
+            做 HTMLTreeBuilder_创建元素并插入 用 tb、令牌、0。
+            若 令牌 的 自闭合 或者 做 元素_是空元素_原子 用 标签原子：
+                做 元素栈_弹出 用 tb 的 开放元素栈。
+            完。
+            返还。
+        完。
+        返还 做 HTMLTreeBuilder_关闭head 用 tb、令牌。
+    完。
+    若 令牌 的 类型 等于 令牌类型_结束标签：
+        标签原子 为 做 原子_驻留 用 令牌 的 标签名。
+        若 标签原子 等于 原子_head：
+            做 元素栈_弹出 用 tb 的 开放元素栈。
+            tb 的 插入模式 为 插入模式_head后。
+            返还。
+        完。
+    完。
+    做 HTMLTreeBuilder_关闭head 用 tb、令牌。
+完。
+
+HTMLTreeBuilder_关闭head 接受 tb、令牌：
+    做 元素栈_弹出 用 tb 的 开放元素栈。
+    tb 的 插入模式 为 插入模式_head后。
+    做 HTMLTreeBuilder_处理令牌 用 tb、令牌。
+完。
+
+HTMLTreeBuilder_head后模式 接受 tb、令牌：
+    若 令牌 的 类型 等于 令牌类型_字符：
+        做 HTMLTreeBuilder_插入文本 用 tb、令牌 的 数据、令牌 的 数据长度。
+        返还。
+    完。
+    若 令牌 的 类型 等于 令牌类型_开始标签：
+        标签原子 为 做 原子_驻留 用 令牌 的 标签名。
+        若 标签原子 等于 原子_body：
+            body 为 做 HTMLTreeBuilder_创建元素并插入 用 tb、令牌、0。
+            做 元素栈_压入 用 tb 的 开放元素栈、body。
+            做 Document_设置body 用 tb 的 文档、body。
+            tb 的 frameset_ok 为 假。
+            tb 的 插入模式 为 插入模式_body中。
+            返还。
+        完。
+    完。
+    body 为 做 Document_create元素 用 tb 的 文档、「body」。
+    当前 为 做 元素栈_顶部 用 tb 的 开放元素栈。
+    做 节点_appendChild 用 当前、body。
+    做 元素栈_压入 用 tb 的 开放元素栈、body。
+    做 Document_设置body 用 tb 的 文档、body。
+    tb 的 插入模式 为 插入模式_body中。
+    做 HTMLTreeBuilder_处理令牌 用 tb、令牌。
+完。
+
+本章 收束。

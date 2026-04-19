@@ -1,0 +1,79 @@
+《常量》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+Nova标准80211_FTYPE_MGMT 为 0x0000。
+
+Nova标准80211_FTYPE_CTRL 为 0x0004。
+
+Nova标准80211_FTYPE_DATA 为 0x0008。
+
+Nova标准80211_STYPE_ASSOC_REQ 为 0x0000。
+
+Nova标准80211_STYPE_ASSOC_RESP 为 0x0010。
+
+Nova标准80211_STYPE_PROBE_REQ 为 0x0040。
+
+Nova标准80211_STYPE_PROBE_RESP 为 0x0050。
+
+Nova标准80211_STYPE_BEACON 为 0x0080。
+
+Nova标准80211_STYPE_DISASSOC 为 0x00A0。
+
+Nova标准80211_STYPE_AUTH 为 0x00B0。
+
+Nova标准80211_STYPE_DEAUTH 为 0x00C0。
+
+Nova标准80211_STYPE_ACTION 为 0x00D0。
+
+WIFI_CIPHER_NONE 为 0。
+
+WIFI_CIPHER_WEP40 为 1。
+
+WIFI_CIPHER_WEP104 为 2。
+
+WIFI_CIPHER_TKIP 为 3。
+
+WIFI_CIPHER_CCMP 为 4。
+
+WIFI_CIPHER_GCMP_256 为 5。
+
+WIFI_CIPHER_SAE 为 6。
+
+WIFI_AUTH_OPEN 为 0。
+
+WIFI_AUTH_WPA_PSK 为 1。
+
+WIFI_AUTH_WPA2_PSK 为 2。
+
+WIFI_AUTH_WPA3_SAE 为 3。
+
+WIFI_AUTH_WPA_EAP 为 4。
+
+WIFI_STATE_DISCONNECTED 为 0。
+
+WIFI_STATE_SCANNING 为 1。
+
+WIFI_STATE_AUTHENTICATING 为 2。
+
+WIFI_STATE_ASSOCIATING 为 3。
+
+WIFI_STATE_CONNECTED 为 4。
+
+WIFI_BAND_2GHZ 为 0。
+
+WIFI_BAND_5GHZ 为 1。
+
+WIFI_BAND_6GHZ 为 2。
+
+WiFi设备 是 一种 事物，含 名称、MAC地址、驱动名、状态、当前BSS、扫描结果、支持频段、当前频道、当前频率、TX功率、驱动_扫描、驱动_连接、驱动_断开、驱动_发送帧、发送字节、接收字节、发送包数、接收包数。
+
+WiFi_BSS 是 一种 事物，含 BSSID、SSID、频率、频道、信号强度、加密类型、认证类型、信标间隔、能力、标准、最大速率。
+
+WiFi密钥 是 一种 事物，含 类型、密码、PMK、PTK、GTK、密钥索引、序列号。
+
+WiFi扫描参数 是 一种 事物，含 SSID列表、频率列表、被动扫描、每频道时间。
+
+本章 收束。

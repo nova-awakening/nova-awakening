@@ -1,0 +1,91 @@
+《软件更新》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·ServiceWorker全局》。
+
+引用《..·中枢·内容可见性》。
+
+SW_更新 接受 reg、新脚本URL：
+    若 reg 等于 0 或者 reg 的 更新中：
+        返还。
+    完。
+    reg 的 更新中 为 真。
+    新sw 为 做 SW_创建 用 新脚本URL、reg 的 作用域。
+    reg 的 installing 为 新sw。
+    做 SW_开始安装 用 reg。
+    reg 的 更新中 为 假。
+    reg 的 最后更新检查 为 做 平台_获取高精度时间。
+完。
+
+SW_检查更新 接受 reg：
+    若 reg 等于 0：
+        返还。
+    完。
+    现在 为 做 平台_获取高精度时间。
+    间隔 为 24 乘 60 乘 60 乘 1000。
+    若 现在 减 reg 的 最后更新检查 大于 间隔：
+        若 reg 的 active 不等于 0：
+            做 SW_更新 用 reg、reg 的 active 的 脚本URL。
+        完。
+    完。
+完。
+
+Client 是 一种 事物，含 ID、类型、URL、消息端口。
+
+SW_postMessage 接受 sw、消息、客户端ID：
+    若 sw 等于 0 或者 sw 的 message处理器 等于 0：
+        返还。
+    完。
+完。
+
+Client_postMessage 接受 client、消息：
+    若 client 等于 0：
+        返还。
+    完。
+完。
+
+SW_matchAllClients 接受 sw、类型：
+    若 sw 等于 0：
+        返还 0。
+    完。
+    返还 0。
+完。
+
+SW_claim 接受 sw：
+    若 sw 等于 0 或者 sw 的 状态 不等于 SW_STATE_ACTIVATED：
+        返还。
+    完。
+    容器 为 做 SW_获取容器。
+    若 容器 不等于 0：
+        容器 的 controller 为 sw。
+    完。
+完。
+
+PushSubscription 是 一种 事物，含 enNova直接偏好优化int、p256dh、auth、过期时间。
+
+Push事件 是 一种 事物，含 基类、数据、数据长度。
+
+SW_触发push 接受 sw、数据、长度：
+    若 sw 等于 0 或者 sw 的 push处理器 等于 0：
+        返还。
+    完。
+完。
+
+Sync事件 是 一种 事物，含 基类、tag、lastChance。
+
+SW_registerSync 接受 reg、tag：
+    若 reg 等于 0：
+        返还。
+    完。
+完。
+
+SW_触发sync 接受 sw、tag：
+    若 sw 等于 0 或者 sw 的 sync处理器 等于 0：
+        返还。
+    完。
+完。
+
+本章 收束。

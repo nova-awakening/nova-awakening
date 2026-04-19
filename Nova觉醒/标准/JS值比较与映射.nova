@@ -1,0 +1,512 @@
+《JS值比较与映射》
+
+※ NovaOS · JS集合引擎 (Map/Set/WeakMap/WeakSet)。
+※ 功能:。
+※ §1 SameValueZero比较: +0==-0, NaN==NaN。
+※ §2 哈希表引擎: FNV-1a哈希+开放寻址。
+※ §3 Map: get/set/has/delete/forEach/迭代器。
+※ §4 Set: add/has/delete/forEach/迭代器。
+※ §5 WeakMap/WeakSet: GC弱引用跟踪。
+※ §6 FinalizationRegistry: 对象回收回调。
+※ §7 集合运算: union/intersection/difference。
+※ §8 AI总线: EWMA热路径反馈+智能容量预测。
+
+引用《..·中枢·系统调用表》。
+引用《..·推理·通信渠道》。
+引用《..·感知·内核直连层》。
+引用《..·中枢·硬链接》。
+引用《..·中枢·辅助存根》。
+引用《..·执行·控制台输出》。
+引用《..·中枢·内存初始化》。
+引用《..·中枢·整数转字符串》。
+引用《..·中枢·辅助有符号读》。
+引用《..·推理·定点Q算术》。
+引用《..·推理·AI鼠标事件处理》。
+
+※ §1 数据结构 + 常量。
+
+MAP_INIT_BUCKETS 为 16。
+MAP_LOAD_FACTOR 为 768
+FNV_OFFSET 为 0x811C9DC5。
+FNV_PRIME 为 16777619。
+ENTRY_EMPTY 为 0。
+ENTRY_OCCUPIED 为 1。
+ENTRY_DELETED 为 2。
+Q10 为 1024。
+Q_ONE 为 1024。
+
+HashEntry 是 一种 事物：
+    状态,
+    哈希,。
+    键,。
+    值,
+完。
+
+HashMap 是 一种 事物：
+    桶数,。
+    元素数,。
+    桶,
+    插入顺序,
+完。
+
+※ §2 SameValueZero比较 + 哈希计算。
+
+JSValue_SameValueZero 接受 a、b：
+    ※ SameValueZero: 类似===, 但+0 == -0, NaN == NaN。
+    若 a 等于 b：
+    若 做 JSValue_IsNumber 用 a 并且 做 JSValue_IsNumber 用 b：
+        na 为 做 Nova值_转数值 用 0、a。
+        nb 为 做 Nova值_转数值 用 0、b。
+        若 na 等于 nb：
+        若 做 JSValue_IsNaN 用 a 并且 做 JSValue_IsNaN 用 b：
+    完。
+    若 做 JSValue_IsString 用 a 并且 做 JSValue_IsString 用 b：
+        返还 做 字符串_相等 用 做 JSValue_获取字符串 用 a、做 JSValue_获取字符串 用 b。
+    完。
+    返还 假。
+完。
+
+哈希_计算 接受 值：
+    ※ FNV-1a哈希算法。
+    若 做 JSValue_IsNumber 用 值：
+        n 为 做 Nova值_转数值 用 0、值。
+        可变 h 为 FNV_OFFSET。
+        h 为 (h 位异或 (n 位与 0xFF)) 乘 FNV_PRIME。
+        h 为 (h 位异或 ((n 右移 8) 位与 0xFF)) 乘 FNV_PRIME。
+        h 为 (h 位异或 ((n 右移 16) 位与 0xFF)) 乘 FNV_PRIME。
+        h 为 (h 位异或 ((n 右移 24) 位与 0xFF)) 乘 FNV_PRIME。
+        返还 h 位与 0x7FFFFFFF。
+    完。
+    若 做 JSValue_IsString 用 值：
+        s 为 做 JSValue_获取字符串 用 值。
+        len 为 做 字符串长度 用 s。
+        可变 h 为 FNV_OFFSET。
+        可变 i 为 0。
+        只要 i 小于 len：
+            h 为 (h 位异或 做 字节取 用 s、i) 乘 FNV_PRIME。
+            i 为 i 加 1。
+        完。
+        返还 h 位与 0x7FFFFFFF。
+    完。
+    ※ 对象: 用内存地址作为哈希。
+    返还 值 位与 0x7FFFFFFF。
+完。
+
+※ §3 HashMap引擎: 开放寻址 + 自动扩容。
+
+HashMap_创建 接受 零参：
+    m 为 HashMap {}。
+    m.桶数 为 MAP_INIT_BUCKETS。
+    m.元素数 为 0。
+    m.桶 为 做 堆_分配 用 MAP_INIT_BUCKETS 乘 32
+    做 内存_置零 用 m.桶、MAP_INIT_BUCKETS 乘 32。
+    m.插入顺序 为 []。
+    返还 m。
+完。
+
+HashMap_查找桶 接受 m、键、哈希：
+    ※ 开放寻址: 线性探测。
+    可变 idx 为 哈希 取余于 m.桶数。
+    可变 探测 为 0。
+    只要 探测 小于 m.桶数：
+        off 为 idx 乘 32。
+        状态 为 做 内存_读32 用 m.桶 加 off。
+        若 状态 等于 ENTRY_EMPTY：
+        若 状态 等于 ENTRY_OCCUPIED：
+            stored_hash 为 做 内存_读32 用 m.桶 加 off 加 4。
+            若 stored_hash 等于 哈希：
+                stored_key 为 做 内存_读64 用 m.桶 加 off 加 8。
+                若 做 JSValue_SameValueZero 用 stored_key、键：
+                    返还 idx
+                完。
+            完。
+        完。
+        ※ ENTRY_DELETED: 继续探测。
+        idx 为 (idx 加 1) 取余于 m.桶数。
+        探测 为 探测 加 1。
+    完。
+    返还 -1
+完。
+
+HashMap_set 接受 m、键、值：
+    ※ 检查负载因子。
+    若 m.元素数 乘 Q10 除以 m.桶数 大于 MAP_LOAD_FACTOR：
+        做 HashMap_扩容 用 m。
+    完。
+    h 为 做 哈希_计算 用 键。
+    idx 为 做 HashMap_查找桶 用 m、键、h。
+    若 idx 小于 0：
+    off 为 idx 乘 32。
+    已存在 为 做 内存_读32 用 m.桶 加 off 等于 ENTRY_OCCUPIED。
+    做 内存_写32 用 m.桶 加 off、ENTRY_OCCUPIED。
+    做 内存_写32 用 m.桶 加 off 加 4、h。
+    做 内存_写64 用 m.桶 加 off 加 8、键。
+    做 内存_写64 用 m.桶 加 off 加 16、值。
+    若 !已存在：
+        m.元素数 为 m.元素数 加 1。
+        做 追加 用 m.插入顺序、键
+    完。
+完。
+
+HashMap_get 接受 m、键：
+    h 为 做 哈希_计算 用 键。
+    idx 为 做 HashMap_查找桶 用 m、键、h。
+    若 idx 小于 0：
+    off 为 idx 乘 32。
+    若 做 内存_读32 用 m.桶 加 off 不等于 ENTRY_OCCUPIED：
+    返还 做 内存_读64 用 m.桶 加 off 加 16。
+完。
+
+HashMap_has 接受 m、键：
+    h 为 做 哈希_计算 用 键。
+    idx 为 做 HashMap_查找桶 用 m、键、h。
+    若 idx 小于 0：
+    返还 做 内存_读32 用 m.桶 加 idx 乘 32 等于 ENTRY_OCCUPIED。
+完。
+
+HashMap_delete 接受 m、键：
+    h 为 做 哈希_计算 用 键。
+    idx 为 做 HashMap_查找桶 用 m、键、h。
+    若 idx 小于 0：
+    off 为 idx 乘 32。
+    若 做 内存_读32 用 m.桶 加 off 不等于 ENTRY_OCCUPIED：
+    做 内存_写32 用 m.桶 加 off、ENTRY_DELETED
+    m.元素数 为 m.元素数 减 1。
+    返还 真。
+完。
+
+HashMap_扩容 接受 m：
+    旧桶 为 m.桶。
+    旧桶数 为 m.桶数。
+    m.桶数 为 旧桶数 乘 2。
+    m.桶 为 做 堆_分配 用 m.桶数 乘 32。
+    做 内存_置零 用 m.桶、m.桶数 乘 32。
+    m.元素数 为 0。
+    m.插入顺序 为 []。
+    ※ 重新插入所有元素。
+    可变 i 为 0。
+    只要 i 小于 旧桶数：
+        off 为 i 乘 32。
+        若 做 内存_读32 用 旧桶 加 off 等于 ENTRY_OCCUPIED：
+            k 为 做 内存_读64 用 旧桶 加 off 加 8。
+            v 为 做 内存_读64 用 旧桶 加 off 加 16。
+            做 HashMap_set 用 m、k、v。
+        完。
+        i 为 i 加 1。
+    完。
+    做 堆_释放 用 旧桶。
+完。
+
+※ §4 Map API: get/set/has/delete/size/forEach。
+
+JSMap_创建 接受 零参：
+    返还 做 HashMap_创建。
+完。
+
+JSMap_set 接受 m、键、值：
+JSMap_get 接受 m、键：
+JSMap_has 接受 m、键：
+JSMap_delete 接受 m、键：
+JSMap_size 接受 m：
+
+JSMap_forEach 接受 m、回调、thisArg：
+    ※ 按插入顺序遍历。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 m.插入顺序：
+        k 为 m.插入顺序[i]。
+        若 做 HashMap_has 用 m、k：
+            v 为 做 HashMap_get 用 m、k。
+            做 调用 用 回调、thisArg、v、k、m。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+※ §5 Set API: add/has/delete/forEach + 集合运算。
+
+JSSet_创建 接受 零参：
+    返还 做 HashMap_创建。
+完。
+
+JSSet_add 接受 s、值：
+JSSet_has 接受 s、值：
+JSSet_delete 接受 s、值：
+JSSet_size 接受 s：
+
+JSSet_forEach 接受 s、回调、thisArg：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 s.插入顺序：
+        v 为 s.插入顺序[i]。
+        若 做 HashMap_has 用 s、v：
+            做 调用 用 回调、thisArg、v、v、s。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+※ §7 集合运算: union / intersection / difference。
+JSSet_union 接受 a、b：
+    r 为 做 JSSet_创建。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 a.插入顺序：
+        做 JSSet_add 用 r、a.插入顺序[i]。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 做 计数 用 b.插入顺序：
+        做 JSSet_add 用 r、b.插入顺序[i]。
+        i 为 i 加 1。
+    完。
+    返还 r。
+完。
+
+JSSet_intersection 接受 a、b：
+    r 为 做 JSSet_创建。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 a.插入顺序：
+        v 为 a.插入顺序[i]。
+        若 做 JSSet_has 用 b、v：
+            做 JSSet_add 用 r、v。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 r。
+完。
+
+JSSet_difference 接受 a、b：
+    r 为 做 JSSet_创建。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 a.插入顺序：
+        v 为 a.插入顺序[i]。
+        若 !做 JSSet_has 用 b、v：
+            做 JSSet_add 用 r、v。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 r。
+完。
+
+※ §6 WeakMap/WeakSet + GC弱引用 + FinalizationRegistry。
+
+JSWeakMap_创建 接受 零参：
+    ※ WeakMap只接受对象键, 不阻止GC回收。
+    返还 做 HashMap_创建。
+完。
+
+JSWeakMap_set 接受 wm、键、值：
+    若 !做 JSValue_IsObject 用 键：
+    做 HashMap_set 用 wm、键、值。
+    ※ 注册弱引用到GC。
+    做 GC_注册弱引用 用 键。
+完。
+
+JSWeakMap_get 接受 wm、键：
+JSWeakMap_has 接受 wm、键：
+JSWeakMap_delete 接受 wm、键：
+
+JSValue_IsObject 接受 值：
+    若 值 等于 0：
+    ※ 检查类型标记是否为对象。
+    返还 !做 JSValue_IsNumber 用 值 并且 !做 JSValue_IsString 用 值 并且 值 不等于 0。
+完。
+
+JSValue_Is符号 接受 值：
+    若 值 等于 0：
+    返还 假。
+完。
+
+GC_注册弱引用 接受 wr：
+    gc 为 做 GC_获取堆管理器。
+    若 gc 等于 0 或者 wr 等于 0：
+    若 gc.弱引用数 小于 gc.弱引用容量：
+        做 内存_写64 用 gc.弱引用列表 加 gc.弱引用数 乘 8、wr。
+        gc.弱引用数 为 gc.弱引用数 加 1。
+    完。
+完。
+
+GC_注册终结器 接受 fr、entry：
+    若 fr 等于 0 或者 entry 等于 0：
+    若 fr.条目数 小于 fr.条目容量：
+        做 内存_写64 用 fr.条目列表 加 fr.条目数 乘 16、entry.目标。
+        做 内存_写64 用 fr.条目列表 加 fr.条目数 乘 16 加 8、entry.持有值。
+        fr.条目数 为 fr.条目数 加 1。
+    完。
+完。
+
+※ §8 AI总线: EWMA热路径反馈 + 智能容量预测。
+
+EWMA_集合_ALPHA 为 205
+可变 EWMA_集合操作时间 为 0。
+
+智能_JSCollections_AI初始化 接受 零参：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+完。
+
+智能_JSCollections_AI热路径反馈 接受 函数哈希、执行时间：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+    ※ EWMA平滑操作时间。
+    EWMA_集合操作时间 为 (EWMA_集合_ALPHA 乘 执行时间 加 (Q10 减 EWMA_集合_ALPHA) 乘 EWMA_集合操作时间) 除以 Q10。
+完。
+
+智能_JSCollections_AI应该优化 接受 函数哈希、执行次数、平均时间：
+    bus 为 全局AI总线。
+    若 bus 等于 0：
+    特征 为 做 Tensor_创建 用 1、8。
+    做 Tensor_写 用 特征、0、0、若 (执行次数>2000、Q_ONE、执行次数*Q_ONE/2000)。
+    做 Tensor_写 用 特征、0、1、若 (平均时间>1000、Q_ONE、平均时间*Q_ONE/1000)。
+    分数 为 做 AI总线_注意力权重 用 bus、特征。
+    做 Tensor_释放 用 特征。
+    返还 分数 大于 512。
+完。
+
+※ NSZC — Nova Same-value-Zero Comparison Theory。
+※ 公理1(自反): SameValueZero(x, x) == true。
+※ 公理2(NaN等价): SameValueZero(NaN, NaN) == true。
+※ 公理3(零合并): SameValueZero(+0, -0) == true。
+※ 定理1(集合幂等): |union(A,B)| <= |A| + |B|。
+※ 定理2(交集单调): |intersection(A,B)| <= min(|A|, |B|)。
+
+JSMap_批量设置 接受 映射、键值对列表：
+    ※ 键值对列表: [[key1,val1], [key2,val2], ...]。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 键值对列表：
+        对 为 键值对列表[i]。
+        做 JSMap_set 用 映射、对[0]、对[1]。
+        i 为 i 加 1。
+    完。
+完。
+
+JSMap_转数组 接受 映射：
+    ※ 返还 [[key1,val1], [key2,val2], ...]。
+    可变 结果 为 []。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 映射.插入顺序：
+        键 为 映射.插入顺序[i]。
+        值 为 做 HashMap_get 用 映射、键。
+        做 追加 用 结果、[键、值]。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+JSMap_过滤 接受 映射、谓词：
+    r 为 做 JSMap_创建。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 映射.插入顺序：
+        键 为 映射.插入顺序[i]。
+        值 为 做 HashMap_get 用 映射、键。
+        若 做 谓词 用 值、键：
+            做 JSMap_set 用 r、键、值。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 r。
+完。
+
+JSSet_symmetricDifference 接受 a、b：
+    ※ 对称差集: AΔB = (A\B) ∪ (B\A)。
+    r 为 做 JSSet_创建。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 a.插入顺序：
+        若 !做 JSSet_has 用 b、a.插入顺序[i]：
+            做 JSSet_add 用 r、a.插入顺序[i]。
+        完。
+        i 为 i 加 1。
+    完。
+    i 为 0。
+    只要 i 小于 做 计数 用 b.插入顺序：
+        若 !做 JSSet_has 用 a、b.插入顺序[i]：
+            做 JSSet_add 用 r、b.插入顺序[i]。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 r。
+完。
+
+JSSet_isSubsetOf 接受 a、b：
+    ※ a ⊆ b?。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 a.插入顺序：
+        若 !做 JSSet_has 用 b、a.插入顺序[i]：
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+JSSet_isSupersetOf 接受 a、b：
+    返还 做 JSSet_isSubsetOf 用 b、a。
+完。
+
+JSSet_isDisjointFrom 接受 a、b：
+    ※ a ∩ b == ∅?。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 a.插入顺序：
+        若 做 JSSet_has 用 b、a.插入顺序[i]：
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+JSMap_序列化 接受 映射：
+    可变 部件 为 [「{」]。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 映射.插入顺序：
+        若 i 大于 0) { 追加(部件, 「,」 }：
+        键 为 映射.插入顺序[i]。
+        值 为 做 HashMap_get 用 映射、键。
+        做 追加 用 部件、做 字符串化 用 键 加 「:」 加 做 字符串化 用 值。
+        i 为 i 加 1。
+    完。
+    做 追加 用 部件、「}」; 返还 做 字符串_连接列表 用 部件、「」。
+完。
+
+JSSet_转数组 接受 集合：
+    可变 结果 为 []。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 集合.插入顺序：
+        做 追加 用 结果、集合.插入顺序[i]。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+可变 NSZC_比较次数 为 0。
+可变 NSZC_集合创建数 为 0。
+可变 NSZC_映射创建数 为 0。
+可变 NSZC_迭代次数 为 0。
+
+NSZC_记录比较 接受 零参：
+NSZC_记录集合创建 接受 零参：
+NSZC_记录映射创建 接受 零参：
+NSZC_记录迭代 接受 零参：
+
+NSZC_重置统计 接受 零参：
+    NSZC_比较次数 为 0。
+    NSZC_集合创建数 为 0。
+    NSZC_映射创建数 为 0。
+    NSZC_迭代次数 为 0。
+    EWMA_集合操作时间 为 0。
+完。
+
+NSZC_统计 接受 零参：
+    返还 [NSZC_比较次数, NSZC_集合创建数, NSZC_映射创建数, NSZC_迭代次数]。
+完。
+
+NSZC_完整诊断 接受 零参：
+    返还 [。
+        「比较次数」, NSZC_比较次数,。
+        「集合创建」, NSZC_集合创建数,。
+        「映射创建」, NSZC_映射创建数,。
+        「迭代次数」, NSZC_迭代次数,。
+        「EWMA操作时间」, EWMA_集合操作时间,。
+        「NSZC集合比较」, 1。
+    ]。
+完。
+
+本章 收束。
+
+本章 收束。
+
+本章 收束。

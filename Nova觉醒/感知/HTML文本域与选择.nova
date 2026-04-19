@@ -1,0 +1,331 @@
+《HTML文本域与选择》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·执行·控制台输出》。
+
+引用《..·标准·原生字符串》。
+
+引用《.·内核直连层》。
+
+引用《.·文档节点》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·辅助存根》。
+
+TextAreaState 是 一种 事物，含 值、默认值、名、占位文本、行数、列数、选区起始、选区结束、已禁用、只读、必填、最大长度、换行模式、所属表单。
+
+TextAreaState_创建 接受 元素：
+    state 为 做 堆_分配 用 TextAreaState。
+    state 的 值 为 做 字符串_复制 用 「」。
+    state 的 默认值 为 0。
+    state 的 占位文本 为 0。
+    state 的 行数 为 2。
+    state 的 列数 为 20。
+    state 的 最大长度 为 负 1。
+    state 的 换行模式 为 0。
+    若 元素 不等于 0：
+        文本 为 元素 的 第一子节点。
+        若 文本 不等于 0 并且 文本 的 节点类型 等于 TEXT_节点：
+            state 的 值 为 做 字符串_复制 用 做 CharacterData_data 用 文本。
+            state 的 默认值 为 做 字符串_复制 用 state 的 值。
+        完。
+        state 的 名 为 做 元素_getAttribute 用 元素、「name」。
+        state 的 占位文本 为 做 元素_getAttribute 用 元素、「placeholder」。
+        rows 为 做 元素_getAttribute 用 元素、「rows」。
+        若 rows 不等于 0：
+            state 的 行数 为 做 字符串转整数 用 rows。
+        完。
+        cols 为 做 元素_getAttribute 用 元素、「cols」。
+        若 cols 不等于 0：
+            state 的 列数 为 做 字符串转整数 用 cols。
+        完。
+        若 做 元素_getAttribute 用 元素、「disabled」 不等于 0：
+            state 的 已禁用 为 真。
+        完。
+        若 做 元素_getAttribute 用 元素、「readonly」 不等于 0：
+            state 的 只读 为 真。
+        完。
+    完。
+    返还 state。
+完。
+
+SelectOption 是 一种 事物，含 值、标签、已选、已禁用。
+
+SelectState 是 一种 事物，含 名、选项列表、选项数量、选项容量、已选索引、多选、已禁用、大小、展开、所属表单。
+
+SelectState_创建 接受 元素：
+    state 为 做 堆_分配 用 SelectState。
+    state 的 名 为 做 元素_getAttribute 用 元素、「name」。
+    state 的 选项容量 为 64。
+    state 的 选项列表 为 做 堆_分配_数组 用 state 的 选项容量 乘 24。
+    state 的 选项数量 为 0。
+    state 的 已选索引 为 负 1。
+    state 的 多选 为 做 元素_getAttribute 用 元素、「multiple」 不等于 0。
+    state 的 已禁用 为 做 元素_getAttribute 用 元素、「disabled」 不等于 0。
+    state 的 大小 为 1。
+    state 的 展开 为 假。
+    size 为 做 元素_getAttribute 用 元素、「size」。
+    若 size 不等于 0：
+        state 的 大小 为 做 字符串转整数 用 size。
+    完。
+    可变 子 为 元素 的 第一子节点。
+    只要 子 不等于 0：
+        若 子 的 节点类型 等于 元素_节点：
+            扩展 为 做 元素_获取扩展 用 子。
+            若 扩展 不等于 0 并且 扩展 的 标签名原子 等于 原子_option：
+                若 state 的 选项数量 小于 state 的 选项容量：
+                    偏移 为 state 的 选项列表 加 state 的 选项数量 乘 24。
+                    value 为 做 元素_getAttribute 用 子、「value」。
+                    文本 为 做 节点_textContent 用 子。
+                    做 内存_写64 用 偏移、若 value 不等于 0 则 做 字符串_复制 用 value 否则 做 字符串_复制 用 文本。
+                    做 内存_写64 用 偏移 加 8、做 字符串_复制 用 文本。
+                    selected 为 做 元素_getAttribute 用 子、「selected」 不等于 0。
+                    做 内存_写8 用 偏移 加 16、selected。
+                    做 内存_写8 用 偏移 加 17、做 元素_getAttribute 用 子、「disabled」 不等于 0。
+                    若 selected 并且 state 的 已选索引 小于 0：
+                        state 的 已选索引 为 state 的 选项数量。
+                    完。
+                    state 的 选项数量 为 state 的 选项数量 加 1。
+                完。
+            完。
+        完。
+        子 为 子 的 后一兄弟。
+    完。
+    若 state 的 已选索引 小于 0 并且 state 的 选项数量 大于 0：
+        state 的 已选索引 为 0。
+        做 内存_写8 用 state 的 选项列表 加 16、1。
+    完。
+    返还 state。
+完。
+
+Select_获取值 接受 state：
+    若 state 的 已选索引 小于 0 或者 state 的 已选索引 大于或等于 state 的 选项数量：
+        返还 「」。
+    完。
+    返还 做 内存_读64 用 state 的 选项列表 加 state 的 已选索引 乘 24。
+完。
+
+Select_设置选中 接受 state、元素、索引：
+    若 索引 小于 0 或者 索引 大于或等于 state 的 选项数量：
+        返还。
+    完。
+    若 非 state 的 多选 并且 state 的 已选索引 大于或等于 0：
+        做 内存_写8 用 state 的 选项列表 加 state 的 已选索引 乘 24 加 16、0。
+    完。
+    做 内存_写8 用 state 的 选项列表 加 索引 乘 24 加 16、1。
+    state 的 已选索引 为 索引。
+    state 的 展开 为 假。
+    事件 为 做 事件_创建 用 「change」、真、假。
+    做 事件Target_dispatch事件 用 元素、事件。
+完。
+
+TextArea_获取值 接受 state：
+    若 state 等于 0：
+        返还 「」。
+    完。
+    返还 state 的 值。
+完。
+
+TextArea_设置值 接受 state、新值：
+    若 state 等于 0：
+        返还。
+    完。
+    若 state 的 最大长度 大于或等于 0 并且 做 字节长度 用 新值 大于 state 的 最大长度：
+        返还。
+    完。
+    state 的 值 为 做 字符串_复制 用 新值。
+完。
+
+TextArea_获取选区文本 接受 state：
+    若 state 等于 0 或者 state 的 值 等于 0：
+        返还 「」。
+    完。
+    若 state 的 选区起始 大于或等于 state 的 选区结束：
+        返还 「」。
+    完。
+    返还 做 字符串_子串 用 state 的 值、state 的 选区起始、state 的 选区结束 减 state 的 选区起始。
+完。
+
+TextArea_插入文本 接受 state、文本：
+    若 state 等于 0 或者 state 的 只读 或者 state 的 已禁用：
+        返还。
+    完。
+    前 为 做 字符串_子串 用 state 的 值、0、state 的 选区起始。
+    后 为 做 字符串_子串 用 state 的 值、state 的 选区结束、做 字节长度 用 state 的 值 减 state 的 选区结束。
+    state 的 值 为 前 加 文本 加 后。
+    state 的 选区起始 为 state 的 选区起始 加 做 字节长度 用 文本。
+    state 的 选区结束 为 state 的 选区起始。
+完。
+
+TextArea_全选 接受 state：
+    若 state 等于 0：
+        返还。
+    完。
+    state 的 选区起始 为 0。
+    state 的 选区结束 为 做 字节长度 用 state 的 值。
+完。
+
+TextArea_行数_实际 接受 state：
+    若 state 等于 0 或者 state 的 值 等于 0：
+        返还 1。
+    完。
+    长度 为 做 字节长度 用 state 的 值。
+    可变 行 为 1。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        若 做 内存_读8 用 state 的 值 加 i 等于 10：
+            行 为 行 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 行。
+完。
+
+Select_添加选项 接受 state、值、标签：
+    若 state 等于 0 或者 state 的 选项数量 大于或等于 state 的 选项容量：
+        返还。
+    完。
+    偏移 为 state 的 选项列表 加 state 的 选项数量 乘 24。
+    做 内存_写64 用 偏移、做 字符串_复制 用 值。
+    做 内存_写64 用 偏移 加 8、做 字符串_复制 用 标签。
+    做 内存_写8 用 偏移 加 16、0。
+    做 内存_写8 用 偏移 加 17、0。
+    state 的 选项数量 为 state 的 选项数量 加 1。
+完。
+
+Select_移除选项 接受 state、索引：
+    若 state 等于 0 或者 索引 大于或等于 state 的 选项数量：
+        返还。
+    完。
+    可变 i 为 索引。
+    只要 i 小于 state 的 选项数量 减 1：
+        做 内存_复制 用 state 的 选项列表 加 i 乘 24、state 的 选项列表 加 (i 加 1) 乘 24、24。
+        i 为 i 加 1。
+    完。
+    state 的 选项数量 为 state 的 选项数量 减 1。
+    若 state 的 已选索引 大于或等于 state 的 选项数量：
+        state 的 已选索引 为 state 的 选项数量 减 1。
+    完。
+完。
+
+Select_获取选项标签 接受 state、索引：
+    若 state 等于 0 或者 索引 大于或等于 state 的 选项数量：
+        返还 「」。
+    完。
+    返还 做 内存_读64 用 state 的 选项列表 加 索引 乘 24 加 8。
+完。
+
+Select_获取选中列表 接受 state：
+    可变 结果 为 一组：（空）。
+    若 state 等于 0：
+        返还 结果。
+    完。
+    可变 i 为 0。
+    只要 i 小于 state 的 选项数量：
+        若 做 内存_读8 用 state 的 选项列表 加 i 乘 24 加 16：
+            做 追加 用 结果、i。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 结果。
+完。
+
+Select_展开 接受 state：
+    若 state 等于 0 或者 state 的 已禁用：
+        返还。
+    完。
+    state 的 展开 为 真。
+完。
+
+Select_折叠 接受 state：
+    若 state 等于 0：
+        返还。
+    完。
+    state 的 展开 为 假。
+完。
+
+TEXT_节点 为 3。
+
+元素_节点 为 1。
+
+原子_option 为 200。
+
+可变 表单_textarea创建数 为 0。
+
+可变 表单_select创建数 为 0。
+
+可变 表单_change事件数 为 0。
+
+表单控件_统计 接受 零参：
+    返还 一本字典：textarea 对应 表单_textarea创建数、select 对应 表单_select创建数、change事件 对应 表单_change事件数。
+完。
+
+表单控件_健康检查 接受 零参：
+    返还 「表单控件子系统健康」。
+完。
+
+表单控件_重置 接受 零参：
+    表单_textarea创建数 为 0。
+    表单_select创建数 为 0。
+    表单_change事件数 为 0。
+完。
+
+表单控件_完整统计 接受 零参：
+    返还 一组：表单_textarea创建数、表单_select创建数、表单_change事件数。
+完。
+
+可变 AI_标记表单甲_热节点缓存 为 0。
+
+AI_标记表单甲_节点热度 接受 节点、操作类型：
+    若 操作类型 等于 「查询」：
+        返还 「缓存」。
+    完。
+    若 操作类型 等于 「修改」：
+        AI_标记表单甲_热节点缓存 为 0。
+        返还 「失效」。
+    完。
+    返还 「普通」。
+完。
+
+AI_标记表单甲_批量DOM优化 接受 操作数：
+    若 操作数 大于 100：
+        返还 「延迟重排」。
+    完。
+    若 操作数 大于 10：
+        返还 「批量重排」。
+    完。
+    返还 「即时重排」。
+完。
+
+标记表单甲_统计 接受 零参：
+    返还 一本字典：模块 对应 「标记表单甲」、表单_textarea创建数 对应 表单_textarea创建数、表单_select创建数 对应 表单_select创建数、表单_change事件数 对应 表单_change事件数、AI_标记表单甲_热节点缓存 对应 AI_标记表单甲_热节点缓存。
+完。
+
+标记表单甲_健康评估 接受 零参：
+    可变 问题 为 一组：（空）。
+    返还 做 计数 用 问题 等于 0。
+完。
+
+标记表单甲_综合报告 接受 零参：
+    做 打印 用 「[标记表单甲] ═══ 综合报告 ═══」。
+    做 打印 用 「  表单_textarea创建数: 」 加 做 整数转字符串 用 表单_textarea创建数。
+    做 打印 用 「  表单_select创建数: 」 加 做 整数转字符串 用 表单_select创建数。
+    做 打印 用 「  表单_change事件数: 」 加 做 整数转字符串 用 表单_change事件数。
+    做 打印 用 「  AI_标记表单甲_热节点缓存: 」 加 做 整数转字符串 用 AI_标记表单甲_热节点缓存。
+    做 打印 用 「  健康: 」 加 若 做 标记表单甲_健康评估 则 「正常」 否则 「异常」。
+完。
+
+标记表单甲_全局重置 接受 零参：
+    表单_textarea创建数 为 0。
+    表单_select创建数 为 0。
+    表单_change事件数 为 0。
+    AI_标记表单甲_热节点缓存 为 0。
+    做 打印 用 「[标记表单甲] 全局统计已重置」。
+    返还 0。
+完。
+
+本章 收束。

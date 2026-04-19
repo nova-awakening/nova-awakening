@@ -1,0 +1,159 @@
+《Path2D路径》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+PathCommand 是 一种 事物，含 类型、x1、y1、x2、y2、x3、y3、参数1、参数2、参数3。
+
+Path2D 是 一种 事物，含 命令、命令数、命令容量、当前X、当前Y、起始X、起始Y。
+
+Path2D_创建 接受 零参：
+    p 为 做 堆_分配 用 Path2D。
+    p 的 命令容量 为 256。
+    p 的 命令 为 做 堆_分配_数组 用 256 乘 做 大小of 用 PathCommand。
+    p 的 命令数 为 0。
+    p 的 当前X 为 0。
+    p 的 当前Y 为 0。
+    p 的 起始X 为 0。
+    p 的 起始Y 为 0。
+    返还 p。
+完。
+
+Path2D_添加命令 接受 p、类型、x1、y1、x2、y2、x3、y3：
+    若 p 等于 0 或者 p 的 命令数 大于或等于 p 的 命令容量：
+        返还。
+    完。
+    cmd 为 p 的 命令 加 p 的 命令数 乘 做 大小of 用 PathCommand。
+    cmd 的 类型 为 类型。
+    cmd 的 x1 为 x1。
+    cmd 的 y1 为 y1。
+    cmd 的 x2 为 x2。
+    cmd 的 y2 为 y2。
+    cmd 的 x3 为 x3。
+    cmd 的 y3 为 y3。
+    cmd 的 参数1 为 0。
+    cmd 的 参数2 为 0。
+    cmd 的 参数3 为 0。
+    p 的 命令数 为 p 的 命令数 加 1。
+完。
+
+Path2D_moveTo 接受 p、x、y：
+    若 p 等于 0：
+        返还。
+    完。
+    做 Path2D_添加命令 用 p、PATH_MOVE、x、y、0、0、0、0。
+    p 的 当前X 为 x。
+    p 的 当前Y 为 y。
+    p 的 起始X 为 x。
+    p 的 起始Y 为 y。
+完。
+
+Path2D_lineTo 接受 p、x、y：
+    若 p 等于 0：
+        返还。
+    完。
+    做 Path2D_添加命令 用 p、PATH_LINE、x、y、0、0、0、0。
+    p 的 当前X 为 x。
+    p 的 当前Y 为 y。
+完。
+
+Path2D_quadraticCurveTo 接受 p、cpx、cpy、x、y：
+    若 p 等于 0：
+        返还。
+    完。
+    做 Path2D_添加命令 用 p、PATH_QUAD、cpx、cpy、x、y、0、0。
+    p 的 当前X 为 x。
+    p 的 当前Y 为 y。
+完。
+
+Path2D_bezierCurveTo 接受 p、cp1x、cp1y、cp2x、cp2y、x、y：
+    若 p 等于 0：
+        返还。
+    完。
+    做 Path2D_添加命令 用 p、PATH_Nova三次方、cp1x、cp1y、cp2x、cp2y、x、y。
+    p 的 当前X 为 x。
+    p 的 当前Y 为 y。
+完。
+
+Path2D_arc 接受 p、cx、cy、radius、startAngle、endAngle、ccw：
+    若 p 等于 0：
+        返还。
+    完。
+    cmd_idx 为 p 的 命令数。
+    做 Path2D_添加命令 用 p、PATH_ARC、cx、cy、0、0、radius、0。
+    若 cmd_idx 小于 p 的 命令数：
+        cmd 为 p 的 命令 加 cmd_idx 乘 做 大小of 用 PathCommand。
+        cmd 的 参数1 为 startAngle。
+        cmd 的 参数2 为 endAngle。
+        cmd 的 参数3 为 ccw。
+    完。
+完。
+
+Path2D_ellipse 接受 p、cx、cy、rx、ry、rotation、startAngle、endAngle、ccw：
+    若 p 等于 0：
+        返还。
+    完。
+    cmd_idx 为 p 的 命令数。
+    做 Path2D_添加命令 用 p、PATH_ELLIPSE、cx、cy、rx、ry、0、0。
+    若 cmd_idx 小于 p 的 命令数：
+        cmd 为 p 的 命令 加 cmd_idx 乘 做 大小of 用 PathCommand。
+        cmd 的 参数1 为 rotation。
+        cmd 的 参数2 为 startAngle。
+        cmd 的 参数3 为 endAngle。
+    完。
+完。
+
+Path2D_rect 接受 p、x、y、w、h：
+    若 p 等于 0：
+        返还。
+    完。
+    做 Path2D_moveTo 用 p、x、y。
+    做 Path2D_lineTo 用 p、x 加 w、y。
+    做 Path2D_lineTo 用 p、x 加 w、y 加 h。
+    做 Path2D_lineTo 用 p、x、y 加 h。
+    做 Path2D_closePath 用 p。
+完。
+
+Path2D_roundRect 接受 p、x、y、w、h、radii：
+    若 p 等于 0：
+        返还。
+    完。
+    做 Path2D_moveTo 用 p、x 加 radii、y。
+    做 Path2D_lineTo 用 p、x 加 w 减 radii、y。
+    做 Path2D_arc 用 p、x 加 w 减 radii、y 加 radii、radii、负 1571、0、假。
+    做 Path2D_lineTo 用 p、x 加 w、y 加 h 减 radii。
+    做 Path2D_arc 用 p、x 加 w 减 radii、y 加 h 减 radii、radii、0、1571、假。
+    做 Path2D_lineTo 用 p、x 加 radii、y 加 h。
+    做 Path2D_arc 用 p、x 加 radii、y 加 h 减 radii、radii、1571、3142、假。
+    做 Path2D_lineTo 用 p、x、y 加 radii。
+    做 Path2D_arc 用 p、x 加 radii、y 加 radii、radii、3142、负 1571、假。
+    做 Path2D_closePath 用 p。
+完。
+
+Path2D_closePath 接受 p：
+    若 p 等于 0：
+        返还。
+    完。
+    做 Path2D_添加命令 用 p、PATH_CLOSE、p 的 起始X、p 的 起始Y、0、0、0、0。
+    p 的 当前X 为 p 的 起始X。
+    p 的 当前Y 为 p 的 起始Y。
+完。
+
+Path2D_addPath 接受 dst、src：
+    若 dst 等于 0 或者 src 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 src 的 命令数 并且 dst 的 命令数 小于 dst 的 命令容量：
+        s 为 src 的 命令 加 i 乘 做 大小of 用 PathCommand。
+        d 为 dst 的 命令 加 dst 的 命令数 乘 做 大小of 用 PathCommand。
+        做 内存_复制 用 d、s、做 大小of 用 PathCommand。
+        dst 的 命令数 为 dst 的 命令数 加 1。
+        i 为 i 加 1。
+    完。
+完。
+
+本章 收束。

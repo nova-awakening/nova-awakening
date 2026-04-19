@@ -1,0 +1,120 @@
+《默认行为》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·历史与位置接口》。
+
+引用《.·屏幕唤醒锁》。
+
+引用《.·原子驻留》。
+
+引用《.·文档事件》。
+
+引用《.·缓存获取》。
+
+引用《.·滚动链控制》。
+
+事件Dispatch_默认行为 接受 target、事件：
+    若 target 等于 0 或者 事件 等于 0：
+        返还。
+    完。
+    做 匹配 用 事件 的 类型ID。
+完。
+
+事件Dispatch_click默认 接受 target、事件：
+    若 target 等于 0：
+        返还。
+    完。
+    若 target 的 节点 不等于 0：
+        节点 为 target 的 节点。
+        若 节点 的 节点类型 等于 1：
+        完。
+    完。
+完。
+
+事件Dispatch_keydown默认 接受 target、事件：
+    若 事件 等于 0：
+        返还。
+    完。
+    keyCode 为 事件 的 keyCode。
+    节点 为 target。
+    若 节点 不等于 0 并且 节点 的 节点 不等于 0：
+        节点 为 节点 的 节点。
+    完。
+    若 keyCode 等于 9：
+        若 节点 不等于 0：
+            做 Focus_Tab处理 用 节点、事件 的 shiftKey。
+        完。
+    否则若 keyCode 等于 13：
+        若 节点 不等于 0：
+            做 事件Target_dispatch事件 用 节点、做 事件_创建2 用 「click」、真、真。
+        完。
+    否则若 keyCode 等于 27：
+        若 做 Document_fullscreen元素 不等于 0：
+            做 Document_exitFullscreen。
+        完。
+    完。
+完。
+
+事件Dispatch_submit默认 接受 target、事件：
+    若 target 等于 0：
+        返还。
+    完。
+    form 为 target。
+    action 为 做 元素_getAttribute 用 form、「action」。
+    method 为 做 元素_getAttribute 用 form、「method」。
+    若 action 等于 0：
+        action 为 「」。
+    完。
+    若 method 等于 0：
+        method 为 「GET」。
+    完。
+    fd 为 做 FormData_从表单创建 用 form。
+    若 做 字符串_相等_忽略大小写 用 method、「POST」：
+        做 取数_POST 用 action、fd。
+    否则：
+        url 为 做 URL_附加查询 用 action、fd。
+        做 Navigation_navigate 用 url、0、0。
+    完。
+完。
+
+事件Dispatch_wheel默认 接受 target、事件：
+    若 事件 等于 0：
+        返还。
+    完。
+    deltaX 为 事件 的 deltaX。
+    deltaY 为 事件 的 deltaY。
+    可变 节点 为 target。
+    只要 节点 不等于 0：
+        若 做 元素_是可滚动 用 节点：
+            scroll节点 为 做 元素_获取滚动容器 用 节点。
+            若 scroll节点 不等于 0：
+                scroll节点 的 scrollTop 为 scroll节点 的 scrollTop 加 deltaY。
+                scroll节点 的 scrollLeft 为 scroll节点 的 scrollLeft 加 deltaX。
+                若 scroll节点 的 scrollTop 小于 0：
+                    scroll节点 的 scrollTop 为 0。
+                完。
+                若 scroll节点 的 scrollLeft 小于 0：
+                    scroll节点 的 scrollLeft 为 0。
+                完。
+                返还。
+            完。
+        完。
+        节点 为 节点 的 父节点。
+    完。
+    doc 为 全局_当前文档。
+    若 doc 不等于 0：
+        doc 的 scrollY 为 doc 的 scrollY 加 deltaY。
+        doc 的 scrollX 为 doc 的 scrollX 加 deltaX。
+        若 doc 的 scrollY 小于 0：
+            doc 的 scrollY 为 0。
+        完。
+        若 doc 的 scrollX 小于 0：
+            doc 的 scrollX 为 0。
+        完。
+    完。
+完。
+
+本章 收束。

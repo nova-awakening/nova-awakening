@@ -1,0 +1,791 @@
+《先扫描找符号》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·推理·定点Q算术》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·执行·控制台输出》。
+
+引用《.·资源取数》。
+
+引用《.·原子驻留》。
+
+引用《..·中枢·内存初始化》。
+
+URL_MAX_LENGTH 为 8192。
+
+URL_MAX_HOST 为 253。
+
+URL_MAX_PATH_DEPTH 为 64。
+
+URL_MAX_QUERY_PARAMS 为 128。
+
+URL_MAX_LABEL_LEN 为 63。
+
+URL_QUERY_HASH_SIZE 为 64。
+
+URL_PERCENT_SET_SIZE 为 256。
+
+SCHEME_UNKNOWN 为 0。
+
+SCHEME_HTTP 为 1。
+
+SCHEME_HTTPS 为 2。
+
+SCHEME_FTP 为 3。
+
+SCHEME_FILE 为 4。
+
+SCHEME_WS 为 5。
+
+SCHEME_WSS 为 6。
+
+SCHEME_DATA 为 7。
+
+SCHEME_BLOB 为 8。
+
+SCHEME_JAVASCRIPT 为 9。
+
+DEFAULT_PORT_HTTP 为 80。
+
+DEFAULT_PORT_HTTPS 为 443。
+
+DEFAULT_PORT_FTP 为 21。
+
+DEFAULT_PORT_WS 为 80。
+
+DEFAULT_PORT_WSS 为 443。
+
+URL_OK 为 0。
+
+URL_ERR_EMPTY 为 1。
+
+URL_ERR_TOO_LONG 为 2。
+
+URL_ERR_SCHEME 为 3。
+
+URL_ERR_HOST 为 4。
+
+URL_ERR_PORT 为 5。
+
+URL_ERR_PATH 为 6。
+
+URL_ERR_ENCODING 为 7。
+
+可变 全局_URL解析总数 为 0。
+
+可变 全局_URL解析成功 为 0。
+
+可变 全局_URL解析失败 为 0。
+
+可变 全局_URL威胁检测 为 0。
+
+可变 全局_URL双重解码 为 0。
+
+可变 全局_URL规范化数 为 0。
+
+URL组件 是 一种 事物，含 scheme、scheme类型、username、password、host、host长度、host哈希、是IPv6、port、path、path长度、path深度、query、query长度、fragment、fragment长度、是有效、是opaque路径、解析状态、原始字符串、原始长度、查询参数表、查询参数数、哈希索引。
+
+查询参数 是 一种 事物，含 键、值、键长度、值长度、键哈希、下一个。
+
+URL威胁报告 是 一种 事物，含 威胁分、域名熵、路径深度分、参数密度分、编码异常分、长度异常分、是可疑。
+
+NUPS_十六进制字符值 接受 ch：
+    若 ch 大于或等于 48 并且 ch 小于或等于 57：
+        返还 ch 减 48。
+    完。
+    若 ch 大于或等于 65 并且 ch 小于或等于 70：
+        返还 ch 减 55。
+    完。
+    若 ch 大于或等于 97 并且 ch 小于或等于 102：
+        返还 ch 减 87。
+    完。
+    返还 负 1。
+完。
+
+URL_百分比解码 接受 输入、输入长：
+    若 输入 等于 0 或者 输入长 等于 0：
+        返还 0。
+    完。
+    out 为 做 堆_分配 用 输入长 加 1。
+    可变。
+    ri 为 0。
+    可变。
+    wi 为 0。
+    只要 ri 小于 输入长：
+        ch 为 做 字节取 用 输入、ri。
+        若 ch 等于 37 并且 ri 加 2 小于 输入长：
+            hi 为 做 NUPS_十六进制字符值 用 做 字节取 用 输入、ri 加 1。
+            lo 为 做 NUPS_十六进制字符值 用 做 字节取 用 输入、ri 加 2。
+            若 hi 大于或等于 0 并且 lo 大于或等于 0：
+                做 内存_写字节 用 out 加 wi、hi 乘 16 加 lo。
+                wi 为 wi 加 1。
+                ri 为 ri 加 3。
+            否则：
+                做 内存_写字节 用 out 加 wi、ch。
+                wi 为 wi 加 1。
+                ri 为 ri 加 1。
+            完。
+        否则若 ch 等于 43：
+            做 内存_写字节 用 out 加 wi、32。
+            wi 为 wi 加 1。
+            ri 为 ri 加 1。
+        否则：
+            做 内存_写字节 用 out 加 wi、ch。
+            wi 为 wi 加 1。
+            ri 为 ri 加 1。
+        完。
+    完。
+    做 内存_写字节 用 out 加 wi、0。
+    返还 out。
+完。
+
+URL_百分比编码 接受 输入、输入长：
+    若 输入 等于 0 或者 输入长 等于 0：
+        返还 0。
+    完。
+    out 为 做 堆_分配 用 输入长 乘 3 加 1。
+    hex 为 「0123456789ABCDEF」。
+    可变。
+    ri 为 0。
+    可变。
+    wi 为 0。
+    只要 ri 小于 输入长：
+        ch 为 做 字节取 用 输入、ri。
+        若 ch 大于或等于 65 并且 ch 小于或等于 90 或者 ch 大于或等于 97 并且 ch 小于或等于 122 或者 ch 大于或等于 48 并且 ch 小于或等于 57 或者 ch 等于 45 或者 ch 等于 46 或者 ch 等于 95 或者 ch 等于 126：
+            做 内存_写字节 用 out 加 wi、ch。
+            wi 为 wi 加 1。
+        否则：
+            做 内存_写字节 用 out 加 wi、37。
+            做 内存_写字节 用 out 加 wi 加 1、做 字节取 用 hex、ch 右移 4。
+            做 内存_写字节 用 out 加 wi 加 2、做 字节取 用 hex、ch 位与 15。
+            wi 为 wi 加 3。
+        完。
+        ri 为 ri 加 1。
+    完。
+    做 内存_写字节 用 out 加 wi、0。
+    返还 out。
+完。
+
+NUPS_检测双重解码 接受 输入、输入长：
+    若 输入 等于 0 或者 输入长 等于 0：
+        返还 假。
+    完。
+    decoded 为 做 URL_百分比解码 用 输入、输入长。
+    若 decoded 等于 0：
+        返还 假。
+    完。
+    dec_len 为 做 平台_strlen 用 decoded。
+    可变。
+    k 为 0。
+    只要 k 小于 dec_len：
+        若 做 字节取 用 decoded、k 等于 37 并且 k 加 2 小于 dec_len：
+            h 为 做 NUPS_十六进制字符值 用 做 字节取 用 decoded、k 加 1。
+            l 为 做 NUPS_十六进制字符值 用 做 字节取 用 decoded、k 加 2。
+            若 h 大于或等于 0 并且 l 大于或等于 0：
+                全局_URL双重解码 为 全局_URL双重解码 加 1。
+                做 堆_释放 用 decoded。
+                返还 真。
+            完。
+        完。
+        k 为 k 加 1。
+    完。
+    做 堆_释放 用 decoded。
+    返还 假。
+完。
+
+NUPS_解析方案 接受 输入、长度：
+    若 输入 等于 0 或者 长度 等于 0：
+        返还 0。
+    完。
+    可变。
+    i 为 0。
+    first 为 做 字节取 用 输入、0。
+    若 非 (first 大于或等于 65 并且 first 小于或等于 90 或者 first 大于或等于 97 并且 first 小于或等于 122)：
+        返还 0。
+    完。
+    i 为 1。
+    只要 i 小于 长度：
+        ch 为 做 字节取 用 输入、i。
+        若 ch 等于 58：
+            返还 i。
+        完。
+        若 非 (ch 大于或等于 65 并且 ch 小于或等于 90 或者 ch 大于或等于 97 并且 ch 小于或等于 122 或者 ch 大于或等于 48 并且 ch 小于或等于 57 或者 ch 等于 43 或者 ch 等于 45 或者 ch 等于 46)：
+            返还 0。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 0。
+完。
+
+NUPS_方案到类型 接受 scheme、scheme_len：
+    若 scheme 等于 0 或者 scheme_len 等于 0：
+        返还 SCHEME_UNKNOWN。
+    完。
+    若 scheme_len 等于 4：
+        若 做 字节取 用 scheme、0 等于 104 并且 做 字节取 用 scheme、1 等于 116 并且 做 字节取 用 scheme、2 等于 116 并且 做 字节取 用 scheme、3 等于 112：
+            返还 SCHEME_HTTP。
+        完。
+        若 做 字节取 用 scheme、0 等于 102 并且 做 字节取 用 scheme、1 等于 105 并且 做 字节取 用 scheme、2 等于 108 并且 做 字节取 用 scheme、3 等于 101：
+            返还 SCHEME_FILE。
+        完。
+        若 做 字节取 用 scheme、0 等于 98 并且 做 字节取 用 scheme、1 等于 108 并且 做 字节取 用 scheme、2 等于 111 并且 做 字节取 用 scheme、3 等于 98：
+            返还 SCHEME_BLOB。
+        完。
+        若 做 字节取 用 scheme、0 等于 100 并且 做 字节取 用 scheme、1 等于 97 并且 做 字节取 用 scheme、2 等于 116 并且 做 字节取 用 scheme、3 等于 97：
+            返还 SCHEME_DATA。
+        完。
+    完。
+    若 scheme_len 等于 5：
+        若 做 字节取 用 scheme、0 等于 104 并且 做 字节取 用 scheme、1 等于 116 并且 做 字节取 用 scheme、2 等于 116 并且 做 字节取 用 scheme、3 等于 112 并且 做 字节取 用 scheme、4 等于 115：
+            返还 SCHEME_HTTPS。
+        完。
+    完。
+    若 scheme_len 等于 3 并且 做 字节取 用 scheme、0 等于 102 并且 做 字节取 用 scheme、1 等于 116 并且 做 字节取 用 scheme、2 等于 112：
+        返还 SCHEME_FTP。
+    完。
+    若 scheme_len 等于 2 并且 做 字节取 用 scheme、0 等于 119 并且 做 字节取 用 scheme、1 等于 115：
+        返还 SCHEME_WS。
+    完。
+    若 scheme_len 等于 3 并且 做 字节取 用 scheme、0 等于 119 并且 做 字节取 用 scheme、1 等于 115 并且 做 字节取 用 scheme、2 等于 115：
+        返还 SCHEME_WSS。
+    完。
+    返还 SCHEME_UNKNOWN。
+完。
+
+NUPS_默认端口 接受 scheme类型：
+    若 scheme类型 等于 SCHEME_HTTP：
+        返还 DEFAULT_PORT_HTTP。
+    完。
+    若 scheme类型 等于 SCHEME_HTTPS：
+        返还 DEFAULT_PORT_HTTPS。
+    完。
+    若 scheme类型 等于 SCHEME_FTP：
+        返还 DEFAULT_PORT_FTP。
+    完。
+    若 scheme类型 等于 SCHEME_WS：
+        返还 DEFAULT_PORT_WS。
+    完。
+    若 scheme类型 等于 SCHEME_WSS：
+        返还 DEFAULT_PORT_WSS。
+    完。
+    返还 0。
+完。
+
+URL_解析 接受 输入：
+    全局_URL解析总数 为 全局_URL解析总数 加 1。
+    url 为 做 堆_分配 用 URL组件。
+    url 的 是有效 为 假。
+    url 的 是opaque路径 为 假。
+    url 的 解析状态 为 URL_OK。
+    url 的 查询参数表 为 0。
+    url 的 查询参数数 为 0。
+    url 的 哈希索引 为 0。
+    若 输入 等于 0：
+        url 的 解析状态 为 URL_ERR_EMPTY。
+        全局_URL解析失败 为 全局_URL解析失败 加 1。
+        返还 url。
+    完。
+    长度 为 做 平台_strlen 用 输入。
+    若 长度 等于 0：
+        url 的 解析状态 为 URL_ERR_EMPTY。
+        全局_URL解析失败 为 全局_URL解析失败 加 1。
+        返还 url。
+    完。
+    若 长度 大于 URL_MAX_LENGTH：
+        url 的 解析状态 为 URL_ERR_TOO_LONG。
+        全局_URL解析失败 为 全局_URL解析失败 加 1。
+        返还 url。
+    完。
+    url 的 原始字符串 为 输入。
+    url 的 原始长度 为 长度。
+    结束 为 长度。
+    可变。
+    i 为 0。
+    可变。
+    标记 为 0。
+    colon_pos 为 做 NUPS_解析方案 用 输入、长度。
+    若 colon_pos 大于 0：
+        url 的 scheme 为 做 字符串_截取 用 输入、0、colon_pos。
+        做 字符串_小写化 用 url 的 scheme。
+        url 的 scheme类型 为 做 NUPS_方案到类型 用 url 的 scheme、colon_pos。
+        i 为 colon_pos 加 1。
+    否则：
+        url 的 解析状态 为 URL_ERR_SCHEME。
+        全局_URL解析失败 为 全局_URL解析失败 加 1。
+        返还 url。
+    完。
+    若 i 加 1 小于 结束 并且 做 字节取 用 输入、i 等于 47 并且 做 字节取 用 输入、i 加 1 等于 47：
+        i 为 i 加 2。
+        标记 为 i。
+        可变 at位置 为 负 1。
+        可变 j 为 i。
+        只要 j 小于 结束 并且 做 字节取 用 输入、j 不等于 47 并且 做 字节取 用 输入、j 不等于 63 并且 做 字节取 用 输入、j 不等于 35：
+            若 做 字节取 用 输入、j 等于 64：
+                at位置 为 j。
+            完。
+            j 为 j 加 1。
+        完。
+        若 at位置 大于或等于 0：
+            可变 冒号 为 负 1。
+            可变 k 为 标记。
+            只要 k 小于 at位置：
+                若 做 字节取 用 输入、k 等于 58 并且 冒号 小于 0：
+                    冒号 为 k。
+                完。
+                k 为 k 加 1。
+            完。
+            若 冒号 大于或等于 0：
+                url 的 username 为 做 URL_百分比解码 用 做 字符串_截取 用 输入、标记、冒号、冒号 减 标记。
+                url 的 password 为 做 URL_百分比解码 用 做 字符串_截取 用 输入、冒号 加 1、at位置、at位置 减 冒号 减 1。
+            否则：
+                url 的 username 为 做 URL_百分比解码 用 做 字符串_截取 用 输入、标记、at位置、at位置 减 标记。
+            完。
+            i 为 at位置 加 1。
+        完。
+        标记 为 i。
+        可变 host结束 为 i。
+        若 i 小于 结束 并且 做 字节取 用 输入、i 等于 91：
+            url 的 是IPv6 为 真。
+            只要 host结束 小于 结束 并且 做 字节取 用 输入、host结束 不等于 93：
+                host结束 为 host结束 加 1。
+            完。
+            若 host结束 小于 结束：
+                host结束 为 host结束 加 1。
+            完。
+        否则：
+            url 的 是IPv6 为 假。
+            只要 host结束 小于 结束 并且 做 字节取 用 输入、host结束 不等于 58 并且 做 字节取 用 输入、host结束 不等于 47 并且 做 字节取 用 输入、host结束 不等于 63 并且 做 字节取 用 输入、host结束 不等于 35：
+                host结束 为 host结束 加 1。
+            完。
+        完。
+        url 的 host 为 做 字符串_截取 用 输入、标记、host结束。
+        url 的 host长度 为 host结束 减 标记。
+        做 字符串_小写化 用 url 的 host。
+        url 的 host哈希 为 做 字符串_哈希 用 url 的 host。
+        若 url 的 host长度 大于 URL_MAX_HOST：
+            url 的 解析状态 为 URL_ERR_HOST。
+        完。
+        i 为 host结束。
+        若 i 小于 结束 并且 做 字节取 用 输入、i 等于 58：
+            i 为 i 加 1。
+            可变 端口值 为 0。
+            只要 i 小于 结束 并且 做 字节取 用 输入、i 大于或等于 48 并且 做 字节取 用 输入、i 小于或等于 57：
+                端口值 为 端口值 乘 10 加 (做 字节取 用 输入、i 减 48)。
+                i 为 i 加 1。
+            完。
+            若 端口值 大于 0 并且 端口值 小于或等于 65535：
+                url 的 port 为 端口值。
+            否则：
+                url 的 解析状态 为 URL_ERR_PORT。
+            完。
+        否则：
+            url 的 port 为 做 NUPS_默认端口 用 url 的 scheme类型。
+        完。
+    否则：
+        url 的 是opaque路径 为 真。
+    完。
+    标记 为 i。
+    只要 i 小于 结束 并且 做 字节取 用 输入、i 不等于 63 并且 做 字节取 用 输入、i 不等于 35：
+        i 为 i 加 1。
+    完。
+    若 i 大于 标记：
+        url 的 path 为 做 字符串_截取 用 输入、标记、i。
+        url 的 path长度 为 i 减 标记。
+        url 的 path深度 为 做 NUPS_计算路径深度 用 url 的 path、url 的 path长度。
+    否则：
+        url 的 path 为 「/」。
+        url 的 path长度 为 1。
+        url 的 path深度 为 0。
+    完。
+    若 i 小于 结束 并且 做 字节取 用 输入、i 等于 63：
+        i 为 i 加 1。
+        标记 为 i。
+        只要 i 小于 结束 并且 做 字节取 用 输入、i 不等于 35：
+            i 为 i 加 1。
+        完。
+        url 的 query 为 做 字符串_截取 用 输入、标记、i。
+        url 的 query长度 为 i 减 标记。
+    完。
+    若 i 小于 结束 并且 做 字节取 用 输入、i 等于 35：
+        i 为 i 加 1。
+        url 的 fragment 为 做 字符串_截取 用 输入、i、结束。
+        url 的 fragment长度 为 结束 减 i。
+    完。
+    若 url 的 解析状态 等于 URL_OK：
+        url 的 是有效 为 真。
+        全局_URL解析成功 为 全局_URL解析成功 加 1。
+        若 url 的 query 不等于 0 并且 url 的 query长度 大于 0：
+            做 NUPS_解析查询参数 用 url。
+        完。
+    否则：
+        全局_URL解析失败 为 全局_URL解析失败 加 1。
+    完。
+    返还 url。
+完。
+
+NUPS_计算路径深度 接受 path、path_len：
+    若 path 等于 0 或者 path_len 等于 0：
+        返还 0。
+    完。
+    可变。
+    depth 为 0。
+    可变。
+    i 为 0。
+    只要 i 小于 path_len：
+        若 做 字节取 用 path、i 等于 47：
+            depth 为 depth 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 depth。
+完。
+
+NUPS_路径规范化 接受 path、path_len：
+    若 path 等于 0 或者 path_len 等于 0：
+        返还 「/」。
+    完。
+    segments 为 做 堆_分配 用 URL_MAX_PATH_DEPTH 乘 8。
+    seg_lens 为 做 堆_分配 用 URL_MAX_PATH_DEPTH 乘 4。
+    可变。
+    seg_count 为 0。
+    可变。
+    i 为 0。
+    若 i 小于 path_len 并且 做 字节取 用 path、i 等于 47：
+        i 为 i 加 1。
+    完。
+    只要 i 小于 path_len 并且 seg_count 小于 URL_MAX_PATH_DEPTH：
+        seg_start 为 i。
+        只要 i 小于 path_len 并且 做 字节取 用 path、i 不等于 47：
+            i 为 i 加 1。
+        完。
+        seg_len 为 i 减 seg_start。
+        若 i 小于 path_len：
+            i 为 i 加 1。
+        完。
+        若 seg_len 等于 1 并且 做 字节取 用 path、seg_start 等于 46：
+        否则若 seg_len 等于 2 并且 做 字节取 用 path、seg_start 等于 46 并且 做 字节取 用 path、seg_start 加 1 等于 46：
+            若 seg_count 大于 0：
+                seg_count 为 seg_count 减 1。
+            完。
+        否则若 seg_len 大于 0：
+            做 内存_写64 用 segments 加 seg_count 乘 8、path 加 seg_start。
+            做 内存_写32 用 seg_lens 加 seg_count 乘 4、seg_len。
+            seg_count 为 seg_count 加 1。
+        完。
+    完。
+    result 为 做 堆_分配 用 path_len 加 1。
+    可变。
+    wi 为 0。
+    若 seg_count 等于 0：
+        做 内存_写字节 用 result、47。
+        wi 为 1。
+    否则：
+        可变。
+        s 为 0。
+        只要 s 小于 seg_count：
+            做 内存_写字节 用 result 加 wi、47。
+            wi 为 wi 加 1。
+            sptr 为 做 内存_读64 用 segments 加 s 乘 8。
+            slen 为 做 内存_读32 用 seg_lens 加 s 乘 4。
+            做 内存_复制 用 result 加 wi、sptr、slen。
+            wi 为 wi 加 slen。
+            s 为 s 加 1。
+        完。
+    完。
+    做 内存_写字节 用 result 加 wi、0。
+    做 堆_释放 用 segments。
+    做 堆_释放 用 seg_lens。
+    全局_URL规范化数 为 全局_URL规范化数 加 1。
+    返还 result。
+完。
+
+NUPS_参数镎哈希 接受 键、键长：
+    若 键 等于 0 或者 键长 等于 0：
+        返还 0。
+    完。
+    可变。
+    h 为 5381。
+    可变。
+    i 为 0。
+    只要 i 小于 键长：
+        h 为 (h 左移 5) 加 h 加 做 字节取 用 键、i。
+        i 为 i 加 1。
+    完。
+    返还 h 位与 0x7FFFFFFF。
+完。
+
+NUPS_解析查询参数 接受 url：
+    若 url 等于 0 或者 url 的 query 等于 0：
+        返还。
+    完。
+    q 为 url 的 query。
+    qlen 为 url 的 query长度。
+    url 的 查询参数表 为 做 堆_分配 用 URL_MAX_QUERY_PARAMS 乘 32。
+    url 的 哈希索引 为 做 堆_分配 用 URL_QUERY_HASH_SIZE 乘 8。
+    可变。
+    h 为 0。
+    只要 h 小于 URL_QUERY_HASH_SIZE：
+        做 内存_写64 用 url 的 哈希索引 加 h 乘 8、0。
+        h 为 h 加 1。
+    完。
+    url 的 查询参数数 为 0。
+    可变。
+    i 为 0。
+    只要 i 小于 qlen 并且 url 的 查询参数数 小于 URL_MAX_QUERY_PARAMS：
+        key_start 为 i。
+        只要 i 小于 qlen 并且 做 字节取 用 q、i 不等于 61 并且 做 字节取 用 q、i 不等于 38：
+            i 为 i 加 1。
+        完。
+        key_end 为 i。
+        可变 val_start 为 i。
+        可变 val_end 为 i。
+        若 i 小于 qlen 并且 做 字节取 用 q、i 等于 61：
+            i 为 i 加 1。
+            val_start 为 i。
+            只要 i 小于 qlen 并且 做 字节取 用 q、i 不等于 38：
+                i 为 i 加 1。
+            完。
+            val_end 为 i。
+        完。
+        若 i 小于 qlen 并且 做 字节取 用 q、i 等于 38：
+            i 为 i 加 1。
+        完。
+        若 key_end 大于 key_start：
+            param_idx 为 url 的 查询参数数。
+            param 为 url 的 查询参数表 加 param_idx 乘 32。
+            k_len 为 key_end 减 key_start。
+            v_len 为 val_end 减 val_start。
+            decoded_key 为 做 URL_百分比解码 用 q 加 key_start、k_len。
+            decoded_val 为 做 URL_百分比解码 用 q 加 val_start、v_len。
+            做 内存_写64 用 param、decoded_key。
+            做 内存_写64 用 param 加 8、decoded_val。
+            做 内存_写32 用 param 加 16、k_len。
+            做 内存_写32 用 param 加 20、v_len。
+            kh 为 做 NUPS_参数镎哈希 用 decoded_key、做 平台_strlen 用 decoded_key。
+            做 内存_写32 用 param 加 24、kh。
+            做 内存_写64 用 param 加 28、0。
+            bucket 为 kh 取余于 URL_QUERY_HASH_SIZE。
+            old_head 为 做 内存_读64 用 url 的 哈希索引 加 bucket 乘 8。
+            做 内存_写64 用 param 加 28、old_head。
+            做 内存_写64 用 url 的 哈希索引 加 bucket 乘 8、param。
+            url 的 查询参数数 为 url 的 查询参数数 加 1。
+        完。
+    完。
+完。
+
+URL_查询参数_查找 接受 url、键、键长：
+    若 url 等于 0 或者 url 的 哈希索引 等于 0 或者 键 等于 0：
+        返还 0。
+    完。
+    kh 为 做 NUPS_参数镎哈希 用 键、键长。
+    bucket 为 kh 取余于 URL_QUERY_HASH_SIZE。
+    可变。
+    node 为 做 内存_读64 用 url 的 哈希索引 加 bucket 乘 8。
+    只要 node 不等于 0：
+        node_hash 为 做 内存_读32 用 node 加 24。
+        若 node_hash 等于 kh：
+            node_key 为 做 内存_读64 用 node。
+            node_klen 为 做 内存_读32 用 node 加 16。
+            若 node_klen 等于 键长 并且 做 内存_比较 用 node_key、键、键长 等于 0：
+                返还 做 内存_读64 用 node 加 8。
+            完。
+        完。
+        node 为 做 内存_读64 用 node 加 28。
+    完。
+    返还 0。
+完。
+
+URL_同源判定 接受 url_a、url_b：
+    若 url_a 等于 0 或者 url_b 等于 0：
+        返还 假。
+    完。
+    若 url_a 的 scheme类型 不等于 url_b 的 scheme类型：
+        返还 假。
+    完。
+    若 url_a 的 host哈希 不等于 url_b 的 host哈希：
+        返还 假。
+    完。
+    若 url_a 的 host长度 不等于 url_b 的 host长度：
+        返还 假。
+    完。
+    若 做 内存_比较 用 url_a 的 host、url_b 的 host、url_a 的 host长度 不等于 0：
+        返还 假。
+    完。
+    port_a 为 url_a 的 port。
+    port_b 为 url_b 的 port。
+    若 port_a 等于 0：
+        port_a 为 做 NUPS_默认端口 用 url_a 的 scheme类型。
+    完。
+    若 port_b 等于 0：
+        port_b 为 做 NUPS_默认端口 用 url_b 的 scheme类型。
+    完。
+    返还 port_a 等于 port_b。
+完。
+
+URL_完全比对 接受 url_a、url_b：
+    若 非 做 URL_同源判定 用 url_a、url_b：
+        返还 假。
+    完。
+    若 url_a 的 path长度 不等于 url_b 的 path长度：
+        返还 假。
+    完。
+    若 url_a 的 path 不等于 0 并且 url_b 的 path 不等于 0：
+        若 做 内存_比较 用 url_a 的 path、url_b 的 path、url_a 的 path长度 不等于 0：
+            返还 假。
+        完。
+    完。
+    若 url_a 的 query长度 不等于 url_b 的 query长度：
+        返还 假。
+    完。
+    若 url_a 的 query 不等于 0 并且 url_b 的 query 不等于 0：
+        若 做 内存_比较 用 url_a 的 query、url_b 的 query、url_a 的 query长度 不等于 0：
+            返还 假。
+        完。
+    完。
+    返还 真。
+完。
+
+NUPS_域名熵 接受 host、host_len：
+    若 host 等于 0 或者 host_len 等于 0：
+        返还 0.0。
+    完。
+    freq 为 做 堆_分配 用 256 乘 4。
+    可变。
+    k 为 0。
+    只要 k 小于 256：
+        做 内存_写32 用 freq 加 k 乘 4、0。
+        k 为 k 加 1。
+    完。
+    k 为 0。
+    只要 k 小于 host_len：
+        ch 为 做 字节取 用 host、k。
+        old 为 做 内存_读32 用 freq 加 ch 乘 4。
+        做 内存_写32 用 freq 加 ch 乘 4、old 加 1。
+        k 为 k 加 1。
+    完。
+    可变。
+    entropy 为 0.0。
+    k 为 0。
+    只要 k 小于 256：
+        cnt 为 做 内存_读32 用 freq 加 k 乘 4。
+        若 cnt 大于 0：
+            p 为 cnt 除以 host_len。
+            log_approx 为 做 NUPS_log2近似 用 p。
+            entropy 为 entropy 减 p 乘 log_approx。
+        完。
+        k 为 k 加 1。
+    完。
+    做 堆_释放 用 freq。
+    返还 entropy。
+完。
+
+NUPS_log2近似 接受 x：
+    若 x 小于或等于 0.0：
+        返还 负 20.0。
+    完。
+    t 为 (x 减 1.0) 除以 (x 加 1.0)。
+    t2 为 t 乘 t。
+    ln_x 为 2.0 乘 t 乘 (1.0 加 t2 除以 3.0 加 t2 乘 t2 除以 5.0)。
+    返还 ln_x 乘 1.4426950408889634。
+完。
+
+NUPS_AI威胁检测 接受 url：
+    若 url 等于 0 或者 非 url 的 是有效：
+        返还 0。
+    完。
+    若 全局AI总线 等于 0：
+        返还 0。
+    完。
+    report 为 做 堆_分配 用 URL威胁报告。
+    report 的 域名熵 为 做 NUPS_域名熵 用 url 的 host、url 的 host长度。
+    report 的 路径深度分 为 url 的 path深度 除以 5.0。
+    若 report 的 路径深度分 大于 1.0：
+        report 的 路径深度分 为 1.0。
+    完。
+    report 的 参数密度分 为 url 的 查询参数数 除以 8.0。
+    若 report 的 参数密度分 大于 1.0：
+        report 的 参数密度分 为 1.0。
+    完。
+    report 的 编码异常分 为 做 NUPS_编码密度 用 url 的 原始字符串、url 的 原始长度。
+    report 的 长度异常分 为 url 的 原始长度 除以 200.0。
+    若 report 的 长度异常分 大于 1.0：
+        report 的 长度异常分 为 1.0。
+    完。
+    tensor 为 做 Tensor_创建 用 6。
+    做 Tensor_写 用 tensor、0、report 的 域名熵 除以 4.0。
+    做 Tensor_写 用 tensor、1、report 的 路径深度分。
+    做 Tensor_写 用 tensor、2、report 的 参数密度分。
+    做 Tensor_写 用 tensor、3、report 的 编码异常分。
+    做 Tensor_写 用 tensor、4、report 的 长度异常分。
+    双重标志 为 若 做 NUPS_检测双重解码 用 url 的 原始字符串、url 的 原始长度 则 1.0 否则 0.0。
+    做 Tensor_写 用 tensor、5、双重标志。
+    威胁分 为 做 AI总线_推理 用 全局AI总线、tensor、6。
+    half_x 为 威胁分 除以 2.0。
+    hx2 为 half_x 乘 half_x。
+    tanh_val 为 half_x 乘 (27.0 加 hx2) 除以 (27.0 加 9.0 乘 hx2)。
+    report 的 威胁分 为 0.5 加 0.5 乘 tanh_val。
+    若 report 的 威胁分 小于 0.0：
+        report 的 威胁分 为 0.0。
+    完。
+    若 report 的 威胁分 大于 1.0：
+        report 的 威胁分 为 1.0。
+    完。
+    report 的 是可疑 为 report 的 威胁分 大于 0.65。
+    若 report 的 是可疑：
+        全局_URL威胁检测 为 全局_URL威胁检测 加 1。
+        做 平台_日志 用 「[NUPS-AI] 可疑URL 威胁分=」、report 的 威胁分、「 域名熵=」、report 的 域名熵、「 host=」、url 的 host。
+    完。
+    做 Tensor_释放 用 tensor。
+    返还 report。
+完。
+
+NUPS_编码密度 接受 输入、长度：
+    若 输入 等于 0 或者 长度 等于 0：
+        返还 0.0。
+    完。
+    可变。
+    pct_count 为 0。
+    可变。
+    i 为 0。
+    只要 i 小于 长度：
+        若 做 字节取 用 输入、i 等于 37：
+            pct_count 为 pct_count 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 pct_count 乘 3.0 除以 长度。
+完。
+
+NUPS_全局统计 接受 零参：
+    做 平台_日志 用 「[NUPS全局] 解析总数=」、全局_URL解析总数、「 成功=」、全局_URL解析成功、「 失败=」、全局_URL解析失败、「 威胁检测=」、全局_URL威胁检测、「 双重解码=」、全局_URL双重解码、「 规范化=」、全局_URL规范化数。
+完。
+
+URL_释放 接受 url：
+    若 url 等于 0：
+        返还。
+    完。
+    若 url 的 查询参数表 不等于 0：
+        做 堆_释放 用 url 的 查询参数表。
+    完。
+    若 url 的 哈希索引 不等于 0：
+        做 堆_释放 用 url 的 哈希索引。
+    完。
+    做 堆_释放 用 url。
+完。
+
+NUPS_初始化 接受 零参：
+    全局_URL解析总数 为 0。
+    全局_URL解析成功 为 0。
+    全局_URL解析失败 为 0。
+    全局_URL威胁检测 为 0。
+    全局_URL双重解码 为 0。
+    全局_URL规范化数 为 0。
+    做 平台_日志 用 「[NUPS] Nova URL Parsing System 引擎已初始化」。
+完。
+
+本章 收束。

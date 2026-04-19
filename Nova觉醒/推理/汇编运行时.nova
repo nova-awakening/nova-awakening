@@ -1,0 +1,1182 @@
+《汇编运行时》
+
+NWRT_MAX_TYPES 为 256。
+
+NWRT_MAX_FUNCS 为 512。
+
+NWRT_MAX_IMPORTS 为 128。
+
+NWRT_MAX_EXPORTS 为 128。
+
+NWRT_MAX_GLOBALS 为 256。
+
+NWRT_MAX_TABLES 为 16。
+
+NWRT_MAX_MEMORIES 为 4。
+
+NWRT_MAX_LOCALS 为 256。
+
+NWRT_MAX_STACK 为 1024。
+
+NWRT_PAGE_SIZE 为 65536。
+
+NWRT_MAX_PAGES 为 256。
+
+NWRT_CALL_DEPTH_MAX 为 128。
+
+可变 NWRT_解码次数 为 0。
+
+可变 NWRT_验证次数 为 0。
+
+可变 NWRT_执行指令数 为 0。
+
+可变 NWRT_调用深度 为 0。
+
+可变 NWRT_内存增长次数 为 0。
+
+可变 NWRT_AI预测次数 为 0。
+
+可变 NWRT_JIT候选数 为 0。
+
+WasmMemory 是 一种 事物，含 初始页数、最大页数、当前页数、数据、共享。
+
+WasmTable 是 一种 事物，含 元素类型、初始大小、最大大小、当前大小、数据。
+
+WasmModule 是 一种 事物，含 类型数、类型表、函数数、函数表、导入数、导入表、导出数、导出表、全局数、全局表、内存数、内存表、表数、表表、起始函数、有效。
+
+WasmInstance 是 一种 事物，含 模块、内存、表组、全局值、栈、栈顶、调用栈、调用栈顶。
+
+NWRT_调用帧 是 一种 事物，含 函数索引、返回PC、局部变量、栈基。
+
+NWRT_读u8 接受 buf、off：
+    返还 做 内存读8 用 buf 加 off 位与 0xFF。
+完。
+
+NWRT_读LEB128_u32 接受 buf、off、out_off：
+    可变 result 为 0。
+    可变 shift 为 0。
+    可变 pos 为 off。
+    可变 byte 为 0。
+    只要 shift 小于 35：
+        byte 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        result 为 result 位或 (byte 位与 0x7F) 左移 shift。
+        若 byte 位与 0x80 等于 0：
+            做 内存写32 用 out_off、pos。
+            返还 result。
+        完。
+        shift 为 shift 加 7。
+    完。
+    做 内存写32 用 out_off、pos。
+    返还 result。
+完。
+
+NWRT_读LEB128_i32 接受 buf、off、out_off：
+    可变 result 为 0。
+    可变 shift 为 0。
+    可变 pos 为 off。
+    可变 byte 为 0。
+    只要 shift 小于 35：
+        byte 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        result 为 result 位或 (byte 位与 0x7F) 左移 shift。
+        shift 为 shift 加 7。
+        若 byte 位与 0x80 等于 0：
+            若 shift 小于 32 并且 byte 位与 0x40 不等于 0：
+                result 为 result 位或 负 1 左移 shift。
+            完。
+            做 内存写32 用 out_off、pos。
+            返还 result。
+        完。
+    完。
+    做 内存写32 用 out_off、pos。
+    返还 result。
+完。
+
+NWRT_读LEB128_u64 接受 buf、off、out_off：
+    可变 result 为 0。
+    可变 shift 为 0。
+    可变 pos 为 off。
+    只要 shift 小于 70：
+        byte 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        result 为 result 位或 (byte 位与 0x7F) 左移 shift。
+        若 byte 位与 0x80 等于 0：
+            做 内存写32 用 out_off、pos。
+            返还 result。
+        完。
+        shift 为 shift 加 7。
+    完。
+    做 内存写32 用 out_off、pos。
+    返还 result。
+完。
+
+NWRT_读字节序列 接受 buf、off、长度：
+    seq 为 做 堆分配 用 长度。
+    可变 i 为 0。
+    只要 i 小于 长度：
+        做 内存写8 用 seq 加 i、做 NWRT_读u8 用 buf、off 加 i。
+        i 为 i 加 1。
+    完。
+    返还 seq。
+完。
+
+NWRT_创建模块 接受 零参：
+    m 为 做 堆分配 用 WasmModule。
+    m 的 类型数 为 0。
+    m 的 类型表 为 做 堆分配 用 NWRT_MAX_TYPES 乘 8。
+    m 的 函数数 为 0。
+    m 的 函数表 为 做 堆分配 用 NWRT_MAX_FUNCS 乘 8。
+    m 的 导入数 为 0。
+    m 的 导入表 为 做 堆分配 用 NWRT_MAX_IMPORTS 乘 8。
+    m 的 导出数 为 0。
+    m 的 导出表 为 做 堆分配 用 NWRT_MAX_EXPORTS 乘 8。
+    m 的 全局数 为 0。
+    m 的 全局表 为 做 堆分配 用 NWRT_MAX_GLOBALS 乘 8。
+    m 的 内存数 为 0。
+    m 的 内存表 为 做 堆分配 用 NWRT_MAX_MEMORIES 乘 8。
+    m 的 表数 为 0。
+    m 的 表表 为 做 堆分配 用 NWRT_MAX_TABLES 乘 8。
+    m 的 起始函数 为 负 1。
+    m 的 有效 为 假。
+    返还 m。
+完。
+
+NWRT_验证魔数 接受 buf、长度：
+    若 长度 小于 8：
+        返还 假。
+    完。
+    magic 为 做 内存读32 用 buf。
+    ver 为 做 内存读32 用 buf 加 4。
+    若 magic 不等于 WASM_MAGIC：
+        返还 假。
+    完。
+    若 ver 不等于 WASM_VERSION：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+NWRT_解码类型段 接受 m、buf、off、end：
+    可变 pos_buf 为 做 堆分配 用 4。
+    count 为 做 NWRT_读LEB128_u32 用 buf、off、pos_buf。
+    可变 pos 为 做 内存读32 用 pos_buf。
+    可变 i 为 0。
+    只要 i 小于 count 并且 i 小于 NWRT_MAX_TYPES 并且 pos 小于 end：
+        marker 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        param_count 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        ft 为 做 堆分配 用 WasmFuncType。
+        ft 的 参数数量 为 param_count。
+        ft 的 参数类型 为 做 NWRT_读字节序列 用 buf、pos、param_count。
+        pos 为 pos 加 param_count。
+        ret_count 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        ft 的 返回数量 为 ret_count。
+        ft 的 返回类型 为 做 NWRT_读字节序列 用 buf、pos、ret_count。
+        pos 为 pos 加 ret_count。
+        做 内存写64 用 m 的 类型表 加 i 乘 8、ft。
+        m 的 类型数 为 m 的 类型数 加 1。
+        i 为 i 加 1。
+    完。
+    做 堆释放 用 pos_buf。
+完。
+
+NWRT_解码导入段 接受 m、buf、off、end：
+    可变 pos_buf 为 做 堆分配 用 4。
+    count 为 做 NWRT_读LEB128_u32 用 buf、off、pos_buf。
+    可变 pos 为 做 内存读32 用 pos_buf。
+    可变 i 为 0。
+    只要 i 小于 count 并且 i 小于 NWRT_MAX_IMPORTS 并且 pos 小于 end：
+        imp 为 做 堆分配 用 WasmImport。
+        mod_len 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        imp 的 模块名 为 做 NWRT_读字节序列 用 buf、pos、mod_len。
+        pos 为 pos 加 mod_len。
+        fld_len 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        imp 的 字段名 为 做 NWRT_读字节序列 用 buf、pos、fld_len。
+        pos 为 pos 加 fld_len。
+        imp 的 类型 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        imp 的 类型索引 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        做 内存写64 用 m 的 导入表 加 i 乘 8、imp。
+        m 的 导入数 为 m 的 导入数 加 1。
+        i 为 i 加 1。
+    完。
+    做 堆释放 用 pos_buf。
+完。
+
+NWRT_解码函数段 接受 m、buf、off、end：
+    可变 pos_buf 为 做 堆分配 用 4。
+    count 为 做 NWRT_读LEB128_u32 用 buf、off、pos_buf。
+    可变 pos 为 做 内存读32 用 pos_buf。
+    可变 i 为 0。
+    只要 i 小于 count 并且 i 小于 NWRT_MAX_FUNCS 并且 pos 小于 end：
+        fn_obj 为 做 堆分配 用 WasmFunction。
+        fn_obj 的 类型索引 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        fn_obj 的 代码 为 0。
+        fn_obj 的 代码长度 为 0。
+        fn_obj 的 局部变量 为 0。
+        fn_obj 的 局部变量数 为 0。
+        做 内存写64 用 m 的 函数表 加 i 乘 8、fn_obj。
+        m 的 函数数 为 m 的 函数数 加 1。
+        i 为 i 加 1。
+    完。
+    做 堆释放 用 pos_buf。
+完。
+
+NWRT_解码内存段 接受 m、buf、off、end：
+    可变 pos_buf 为 做 堆分配 用 4。
+    count 为 做 NWRT_读LEB128_u32 用 buf、off、pos_buf。
+    可变 pos 为 做 内存读32 用 pos_buf。
+    可变 i 为 0。
+    只要 i 小于 count 并且 i 小于 NWRT_MAX_MEMORIES 并且 pos 小于 end：
+        mem 为 做 堆分配 用 WasmMemory。
+        flags 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        mem 的 初始页数 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        若 flags 位与 1：
+            mem 的 最大页数 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+            pos 为 做 内存读32 用 pos_buf。
+        否则：
+            mem 的 最大页数 为 NWRT_MAX_PAGES。
+        完。
+        mem 的 共享 为 flags 位与 2 不等于 0。
+        mem 的 当前页数 为 mem 的 初始页数。
+        mem 的 数据 为 做 堆分配 用 mem 的 初始页数 乘 NWRT_PAGE_SIZE。
+        做 内存写64 用 m 的 内存表 加 i 乘 8、mem。
+        m 的 内存数 为 m 的 内存数 加 1。
+        i 为 i 加 1。
+    完。
+    做 堆释放 用 pos_buf。
+完。
+
+NWRT_解码全局段 接受 m、buf、off、end：
+    可变 pos_buf 为 做 堆分配 用 4。
+    count 为 做 NWRT_读LEB128_u32 用 buf、off、pos_buf。
+    可变 pos 为 做 内存读32 用 pos_buf。
+    可变 i 为 0。
+    只要 i 小于 count 并且 i 小于 NWRT_MAX_GLOBALS 并且 pos 小于 end：
+        g 为 做 堆分配 用 WasmGlobal。
+        g 的 类型 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        g 的 可变 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        op 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        g 的 初始值 为 做 NWRT_读LEB128_u64 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        pos 为 pos 加 1。
+        做 内存写64 用 m 的 全局表 加 i 乘 8、g。
+        m 的 全局数 为 m 的 全局数 加 1。
+        i 为 i 加 1。
+    完。
+    做 堆释放 用 pos_buf。
+完。
+
+NWRT_解码导出段 接受 m、buf、off、end：
+    可变 pos_buf 为 做 堆分配 用 4。
+    count 为 做 NWRT_读LEB128_u32 用 buf、off、pos_buf。
+    可变 pos 为 做 内存读32 用 pos_buf。
+    可变 i 为 0。
+    只要 i 小于 count 并且 i 小于 NWRT_MAX_EXPORTS 并且 pos 小于 end：
+        exp 为 做 堆分配 用 WasmExport。
+        name_len 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        exp 的 名称 为 做 NWRT_读字节序列 用 buf、pos、name_len。
+        pos 为 pos 加 name_len。
+        exp 的 类型 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        exp 的 索引 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        做 内存写64 用 m 的 导出表 加 i 乘 8、exp。
+        m 的 导出数 为 m 的 导出数 加 1。
+        i 为 i 加 1。
+    完。
+    做 堆释放 用 pos_buf。
+完。
+
+NWRT_解码代码段 接受 m、buf、off、end：
+    可变 pos_buf 为 做 堆分配 用 4。
+    count 为 做 NWRT_读LEB128_u32 用 buf、off、pos_buf。
+    可变 pos 为 做 内存读32 用 pos_buf。
+    可变 i 为 0。
+    只要 i 小于 count 并且 i 小于 m 的 函数数 并且 pos 小于 end：
+        fn_obj 为 做 内存读64 用 m 的 函数表 加 i 乘 8。
+        body_size 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        body_start 为 pos。
+        local_decl 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        可变 total_locals 为 0。
+        可变 j 为 0。
+        只要 j 小于 local_decl：
+            lc 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+            pos 为 做 内存读32 用 pos_buf。
+            lt 为 做 NWRT_读u8 用 buf、pos。
+            pos 为 pos 加 1。
+            total_locals 为 total_locals 加 lc。
+            j 为 j 加 1。
+        完。
+        fn_obj 的 局部变量数 为 total_locals。
+        fn_obj 的 代码 为 buf 加 pos。
+        fn_obj 的 代码长度 为 body_start 加 body_size 减 pos。
+        pos 为 body_start 加 body_size。
+        i 为 i 加 1。
+    完。
+    做 堆释放 用 pos_buf。
+完。
+
+NWRT_解码模块 接受 buf、长度：
+    NWRT_解码次数 为 NWRT_解码次数 加 1。
+    若 非 做 NWRT_验证魔数 用 buf、长度：
+        返还 0。
+    完。
+    m 为 做 NWRT_创建模块。
+    可变 pos_buf 为 做 堆分配 用 4。
+    可变 pos 为 8。
+    只要 pos 小于 长度：
+        sec_id 为 做 NWRT_读u8 用 buf、pos。
+        pos 为 pos 加 1。
+        sec_size 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        pos 为 做 内存读32 用 pos_buf。
+        sec_end 为 pos 加 sec_size。
+        若 sec_id 等于 WASM_SEC_TYPE：
+            做 NWRT_解码类型段 用 m、buf、pos、sec_end。
+        完。
+        若 sec_id 等于 WASM_SEC_IMPORT：
+            做 NWRT_解码导入段 用 m、buf、pos、sec_end。
+        完。
+        若 sec_id 等于 WASM_SEC_FUNCTION：
+            做 NWRT_解码函数段 用 m、buf、pos、sec_end。
+        完。
+        若 sec_id 等于 WASM_SEC_MEMORY：
+            做 NWRT_解码内存段 用 m、buf、pos、sec_end。
+        完。
+        若 sec_id 等于 WASM_SEC_GLOBAL：
+            做 NWRT_解码全局段 用 m、buf、pos、sec_end。
+        完。
+        若 sec_id 等于 WASM_SEC_EXPORT：
+            做 NWRT_解码导出段 用 m、buf、pos、sec_end。
+        完。
+        若 sec_id 等于 WASM_SEC_CODE：
+            做 NWRT_解码代码段 用 m、buf、pos、sec_end。
+        完。
+        若 sec_id 等于 WASM_SEC_START：
+            m 的 起始函数 为 做 NWRT_读LEB128_u32 用 buf、pos、pos_buf。
+        完。
+        pos 为 sec_end。
+    完。
+    做 堆释放 用 pos_buf。
+    m 的 有效 为 真。
+    返还 m。
+完。
+
+NWRT_验证值类型 接受 t：
+    若 t 等于 WASM_I32 或者 t 等于 WASM_I64：
+        返还 真。
+    完。
+    若 t 等于 WASM_F32 或者 t 等于 WASM_F64：
+        返还 真。
+    完。
+    若 t 等于 WASM_V128 或者 t 等于 WASM_FUNCREF 或者 t 等于 WASM_EXTERNREF：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+NWRT_验证函数签名 接受 m：
+    可变 i 为 0。
+    只要 i 小于 m 的 类型数：
+        ft 为 做 内存读64 用 m 的 类型表 加 i 乘 8。
+        若 ft 等于 0：
+            返还 假。
+        完。
+        可变 j 为 0。
+        只要 j 小于 ft 的 参数数量：
+            若 非 做 NWRT_验证值类型 用 做 内存读8 用 ft 的 参数类型 加 j：
+                返还 假。
+            完。
+            j 为 j 加 1。
+        完。
+        j 为 0。
+        只要 j 小于 ft 的 返回数量：
+            若 非 做 NWRT_验证值类型 用 做 内存读8 用 ft 的 返回类型 加 j：
+                返还 假。
+            完。
+            j 为 j 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+NWRT_验证函数引用 接受 m：
+    可变 i 为 0。
+    只要 i 小于 m 的 函数数：
+        fn_obj 为 做 内存读64 用 m 的 函数表 加 i 乘 8。
+        若 fn_obj 等于 0：
+            返还 假。
+        完。
+        若 fn_obj 的 类型索引 大于或等于 m 的 类型数：
+            返还 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+NWRT_验证内存限制 接受 m：
+    可变 i 为 0。
+    只要 i 小于 m 的 内存数：
+        mem 为 做 内存读64 用 m 的 内存表 加 i 乘 8。
+        若 mem 的 初始页数 大于 NWRT_MAX_PAGES：
+            返还 假。
+        完。
+        若 mem 的 最大页数 大于 NWRT_MAX_PAGES：
+            返还 假。
+        完。
+        若 mem 的 初始页数 大于 mem 的 最大页数：
+            返还 假。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+NWRT_验证模块 接受 m：
+    NWRT_验证次数 为 NWRT_验证次数 加 1。
+    若 m 等于 0：
+        返还 假。
+    完。
+    若 非 做 NWRT_验证函数签名 用 m：
+        返还 假。
+    完。
+    若 非 做 NWRT_验证函数引用 用 m：
+        返还 假。
+    完。
+    若 非 做 NWRT_验证内存限制 用 m：
+        返还 假。
+    完。
+    若 m 的 起始函数 大于或等于 0 并且 m 的 起始函数 大于或等于 m 的 函数数：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+NWRT_创建实例 接受 m：
+    若 m 等于 0 或者 非 m 的 有效：
+        返还 0。
+    完。
+    inst 为 做 堆分配 用 WasmInstance。
+    inst 的 模块 为 m。
+    若 m 的 内存数 大于 0：
+        inst 的 内存 为 做 内存读64 用 m 的 内存表。
+    否则：
+        default_mem 为 做 堆分配 用 WasmMemory。
+        default_mem 的 初始页数 为 1。
+        default_mem 的 最大页数 为 NWRT_MAX_PAGES。
+        default_mem 的 当前页数 为 1。
+        default_mem 的 数据 为 做 堆分配 用 NWRT_PAGE_SIZE。
+        default_mem 的 共享 为 假。
+        inst 的 内存 为 default_mem。
+    完。
+    inst 的 全局值 为 做 堆分配 用 NWRT_MAX_GLOBALS 乘 8。
+    可变 i 为 0。
+    只要 i 小于 m 的 全局数：
+        g 为 做 内存读64 用 m 的 全局表 加 i 乘 8。
+        做 内存写64 用 inst 的 全局值 加 i 乘 8、g 的 初始值。
+        i 为 i 加 1。
+    完。
+    inst 的 栈 为 做 堆分配 用 NWRT_MAX_STACK 乘 8。
+    inst 的 栈顶 为 0。
+    inst 的 调用栈 为 做 堆分配 用 NWRT_CALL_DEPTH_MAX 乘 32。
+    inst 的 调用栈顶 为 0。
+    返还 inst。
+完。
+
+NWRT_内存增长 接受 inst、增加页数：
+    mem 为 inst 的 内存。
+    new_pages 为 mem 的 当前页数 加 增加页数。
+    若 new_pages 大于 mem 的 最大页数：
+        返还 负 1。
+    完。
+    old_size 为 mem 的 当前页数 乘 NWRT_PAGE_SIZE。
+    new_size 为 new_pages 乘 NWRT_PAGE_SIZE。
+    new_data 为 做 堆分配 用 new_size。
+    可变 i 为 0。
+    只要 i 小于 old_size：
+        做 内存写8 用 new_data 加 i、做 内存读8 用 mem 的 数据 加 i。
+        i 为 i 加 1。
+    完。
+    只要 i 小于 new_size：
+        做 内存写8 用 new_data 加 i、0。
+        i 为 i 加 1。
+    完。
+    做 堆释放 用 mem 的 数据。
+    mem 的 数据 为 new_data。
+    old_pages 为 mem 的 当前页数。
+    mem 的 当前页数 为 new_pages。
+    NWRT_内存增长次数 为 NWRT_内存增长次数 加 1。
+    返还 old_pages。
+完。
+
+NWRT_压栈 接受 inst、val：
+    若 inst 的 栈顶 大于或等于 NWRT_MAX_STACK：
+        返还 假。
+    完。
+    做 内存写64 用 inst 的 栈 加 inst 的 栈顶 乘 8、val。
+    inst 的 栈顶 为 inst 的 栈顶 加 1。
+    返还 真。
+完。
+
+NWRT_弹栈 接受 inst：
+    若 inst 的 栈顶 小于或等于 0：
+        返还 0。
+    完。
+    inst 的 栈顶 为 inst 的 栈顶 减 1。
+    返还 做 内存读64 用 inst 的 栈 加 inst 的 栈顶 乘 8。
+完。
+
+NWRT_查栈顶 接受 inst：
+    若 inst 的 栈顶 小于或等于 0：
+        返还 0。
+    完。
+    返还 做 内存读64 用 inst 的 栈 加 (inst 的 栈顶 减 1) 乘 8。
+完。
+
+NWRT_推调用帧 接受 inst、函数索引、返回PC、栈基：
+    若 inst 的 调用栈顶 大于或等于 NWRT_CALL_DEPTH_MAX：
+        返还 假。
+    完。
+    frame_addr 为 inst 的 调用栈 加 inst 的 调用栈顶 乘 32。
+    做 内存写32 用 frame_addr、函数索引。
+    做 内存写64 用 frame_addr 加 4、返回PC。
+    做 内存写64 用 frame_addr 加 12、0。
+    做 内存写32 用 frame_addr 加 20、栈基。
+    inst 的 调用栈顶 为 inst 的 调用栈顶 加 1。
+    NWRT_调用深度 为 NWRT_调用深度 加 1。
+    返还 真。
+完。
+
+NWRT_弹调用帧 接受 inst：
+    若 inst 的 调用栈顶 小于或等于 0：
+        返还 0。
+    完。
+    inst 的 调用栈顶 为 inst 的 调用栈顶 减 1。
+    返还 inst 的 调用栈 加 inst 的 调用栈顶 乘 32。
+完。
+
+OP_UNREACHABLE 为 0x00。
+
+OP_NOP 为 0x01。
+
+OP_BLOCK 为 0x02。
+
+OP_LOOP 为 0x03。
+
+OP_IF 为 0x04。
+
+OP_ELSE 为 0x05。
+
+OP_END 为 0x0B。
+
+OP_BR 为 0x0C。
+
+OP_BR_IF 为 0x0D。
+
+OP_RETURN 为 0x0F。
+
+OP_CALL 为 0x10。
+
+OP_DROP 为 0x1A。
+
+OP_SELECT 为 0x1B。
+
+OP_LOCAL_GET 为 0x20。
+
+OP_LOCAL_SET 为 0x21。
+
+OP_LOCAL_TEE 为 0x22。
+
+OP_GLOBAL_GET 为 0x23。
+
+OP_GLOBAL_SET 为 0x24。
+
+OP_I32_LOAD 为 0x28。
+
+OP_I32_STORE 为 0x36。
+
+OP_I32_CONST 为 0x41。
+
+OP_I64_CONST 为 0x42。
+
+OP_I32_EQZ 为 0x45。
+
+OP_I32_EQ 为 0x46。
+
+OP_I32_NE 为 0x47。
+
+OP_I32_LT_S 为 0x48。
+
+OP_I32_GT_S 为 0x4A。
+
+OP_I32_LE_S 为 0x4C。
+
+OP_I32_GE_S 为 0x4E。
+
+OP_I32_ADD 为 0x6A。
+
+OP_I32_SUB 为 0x6B。
+
+OP_I32_MUL 为 0x6C。
+
+OP_I32_DIV_S 为 0x6D。
+
+OP_I32_REM_S 为 0x6F。
+
+OP_I32_AND 为 0x71。
+
+OP_I32_OR 为 0x72。
+
+OP_I32_XOR 为 0x73。
+
+OP_I32_SHL 为 0x74。
+
+OP_I32_SHR_S 为 0x75。
+
+OP_MEMORY_SIZE 为 0x3F。
+
+OP_MEMORY_GROW 为 0x40。
+
+NWRT_执行函数 接受 inst、func_idx：
+    m 为 inst 的 模块。
+    若 func_idx 小于 0 或者 func_idx 大于或等于 m 的 函数数：
+        返还 负 1。
+    完。
+    fn_obj 为 做 内存读64 用 m 的 函数表 加 func_idx 乘 8。
+    若 fn_obj 等于 0：
+        返还 负 2。
+    完。
+    code 为 fn_obj 的 代码。
+    code_len 为 fn_obj 的 代码长度。
+    若 code 等于 0 或者 code_len 等于 0：
+        返还 负 3。
+    完。
+    local_count 为 fn_obj 的 局部变量数。
+    ft 为 做 内存读64 用 m 的 类型表 加 fn_obj 的 类型索引 乘 8。
+    param_count 为 若 ft 不等于 0 则 ft 的 参数数量 否则 0。
+    total_locals 为 param_count 加 local_count。
+    locals 为 做 堆分配 用 total_locals 乘 8。
+    可变 p 为 param_count 减 1。
+    只要 p 大于或等于 0：
+        做 内存写64 用 locals 加 p 乘 8、做 NWRT_弹栈 用 inst。
+        p 为 p 减 1。
+    完。
+    可变 li 为 param_count。
+    只要 li 小于 total_locals：
+        做 内存写64 用 locals 加 li 乘 8、0。
+        li 为 li 加 1。
+    完。
+    做 NWRT_推调用帧 用 inst、func_idx、0、inst 的 栈顶。
+    可变 pos_buf 为 做 堆分配 用 4。
+    可变 pc 为 0。
+    可变 running 为 真。
+    可变 block_depth 为 0。
+    只要 running 并且 pc 小于 code_len：
+        op 为 做 内存读8 用 code 加 pc 位与 0xFF。
+        pc 为 pc 加 1。
+        NWRT_执行指令数 为 NWRT_执行指令数 加 1。
+        若 op 等于 OP_NOP：
+        否则若 op 等于 OP_UNREACHABLE：
+            running 为 假。
+        否则若 op 等于 OP_I32_CONST：
+            val 为 做 NWRT_读LEB128_i32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            做 NWRT_压栈 用 inst、val。
+        否则若 op 等于 OP_I64_CONST：
+            val64 为 做 NWRT_读LEB128_u64 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            做 NWRT_压栈 用 inst、val64。
+        否则若 op 等于 OP_LOCAL_GET：
+            idx 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            若 idx 小于 total_locals：
+                做 NWRT_压栈 用 inst、做 内存读64 用 locals 加 idx 乘 8。
+            完。
+        否则若 op 等于 OP_LOCAL_SET：
+            idx 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            若 idx 小于 total_locals：
+                做 内存写64 用 locals 加 idx 乘 8、做 NWRT_弹栈 用 inst。
+            完。
+        否则若 op 等于 OP_LOCAL_TEE：
+            idx 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            若 idx 小于 total_locals：
+                v 为 做 NWRT_查栈顶 用 inst。
+                做 内存写64 用 locals 加 idx 乘 8、v。
+            完。
+        否则若 op 等于 OP_GLOBAL_GET：
+            idx 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            若 idx 小于 m 的 全局数：
+                做 NWRT_压栈 用 inst、做 内存读64 用 inst 的 全局值 加 idx 乘 8。
+            完。
+        否则若 op 等于 OP_GLOBAL_SET：
+            idx 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            若 idx 小于 m 的 全局数：
+                做 内存写64 用 inst 的 全局值 加 idx 乘 8、做 NWRT_弹栈 用 inst。
+            完。
+        否则若 op 等于 OP_I32_ADD：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、a 加 b 位与 0xFFFFFFFF。
+        否则若 op 等于 OP_I32_SUB：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、a 减 b 位与 0xFFFFFFFF。
+        否则若 op 等于 OP_I32_MUL：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、a 乘 b 位与 0xFFFFFFFF。
+        否则若 op 等于 OP_I32_DIV_S：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            若 b 等于 0：
+                running 为 假。
+            否则：
+                做 NWRT_压栈 用 inst、a 除以 b。
+            完。
+        否则若 op 等于 OP_I32_REM_S：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            若 b 等于 0：
+                running 为 假。
+            否则：
+                做 NWRT_压栈 用 inst、a 取余于 b。
+            完。
+        否则若 op 等于 OP_I32_AND：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、a 位与 b。
+        否则若 op 等于 OP_I32_OR：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、a 位或 b。
+        否则若 op 等于 OP_I32_XOR：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、a 位异或 b。
+        否则若 op 等于 OP_I32_SHL：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、a 左移 (b 位与 31) 位与 0xFFFFFFFF。
+        否则若 op 等于 OP_I32_SHR_S：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、a 右移 (b 位与 31)。
+        否则若 op 等于 OP_I32_EQZ：
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、若 a 等于 0 则 1 否则 0。
+        否则若 op 等于 OP_I32_EQ：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、若 a 等于 b 则 1 否则 0。
+        否则若 op 等于 OP_I32_NE：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、若 a 不等于 b 则 1 否则 0。
+        否则若 op 等于 OP_I32_LT_S：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、若 a 小于 b 则 1 否则 0。
+        否则若 op 等于 OP_I32_GT_S：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、若 a 大于 b 则 1 否则 0。
+        否则若 op 等于 OP_I32_LE_S：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、若 a 小于或等于 b 则 1 否则 0。
+        否则若 op 等于 OP_I32_GE_S：
+            b 为 做 NWRT_弹栈 用 inst。
+            a 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、若 a 大于或等于 b 则 1 否则 0。
+        否则若 op 等于 OP_I32_LOAD：
+            align 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            offset 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            addr 为 做 NWRT_弹栈 用 inst 加 offset。
+            若 addr 加 4 小于或等于 inst 的 内存 的 当前页数 乘 NWRT_PAGE_SIZE：
+                做 NWRT_压栈 用 inst、做 内存读32 用 inst 的 内存 的 数据 加 addr。
+            否则：
+                running 为 假。
+            完。
+        否则若 op 等于 OP_I32_STORE：
+            align 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            offset 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            val 为 做 NWRT_弹栈 用 inst。
+            addr 为 做 NWRT_弹栈 用 inst 加 offset。
+            若 addr 加 4 小于或等于 inst 的 内存 的 当前页数 乘 NWRT_PAGE_SIZE：
+                做 内存写32 用 inst 的 内存 的 数据 加 addr、val。
+            否则：
+                running 为 假。
+            完。
+        否则若 op 等于 OP_MEMORY_SIZE：
+            pc 为 pc 加 1。
+            做 NWRT_压栈 用 inst、inst 的 内存 的 当前页数。
+        否则若 op 等于 OP_MEMORY_GROW：
+            pc 为 pc 加 1。
+            delta 为 做 NWRT_弹栈 用 inst。
+            result 为 做 NWRT_内存增长 用 inst、delta。
+            做 NWRT_压栈 用 inst、result。
+        否则若 op 等于 OP_DROP：
+            做 NWRT_弹栈 用 inst。
+        否则若 op 等于 OP_SELECT：
+            cond 为 做 NWRT_弹栈 用 inst。
+            v2 为 做 NWRT_弹栈 用 inst。
+            v1 为 做 NWRT_弹栈 用 inst。
+            做 NWRT_压栈 用 inst、若 cond 不等于 0 则 v1 否则 v2。
+        否则若 op 等于 OP_CALL：
+            target 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            做 NWRT_执行函数 用 inst、target。
+        否则若 op 等于 OP_BLOCK 或者 op 等于 OP_LOOP 或者 op 等于 OP_IF：
+            pc 为 pc 加 1。
+            block_depth 为 block_depth 加 1。
+            若 op 等于 OP_IF：
+                cond 为 做 NWRT_弹栈 用 inst。
+                若 cond 等于 0：
+                    可变 depth 为 1。
+                    只要 depth 大于 0 并且 pc 小于 code_len：
+                        skip_op 为 做 内存读8 用 code 加 pc 位与 0xFF。
+                        pc 为 pc 加 1。
+                        若 skip_op 等于 OP_BLOCK 或者 skip_op 等于 OP_LOOP 或者 skip_op 等于 OP_IF：
+                            depth 为 depth 加 1。
+                        完。
+                        若 skip_op 等于 OP_END：
+                            depth 为 depth 减 1。
+                        完。
+                        若 skip_op 等于 OP_ELSE 并且 depth 等于 1：
+                            depth 为 0。
+                        完。
+                    完。
+                完。
+            完。
+        否则若 op 等于 OP_ELSE：
+            可变 depth 为 1。
+            只要 depth 大于 0 并且 pc 小于 code_len：
+                skip_op 为 做 内存读8 用 code 加 pc 位与 0xFF。
+                pc 为 pc 加 1。
+                若 skip_op 等于 OP_BLOCK 或者 skip_op 等于 OP_LOOP 或者 skip_op 等于 OP_IF：
+                    depth 为 depth 加 1。
+                完。
+                若 skip_op 等于 OP_END：
+                    depth 为 depth 减 1。
+                完。
+            完。
+            block_depth 为 block_depth 减 1。
+        否则若 op 等于 OP_END：
+            若 block_depth 大于 0：
+                block_depth 为 block_depth 减 1。
+            否则：
+                running 为 假。
+            完。
+        否则若 op 等于 OP_BR：
+            depth 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            可变 skip 为 depth 加 1。
+            只要 skip 大于 0 并且 pc 小于 code_len：
+                s_op 为 做 内存读8 用 code 加 pc 位与 0xFF。
+                pc 为 pc 加 1。
+                若 s_op 等于 OP_BLOCK 或者 s_op 等于 OP_LOOP 或者 s_op 等于 OP_IF：
+                    skip 为 skip 加 1。
+                完。
+                若 s_op 等于 OP_END：
+                    skip 为 skip 减 1。
+                完。
+            完。
+        否则若 op 等于 OP_BR_IF：
+            depth 为 做 NWRT_读LEB128_u32 用 code、pc、pos_buf。
+            pc 为 做 内存读32 用 pos_buf 减 code。
+            cond 为 做 NWRT_弹栈 用 inst。
+            若 cond 不等于 0：
+                可变 skip 为 depth 加 1。
+                只要 skip 大于 0 并且 pc 小于 code_len：
+                    s_op 为 做 内存读8 用 code 加 pc 位与 0xFF。
+                    pc 为 pc 加 1。
+                    若 s_op 等于 OP_BLOCK 或者 s_op 等于 OP_LOOP 或者 s_op 等于 OP_IF：
+                        skip 为 skip 加 1。
+                    完。
+                    若 s_op 等于 OP_END：
+                        skip 为 skip 减 1。
+                    完。
+                完。
+            完。
+        否则若 op 等于 OP_RETURN：
+            running 为 假。
+        否则：
+        完。
+    完。
+    做 NWRT_弹调用帧 用 inst。
+    做 堆释放 用 locals。
+    做 堆释放 用 pos_buf。
+    返还 0。
+完。
+
+NWRT_查找导出 接受 m、名称、长度：
+    可变 i 为 0。
+    只要 i 小于 m 的 导出数：
+        exp 为 做 内存读64 用 m 的 导出表 加 i 乘 8。
+        若 exp 不等于 0 并且 exp 的 类型 等于 WASM_EXT_FUNC：
+            可变 match 为 真。
+            可变 j 为 0。
+            只要 j 小于 长度：
+                若 做 内存读8 用 exp 的 名称 加 j 不等于 做 内存读8 用 名称 加 j：
+                    match 为 假。
+                    断开。
+                完。
+                j 为 j 加 1。
+            完。
+            若 match：
+                返还 exp 的 索引。
+            完。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 负 1。
+完。
+
+NWRT_调用导出 接受 inst、名称、长度：
+    m 为 inst 的 模块。
+    idx 为 做 NWRT_查找导出 用 m、名称、长度。
+    若 idx 小于 0：
+        返还 负 1。
+    完。
+    返还 做 NWRT_执行函数 用 inst、idx。
+完。
+
+NWRT_函数热度 是 一种 事物，含 函数索引、调用次数、指令总数、循环深度、分支密度、局部变量数、JIT建议。
+
+可变 NWRT_热度表 为 0。
+
+可变 NWRT_热度数 为 0。
+
+NWRT_热度初始化 接受 m：
+    NWRT_热度表 为 做 堆分配 用 m 的 函数数 乘 8。
+    NWRT_热度数 为 m 的 函数数。
+    可变 i 为 0。
+    只要 i 小于 m 的 函数数：
+        h 为 做 堆分配 用 NWRT_函数热度。
+        h 的 函数索引 为 i。
+        h 的 调用次数 为 0。
+        h 的 指令总数 为 0。
+        h 的 循环深度 为 0。
+        h 的 分支密度 为 0。
+        h 的 局部变量数 为 0。
+        h 的 JIT建议 为 0。
+        fn_obj 为 做 内存读64 用 m 的 函数表 加 i 乘 8。
+        若 fn_obj 不等于 0：
+            h 的 指令总数 为 fn_obj 的 代码长度。
+            h 的 局部变量数 为 fn_obj 的 局部变量数。
+            code 为 fn_obj 的 代码。
+            code_len 为 fn_obj 的 代码长度。
+            可变 loops 为 0。
+            可变 branches 为 0。
+            可变 pc 为 0。
+            只要 pc 小于 code_len：
+                op 为 做 内存读8 用 code 加 pc 位与 0xFF。
+                若 op 等于 OP_LOOP：
+                    loops 为 loops 加 1。
+                完。
+                若 op 等于 OP_BR 或者 op 等于 OP_BR_IF：
+                    branches 为 branches 加 1。
+                完。
+                pc 为 pc 加 1。
+            完。
+            h 的 循环深度 为 loops。
+            若 code_len 大于 0：
+                h 的 分支密度 为 branches 乘 256 除以 code_len。
+            完。
+        完。
+        做 内存写64 用 NWRT_热度表 加 i 乘 8、h。
+        i 为 i 加 1。
+    完。
+完。
+
+NWRT_记录调用 接受 func_idx：
+    若 func_idx 小于 0 或者 func_idx 大于或等于 NWRT_热度数：
+        返还。
+    完。
+    h 为 做 内存读64 用 NWRT_热度表 加 func_idx 乘 8。
+    若 h 不等于 0：
+        h 的 调用次数 为 h 的 调用次数 加 1。
+    完。
+完。
+
+NWRT_AI_JIT预测 接受 m：
+    若 全局AI总线 等于 0：
+        返还。
+    完。
+    NWRT_AI预测次数 为 NWRT_AI预测次数 加 1。
+    可变 i 为 0。
+    只要 i 小于 NWRT_热度数：
+        h 为 做 内存读64 用 NWRT_热度表 加 i 乘 8。
+        若 h 不等于 0 并且 h 的 调用次数 大于 2：
+            tensor 为 做 Tensor_创建 用 6。
+            做 Tensor_写 用 tensor、0、h 的 调用次数 除以 100.0。
+            做 Tensor_写 用 tensor、1、h 的 指令总数 除以 512.0。
+            做 Tensor_写 用 tensor、2、h 的 循环深度 除以 8.0。
+            做 Tensor_写 用 tensor、3、h 的 分支密度 除以 256.0。
+            做 Tensor_写 用 tensor、4、h 的 局部变量数 除以 64.0。
+            做 Tensor_写 用 tensor、5、i 除以 若 NWRT_热度数 大于 0 则 NWRT_热度数 否则 1。
+            out 为 做 AI总线_推理 用 全局AI总线、「NWRT_JIT预测」、tensor、6。
+            若 out 不等于 0：
+                score 为 做 Tensor_读 用 out、0。
+                若 score 大于 0.7：
+                    h 的 JIT建议 为 2。
+                    NWRT_JIT候选数 为 NWRT_JIT候选数 加 1。
+                否则若 score 大于 0.3：
+                    h 的 JIT建议 为 1。
+                否则：
+                    h 的 JIT建议 为 0。
+                完。
+                做 Tensor_释放 用 out。
+            完。
+            做 Tensor_释放 用 tensor。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NWRT_模块信息打印 接受 m：
+    若 m 等于 0：
+        返还。
+    完。
+    做 打印 用 「[NWRT] types=」 加 m 的 类型数 加 「 funcs=」 加 m 的 函数数 加 「 imports=」 加 m 的 导入数 加 「 exports=」 加 m 的 导出数 加 「 globals=」 加 m 的 全局数 加 「 memories=」 加 m 的 内存数。
+完。
+
+NWRT_运行时统计 接受 零参：
+    做 打印 用 「[NWRT] decode=」 加 做 整数转字符串 用 NWRT_解码次数 加 「 validate=」 加 做 整数转字符串 用 NWRT_验证次数 加 「 insns=」 加 做 整数转字符串 用 NWRT_执行指令数 加 「 maxDepth=」 加 做 整数转字符串 用 NWRT_调用深度 加 「 memGrow=」 加 做 整数转字符串 用 NWRT_内存增长次数 加 「 aiPredict=」 加 做 整数转字符串 用 NWRT_AI预测次数 加 「 jitCandidates=」 加 做 整数转字符串 用 NWRT_JIT候选数。
+完。
+
+NWRT_JIT候选列表 接受 m：
+    若 NWRT_热度表 等于 0：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 NWRT_热度数：
+        h 为 做 内存读64 用 NWRT_热度表 加 i 乘 8。
+        若 h 不等于 0 并且 h 的 JIT建议 大于 0：
+            做 打印 用 「  JIT候选 func[」 加 i 加 「] calls=」 加 h 的 调用次数 加 「 loops=」 加 h 的 循环深度 加 「 tier=」 加 h 的 JIT建议。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+NWRT_加载并运行 接受 buf、长度：
+    m 为 做 NWRT_解码模块 用 buf、长度。
+    若 m 等于 0：
+        做 打印 用 「[NWRT] 解码失败」。
+        返还 负 1。
+    完。
+    若 非 做 NWRT_验证模块 用 m：
+        做 打印 用 「[NWRT] 验证失败」。
+        返还 负 2。
+    完。
+    做 NWRT_模块信息打印 用 m。
+    做 NWRT_热度初始化 用 m。
+    inst 为 做 NWRT_创建实例 用 m。
+    若 inst 等于 0：
+        返还 负 3。
+    完。
+    若 m 的 起始函数 大于或等于 0：
+        做 NWRT_记录调用 用 m 的 起始函数。
+        做 NWRT_执行函数 用 inst、m 的 起始函数。
+    完。
+    做 NWRT_AI_JIT预测 用 m。
+    做 NWRT_JIT候选列表 用 m。
+    做 NWRT_运行时统计。
+    做 打印 用 「[NWRT] Nova Wasm Runtime 执行完成」。
+    返还 0。
+完。
+
+引用《.·上下文运行时》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·定点Q算术》。
+
+引用《..·引导·端口IO》。
+
+WASM_I32 为 0x7F。
+
+WASM_I64 为 0x7E。
+
+WASM_F32 为 0x7D。
+
+WASM_F64 为 0x7C。
+
+WASM_V128 为 0x7B。
+
+WASM_FUNCREF 为 0x70。
+
+WASM_EXTERNREF 为 0x6F。
+
+WASM_SEC_CUSTOM 为 0。
+
+WASM_SEC_TYPE 为 1。
+
+WASM_SEC_IMPORT 为 2。
+
+WASM_SEC_FUNCTION 为 3。
+
+WASM_SEC_TABLE 为 4。
+
+WASM_SEC_MEMORY 为 5。
+
+WASM_SEC_GLOBAL 为 6。
+
+WASM_SEC_EXPORT 为 7。
+
+WASM_SEC_START 为 8。
+
+WASM_SEC_元素 为 9。
+
+WASM_SEC_CODE 为 10。
+
+WASM_SEC_DATA 为 11。
+
+WASM_EXT_FUNC 为 0。
+
+WASM_EXT_TABLE 为 1。
+
+WASM_EXT_MEMORY 为 2。
+
+WASM_EXT_GLOBAL 为 3。
+
+WASM_MAGIC 为 0x6D736100。
+
+WASM_VERSION 为 0x01000000。
+
+WasmFuncType 是 一种 事物，含 参数类型、参数数量、返回类型、返回数量。
+
+WasmImport 是 一种 事物，含 模块名、字段名、类型、类型索引。
+
+WasmExport 是 一种 事物，含 名称、类型、索引。
+
+WasmFunction 是 一种 事物，含 类型索引、代码、代码长度、局部变量、局部变量数。
+
+WasmGlobal 是 一种 事物，含 类型、可变、初始值。
+
+本章 收束。

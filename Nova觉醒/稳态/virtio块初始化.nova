@@ -1,0 +1,113 @@
+《virtio块初始化》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《..·中枢·哈希函数》。
+
+引用《..·中枢·中断请求管理》。
+
+引用《..·中枢·设备号创建》。
+
+VIRTIO_BLK_T_IN 为 0。
+
+VIRTIO_BLK_T_OUT 为 1。
+
+VIRTIO_BLK_T_FLUSH 为 4。
+
+VIRTIO_BLK_T_GET_ID 为 8。
+
+VIRTIO_BLK_T_DISCARD 为 11。
+
+VIRTIO_BLK_T_WRITE_ZEROES 为 13。
+
+VIRTIO_BLK_S_OK 为 0。
+
+VIRTIO_BLK_S_IOERR 为 1。
+
+VIRTIO_BLK_S_UNSUPP 为 2。
+
+VIRTIO_BLK_F_SIZE_MAX 为 1。
+
+VIRTIO_BLK_F_SEG_MAX 为 2。
+
+VIRTIO_BLK_F_GEOMETRY 为 4。
+
+VIRTIO_BLK_F_RO 为 5。
+
+VIRTIO_BLK_F_BLK_SIZE 为 6。
+
+VIRTIO_BLK_F_FLUSH 为 9。
+
+VIRTIO_BLK_F_TOPOLOGY 为 10。
+
+VIRTIO_BLK_F_MQ 为 12。
+
+VIRTIO_BLK_F_DISCARD 为 13。
+
+VIRTIO_BLK_CFG_容量 为 0。
+
+VIRTIO_BLK_CFG_最大段大小 为 8。
+
+VIRTIO_BLK_CFG_最大段数 为 12。
+
+VIRTIO_BLK_CFG_几何_柱面 为 16。
+
+VIRTIO_BLK_CFG_几何_磁头 为 18。
+
+VIRTIO_BLK_CFG_几何_扇区 为 19。
+
+VIRTIO_BLK_CFG_块大小 为 20。
+
+VIRTIO_BLK_扇区大小 为 512。
+
+VIRTIO_BLK_队列大小 为 128。
+
+VirtioBlk请求头 是 一种 事物，含 类型、保留、扇区。
+
+VirtioBlk设备 是 一种 事物，含 virtio设备、请求队列、容量_扇区、块大小、只读、支持flush、最大段大小、最大段数、设备名、中断号、飞行中请求、锁。
+
+VirtioBlk请求 是 一种 事物，含 头、数据、数据大小、状态、完成、错误。
+
+可变 全局virtio块设备 为 空。
+
+virtio块_初始化 接受 virtio设备：
+    做 内核信息 用 「virtio-blk: 初始化设备\n」。
+    可变 blk 为 做 分配内存 用 做 大小 用 VirtioBlk设备。
+    若 blk 等于 空：
+        返还 错误码_内存不足。
+    完。
+    blk 的 virtio设备 为 virtio设备。
+    功能 为 做 virtio_协商功能 用 virtio设备、1 左移 VIRTIO_BLK_F_SIZE_MAX 位或 1 左移 VIRTIO_BLK_F_SEG_MAX 位或 1 左移 VIRTIO_BLK_F_BLK_SIZE 位或 1 左移 VIRTIO_BLK_F_FLUSH 位或 1 左移 VIRTIO_F_版本1。
+    blk 的 只读 为 功能 位与 1 左移 VIRTIO_BLK_F_RO 不等于 0。
+    blk 的 支持flush 为 功能 位与 1 左移 VIRTIO_BLK_F_FLUSH 不等于 0。
+    blk 的 容量_扇区 为 做 virtio_读配置_u64 用 virtio设备、VIRTIO_BLK_CFG_容量。
+    若 功能 位与 1 左移 VIRTIO_BLK_F_BLK_SIZE：
+        blk 的 块大小 为 做 virtio_读配置_u32 用 virtio设备、VIRTIO_BLK_CFG_块大小。
+    否则：
+        blk 的 块大小 为 VIRTIO_BLK_扇区大小。
+    完。
+    若 功能 位与 1 左移 VIRTIO_BLK_F_SEG_MAX：
+        blk 的 最大段数 为 做 virtio_读配置_u32 用 virtio设备、VIRTIO_BLK_CFG_最大段数。
+    否则：
+        blk 的 最大段数 为 1。
+    完。
+    blk 的 请求队列 为 做 virtio_设置队列 用 virtio设备、0、VIRTIO_BLK_队列大小。
+    若 blk 的 请求队列 等于 空：
+        做 释放内存 用 blk。
+        返还 错误码_IO。
+    完。
+    blk 的 中断号 为 做 virtio_获取中断号 用 virtio设备。
+    做 IRQ_注册_带标志 用 blk 的 中断号、「virtio-blk」、virtio块_中断处理、IRQF_共享。
+    做 virtio_设备就绪 用 virtio设备。
+    blk 的 设备名 为 「vda」。
+    blk 的 飞行中请求 为 0。
+    全局virtio块设备 为 blk。
+    容量MB 为 blk 的 容量_扇区 乘 VIRTIO_BLK_扇区大小 除以 (1024 乘 1024)。
+    做 内核信息 用 「virtio-blk: %s 容量=%dMB 块大小=%d %s\n」、blk 的 设备名、容量MB、blk 的 块大小、若 blk 的 只读 则 「只读」 否则 「读写」。
+    做 块设备_注册 用 blk 的 设备名、virtio块_读、virtio块_写。
+    返还 0。
+完。
+
+本章 收束。

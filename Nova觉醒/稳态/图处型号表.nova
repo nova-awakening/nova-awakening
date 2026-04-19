@@ -1,0 +1,300 @@
+《图处型号表》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《.·NVIDIA引擎复位》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·中枢·APIC任务优先级》。
+
+引用《.·NVIDIA引擎初始化》。
+
+引用《..·中枢·虚分配》。
+
+引用《..·中枢·整数转字符串》。
+
+NV_识别完整型号 接受 gpu：
+    did 为 gpu 的 设备ID。
+    若 did 等于 0x2684：
+        gpu 的 型号名 为 「RTX 4090」。
+        NV状态 的 SM数 为 128。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 384。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2702。
+    块：
+        gpu 的 型号名 为 「RTX 4080 SUPER」。
+        NV状态 的 SM数 为 80。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2704。
+    块：
+        gpu 的 型号名 为 「RTX 4080」。
+        NV状态 的 SM数 为 76。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2782。
+    块：
+        gpu 的 型号名 为 「RTX 4070 Ti SUPER」。
+        NV状态 的 SM数 为 66。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2786。
+    块：
+        gpu 的 型号名 为 「RTX 4070 Ti」。
+        NV状态 的 SM数 为 60。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 192。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2783。
+    块：
+        gpu 的 型号名 为 「RTX 4070 SUPER」。
+        NV状态 的 SM数 为 56。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 192。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2786。
+    块：
+        gpu 的 型号名 为 「RTX 4070」。
+        NV状态 的 SM数 为 46。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 192。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2803。
+    块：
+        gpu 的 型号名 为 「RTX 4060 Ti」。
+        NV状态 的 SM数 为 34。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 128。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2882。
+    块：
+        gpu 的 型号名 为 「RTX 4060」。
+        NV状态 的 SM数 为 24。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 128。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 大于或等于 0x2900 并且 did 小于或等于 0x29FF。
+    块：
+        gpu 的 型号名 为 「RTX 50系列」。
+        NV状态 的 架构代 为 NV_ARCH_BLACKWELL。
+        NV状态 的 显存类型 为 「GDDR7」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 SM数 为 170。
+    完。
+    做 否则如果 用 did 等于 0x2204。
+    块：
+        gpu 的 型号名 为 「RTX 3090」。
+        NV状态 的 SM数 为 82。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 384。
+        NV状态 的 架构代 为 NV_ARCH_AMPERE。
+    完。
+    做 否则如果 用 did 等于 0x2206。
+    块：
+        gpu 的 型号名 为 「RTX 3080」。
+        NV状态 的 SM数 为 68。
+        NV状态 的 显存类型 为 「GDDR6X」。
+        NV状态 的 显存总线宽 为 320。
+        NV状态 的 架构代 为 NV_ARCH_AMPERE。
+    完。
+    做 否则如果 用 did 等于 0x2484。
+    块：
+        gpu 的 型号名 为 「RTX 3070」。
+        NV状态 的 SM数 为 46。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_AMPERE。
+    完。
+    做 否则如果 用 did 等于 0x2504。
+    块：
+        gpu 的 型号名 为 「RTX 3060 Ti」。
+        NV状态 的 SM数 为 38。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_AMPERE。
+    完。
+    做 否则如果 用 did 等于 0x2544。
+    块：
+        gpu 的 型号名 为 「RTX 3060」。
+        NV状态 的 SM数 为 28。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 192。
+        NV状态 的 架构代 为 NV_ARCH_AMPERE。
+    完。
+    做 否则如果 用 did 等于 0x1E04。
+    块：
+        gpu 的 型号名 为 「RTX 2080 Ti」。
+        NV状态 的 SM数 为 68。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 352。
+        NV状态 的 架构代 为 NV_ARCH_TURING。
+    完。
+    做 否则如果 用 did 等于 0x1E82。
+    块：
+        gpu 的 型号名 为 「RTX 2080」。
+        NV状态 的 SM数 为 46。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_TURING。
+    完。
+    做 否则如果 用 did 等于 0x1F02。
+    块：
+        gpu 的 型号名 为 「RTX 2070」。
+        NV状态 的 SM数 为 36。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_TURING。
+    完。
+    做 否则如果 用 did 等于 0x1F82。
+    块：
+        gpu 的 型号名 为 「RTX 2060」。
+        NV状态 的 SM数 为 30。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 192。
+        NV状态 的 架构代 为 NV_ARCH_TURING。
+    完。
+    做 否则如果 用 did 等于 0x2182。
+    块：
+        gpu 的 型号名 为 「GTX 1660 Ti」。
+        NV状态 的 SM数 为 24。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 192。
+        NV状态 的 架构代 为 NV_ARCH_TURING。
+    完。
+    做 否则如果 用 did 等于 0x2184。
+    块：
+        gpu 的 型号名 为 「GTX 1660」。
+        NV状态 的 SM数 为 22。
+        NV状态 的 显存类型 为 「GDDR5」。
+        NV状态 的 显存总线宽 为 192。
+        NV状态 的 架构代 为 NV_ARCH_TURING。
+    完。
+    做 否则如果 用 did 等于 0x1B80。
+    块：
+        gpu 的 型号名 为 「GTX 1080」。
+        NV状态 的 SM数 为 20。
+        NV状态 的 显存类型 为 「GDDR5X」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_PASCAL。
+    完。
+    做 否则如果 用 did 等于 0x1B81。
+    块：
+        gpu 的 型号名 为 「GTX 1070」。
+        NV状态 的 SM数 为 15。
+        NV状态 的 显存类型 为 「GDDR5」。
+        NV状态 的 显存总线宽 为 256。
+        NV状态 的 架构代 为 NV_ARCH_PASCAL。
+    完。
+    做 否则如果 用 did 等于 0x1C81。
+    块：
+        gpu 的 型号名 为 「GTX 1060」。
+        NV状态 的 SM数 为 10。
+        NV状态 的 显存类型 为 「GDDR5」。
+        NV状态 的 显存总线宽 为 192。
+        NV状态 的 架构代 为 NV_ARCH_PASCAL。
+    完。
+    做 否则如果 用 did 等于 0x1C82。
+    块：
+        gpu 的 型号名 为 「GTX 1050 Ti」。
+        NV状态 的 SM数 为 6。
+        NV状态 的 显存类型 为 「GDDR5」。
+        NV状态 的 显存总线宽 为 128。
+        NV状态 的 架构代 为 NV_ARCH_PASCAL。
+    完。
+    做 否则如果 用 did 等于 0x2330。
+    块：
+        gpu 的 型号名 为 「H100 SXM」。
+        NV状态 的 SM数 为 132。
+        NV状态 的 显存类型 为 「HBM3」。
+        NV状态 的 显存总线宽 为 5120。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x2331。
+    块：
+        gpu 的 型号名 为 「H100 PCIe」。
+        NV状态 的 SM数 为 114。
+        NV状态 的 显存类型 为 「HBM3」。
+        NV状态 的 显存总线宽 为 5120。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    做 否则如果 用 did 等于 0x20B0。
+    块：
+        gpu 的 型号名 为 「A100 SXM」。
+        NV状态 的 SM数 为 108。
+        NV状态 的 显存类型 为 「HBM2e」。
+        NV状态 的 显存总线宽 为 5120。
+        NV状态 的 架构代 为 NV_ARCH_AMPERE。
+    完。
+    做 否则如果 用 did 等于 0x20B5。
+    块：
+        gpu 的 型号名 为 「A100 PCIe」。
+        NV状态 的 SM数 为 108。
+        NV状态 的 显存类型 为 「HBM2e」。
+        NV状态 的 显存总线宽 为 5120。
+        NV状态 的 架构代 为 NV_ARCH_AMPERE。
+    完。
+    做 否则如果 用 did 等于 0x26B5。
+    块：
+        gpu 的 型号名 为 「L40」。
+        NV状态 的 SM数 为 142。
+        NV状态 的 显存类型 为 「GDDR6」。
+        NV状态 的 显存总线宽 为 384。
+        NV状态 的 架构代 为 NV_ARCH_ADA。
+    完。
+    否则。
+    块：
+        gpu 的 型号名 为 「NVIDIA 图处(0x」 加 做 整数转十六进制 用 did 加 「)」。
+        NV状态 的 架构代 为 NV_ARCH_TURING。
+        NV状态 的 SM数 为 0。
+    完。
+    gpu 的 能力 为 图处_CAP_2D 位或 图处_CAP_3D 位或 图处_CAP_COMPUTE 位或 图处_CAP_DISPLAY 位或 图处_CAP_VULKAN。
+    若 NV状态 的 架构代 大于或等于 NV_ARCH_VOLTA：
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_智能_ACCEL。
+    完。
+    若 NV状态 的 架构代 大于或等于 NV_ARCH_TURING：
+        gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_RAY_TRACE。
+    完。
+    gpu 的 能力 为 gpu 的 能力 位或 图处_CAP_VIDEO_DECODE 位或 图处_CAP_VIDEO_ENCODE。
+    gpu 的 计算单元数 为 NV状态 的 SM数。
+完。
+
+NV_初始化 接受 gpu：
+    做 内核信息 用 「NV驱动: 初始化 」 加 gpu 的 型号名 加 「 (」 加 NV状态 的 显存类型 加 「)」。
+    NV状态 的 mmio 为 做 ioremap 用 gpu 的 BAR0_地址、gpu 的 BAR0_大小。
+    若 NV状态 的 mmio 等于 0：
+        做 内核错误 用 「NV驱动: BAR0映射失败」。
+        返还 错误_IO。
+    完。
+    NV状态 的 gpu 为 gpu。
+    NV状态 的 芯片ID 为 做 MMIO读32 用 NV状态 的 mmio 加 NV_PMC_BOOT_0。
+    做 内核信息 用 「NV驱动: BOOT_0=0x」 加 做 整数转十六进制 用 NV状态 的 芯片ID。
+    做 NV_引擎复位。
+    做 NV_引擎使能。
+    做 NV_PTIMER_初始化。
+    做 NV_探测拓扑。
+    做 NV_PFIFO_初始化。
+    做 NV_PGRAPH_初始化。
+    做 NV_PDISPLAY_初始化。
+    做 NV_中断初始化。
+    NV状态 的 已初始化 为 真。
+    做 内核信息 用 「NV驱动: 」 加 gpu 的 型号名 加 「 就绪 SM=」 加 做 整数转字符串 用 NV状态 的 SM数 加 「 GPC=」 加 做 整数转字符串 用 NV状态 的 GPC数 加 「 」 加 NV状态 的 显存类型 加 「/」 加 做 整数转字符串 用 NV状态 的 显存总线宽 加 「bit」。
+    返还 成功。
+完。
+
+本章 收束。

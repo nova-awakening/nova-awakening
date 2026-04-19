@@ -1,0 +1,123 @@
+《HTMLMediaElement元数据》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·文档事件》。
+
+引用《.·媒体播控》。
+
+引用《..·中枢·内容可见性》。
+
+媒体元素_元数据就绪 接受 me、时长、宽、高：
+    若 me 等于 0：
+        返还。
+    完。
+    me 的 duration 为 时长。
+    me 的 videoWidth 为 宽。
+    me 的 videoHeight 为 高。
+    me 的 readyState 为 HAVE_METADATA。
+    me 的 networkState 为 NETWORK_IDLE。
+    做 媒体元素_触发事件 用 me、「loadedmetadata」。
+    做 媒体元素_触发事件 用 me、「durationchange」。
+    若 宽 大于 0 并且 高 大于 0：
+        做 媒体元素_触发事件 用 me、「resize」。
+    完。
+    me 的 readyState 为 HAVE_CURRENT_DATA。
+    做 媒体元素_触发事件 用 me、「loadeddata」。
+    me 的 readyState 为 HAVE_FUTURE_DATA。
+    做 媒体元素_触发事件 用 me、「canplay」。
+    me 的 readyState 为 HAVE_ENOUGH_DATA。
+    做 媒体元素_触发事件 用 me、「canplaythrough」。
+    若 me 的 autoplay 并且 me 的 paused：
+        做 HTML媒体元素_play 用 me。
+    完。
+完。
+
+HTML媒体元素_play 接受 me：
+    若 me 等于 0：
+        返还。
+    完。
+    若 me 的 readyState 等于 HAVE_NOTHING：
+        做 HTML媒体元素_load 用 me。
+    完。
+    若 me 的 ended 并且 me 的 duration 大于 0：
+        me 的 currentTime 为 0。
+        me 的 ended 为 假。
+    完。
+    之前暂停 为 me 的 paused。
+    me 的 paused 为 假。
+    me 的 播放起始时间 为 做 平台_获取高精度时间。
+    若 之前暂停：
+        做 媒体元素_触发事件 用 me、「play」。
+        若 me 的 readyState 小于 HAVE_FUTURE_DATA：
+            做 媒体元素_触发事件 用 me、「waiting」。
+        否则：
+            做 媒体元素_触发事件 用 me、「playing」。
+        完。
+    完。
+    做 TimeRanges_添加 用 me 的 played、me 的 currentTime、me 的 currentTime。
+    做 媒体元素_启动timeupdate 用 me。
+完。
+
+HTML媒体元素_pause 接受 me：
+    若 me 等于 0：
+        返还。
+    完。
+    若 me 的 networkState 等于 NETWORK_EMPTY：
+        做 HTML媒体元素_load 用 me。
+    完。
+    若 非 me 的 paused：
+        me 的 paused 为 真。
+        若 me 的 played 不等于 0 并且 me 的 played 的 数量 大于 0：
+            最后 为 me 的 played 的 数量 减 1。
+            做 内存_写64 用 me 的 played 的 区间 加 最后 乘 16 加 8、me 的 currentTime。
+        完。
+        做 媒体元素_触发事件 用 me、「timeupdate」。
+        做 媒体元素_触发事件 用 me、「pause」。
+    完。
+完。
+
+HTML媒体元素_setCurrentTime 接受 me、时间：
+    若 me 等于 0：
+        返还。
+    完。
+    若 me 的 readyState 等于 HAVE_NOTHING：
+        返还。
+    完。
+    可变 目标 为 时间。
+    若 目标 小于 0：
+        目标 为 0。
+    完。
+    若 me 的 duration 大于 0 并且 目标 大于 me 的 duration：
+        目标 为 me 的 duration。
+    完。
+    me 的 seeking 为 真。
+    做 媒体元素_触发事件 用 me、「seeking」。
+    me 的 currentTime 为 目标。
+    若 me 的 解码器 不等于 0：
+    完。
+    me 的 seeking 为 假。
+    做 媒体元素_触发事件 用 me、「seeked」。
+    做 媒体元素_触发事件 用 me、「timeupdate」。
+    若 目标 大于或等于 me 的 duration 并且 me 的 duration 大于 0：
+        做 媒体元素_播放结束 用 me。
+    完。
+完。
+
+媒体元素_播放结束 接受 me：
+    若 me 等于 0：
+        返还。
+    完。
+    me 的 ended 为 真。
+    me 的 paused 为 真。
+    做 媒体元素_触发事件 用 me、「ended」。
+    若 me 的 loop：
+        me 的 currentTime 为 0。
+        me 的 ended 为 假。
+        做 HTML媒体元素_play 用 me。
+    完。
+完。
+
+本章 收束。

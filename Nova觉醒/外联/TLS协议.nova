@@ -1,0 +1,95 @@
+《TLS协议》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+安全_1_2 为 0x0303。
+
+安全_1_3 为 0x0304。
+
+HS_CLIENT_HELLO 为 1。
+
+HS_SERVER_HELLO 为 2。
+
+HS_ENCRYPTED_EXT 为 8。
+
+HS_CERTIFICATE 为 11。
+
+HS_CERT_VERIFY 为 15。
+
+HS_FINISHED 为 20。
+
+HS_NEW_SESSION_TICKET 为 4。
+
+REC_CHANGE_CIPHER 为 20。
+
+REC_ALERT 为 21。
+
+REC_HANDSHAKE 为 22。
+
+REC_APPLICATION 为 23。
+
+ALERT_WARNING 为 1。
+
+ALERT_FATAL 为 2。
+
+ALERT_CLOSE_NOTIFY 为 0。
+
+ALERT_UNEXPECTED_MSG 为 10。
+
+ALERT_BAD_RECORD_MAC 为 20。
+
+ALERT_HANDSHAKE_FAILURE 为 40。
+
+ALERT_BAD_CERTIFICATE 为 42。
+
+ALERT_CERTIFICATE_EXPIRED 为 45。
+
+ALERT_UNKNOWN_CA 为 48。
+
+ALERT_DECODE_ERROR 为 50。
+
+CS_AES_128_GCM_SHA256 为 0x1301。
+
+CS_AES_256_GCM_SHA384 为 0x1302。
+
+CS_CHACHA20_POLY1305_SHA256 为 0x1303。
+
+CS_ECDHE_RSA_AES128_GCM 为 0xC02F。
+
+CS_ECDHE_RSA_AES256_GCM 为 0xC030。
+
+GROUP_X25519 为 0x001D。
+
+GROUP_P256 为 0x0017。
+
+GROUP_P384 为 0x0018。
+
+SIG_RSA_PSS_SHA256 为 0x0804。
+
+SIG_ECDSA_SHA256 为 0x0403。
+
+SIG_ED25519 为 0x0807。
+
+安全_STATE_INIT 为 0。
+
+安全_STATE_CLIENT_HELLO 为 1。
+
+安全_STATE_SERVER_HELLO 为 2。
+
+安全_STATE_ENCRYPTED 为 3。
+
+安全_STATE_CERT 为 4。
+
+安全_STATE_VERIFY 为 5。
+
+安全_STATE_FINISHED 为 6。
+
+安全_STATE_CONNECTED 为 7。
+
+安全_STATE_ERROR 为 8。
+
+安全Connection 是 一种 事物，含 socket_fd、版本、状态、密码套件、client_random、server_random、私钥、公钥、对方公钥、共享密钥、handshake_secret、client_hs_key、client_hs_iv、server_hs_key、server_hs_iv、client_app_key、client_app_iv、server_app_key、server_app_iv、master_secret、client_seq、server_seq、transcript_hash、服务器证书、证书链、主机名、最后错误、session_ticket、ticket_长度、alpn_协议。
+
+本章 收束。

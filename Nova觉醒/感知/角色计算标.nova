@@ -1,0 +1,257 @@
+《角色计算标》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·原子驻留》。
+
+引用《.·HTTP头部管理》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·文档节点》。
+
+AX_计算角色 接受 dom节点：
+    若 dom节点 等于 0：
+        返还 AX_ROLE_GENERIC。
+    完。
+    若 dom节点 的 节点类型 等于 3：
+        返还 AX_ROLE_STATIC_TEXT。
+    完。
+    若 dom节点 的 节点类型 不等于 1：
+        返还 AX_ROLE_UNKNOWN。
+    完。
+    显式role 为 做 元素_getAttribute 用 dom节点、「role」。
+    若 显式role 不等于 0 并且 做 字符串_长度 用 显式role 大于 0：
+        返还 做 AX_ARIA字符串到角色 用 显式role。
+    完。
+    扩展 为 做 元素_获取扩展 用 dom节点。
+    若 扩展 等于 0：
+        返还 AX_ROLE_GENERIC。
+    完。
+    标签 为 扩展 的 标签名。
+    若 做 字符串_相等_不区分大小写 用 标签、「a」：
+        若 做 元素_getAttribute 用 dom节点、「href」 不等于 0：
+            返还 AX_ROLE_LINK。
+        完。
+        返还 AX_ROLE_GENERIC。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「article」：
+        返还 AX_ROLE_ARTICLE。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「aside」：
+        返还 AX_ROLE_COMPLEMENTARY。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「button」：
+        返还 AX_ROLE_BUTTON。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「dialog」：
+        返还 AX_ROLE_DIALOG。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「footer」：
+        返还 AX_ROLE_CONTENTINFO。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「form」：
+        返还 AX_ROLE_FORM。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「header」：
+        返还 AX_ROLE_BANNER。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「hr」：
+        返还 AX_ROLE_SEPARATOR。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「img」：
+        返还 AX_ROLE_IMAGE。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「main」：
+        返还 AX_ROLE_MAIN。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「meter」：
+        返还 AX_ROLE_METER。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「nav」：
+        返还 AX_ROLE_NAVIGATION。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「ol」：
+        返还 AX_ROLE_LIST。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「ul」：
+        返还 AX_ROLE_LIST。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「li」：
+        返还 AX_ROLE_LISTITEM。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「option」：
+        返还 AX_ROLE_OPTION。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「output」：
+        返还 AX_ROLE_STATUS。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「p」：
+        返还 AX_ROLE_PARAGRAPH。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「progress」：
+        返还 AX_ROLE_PROGRESSBAR。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「section」：
+        返还 AX_ROLE_REGION。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「select」：
+        返还 AX_ROLE_COMBOBOX。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「table」：
+        返还 AX_ROLE_TABLE。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「tr」：
+        返还 AX_ROLE_ROW。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「td」：
+        返还 AX_ROLE_CELL。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「th」：
+        返还 AX_ROLE_CELL。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「textarea」：
+        返还 AX_ROLE_TEXTBOX。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「h1」 或者 做 字符串_相等_不区分大小写 用 标签、「h2」 或者 做 字符串_相等_不区分大小写 用 标签、「h3」 或者 做 字符串_相等_不区分大小写 用 标签、「h4」 或者 做 字符串_相等_不区分大小写 用 标签、「h5」 或者 做 字符串_相等_不区分大小写 用 标签、「h6」：
+        返还 AX_ROLE_HEADING。
+    完。
+    若 做 字符串_相等_不区分大小写 用 标签、「input」：
+        类型 为 做 元素_getAttribute 用 dom节点、「type」。
+        若 类型 等于 0 或者 做 字符串_相等 用 类型、「text」 或者 做 字符串_相等 用 类型、「email」 或者 做 字符串_相等 用 类型、「tel」 或者 做 字符串_相等 用 类型、「url」 或者 做 字符串_相等 用 类型、「search」 或者 做 字符串_相等 用 类型、「password」：
+            返还 AX_ROLE_TEXTBOX。
+        完。
+        若 做 字符串_相等 用 类型、「button」 或者 做 字符串_相等 用 类型、「submit」 或者 做 字符串_相等 用 类型、「reset」 或者 做 字符串_相等 用 类型、「image」：
+            返还 AX_ROLE_BUTTON。
+        完。
+        若 做 字符串_相等 用 类型、「checkbox」：
+            返还 AX_ROLE_CHECKBOX。
+        完。
+        若 做 字符串_相等 用 类型、「radio」：
+            返还 AX_ROLE_RADIO。
+        完。
+        若 做 字符串_相等 用 类型、「range」：
+            返还 AX_ROLE_SLIDER。
+        完。
+        若 做 字符串_相等 用 类型、「number」：
+            返还 AX_ROLE_SPINBUTTON。
+        完。
+        返还 AX_ROLE_TEXTBOX。
+    完。
+    返还 AX_ROLE_GENERIC。
+完。
+
+AX_ARIA字符串到角色 接受 str：
+    若 做 字符串_相等 用 str、「alert」：
+        返还 AX_ROLE_ALERT。
+    完。
+    若 做 字符串_相等 用 str、「button」：
+        返还 AX_ROLE_BUTTON。
+    完。
+    若 做 字符串_相等 用 str、「checkbox」：
+        返还 AX_ROLE_CHECKBOX。
+    完。
+    若 做 字符串_相等 用 str、「combobox」：
+        返还 AX_ROLE_COMBOBOX。
+    完。
+    若 做 字符串_相等 用 str、「dialog」：
+        返还 AX_ROLE_DIALOG。
+    完。
+    若 做 字符串_相等 用 str、「grid」：
+        返还 AX_ROLE_GRID。
+    完。
+    若 做 字符串_相等 用 str、「heading」：
+        返还 AX_ROLE_HEADING。
+    完。
+    若 做 字符串_相等 用 str、「img」：
+        返还 AX_ROLE_IMAGE。
+    完。
+    若 做 字符串_相等 用 str、「link」：
+        返还 AX_ROLE_LINK。
+    完。
+    若 做 字符串_相等 用 str、「list」：
+        返还 AX_ROLE_LIST。
+    完。
+    若 做 字符串_相等 用 str、「listitem」：
+        返还 AX_ROLE_LISTITEM。
+    完。
+    若 做 字符串_相等 用 str、「menu」：
+        返还 AX_ROLE_MENU。
+    完。
+    若 做 字符串_相等 用 str、「menubar」：
+        返还 AX_ROLE_MENUBAR。
+    完。
+    若 做 字符串_相等 用 str、「menuitem」：
+        返还 AX_ROLE_MENUITEM。
+    完。
+    若 做 字符串_相等 用 str、「navigation」：
+        返还 AX_ROLE_NAVIGATION。
+    完。
+    若 做 字符串_相等 用 str、「none」：
+        返还 AX_ROLE_NONE。
+    完。
+    若 做 字符串_相等 用 str、「presentation」：
+        返还 AX_ROLE_PRESENTATION。
+    完。
+    若 做 字符串_相等 用 str、「progressbar」：
+        返还 AX_ROLE_PROGRESSBAR。
+    完。
+    若 做 字符串_相等 用 str、「radio」：
+        返还 AX_ROLE_RADIO。
+    完。
+    若 做 字符串_相等 用 str、「radiogroup」：
+        返还 AX_ROLE_RADIOGROUP。
+    完。
+    若 做 字符串_相等 用 str、「region」：
+        返还 AX_ROLE_REGION。
+    完。
+    若 做 字符串_相等 用 str、「search」：
+        返还 AX_ROLE_SEARCH。
+    完。
+    若 做 字符串_相等 用 str、「searchbox」：
+        返还 AX_ROLE_SEARCHBOX。
+    完。
+    若 做 字符串_相等 用 str、「slider」：
+        返还 AX_ROLE_SLIDER。
+    完。
+    若 做 字符串_相等 用 str、「switch」：
+        返还 AX_ROLE_SWITCH。
+    完。
+    若 做 字符串_相等 用 str、「tab」：
+        返还 AX_ROLE_TAB。
+    完。
+    若 做 字符串_相等 用 str、「table」：
+        返还 AX_ROLE_TABLE。
+    完。
+    若 做 字符串_相等 用 str、「tablist」：
+        返还 AX_ROLE_TABLIST。
+    完。
+    若 做 字符串_相等 用 str、「tabpanel」：
+        返还 AX_ROLE_TABPANEL。
+    完。
+    若 做 字符串_相等 用 str、「textbox」：
+        返还 AX_ROLE_TEXTBOX。
+    完。
+    若 做 字符串_相等 用 str、「toolbar」：
+        返还 AX_ROLE_TOOLBAR。
+    完。
+    若 做 字符串_相等 用 str、「tooltip」：
+        返还 AX_ROLE_TOOLTIP。
+    完。
+    若 做 字符串_相等 用 str、「tree」：
+        返还 AX_ROLE_TREE。
+    完。
+    若 做 字符串_相等 用 str、「treeitem」：
+        返还 AX_ROLE_TREEITEM。
+    完。
+    若 做 字符串_相等 用 str、「treegrid」：
+        返还 AX_ROLE_TREEGRID。
+    完。
+    返还 AX_ROLE_GENERIC。
+完。
+
+本章 收束。

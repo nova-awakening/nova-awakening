@@ -1,0 +1,261 @@
+《超级块》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《.·目录项添加》。
+
+引用《..·中枢·链表后继》。
+
+引用《..·中枢·同步原语》。
+
+SB_RDONLY 为 0x0001。
+
+SB_NOSUID 为 0x0002。
+
+SB_节点V 为 0x0004。
+
+SB_NOEXEC 为 0x0008。
+
+SB_SYNCHRONOUS 为 0x0010。
+
+SB_NOATIME 为 0x0400。
+
+SB_ACTIVE 为 0x8000。
+
+超级块 是 一种 事物，含 s_magic、s_blocksize、s_blocksize_bits、s_maxbytes、s_flags、s_count、s_active、s_dev、s_bdev、s_root、s_Nova文件节点s、s_Nova文件节点_count、s_Nova文件节点_next、s_dirty、s_io、s_op、s_type、s_blocks_count、s_free_blocks、s_Nova文件节点s_count、s_free_Nova文件节点s、s_lock、s_umount、s_id、s_uuid。
+
+超级块操作 是 一种 事物，含 alloc_Nova文件节点、destroy_Nova文件节点、write_Nova文件节点、evict_Nova文件节点、put_super、sync_fs、statfs、remount_fs、show_options。
+
+可变 所有超级块 为 一组：（空）。
+
+可变 超级块_总数 为 0。
+
+超级块_创建 接受 魔数、块大小、总块、类型名：
+    sb 为 新建 超级块。
+    sb 的 s_magic 为 魔数。
+    sb 的 s_blocksize 为 块大小。
+    sb 的 s_blocksize_bits 为 做 块大小_到_位数 用 块大小。
+    sb 的 s_maxbytes 为 0x7FFFFFFFFFFFFFFF。
+    sb 的 s_flags 为 SB_ACTIVE。
+    sb 的 s_count 为 1。
+    sb 的 s_active 为 1。
+    sb 的 s_dev 为 0。
+    sb 的 s_bdev 为 0。
+    sb 的 s_root 为 空。
+    sb 的 s_Nova文件节点s 为 一组：（空）。
+    sb 的 s_Nova文件节点_count 为 0。
+    sb 的 s_Nova文件节点_next 为 1。
+    sb 的 s_dirty 为 一组：（空）。
+    sb 的 s_io 为 一组：（空）。
+    sb 的 s_op 为 空。
+    sb 的 s_type 为 空。
+    sb 的 s_blocks_count 为 总块。
+    sb 的 s_free_blocks 为 总块。
+    sb 的 s_Nova文件节点s_count 为 0。
+    sb 的 s_free_Nova文件节点s 为 0。
+    sb 的 s_lock 为 做 互斥锁_创建。
+    sb 的 s_umount 为 0。
+    sb 的 s_id 为 类型名。
+    sb 的 s_uuid 为 「」。
+    做 追加 用 所有超级块、sb。
+    超级块_总数 为 超级块_总数 加 1。
+    返还 sb。
+完。
+
+超级块_分配Nova文件节点 接受 sb：
+    编号 为 sb 的 s_Nova文件节点_next。
+    sb 的 s_Nova文件节点_next 为 sb 的 s_Nova文件节点_next 加 1。
+    sb 的 s_Nova文件节点_count 为 sb 的 s_Nova文件节点_count 加 1。
+    若 sb 的 s_op 不等于 空 并且 sb 的 s_op 的 alloc_Nova文件节点 不等于 0：
+        返还 做 sb 的 s_op 的 alloc_Nova文件节点 用 sb、编号。
+    完。
+    节点 为 做 Nova文件节点_创建_带编号 用 编号、类型_普通文件、420。
+    做 Nova文件节点_设置超级块 用 节点、sb。
+    做 追加 用 sb 的 s_Nova文件节点s、节点。
+    返还 节点。
+完。
+
+超级块_标记脏Nova文件节点 接受 sb、节点：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 sb 的 s_dirty：
+        若 sb 的 s_dirty 的 第 i 项 等于 节点：
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+    做 追加 用 sb 的 s_dirty、节点。
+完。
+
+超级块_同步脏Nova文件节点s 接受 sb：
+    若 sb 的 s_op 等于 空 或者 sb 的 s_op 的 write_Nova文件节点 等于 0：
+        返还。
+    完。
+    sb 的 s_io 为 sb 的 s_dirty。
+    sb 的 s_dirty 为 一组：（空）。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 sb 的 s_io：
+        做 sb 的 s_op 的 write_Nova文件节点 用 sb 的 s_io 的 第 i 项、0。
+        i 为 i 加 1。
+    完。
+    sb 的 s_io 为 一组：（空）。
+完。
+
+超级块_同步 接受 sb：
+    做 超级块_同步脏Nova文件节点s 用 sb。
+    若 sb 的 s_op 不等于 空 并且 sb 的 s_op 的 sync_fs 不等于 0：
+        做 sb 的 s_op 的 sync_fs 用 sb、1。
+    完。
+完。
+
+超级块_statfs 接受 sb、buf：
+    若 sb 的 s_op 不等于 空 并且 sb 的 s_op 的 statfs 不等于 0：
+        返还 做 sb 的 s_op 的 statfs 用 sb、buf。
+    完。
+    若 buf 不等于 空：
+        做 设置 用 buf、0、sb 的 s_magic。
+        做 设置 用 buf、1、sb 的 s_blocksize。
+        做 设置 用 buf、2、sb 的 s_blocks_count。
+        做 设置 用 buf、3、sb 的 s_free_blocks。
+        做 设置 用 buf、4、sb 的 s_free_blocks。
+        做 设置 用 buf、5、sb 的 s_Nova文件节点s_count。
+        做 设置 用 buf、6、sb 的 s_free_Nova文件节点s。
+        做 设置 用 buf、7、255。
+    完。
+    返还 成功。
+完。
+
+超级块_增引用 接受 sb：
+    sb 的 s_count 为 sb 的 s_count 加 1。
+完。
+
+超级块_减引用 接受 sb：
+    sb 的 s_count 为 sb 的 s_count 减 1。
+    若 sb 的 s_count 小于或等于 0：
+        做 超级块_释放 用 sb。
+    完。
+完。
+
+超级块_释放 接受 sb：
+    若 sb 的 s_op 不等于 空 并且 sb 的 s_op 的 put_super 不等于 0：
+        做 sb 的 s_op 的 put_super 用 sb。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 所有超级块：
+        若 所有超级块 的 第 i 项 等于 sb：
+            做 链表_删除 用 所有超级块、i。
+            超级块_总数 为 超级块_总数 减 1。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+同步所有文件系统 接受 零参：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 所有超级块：
+        若 所有超级块 的 第 i 项 的 s_flags 位与 SB_RDONLY 等于 0：
+            做 超级块_同步 用 所有超级块 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+超级块_根Nova文件节点 接受 sb：
+    d 为 sb 的 s_root。
+    若 d 不等于 空：
+        返还 做 目录项_Nova文件节点 用 d。
+    完。
+    返还 空。
+完。
+
+超级块_设置根 接受 sb、d：
+    sb 的 s_root 为 d。
+完。
+
+超级块_块大小 接受 sb：
+    返还 sb 的 s_blocksize。
+完。
+
+超级块_类型 接受 sb：
+    返还 sb 的 s_id。
+完。
+
+超级块_只读 接受 sb：
+    返还 sb 的 s_flags 位与 SB_RDONLY 不等于 0。
+完。
+
+超级块_设置只读 接受 sb：
+    sb 的 s_flags 为 sb 的 s_flags 位或 SB_RDONLY。
+完。
+
+超级块_设置读写 接受 sb：
+    sb 的 s_flags 为 sb 的 s_flags 位与 按位取反 SB_RDONLY。
+完。
+
+块大小_到_位数 接受 块大小：
+    可变 位数 为 0。
+    可变 值 为 块大小。
+    只要 值 大于 1：
+        值 为 值 右移 1。
+        位数 为 位数 加 1。
+    完。
+    返还 位数。
+完。
+
+超级块_完整统计 接受 零参：
+    返还 一组：做 计数 用 超级块列表。
+完。
+
+超级块_健康检查 接受 零参：
+    可变 问题 为 一组：（空）。
+    若 做 计数 用 超级块列表 等于 0：
+        做 追加 用 问题、「无挂载的超级块」。
+    完。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 超级块列表：
+        sb 为 超级块列表 的 第 i 项。
+        若 sb 的 脏标志：
+            做 追加 用 问题、「超级块脏: 」 加 sb 的 设备名。
+        完。
+        若 sb 的 冻结：
+            做 追加 用 问题、「超级块冻结: 」 加 sb 的 设备名。
+        完。
+        i 为 i 加 1。
+    完。
+    若 做 计数 用 问题 等于 0：
+        返还 「超级块健康」。
+    完。
+    返还 问题。
+完。
+
+超级块_查找 接受 设备名：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 超级块列表：
+        若 超级块列表 的 第 i 项 的 设备名 等于 设备名：
+            返还 超级块列表 的 第 i 项。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 空。
+完。
+
+可变 AI_超级块_运行指标 为 0。
+
+可变 AI_超级块_异常指标 为 0。
+
+AI_超级块_自诊断 接受 零参：
+    AI_超级块_运行指标 为 超级块_总数。
+    返还 AI_超级块_运行指标。
+完。
+
+AI_超级块_优化建议 接受 零参：
+    指标 为 做 AI_超级块_自诊断。
+    若 AI_超级块_运行指标 大于 10000：
+        返还 「超级块负载较高」。
+    完。
+    返还 「超级块状态正常」。
+完。
+
+本章 收束。

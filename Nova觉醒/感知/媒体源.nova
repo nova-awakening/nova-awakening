@@ -1,0 +1,526 @@
+《媒体源》
+
+引用《.·内核直连层》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·事件系统核心》。
+
+引用《..·推理·AI鼠标事件处理》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·推理·AI总线资源调度》。
+
+引用《.·文档事件》。
+
+引用《..·中枢·辅助存根》。
+
+MS_CLOSED 为 0。
+
+MS_OPEN 为 1。
+
+MS_ENDED 为 2。
+
+MSE_最大SourceBuffer 为 8。
+
+MSE_默认缓冲容量 为 1048576。
+
+MSE_最大缓冲容量 为 134217728。
+
+MSE_Eviction阈值 为 104857600。
+
+MSE统计 是 一种 事物，含 MediaSource创建次数、MediaSource销毁次数、SourceBuffer创建次数、追加操作次数、追加字节总数、删除操作次数、abort操作次数、endOfStream次数、Eviction触发次数、状态切换次数、事件触发次数、AI语义分类次数、AI预加载次数、AI缓冲调用次数、AI缓冲命中次数、总处理耗时_纳秒、错误总数、溢出保护次数。
+
+AI_MSE状态 是 一种 事物，含 历史追加速率、历史缓冲水位、历史Eviction率、连续追加成功数、连续追加失败数、预测需要Eviction、采样计数器、学习权重。
+
+可变 全局MSE统计 为 0。
+
+可变 全局MSE_AI 为 0。
+
+可变 全局MSE已初始化 为 假。
+
+MSE_初始化全局 接受 零参：
+    若 全局MSE已初始化 等于 真：
+        返还 错误_已存在。
+    完。
+    全局MSE统计 为 做 堆_分配_清零 用 144。
+    若 全局MSE统计 等于 空：
+        返还 错误_内存不足。
+    完。
+    全局MSE_AI 为 做 堆_分配_清零 用 48。
+    若 全局MSE_AI 不等于 空：
+        全局MSE_AI 的 学习权重 为 128。
+    完。
+    全局MSE已初始化 为 真。
+    做 打印 用 「[MSE] 初始化完成」。
+    返还 0。
+完。
+
+MSE_销毁全局 接受 零参：
+    若 全局MSE统计 不等于 空：
+        做 堆_释放 用 全局MSE统计。
+        全局MSE统计 为 0。
+    完。
+    若 全局MSE_AI 不等于 空：
+        做 堆_释放 用 全局MSE_AI。
+        全局MSE_AI 为 0。
+    完。
+    全局MSE已初始化 为 假。
+    返还 0。
+完。
+
+MS_CLOSED 为 0。
+
+MS_OPEN 为 1。
+
+MS_ENDED 为 2。
+
+SourceBuffer 是 一种 事物，含 MIME类型、缓冲数据、缓冲大小、缓冲容量、updating、timestampOffset、appendWindowStart、appendWindowEnd。
+
+媒体Source 是 一种 事物，含 状态、duration、sourceBuffers、sourceBufferCount、activeSourceBuffers、activeCount、关联元素。
+
+媒体Source_创建 接受 零参：
+    ms 为 做 堆_分配 用 媒体Source。
+    ms 的 状态 为 MS_CLOSED。
+    ms 的 duration 为 负 1。
+    ms 的 sourceBuffers 为 做 堆_分配_数组 用 8 乘 8。
+    ms 的 sourceBufferCount 为 0。
+    ms 的 关联元素 为 0。
+    返还 ms。
+完。
+
+媒体Source_addSourceBuffer 接受 ms、类型：
+    若 ms 等于 0 或者 ms 的 状态 不等于 MS_OPEN：
+        返还 0。
+    完。
+    sb 为 做 堆_分配 用 SourceBuffer。
+    sb 的 MIME类型 为 做 字符串_复制 用 类型。
+    sb 的 缓冲容量 为 1024 乘 1024。
+    sb 的 缓冲数据 为 做 堆_分配 用 sb 的 缓冲容量。
+    sb 的 缓冲大小 为 0。
+    sb 的 updating 为 假。
+    sb 的 timestampOffset 为 0。
+    sb 的 appendWindowStart 为 0。
+    sb 的 appendWindowEnd 为 负 1。
+    若 ms 的 sourceBufferCount 小于 8：
+        做 内存_写64 用 ms 的 sourceBuffers 加 ms 的 sourceBufferCount 乘 8、sb。
+        ms 的 sourceBufferCount 为 ms 的 sourceBufferCount 加 1。
+    完。
+    返还 sb。
+完。
+
+SourceBuffer_appendBuffer 接受 sb、数据、长度：
+    若 sb 等于 0 或者 sb 的 updating：
+        返还。
+    完。
+    sb 的 updating 为 真。
+    若 sb 的 缓冲大小 加 长度 小于或等于 sb 的 缓冲容量：
+        做 内存_复制 用 sb 的 缓冲数据 加 sb 的 缓冲大小、数据、长度。
+        sb 的 缓冲大小 为 sb 的 缓冲大小 加 长度。
+    完。
+    sb 的 updating 为 假。
+完。
+
+媒体Source_endOfStream 接受 ms：
+    若 ms 等于 0：
+        返还。
+    完。
+    ms 的 状态 为 MS_ENDED。
+完。
+
+媒体元素_触发事件 接受 me、事件名：
+    若 me 等于 0 或者 me 的 节点 等于 0：
+        返还。
+    完。
+    事件 为 做 事件_创建 用 事件名、假、假。
+    事件 的 是受信任的 为 真。
+    做 事件Target_dispatch事件 用 me 的 节点、事件。
+完。
+
+智能_HTML媒体元素_AI节点语义 接受 节点：
+    bus 为 全局AI总线。
+    若 bus 等于 0 或者 节点 等于 0：
+        返还。
+    完。
+    角色 为 做 AI总线_语义分类 用 bus、节点。
+    节点 的 语义角色 为 角色。
+完。
+
+智能_HTML媒体元素_AI预加载提示 接受 url、资源类型：
+    bus 为 全局AI总线。
+    若 bus 等于 0 或者 url 等于 0：
+        返还。
+    完。
+    优先级 为 做 AI总线_资源优先级 用 bus、url。
+    若 全局MSE统计 不等于 空：
+        全局MSE统计 的 AI预加载次数 为 全局MSE统计 的 AI预加载次数 加 1。
+    完。
+完。
+
+SourceBuffer_remove 接受 sb、开始、结束：
+    若 sb 等于 空 或者 sb 的 updating 等于 真：
+        返还 错误_无效参数。
+    完。
+    若 开始 小于 0 或者 结束 小于或等于 开始：
+        返还 错误_无效参数。
+    完。
+    sb 的 updating 为 真。
+    sb 的 缓冲大小 为 0。
+    sb 的 updating 为 假。
+    若 全局MSE统计 不等于 空：
+        全局MSE统计 的 删除操作次数 为 全局MSE统计 的 删除操作次数 加 1。
+    完。
+    返还 0。
+完。
+
+SourceBuffer_abort 接受 sb：
+    若 sb 等于 空：
+        返还。
+    完。
+    sb 的 updating 为 假。
+    若 全局MSE统计 不等于 空：
+        全局MSE统计 的 abort操作次数 为 全局MSE统计 的 abort操作次数 加 1。
+    完。
+完。
+
+SourceBuffer_设置timestampOffset 接受 sb、偏移：
+    若 sb 等于 空 或者 sb 的 updating 等于 真：
+        返还。
+    完。
+    sb 的 timestampOffset 为 偏移。
+完。
+
+SourceBuffer_设置appendWindow 接受 sb、开始、结束：
+    若 sb 等于 空 或者 sb 的 updating 等于 真：
+        返还。
+    完。
+    若 开始 小于 0：
+        开始 为 0。
+    完。
+    sb 的 appendWindowStart 为 开始。
+    sb 的 appendWindowEnd 为 结束。
+完。
+
+SourceBuffer_appendBuffer_增强 接受 sb、数据、长度：
+    若 sb 等于 空 或者 数据 等于 空 或者 长度 小于或等于 0：
+        返还 错误_无效参数。
+    完。
+    若 sb 的 updating 等于 真：
+        若 全局MSE统计 不等于 空：
+            全局MSE统计 的 错误总数 为 全局MSE统计 的 错误总数 加 1。
+        完。
+        返还 错误_已存在。
+    完。
+    sb 的 updating 为 真。
+    若 sb 的 缓冲大小 加 长度 大于 sb 的 缓冲容量：
+        若 sb 的 缓冲容量 小于 MSE_最大缓冲容量：
+            新容量 为 sb 的 缓冲容量 乘 2。
+            若 新容量 大于 MSE_最大缓冲容量：
+                新容量 为 MSE_最大缓冲容量。
+            完。
+            sb 的 缓冲数据 为 做 堆_重新分配 用 sb 的 缓冲数据、sb 的 缓冲容量、新容量。
+            若 sb 的 缓冲数据 不等于 空：
+                sb 的 缓冲容量 为 新容量。
+            完。
+        完。
+        若 sb 的 缓冲大小 加 长度 大于 sb 的 缓冲容量：
+            做 SourceBuffer_Eviction 用 sb。
+            若 全局MSE统计 不等于 空：
+                全局MSE统计 的 Eviction触发次数 为 全局MSE统计 的 Eviction触发次数 加 1。
+            完。
+        完。
+    完。
+    若 sb 的 缓冲大小 加 长度 小于或等于 sb 的 缓冲容量 并且 sb 的 缓冲数据 不等于 空：
+        做 内存_复制 用 sb 的 缓冲数据 加 sb 的 缓冲大小、数据、长度。
+        sb 的 缓冲大小 为 sb 的 缓冲大小 加 长度。
+    否则：
+        若 全局MSE统计 不等于 空：
+            全局MSE统计 的 溢出保护次数 为 全局MSE统计 的 溢出保护次数 加 1。
+        完。
+    完。
+    sb 的 updating 为 假。
+    若 全局MSE统计 不等于 空：
+        全局MSE统计 的 追加操作次数 为 全局MSE统计 的 追加操作次数 加 1。
+        全局MSE统计 的 追加字节总数 为 全局MSE统计 的 追加字节总数 加 长度。
+    完。
+    做 AI_MSE_记录追加 用 sb 的 缓冲大小、sb 的 缓冲容量、长度。
+    返还 0。
+完。
+
+SourceBuffer_Eviction 接受 sb：
+    若 sb 等于 空 或者 sb 的 缓冲大小 等于 0：
+        返还。
+    完。
+    保留开始 为 sb 的 缓冲大小 除以 2。
+    保留大小 为 sb 的 缓冲大小 减 保留开始。
+    若 保留大小 大于 0 并且 sb 的 缓冲数据 不等于 空：
+        做 内存_复制 用 sb 的 缓冲数据、sb 的 缓冲数据 加 保留开始、保留大小。
+        sb 的 缓冲大小 为 保留大小。
+    完。
+完。
+
+SourceBuffer_销毁 接受 sb：
+    若 sb 等于 空：
+        返还。
+    完。
+    若 sb 的 缓冲数据 不等于 空：
+        做 堆_释放 用 sb 的 缓冲数据。
+    完。
+    做 堆_释放 用 sb。
+完。
+
+SourceBuffer_获取缓冲水位 接受 sb：
+    若 sb 等于 空 或者 sb 的 缓冲容量 等于 0：
+        返还 0。
+    完。
+    返还 sb 的 缓冲大小 乘 1024 除以 sb 的 缓冲容量。
+完。
+
+媒体Source_open 接受 ms、元素：
+    若 ms 等于 空：
+        返还 错误_无效参数。
+    完。
+    若 ms 的 状态 不等于 MS_CLOSED：
+        返还 错误_已存在。
+    完。
+    ms 的 状态 为 MS_OPEN。
+    ms 的 关联元素 为 元素。
+    若 全局MSE统计 不等于 空：
+        全局MSE统计 的 状态切换次数 为 全局MSE统计 的 状态切换次数 加 1。
+    完。
+    返还 0。
+完。
+
+媒体Source_close 接受 ms：
+    若 ms 等于 空：
+        返还。
+    完。
+    ms 的 状态 为 MS_CLOSED。
+    ms 的 关联元素 为 0。
+    若 全局MSE统计 不等于 空：
+        全局MSE统计 的 状态切换次数 为 全局MSE统计 的 状态切换次数 加 1。
+    完。
+完。
+
+媒体Source_销毁 接受 ms：
+    若 ms 等于 空：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 ms 的 sourceBufferCount：
+        sb 为 做 内存_读64 用 ms 的 sourceBuffers 加 i 乘 8。
+        若 sb 不等于 空：
+            做 SourceBuffer_销毁 用 sb。
+        完。
+        i 为 i 加 1。
+    完。
+    若 ms 的 sourceBuffers 不等于 空：
+        做 堆_释放 用 ms 的 sourceBuffers。
+    完。
+    做 堆_释放 用 ms。
+    若 全局MSE统计 不等于 空：
+        全局MSE统计 的 MediaSource销毁次数 为 全局MSE统计 的 MediaSource销毁次数 加 1。
+    完。
+完。
+
+媒体Source_获取状态 接受 ms：
+    若 ms 等于 空：
+        返还 MS_CLOSED。
+    完。
+    返还 ms 的 状态。
+完。
+
+媒体Source_设置duration 接受 ms、时长：
+    若 ms 等于 空 或者 ms 的 状态 不等于 MS_OPEN：
+        返还。
+    完。
+    ms 的 duration 为 时长。
+完。
+
+媒体Source_removeSourceBuffer 接受 ms、sb：
+    若 ms 等于 空 或者 sb 等于 空：
+        返还。
+    完。
+    可变 i 为 0。
+    只要 i 小于 ms 的 sourceBufferCount：
+        若 做 内存_读64 用 ms 的 sourceBuffers 加 i 乘 8 等于 sb：
+            ms 的 sourceBufferCount 为 ms 的 sourceBufferCount 减 1。
+            若 i 小于 ms 的 sourceBufferCount：
+                做 内存_写64 用 ms 的 sourceBuffers 加 i 乘 8、做 内存_读64 用 ms 的 sourceBuffers 加 ms 的 sourceBufferCount 乘 8。
+            完。
+            做 SourceBuffer_销毁 用 sb。
+            返还。
+        完。
+        i 为 i 加 1。
+    完。
+完。
+
+AI_MSE_记录追加 接受 当前大小、容量、追加大小：
+    若 全局MSE_AI 等于 空：
+        返还。
+    完。
+    AI 为 全局MSE_AI。
+    AI 的 采样计数器 为 AI 的 采样计数器 加 1。
+    AI 的 历史追加速率 为 (AI 的 历史追加速率 乘 7 加 追加大小) 除以 8。
+    可变 水位 为 0。
+    若 容量 大于 0：
+        水位 为 当前大小 乘 1024 除以 容量。
+    完。
+    AI 的 历史缓冲水位 为 (AI 的 历史缓冲水位 乘 7 加 水位) 除以 8。
+    若 AI 的 采样计数器 小于 8：
+        返还。
+    完。
+    AI 的 采样计数器 为 0。
+    若 全局MSE统计 不等于 空：
+        全局MSE统计 的 AI缓冲调用次数 为 全局MSE统计 的 AI缓冲调用次数 加 1。
+    完。
+    若 AI 的 历史缓冲水位 大于 800：
+        AI 的 预测需要Eviction 为 真。
+    否则若 AI 的 历史缓冲水位 小于 500：
+        AI 的 预测需要Eviction 为 假。
+    完。
+    实际需要 为 水位 大于 900。
+    若 AI 的 预测需要Eviction 等于 真 并且 实际需要 等于 真：
+        若 全局MSE统计 不等于 空：
+            全局MSE统计 的 AI缓冲命中次数 为 全局MSE统计 的 AI缓冲命中次数 加 1。
+        完。
+    完。
+完。
+
+MSE_打印统计 接受 零参：
+    若 全局MSE统计 等于 空：
+        做 打印 用 「[MSE] 统计未初始化」。
+        返还。
+    完。
+    做 打印 用 「┌──────────────────────────────────────┐」。
+    做 打印 用 「│   MSE媒体源扩展 · 统计报告          │」。
+    做 打印 用 「├──────────────────────────────────────┤」。
+    做 打印 用 做 字符串拼接 用 「│ MediaSource创建:  」、做 转字符串 用 全局MSE统计 的 MediaSource创建次数。
+    做 打印 用 做 字符串拼接 用 「│ SourceBuffer创建: 」、做 转字符串 用 全局MSE统计 的 SourceBuffer创建次数。
+    做 打印 用 做 字符串拼接 用 「│ 追加操作:         」、做 转字符串 用 全局MSE统计 的 追加操作次数。
+    做 打印 用 做 字符串拼接 用 「│ 追加字节(KB):     」、做 转字符串 用 全局MSE统计 的 追加字节总数 除以 1024。
+    做 打印 用 做 字符串拼接 用 「│ 删除操作:         」、做 转字符串 用 全局MSE统计 的 删除操作次数。
+    做 打印 用 做 字符串拼接 用 「│ abort:            」、做 转字符串 用 全局MSE统计 的 abort操作次数。
+    做 打印 用 做 字符串拼接 用 「│ endOfStream:      」、做 转字符串 用 全局MSE统计 的 endOfStream次数。
+    做 打印 用 做 字符串拼接 用 「│ Eviction:         」、做 转字符串 用 全局MSE统计 的 Eviction触发次数。
+    做 打印 用 做 字符串拼接 用 「│ 状态切换:         」、做 转字符串 用 全局MSE统计 的 状态切换次数。
+    做 打印 用 做 字符串拼接 用 「│ 事件触发:         」、做 转字符串 用 全局MSE统计 的 事件触发次数。
+    做 打印 用 做 字符串拼接 用 「│ AI语义分类:       」、做 转字符串 用 全局MSE统计 的 AI语义分类次数。
+    做 打印 用 做 字符串拼接 用 「│ AI缓冲调用:       」、做 转字符串 用 全局MSE统计 的 AI缓冲调用次数。
+    做 打印 用 做 字符串拼接 用 「│ AI缓冲命中:       」、做 转字符串 用 全局MSE统计 的 AI缓冲命中次数。
+    做 打印 用 做 字符串拼接 用 「│ 溢出保护:         」、做 转字符串 用 全局MSE统计 的 溢出保护次数。
+    做 打印 用 做 字符串拼接 用 「│ 错误:             」、做 转字符串 用 全局MSE统计 的 错误总数。
+    做 打印 用 「└──────────────────────────────────────┘」。
+完。
+
+MSE_导出诊断 接受 零参：
+    若 全局MSE_AI 等于 空：
+        做 打印 用 「[MSE AI] 未初始化」。
+        返还。
+    完。
+    AI 为 全局MSE_AI。
+    做 打印 用 「[MSE AI] === 诊断 ===」。
+    做 打印 用 做 字符串拼接 用 「  历史追加速率(B/s): 」、做 转字符串 用 AI 的 历史追加速率。
+    做 打印 用 做 字符串拼接 用 「  历史缓冲水位(Q10): 」、做 转字符串 用 AI 的 历史缓冲水位。
+    做 打印 用 做 字符串拼接 用 「  预测需要Eviction: 」、做 转字符串 用 AI 的 预测需要Eviction。
+完。
+
+MSE_获取统计 接受 零参：
+    返还 全局MSE统计。
+完。
+
+MSE_获取AI状态 接受 零参：
+    返还 全局MSE_AI。
+完。
+
+MSE_是否已初始化 接受 零参：
+    返还 全局MSE已初始化。
+完。
+
+媒体Source_获取SourceBuffer数 接受 ms：
+    若 ms 等于 空：
+        返还 0。
+    完。
+    返还 ms 的 sourceBufferCount。
+完。
+
+媒体Source_获取duration 接受 ms：
+    若 ms 等于 空：
+        返还 负 1。
+    完。
+    返还 ms 的 duration。
+完。
+
+媒体Source_是否打开 接受 ms：
+    若 ms 等于 空：
+        返还 假。
+    完。
+    返还 ms 的 状态 等于 MS_OPEN。
+完。
+
+媒体Source_是否结束 接受 ms：
+    若 ms 等于 空：
+        返还 假。
+    完。
+    返还 ms 的 状态 等于 MS_ENDED。
+完。
+
+SourceBuffer_获取MIME类型 接受 sb：
+    若 sb 等于 空：
+        返还 空。
+    完。
+    返还 sb 的 MIME类型。
+完。
+
+SourceBuffer_获取缓冲大小 接受 sb：
+    若 sb 等于 空：
+        返还 0。
+    完。
+    返还 sb 的 缓冲大小。
+完。
+
+SourceBuffer_是否正在更新 接受 sb：
+    若 sb 等于 空：
+        返还 假。
+    完。
+    返还 sb 的 updating。
+完。
+
+SourceBuffer_获取timestampOffset 接受 sb：
+    若 sb 等于 空：
+        返还 0。
+    完。
+    返还 sb 的 timestampOffset。
+完。
+
+媒体Source_isTypeSupported 接受 类型：
+    若 类型 等于 空：
+        返还 假。
+    完。
+    若 做 字符串_包含 用 类型、「video/mp4」：
+        返还 真。
+    完。
+    若 做 字符串_包含 用 类型、「video/webm」：
+        返还 真。
+    完。
+    若 做 字符串_包含 用 类型、「audio/mp4」：
+        返还 真。
+    完。
+    若 做 字符串_包含 用 类型、「audio/webm」：
+        返还 真。
+    完。
+    若 做 字符串_包含 用 类型、「audio/mpeg」：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+媒体Source_获取关联元素 接受 ms：
+    若 ms 等于 空：
+        返还 空。
+    完。
+    返还 ms 的 关联元素。
+完。
+
+本章 收束。

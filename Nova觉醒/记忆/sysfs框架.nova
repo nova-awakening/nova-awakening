@@ -1,0 +1,239 @@
+《sysfs框架》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·错误码》。
+
+引用《.·超级块》。
+
+引用《.·文件节点创建》。
+
+引用《.·kobject设备模型》。
+
+引用《.·目录项添加》。
+
+引用《.·路径缓存初始化》。
+
+引用《.·文件节点缓存》。
+
+引用《.·文件系统类》。
+
+引用《..·中枢·硬链接》。
+
+SYSFS_MAGIC 为 0x62656572。
+
+可变 sysfs_sb 为 空。
+
+可变 sysfs_根Nova路径项 为 空。
+
+可变 sysfs_根kobject 为 空。
+
+可变 sysfs_devices_kobj 为 空。
+
+可变 sysfs_bus_kobj 为 空。
+
+可变 sysfs_class_kobj 为 空。
+
+可变 sysfs_block_kobj 为 空。
+
+可变 sysfs_kernel_kobj 为 空。
+
+可变 sysfs_module_kobj 为 空。
+
+可变 sysfs_firmware_kobj 为 空。
+
+sysfs_初始化 接受 零参：
+    做 注册文件系统_完整 用 「sysfs」、sysfs_挂载、0、空。
+    sysfs_根kobject 为 做 kobject_创建 用 「」、空。
+    sysfs_devices_kobj 为 做 kobject_创建_并注册 用 「devices」、sysfs_根kobject、空。
+    sysfs_bus_kobj 为 做 kobject_创建_并注册 用 「bus」、sysfs_根kobject、空。
+    sysfs_class_kobj 为 做 kobject_创建_并注册 用 「class」、sysfs_根kobject、空。
+    sysfs_block_kobj 为 做 kobject_创建_并注册 用 「block」、sysfs_根kobject、空。
+    sysfs_kernel_kobj 为 做 kobject_创建_并注册 用 「kernel」、sysfs_根kobject、空。
+    sysfs_module_kobj 为 做 kobject_创建_并注册 用 「module」、sysfs_根kobject、空。
+    sysfs_firmware_kobj 为 做 kobject_创建_并注册 用 「firmware」、sysfs_根kobject、空。
+    做 内核信息 用 「sysfs: 初始化完成 (/sys/devices,bus,class,block,kernel,module,firmware)」。
+完。
+
+sysfs_挂载 接受 fs类型、标志、设备名、选项：
+    sysfs_sb 为 做 超级块_创建 用 SYSFS_MAGIC、4096、0、「sysfs」。
+    根Nova文件节点 为 做 Nova文件节点_创建 用 类型_目录、365。
+    sysfs_根Nova路径项 为 做 目录项_创建 用 「/」、根Nova文件节点、空。
+    做 超级块_设置根 用 sysfs_sb、sysfs_根Nova路径项。
+    做 sysfs_同步kobject目录 用 sysfs_根kobject、sysfs_根Nova路径项。
+    返还 sysfs_sb。
+完。
+
+sysfs_创建kobject目录 接受 kobj：
+    若 kobj 等于 空 或者 sysfs_根Nova路径项 等于 空：
+        返还 空。
+    完。
+    可变 父Nova路径项 为 sysfs_根Nova路径项。
+    若 kobj 的 父 不等于 空 并且 kobj 的 父 的 sysfs目录 不等于 空：
+        父Nova路径项 为 kobj 的 父 的 sysfs目录。
+    完。
+    Nova文件节点 为 做 Nova文件节点_创建 用 类型_目录、365。
+    Nova路径项 为 做 目录项_创建 用 kobj 的 名称、Nova文件节点、父Nova路径项。
+    做 目录项_添加子 用 父Nova路径项、Nova路径项。
+    返还 Nova路径项。
+完。
+
+sysfs_移除kobject目录 接受 kobj：
+    若 kobj 等于 空 或者 kobj 的 sysfs目录 等于 空：
+        返还。
+    完。
+    Nova路径项 为 kobj 的 sysfs目录。
+    父 为 做 目录项_父 用 Nova路径项。
+    若 父 不等于 空：
+        做 目录项_移除子 用 父、Nova路径项。
+    完。
+    kobj 的 sysfs目录 为 空。
+完。
+
+sysfs_同步kobject目录 接受 kobj、父Nova路径项：
+    若 kobj 等于 空：
+        返还。
+    完。
+    子列表 为 kobj 的 子列表。
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 子列表：
+        子kobj 为 子列表 的 第 i 项。
+        Nova文件节点 为 做 Nova文件节点_创建 用 类型_目录、365。
+        Nova路径项 为 做 目录项_创建 用 子kobj 的 名称、Nova文件节点、父Nova路径项。
+        做 目录项_添加子 用 父Nova路径项、Nova路径项。
+        子kobj 的 sysfs目录 为 Nova路径项。
+        做 sysfs_同步kobject目录 用 子kobj、Nova路径项。
+        i 为 i 加 1。
+    完。
+完。
+
+sysfs_创建属性文件 接受 kobj、属性：
+    若 kobj 等于 空 或者 kobj 的 sysfs目录 等于 空 或者 属性 等于 空：
+        返还 错误_无效参数。
+    完。
+    Nova文件节点 为 做 Nova文件节点_创建 用 类型_普通文件、属性 的 模式。
+    做 Nova文件节点_设置file_ops 用 Nova文件节点、做 sysfs_属性_file_ops 用 kobj、属性。
+    做 Nova文件节点_设私有 用 Nova文件节点、一组：kobj、属性。
+    Nova路径项 为 做 目录项_创建 用 属性 的 名称、Nova文件节点、kobj 的 sysfs目录。
+    做 目录项_添加子 用 kobj 的 sysfs目录、Nova路径项。
+    返还 成功。
+完。
+
+sysfs_移除属性文件 接受 kobj、属性名：
+    若 kobj 等于 空 或者 kobj 的 sysfs目录 等于 空：
+        返还。
+    完。
+    子 为 做 目录项_查找子 用 kobj 的 sysfs目录、属性名。
+    若 子 不等于 空：
+        做 目录项_移除子 用 kobj 的 sysfs目录、子。
+    完。
+完。
+
+sysfs_属性_file_ops 接受 kobj、属性：
+    返还 一本字典：读 对应 sysfs_属性_读、写 对应 sysfs_属性_写。
+完。
+
+sysfs_属性_读 接受 文件、缓冲、大小、位置：
+    私有 为 做 Nova文件节点_获取私有 用 做 文件_Nova文件节点 用 文件。
+    若 私有 等于 空：
+        返还 0。
+    完。
+    kobj 为 私有 的 第 0 项。
+    属性 为 私有 的 第 1 项。
+    若 属性 的 show 等于 空：
+        返还 错误_权限。
+    完。
+    内容 为 做 属性 的 show 用 kobj、属性、缓冲。
+    若 内容 等于 空：
+        返还 0。
+    完。
+    返还 内容。
+完。
+
+sysfs_属性_写 接受 文件、缓冲、大小、位置：
+    私有 为 做 Nova文件节点_获取私有 用 做 文件_Nova文件节点 用 文件。
+    若 私有 等于 空：
+        返还 0。
+    完。
+    kobj 为 私有 的 第 0 项。
+    属性 为 私有 的 第 1 项。
+    若 属性 的 store 等于 空：
+        返还 错误_权限。
+    完。
+    返还 做 属性 的 store 用 kobj、属性、缓冲、大小。
+完。
+
+sysfs_创建属性组 接受 kobj、属性列表：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 属性列表：
+        做 sysfs_创建属性文件 用 kobj、属性列表 的 第 i 项。
+        i 为 i 加 1。
+    完。
+    返还 成功。
+完。
+
+sysfs_创建链接 接受 kobj、目标kobj、名称：
+    若 kobj 等于 空 或者 kobj 的 sysfs目录 等于 空：
+        返还 错误_无效参数。
+    完。
+    目标路径 为 做 kobject_路径 用 目标kobj。
+    Nova文件节点 为 做 Nova文件节点_创建 用 类型_符号链接、511。
+    做 Nova文件节点_设置链接目标 用 Nova文件节点、目标路径。
+    Nova路径项 为 做 目录项_创建 用 名称、Nova文件节点、kobj 的 sysfs目录。
+    做 目录项_添加子 用 kobj 的 sysfs目录、Nova路径项。
+    返还 成功。
+完。
+
+sysfs_devices_root 接受 零参：
+    返还 sysfs_devices_kobj。
+完。
+
+sysfs_bus_root 接受 零参：
+    返还 sysfs_bus_kobj。
+完。
+
+sysfs_class_root 接受 零参：
+    返还 sysfs_class_kobj。
+完。
+
+sysfs_block_root 接受 零参：
+    返还 sysfs_block_kobj。
+完。
+
+sysfs_kernel_root 接受 零参：
+    返还 sysfs_kernel_kobj。
+完。
+
+sysfs_module_root 接受 零参：
+    返还 sysfs_module_kobj。
+完。
+
+sysfs_完整统计 接受 零参：
+    返还 一组：sysfs_已初始化。
+完。
+
+可变 AI_框架_热文件表 为 一组：（空）。
+
+AI_框架_访问模式 接受 路径：
+    可变 i 为 0。
+    只要 i 小于 做 计数 用 AI_框架_热文件表：
+        若 AI_框架_热文件表 的 第 i 项 的 路径 等于 路径：
+            AI_框架_热文件表 的 第 i 项 的 频率 为 AI_框架_热文件表 的 第 i 项 的 频率 加 1。
+            返还 AI_框架_热文件表 的 第 i 项 的 频率。
+        完。
+        i 为 i 加 1。
+    完。
+    若 做 计数 用 AI_框架_热文件表 小于 128：
+        做 追加 用 AI_框架_热文件表、一本字典：路径 对应 路径、频率 对应 1。
+    完。
+    返还 1。
+完。
+
+AI_框架_预读建议 接受 文件大小、已读偏移：
+    若 已读偏移 大于 文件大小 乘 80 除以 100：
+        返还 0。
+    完。
+    返还 32768。
+完。
+
+本章 收束。

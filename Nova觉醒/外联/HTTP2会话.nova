@@ -1,0 +1,83 @@
+《HTTP2会话》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·系统调用表》。
+
+引用《.·HTTP2推送》。
+
+引用《..·中枢·辅助有符号读》。
+
+H2Stream 是 一种 事物，含 流ID、状态、方法、路径、请求头、请求体、请求体长度、状态码、响应头、响应体、响应体长度、响应体容量、本地窗口、远端窗口、依赖流、权重、独占、on_headers、on_data、on_complete。
+
+H2Session 是 一种 事物，含 socket_fd、安全上下文、流列表、流数量、流容量、下一个流ID、本地设置、远端设置、连接窗口_本地、连接窗口_远端、编码器、解码器、已关闭、最后流ID、接收缓冲、接收长度、接收容量。
+
+H2Settings 是 一种 事物，含 header_table_size、enable_push、max_concurrent_streams、initial_window_size、max_frame_size、max_header_list_size。
+
+H2Session_创建 接受 socket_fd、tls：
+    s 为 做 堆_分配 用 H2Session。
+    s 的 socket_fd 为 socket_fd。
+    s 的 安全上下文 为 tls。
+    s 的 流容量 为 256。
+    s 的 流列表 为 做 堆_分配_数组 用 256 乘 8。
+    s 的 流数量 为 0。
+    s 的 下一个流ID 为 1。
+    s 的 本地设置 为 做 H2Settings_默认。
+    s 的 远端设置 为 做 H2Settings_默认。
+    s 的 连接窗口_本地 为 65535。
+    s 的 连接窗口_远端 为 65535。
+    s 的 编码器 为 做 HPACK_编码器_创建 用 4096。
+    s 的 解码器 为 做 HPACK_解码器_创建 用 4096。
+    s 的 已关闭 为 假。
+    s 的 接收容量 为 65536。
+    s 的 接收缓冲 为 做 堆_分配 用 65536。
+    s 的 接收长度 为 0。
+    做 H2Session_发送前言 用 s。
+    做 H2Session_发送Settings 用 s。
+    返还 s。
+完。
+
+H2Settings_默认 接受 零参：
+    settings 为 做 堆_分配 用 H2Settings。
+    settings 的 header_table_size 为 4096。
+    settings 的 enable_push 为 真。
+    settings 的 max_concurrent_streams 为 100。
+    settings 的 initial_window_size 为 65535。
+    settings 的 max_frame_size 为 16384。
+    settings 的 max_header_list_size 为 0xFFFFFFFF。
+    返还 settings。
+完。
+
+H2Session_发送前言 接受 s：
+    若 s 等于 0：
+        返还。
+    完。
+    前言 为 「PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n」。
+    做 安全_发送 用 s 的 安全上下文、前言、24。
+完。
+
+H2Session_发送Settings 接受 s：
+    若 s 等于 0：
+        返还。
+    完。
+    载荷 为 做 堆_分配 用 36。
+    可变 偏移 为 0。
+    做 内存_写16_大端 用 载荷 加 偏移、1。
+    做 内存_写32_大端 用 载荷 加 偏移 加 2、4096。
+    偏移 为 偏移 加 6。
+    做 内存_写16_大端 用 载荷 加 偏移、3。
+    做 内存_写32_大端 用 载荷 加 偏移 加 2、100。
+    偏移 为 偏移 加 6。
+    做 内存_写16_大端 用 载荷 加 偏移、4。
+    做 内存_写32_大端 用 载荷 加 偏移 加 2、65535。
+    偏移 为 偏移 加 6。
+    帧 为 新建 H2Frame。
+    帧 的 类型 为 H2_FRAME_SETTINGS。
+    帧 的 标志 为 0。
+    帧 的 流ID 为 0。
+    帧 的 长度 为 偏移。
+    帧 的 有效载荷 为 载荷。
+    做 H2Session_发送帧 用 s、帧。
+完。
+
+本章 收束。

@@ -1,0 +1,113 @@
+《WebCrypto密钥》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《.·内核直连层》。
+
+KEY_TYPE_SECRET 为 0。
+
+KEY_TYPE_PUBLIC 为 1。
+
+KEY_TYPE_PRIVATE 为 2。
+
+KEY_USAGE_ENCRYPT 为 1。
+
+KEY_USAGE_DECRYPT 为 2。
+
+KEY_USAGE_SIGN 为 4。
+
+KEY_USAGE_VERIFY 为 8。
+
+KEY_USAGE_DERIVE_KEY 为 16。
+
+KEY_USAGE_DERIVE_BITS 为 32。
+
+KEY_USAGE_WRAP_KEY 为 64。
+
+KEY_USAGE_UNWRAP_KEY 为 128。
+
+CryptoKey 是 一种 事物，含 类型、算法、extractable、usages、数据、数据长度、密钥长度、哈希算法。
+
+SubtleCrypto_generateKey 接受 算法、密钥长度、extractable、usages：
+    key 为 做 堆_分配 用 CryptoKey。
+    key 的 算法 为 算法。
+    key 的 extractable 为 extractable。
+    key 的 usages 为 usages。
+    key 的 密钥长度 为 密钥长度。
+    若 算法 等于 ALGO_AES_CBC 或者 算法 等于 ALGO_AES_GCM 或者 算法 等于 ALGO_AES_CTR：
+        key 的 类型 为 KEY_TYPE_SECRET。
+        key 的 数据长度 为 密钥长度 除以 8。
+        key 的 数据 为 做 堆_分配 用 key 的 数据长度。
+        做 随机字节 用 key 的 数据、key 的 数据长度。
+    否则若 算法 等于 ALGO_HMAC：
+        key 的 类型 为 KEY_TYPE_SECRET。
+        key 的 数据长度 为 密钥长度 除以 8。
+        key 的 数据 为 做 堆_分配 用 key 的 数据长度。
+        做 随机字节 用 key 的 数据、key 的 数据长度。
+    否则若 算法 等于 ALGO_RSA_OAEP 或者 算法 等于 ALGO_RSA_PSS：
+        key 的 类型 为 KEY_TYPE_PRIVATE。
+        key 的 数据长度 为 密钥长度 除以 8。
+        key 的 数据 为 做 堆_分配 用 key 的 数据长度。
+    否则若 算法 等于 ALGO_ECDSA 或者 算法 等于 ALGO_ECDH：
+        key 的 类型 为 KEY_TYPE_PRIVATE。
+        key 的 数据长度 为 32。
+        key 的 数据 为 做 堆_分配 用 key 的 数据长度。
+        做 随机字节 用 key 的 数据、key 的 数据长度。
+    完。
+    返还 key。
+完。
+
+SubtleCrypto_importKey 接受 格式、keyData、keyDataLen、算法、extractable、usages：
+    key 为 做 堆_分配 用 CryptoKey。
+    key 的 算法 为 算法。
+    key 的 extractable 为 extractable。
+    key 的 usages 为 usages。
+    key 的 数据 为 做 堆_分配 用 keyDataLen。
+    做 内存_复制 用 key 的 数据、keyData、keyDataLen。
+    key 的 数据长度 为 keyDataLen。
+    返还 key。
+完。
+
+SubtleCrypto_exportKey 接受 格式、key：
+    若 key 等于 0 或者 非 key 的 extractable：
+        返还 0。
+    完。
+    返还 key 的 数据。
+完。
+
+SubtleCrypto_encrypt 接受 算法、key、数据、长度、iv、ivLen：
+    若 key 等于 0 或者 数据 等于 0 或者 长度 等于 0：
+        返还 0。
+    完。
+    若 非 (key 的 usages 位与 KEY_USAGE_ENCRYPT)：
+        返还 0。
+    完。
+    若 算法 等于 ALGO_AES_CBC：
+        块数 为 (长度 加 15) 除以 16。
+        输出长度 为 (块数 加 1) 乘 16。
+        输出 为 做 堆_分配 用 输出长度。
+        返还 输出。
+    否则若 算法 等于 ALGO_AES_GCM：
+        输出长度 为 长度 加 16。
+        输出 为 做 堆_分配 用 输出长度。
+        返还 输出。
+    否则若 算法 等于 ALGO_AES_CTR：
+        输出 为 做 堆_分配 用 长度。
+        返还 输出。
+    完。
+    返还 0。
+完。
+
+SubtleCrypto_decrypt 接受 算法、key、数据、长度、iv、ivLen：
+    若 key 等于 0 或者 数据 等于 0 或者 长度 等于 0：
+        返还 0。
+    完。
+    若 非 (key 的 usages 位与 KEY_USAGE_DECRYPT)：
+        返还 0。
+    完。
+    返还 0。
+完。
+
+本章 收束。

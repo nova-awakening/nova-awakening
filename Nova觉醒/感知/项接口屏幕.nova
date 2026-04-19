@@ -1,0 +1,87 @@
+《项接口屏幕》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·权限接口权限》。
+
+引用《.·文档节点》。
+
+ORIENT_PORTRAIT_PRIMARY 为 0。
+
+ORIENT_PORTRAIT_SECONDARY 为 1。
+
+ORIENT_LANDSCAPE_PRIMARY 为 2。
+
+ORIENT_LANDSCAPE_SECONDARY 为 3。
+
+ScreenOrientation 是 一种 事物，含 类型、角度、已锁定、onchange。
+
+可变 全局屏幕方向 为 0。
+
+ScreenOrientation_获取 接受 零参：
+    若 全局屏幕方向 等于 0：
+        全局屏幕方向 为 做 堆_分配 用 ScreenOrientation。
+        全局屏幕方向 的 类型 为 ORIENT_PORTRAIT_PRIMARY。
+        全局屏幕方向 的 角度 为 0。
+        全局屏幕方向 的 已锁定 为 假。
+    完。
+    返还 全局屏幕方向。
+完。
+
+ScreenOrientation_lock 接受 方向字符串：
+    fs 为 做 Fullscreen_获取状态。
+    若 fs 的 状态 不等于 FS_STATE_FULLSCREEN：
+        返还 假。
+    完。
+    ori 为 做 ScreenOrientation_获取。
+    ori 的 已锁定 为 真。
+    返还 真。
+完。
+
+ScreenOrientation_unlock 接受 零参：
+    ori 为 做 ScreenOrientation_获取。
+    ori 的 已锁定 为 假。
+完。
+
+Navigator_vibrate 接受 模式、模式长度：
+    若 模式 等于 0 或者 模式长度 等于 0：
+        做 平台_取消振动。
+        返还 真。
+    完。
+    可变 i 为 0。
+    只要 i 小于 模式长度：
+        时间 为 做 内存_读32 用 模式 加 i 乘 4。
+        若 i 取余于 2 等于 0：
+            做 平台_振动 用 时间。
+        否则：
+            做 平台_等待 用 时间。
+        完。
+        i 为 i 加 1。
+    完。
+    返还 真。
+完。
+
+BatteryManager 是 一种 事物，含 充电中、电量、充电时间、放电时间、onchargingchange、onlevelchange、onchargingtimechange、ondischargingtimechange。
+
+可变 全局电池 为 0。
+
+BatteryManager_获取 接受 零参：
+    若 全局电池 等于 0：
+        全局电池 为 做 堆_分配 用 BatteryManager。
+        全局电池 的 充电中 为 真。
+        全局电池 的 电量 为 10000。
+        全局电池 的 充电时间 为 0。
+        全局电池 的 放电时间 为 负 1。
+    完。
+    返还 全局电池。
+完。
+
+Navigator_getBattery 接受 Nova运行时实例：
+    返还 做 BatteryManager_获取。
+完。
+
+本章 收束。

@@ -1,0 +1,550 @@
+《JS_Proxy代理》
+
+引用《.·上下文运行时》。
+
+引用《.·值型系统》。
+
+引用《..·中枢·系统调用表》。
+
+引用《..·中枢·字符串替换》。
+
+引用《..·标准·类型判断》。
+
+引用《..·中枢·辅助有符号读》。
+
+引用《..·中枢·辅助存根》。
+
+引用《.·小整数SMI判定》。
+
+引用《..·执行·底层内存操》。
+
+引用《..·中枢·内存初始化》。
+
+TRAP_GET 为 0。
+
+TRAP_SET 为 1。
+
+TRAP_HAS 为 2。
+
+TRAP_DELETE_PROPERTY 为 3。
+
+TRAP_APPLY 为 4。
+
+TRAP_CONSTRUCT 为 5。
+
+TRAP_GET_PROTOTYPE_OF 为 6。
+
+TRAP_SET_PROTOTYPE_OF 为 7。
+
+TRAP_IS_EXTENSIBLE 为 8。
+
+TRAP_PR事件_EXTENSIONS 为 9。
+
+TRAP_GET_OWN_PROPERTY_DESC 为 10。
+
+TRAP_DEFINE_PROPERTY 为 11。
+
+TRAP_OWN_KEYS 为 12。
+
+TRAP_COUNT 为 13。
+
+JS代理 是 一种 事物，含 目标、处理器、已撤销、trap缓存。
+
+JS代理_创建 接受 Nova运行时实例、目标、处理器：
+    若 目标 等于 0：
+        返还 0。
+    完。
+    若 处理器 等于 0：
+        返还 0。
+    完。
+    proxy 为 做 堆_分配 用 JS代理。
+    proxy 的 目标 为 目标。
+    proxy 的 处理器 为 处理器。
+    proxy 的 已撤销 为 假。
+    proxy 的 trap缓存 为 做 堆_分配_数组 用 TRAP_COUNT 乘 8。
+    做 内存_清零 用 proxy 的 trap缓存、TRAP_COUNT 乘 8。
+    做 JS代理_缓存trap 用 proxy、「get」、TRAP_GET。
+    做 JS代理_缓存trap 用 proxy、「set」、TRAP_SET。
+    做 JS代理_缓存trap 用 proxy、「has」、TRAP_HAS。
+    做 JS代理_缓存trap 用 proxy、「deleteProperty」、TRAP_DELETE_PROPERTY。
+    做 JS代理_缓存trap 用 proxy、「apply」、TRAP_APPLY。
+    做 JS代理_缓存trap 用 proxy、「construct」、TRAP_CONSTRUCT。
+    做 JS代理_缓存trap 用 proxy、「getPrototypeOf」、TRAP_GET_PROTOTYPE_OF。
+    做 JS代理_缓存trap 用 proxy、「setPrototypeOf」、TRAP_SET_PROTOTYPE_OF。
+    做 JS代理_缓存trap 用 proxy、「isExtensible」、TRAP_IS_EXTENSIBLE。
+    做 JS代理_缓存trap 用 proxy、「pr事件Extensions」、TRAP_PR事件_EXTENSIONS。
+    做 JS代理_缓存trap 用 proxy、「getOwnPropertyDescriptor」、TRAP_GET_OWN_PROPERTY_DESC。
+    做 JS代理_缓存trap 用 proxy、「defineProperty」、TRAP_DEFINE_PROPERTY。
+    做 JS代理_缓存trap 用 proxy、「ownKeys」、TRAP_OWN_KEYS。
+    返还 proxy。
+完。
+
+JS代理_缓存trap 接受 proxy、名称、索引：
+    trap 为 做 Nova对象_获取属性 用 0、proxy 的 处理器、名称。
+    若 trap 不等于 0 并且 做 JSValue_IsFunction 用 trap：
+        做 内存_写64 用 proxy 的 trap缓存 加 索引 乘 8、trap。
+    完。
+完。
+
+JS代理_获取trap 接受 proxy、索引：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        返还 0。
+    完。
+    返还 做 内存_读64 用 proxy 的 trap缓存 加 索引 乘 8。
+完。
+
+代理Revocable 是 一种 事物，含 proxy、revoke。
+
+JS代理_revocable 接受 Nova运行时实例、目标、处理器：
+    proxy 为 做 JS代理_创建 用 Nova运行时实例、目标、处理器。
+    result 为 做 堆_分配 用 代理Revocable。
+    result 的 proxy 为 proxy。
+    result 的 revoke 为 proxy。
+    返还 result。
+完。
+
+JS代理_revoke 接受 proxy：
+    若 proxy 等于 0：
+        返还。
+    完。
+    proxy 的 已撤销 为 真。
+    proxy 的 目标 为 0。
+    proxy 的 处理器 为 0。
+完。
+
+JS代理_Get 接受 Nova运行时实例、proxy、键、接收者：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        做 打印 用 「[代理] TypeError: 已撤销的代理不能执行get操作」。
+        返还 0。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_GET。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 24。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            做 内存_写64 用 参数 加 8、键。
+            做 内存_写64 用 参数 加 16、接收者。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、3、0。
+            做 平台_释放内存 用 参数、24。
+            返还 结果。
+        完。
+    完。
+    返还 做 Nova对象_获取属性 用 Nova运行时实例、proxy 的 目标、键。
+完。
+
+JS代理_Set 接受 Nova运行时实例、proxy、键、值、接收者：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        做 打印 用 「[代理] TypeError: 已撤销的代理不能执行set操作」。
+        返还 假。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_SET。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 32。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            做 内存_写64 用 参数 加 8、键。
+            做 内存_写64 用 参数 加 16、值。
+            做 内存_写64 用 参数 加 24、接收者。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、4、0。
+            做 平台_释放内存 用 参数、32。
+            返还 做 JSValue_ToBoolean 用 Nova运行时实例、结果。
+        完。
+    完。
+    做 Nova对象_设置属性 用 Nova运行时实例、proxy 的 目标、键、值。
+    返还 真。
+完。
+
+JS代理_Has 接受 Nova运行时实例、proxy、键：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        返还 假。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_HAS。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 16。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            做 内存_写64 用 参数 加 8、键。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、2、0。
+            做 平台_释放内存 用 参数、16。
+            返还 做 JSValue_ToBoolean 用 Nova运行时实例、结果。
+        完。
+    完。
+    返还 做 Nova对象_HasProperty 用 Nova运行时实例、proxy 的 目标、键。
+完。
+
+JS代理_DeleteProperty 接受 Nova运行时实例、proxy、键：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        返还 假。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_DELETE_PROPERTY。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 16。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            做 内存_写64 用 参数 加 8、键。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、2、0。
+            做 平台_释放内存 用 参数、16。
+            返还 做 JSValue_ToBoolean 用 Nova运行时实例、结果。
+        完。
+    完。
+    返还 做 Nova对象_Delete 用 Nova运行时实例、proxy 的 目标、键。
+完。
+
+JS代理_Apply 接受 Nova运行时实例、proxy、thisArg、args、argc：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        返还 0。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_APPLY。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 24。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            做 内存_写64 用 参数 加 8、thisArg。
+            做 内存_写64 用 参数 加 16、args。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、3、0。
+            做 平台_释放内存 用 参数、24。
+            返还 结果。
+        完。
+    完。
+    返还 做 Interpreter_调用函数 用 Nova运行时实例、proxy 的 目标、thisArg、args、argc、0。
+完。
+
+JS代理_Construct 接受 Nova运行时实例、proxy、args、argc、newTarget：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        返还 0。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_CONSTRUCT。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 24。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            做 内存_写64 用 参数 加 8、args。
+            做 内存_写64 用 参数 加 16、newTarget。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、3、0。
+            做 平台_释放内存 用 参数、24。
+            返还 结果。
+        完。
+    完。
+    返还 0。
+完。
+
+JS代理_OwnKeys 接受 Nova运行时实例、proxy：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        返还 0。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_OWN_KEYS。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 8。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、1、0。
+            做 平台_释放内存 用 参数、8。
+            返还 结果。
+        完。
+    完。
+    返还 做 Nova对象_获取所有键 用 Nova运行时实例、proxy 的 目标。
+完。
+
+JS代理_GetPrototypeOf 接受 Nova运行时实例、proxy：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        返还 0。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_GET_PROTOTYPE_OF。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 8。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、1、0。
+            做 平台_释放内存 用 参数、8。
+            返还 结果。
+        完。
+    完。
+    返还 做 Nova对象_获取原型 用 Nova运行时实例、proxy 的 目标。
+完。
+
+JS代理_IsExtensible 接受 Nova运行时实例、proxy：
+    若 proxy 等于 0 或者 proxy 的 已撤销：
+        返还 假。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、TRAP_IS_EXTENSIBLE。
+    若 trap 不等于 0：
+        参数 为 做 平台_申请内存 用 8。
+        若 参数 不等于 0：
+            做 内存_写64 用 参数、proxy 的 目标。
+            结果 为 做 Interpreter_调用函数 用 Nova运行时实例、trap、proxy 的 处理器、参数、1、0。
+            做 平台_释放内存 用 参数、8。
+            返还 做 JSValue_ToBoolean 用 Nova运行时实例、结果。
+        完。
+    完。
+    返还 真。
+完。
+
+Reflect_get 接受 Nova运行时实例、目标、键、接收者：
+    若 目标 等于 0：
+        返还 0。
+    完。
+    若 接收者 等于 0：
+        接收者 为 目标。
+    完。
+    返还 做 Nova对象_获取属性 用 Nova运行时实例、目标、键。
+完。
+
+Reflect_set 接受 Nova运行时实例、目标、键、值、接收者：
+    若 目标 等于 0：
+        返还 假。
+    完。
+    做 Nova对象_设置属性 用 Nova运行时实例、目标、键、值。
+    返还 真。
+完。
+
+Reflect_has 接受 Nova运行时实例、目标、键：
+    若 目标 等于 0：
+        返还 假。
+    完。
+    返还 做 Nova对象_HasProperty 用 Nova运行时实例、目标、键。
+完。
+
+Reflect_deleteProperty 接受 Nova运行时实例、目标、键：
+    若 目标 等于 0：
+        返还 假。
+    完。
+    返还 做 Nova对象_Delete 用 Nova运行时实例、目标、键。
+完。
+
+Reflect_apply 接受 Nova运行时实例、函数、thisArg、args：
+    若 以 零参 为 引，其做法是： 等于 0：
+        返还 0。
+    完。
+    argc 为 0。
+    若 args 不等于 0：
+        argc 为 做 Nova数组_Length 用 Nova运行时实例、args。
+    完。
+    返还 做 Interpreter_调用函数 用 Nova运行时实例、以 零参 为 引，其做法是：、thisArg、args、argc、0。
+完。
+
+Reflect_construct 接受 Nova运行时实例、目标、args、newTarget：
+    若 目标 等于 0：
+        返还 0。
+    完。
+    若 newTarget 等于 0：
+        newTarget 为 目标。
+    完。
+    argc 为 0。
+    若 args 不等于 0：
+        argc 为 做 Nova数组_Length 用 Nova运行时实例、args。
+    完。
+    返还 做 Interpreter_调用函数 用 Nova运行时实例、目标、0、args、argc、newTarget。
+完。
+
+Reflect_ownKeys 接受 Nova运行时实例、目标：
+    若 目标 等于 0：
+        返还 0。
+    完。
+    返还 做 Nova对象_获取所有键 用 Nova运行时实例、目标。
+完。
+
+Reflect_getPrototypeOf 接受 Nova运行时实例、目标：
+    若 目标 等于 0：
+        返还 0。
+    完。
+    返还 做 Nova对象_获取原型 用 Nova运行时实例、目标。
+完。
+
+Reflect_setPrototypeOf 接受 Nova运行时实例、目标、原型：
+    若 目标 等于 0：
+        返还 假。
+    完。
+    做 Nova对象_设置原型 用 Nova运行时实例、目标、原型。
+    返还 真。
+完。
+
+Reflect_isExtensible 接受 Nova运行时实例、目标：
+    若 目标 等于 0：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+Reflect_preventExtensions 接受 Nova运行时实例、目标：
+    若 目标 等于 0：
+        返还 假。
+    完。
+    返还 真。
+完。
+
+代理反射_安装 接受 Nova运行时实例、ctx：
+    若 Nova运行时实例 等于 0 或者 ctx 等于 0：
+        返还。
+    完。
+    global 为 ctx 的 全局对象。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「Proxy」、做 Nova函数_创建 用 Nova运行时实例、「Proxy」、0、2。
+    reflect 为 做 Nova对象_创建 用 Nova运行时实例、Nova运行时实例 的 Object原型。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「get」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.get」、0、3。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「set」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.set」、0、4。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「has」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.has」、0、2。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「deleteProperty」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.deleteProperty」、0、2。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「apply」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.apply」、0、3。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「construct」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.construct」、0、3。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「ownKeys」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.ownKeys」、0、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「getPrototypeOf」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.getPrototypeOf」、0、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「setPrototypeOf」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.setPrototypeOf」、0、2。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「isExtensible」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.isExtensible」、0、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、reflect、「preventExtensions」、做 Nova函数_创建 用 Nova运行时实例、「Reflect.preventExtensions」、0、1。
+    做 Nova对象_设置属性 用 Nova运行时实例、global、「Reflect」、reflect。
+完。
+
+AI_代理_应该内联trap 接受 proxy、trap索引：
+    若 proxy 等于 0：
+        返还 假。
+    完。
+    trap 为 做 JS代理_获取trap 用 proxy、trap索引。
+    若 trap 等于 0：
+        返还 真。
+    完。
+    返还 假。
+完。
+
+可变 统计_代理创建数 为 0。
+
+可变 统计_代理Get数 为 0。
+
+可变 统计_代理Set数 为 0。
+
+可变 统计_代理Has数 为 0。
+
+可变 统计_代理撤销数 为 0。
+
+可变 统计_Reflect调用数 为 0。
+
+代理反射_打印统计 接受 零参：
+    做 打印 用 「[代理] ═══════════ 代理/反射统计 ═══════════」。
+    做 打印 用 做 字符串拼接 用 「  代理创建数:   」、做 转字符串 用 统计_代理创建数。
+    做 打印 用 做 字符串拼接 用 「  代理Get数:    」、做 转字符串 用 统计_代理Get数。
+    做 打印 用 做 字符串拼接 用 「  代理Set数:    」、做 转字符串 用 统计_代理Set数。
+    做 打印 用 做 字符串拼接 用 「  代理Has数:    」、做 转字符串 用 统计_代理Has数。
+    做 打印 用 做 字符串拼接 用 「  代理撤销数:   」、做 转字符串 用 统计_代理撤销数。
+    做 打印 用 做 字符串拼接 用 「  Reflect调用数:」、做 转字符串 用 统计_Reflect调用数。
+    做 打印 用 「[代理] ═══════════════════════════════════════」。
+完。
+
+JS代理_打印信息 接受 proxy：
+    若 proxy 等于 0：
+        做 打印 用 「[代理] 空代理」。
+        返还。
+    完。
+    做 打印 用 「[代理] ── 代理信息 ──」。
+    做 打印 用 做 字符串拼接 用 「  目标:     」、做 转字符串 用 proxy 的 目标。
+    做 打印 用 做 字符串拼接 用 「  处理器:   」、做 转字符串 用 proxy 的 处理器。
+    做 打印 用 做 字符串拼接 用 「  已撤销:   」、做 转字符串 用 proxy 的 已撤销。
+    可变 已缓存 为 0。
+    可变 i 为 0。
+    只要 i 小于 TRAP_COUNT：
+        若 做 内存_读64 用 proxy 的 trap缓存 加 i 乘 8 不等于 0：
+            已缓存 为 已缓存 加 1。
+        完。
+        i 为 i 加 1。
+    完。
+    做 打印 用 做 字符串拼接 用 「  已缓存trap: 」、做 转字符串 用 已缓存。
+完。
+
+JS代理_检查Get不变量 接受 Nova运行时实例、proxy、键、trap结果：
+    若 proxy 等于 0 或者 proxy 的 目标 等于 0：
+        返还 真。
+    完。
+    目标值 为 做 Nova对象_获取属性 用 Nova运行时实例、proxy 的 目标、键。
+    描述 为 做 Nova对象_获取属性描述 用 Nova运行时实例、proxy 的 目标、键。
+    若 描述 不等于 0：
+        可配置 为 描述 位与 4 不等于 0。
+        可写 为 描述 位与 1 不等于 0。
+        若 可配置 等于 假 并且 可写 等于 假：
+            若 trap结果 不等于 目标值：
+                做 打印 用 「[代理] TypeError: get trap违反不变量」。
+                返还 假。
+            完。
+        完。
+    完。
+    返还 真。
+完。
+
+JS代理_检查Set不变量 接受 Nova运行时实例、proxy、键、值：
+    若 proxy 等于 0 或者 proxy 的 目标 等于 0：
+        返还 真。
+    完。
+    描述 为 做 Nova对象_获取属性描述 用 Nova运行时实例、proxy 的 目标、键。
+    若 描述 不等于 0：
+        可配置 为 描述 位与 4 不等于 0。
+        可写 为 描述 位与 1 不等于 0。
+        若 可配置 等于 假 并且 可写 等于 假：
+            做 打印 用 「[代理] TypeError: set trap违反不变量(不可写属性)」。
+            返还 假。
+        完。
+    完。
+    返还 真。
+完。
+
+JS代理_检查Has不变量 接受 Nova运行时实例、proxy、键、trap结果：
+    若 proxy 等于 0 或者 proxy 的 目标 等于 0：
+        返还 真。
+    完。
+    若 trap结果 等于 假：
+        描述 为 做 Nova对象_获取属性描述 用 Nova运行时实例、proxy 的 目标、键。
+        若 描述 不等于 0 并且 描述 位与 4 等于 0：
+            做 打印 用 「[代理] TypeError: has trap违反不变量(不可配置属性)」。
+            返还 假。
+        完。
+    完。
+    返还 真。
+完。
+
+JS代理_是否为代理 接受 值：
+    若 值 等于 0：
+        返还 假。
+    完。
+    返还 做 内存_读32 用 值 等于 0x50525859。
+完。
+
+JS代理_解包目标 接受 proxy：
+    若 proxy 等于 0：
+        返还 0。
+    完。
+    若 proxy 的 已撤销：
+        返还 0。
+    完。
+    返还 proxy 的 目标。
+完。
+
+JS代理_销毁 接受 proxy：
+    若 proxy 等于 0：
+        返还。
+    完。
+    若 proxy 的 trap缓存 不等于 0：
+        做 堆_释放 用 proxy 的 trap缓存。
+    完。
+    做 堆_释放 用 proxy。
+完。
+
+JS代理_验证handler 接受 Nova运行时实例、处理器：
+    若 处理器 等于 0：
+        做 打印 用 「[代理] TypeError: handler不能为null」。
+        返还 假。
+    完。
+    若 非 做 JSValue_IsObject 用 处理器：
+        做 打印 用 「[代理] TypeError: handler必须是对象」。
+        返还 假。
+    完。
+    返还 真。
+完。
+
+JS代理_验证target 接受 Nova运行时实例、目标：
+    若 目标 等于 0：
+        做 打印 用 「[代理] TypeError: target不能为null」。
+        返还 假。
+    完。
+    若 非 做 JSValue_IsObject 用 目标：
+        做 打印 用 「[代理] TypeError: target必须是对象」。
+        返还 假。
+    完。
+    返还 真。
+完。
+
+本章 收束。

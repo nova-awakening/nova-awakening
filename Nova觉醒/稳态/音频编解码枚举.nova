@@ -1,0 +1,111 @@
+《音频编解码枚举》
+
+引用《..·中枢·类型定义》。
+
+引用《..·中枢·中断表注册》。
+
+引用《.·软件混音器》。
+
+引用《..·中枢·整数转字符串》。
+
+引用《..·中枢·字符串替换》。
+
+引用《.·PCM音频流》。
+
+声驱_枚举编解码器 接受 card、codec_id：
+    vendor 为 做 声驱_发送命令 用 card、codec_id、0、声驱_VERB_GET_PARAM 位或 声驱_PARAM_VENDOR_ID。
+    vid 为 vendor 右移 16 位与 0xFFFF。
+    did 为 vendor 位与 0xFFFF。
+    名称 为 「Unknown」。
+    若 vid 等于 0x10EC：
+        名称 为 「Realtek ALC」 加 做 整数转字符串 用 did。
+    否则若 vid 等于 0x8086：
+        名称 为 「Intel HDMI」。
+    否则若 vid 等于 0x1002：
+        名称 为 「AMD HDMI」。
+    否则若 vid 等于 0x10DE：
+        名称 为 「NVIDIA HDMI」。
+    否则若 vid 等于 0x11D4：
+        名称 为 「Analog Devices AD」 加 做 整数转十六进制 用 did。
+    否则若 vid 等于 0x14F1：
+        名称 为 「Conexant CX」 加 做 整数转十六进制 用 did。
+    完。
+    做 内核信息 用 「声驱: 编解码器 」 加 名称 加 「 VID=」 加 做 整数转十六进制 用 vid 加 「:」 加 做 整数转十六进制 用 did。
+    节点_info 为 做 声驱_发送命令 用 card、codec_id、0、声驱_VERB_GET_PARAM 位或 声驱_PARAM_节点_COUNT。
+    起始节点 为 节点_info 右移 16 位与 0xFF。
+    节点数 为 节点_info 位与 0xFF。
+    可变 nid 为 起始节点。
+    只要 nid 小于 起始节点 加 节点数：
+        做 声驱_配置节点 用 card、codec_id、nid。
+        nid 为 nid 加 1。
+    完。
+    pcm 为 新建 PCM子设备。
+    pcm 的 声卡 为 card 的 索引。
+    pcm 的 设备号 为 0。
+    pcm 的 名称 为 名称 加 「 Analog」。
+    pcm 的 播放 为 做 PCM流_创建 用 SND_PCM_STREAM_PLAYBACK。
+    pcm 的 录音 为 做 PCM流_创建 用 SND_PCM_STREAM_CAPTURE。
+    做 追加 用 card 的 PCM列表、pcm。
+    做 声驱_创建混音器 用 card、名称。
+完。
+
+声驱_配置节点 接受 card、codec_id、nid：
+    widget_type 为 做 声驱_发送命令 用 card、codec_id、nid、声驱_VERB_GET_PARAM 位或 声驱_PARAM_AUDIO_WIDGET。
+    类型 为 widget_type 右移 20 位与 0xF。
+    若 类型 等于 4：
+        pin_cap 为 做 声驱_发送命令 用 card、codec_id、nid、声驱_VERB_GET_PARAM 位或 声驱_PARAM_PIN_CAP。
+        可输出 为 pin_cap 右移 4 位与 1。
+        可输入 为 pin_cap 右移 5 位与 1。
+        若 可输出 不等于 0：
+            做 声驱_发送命令 用 card、codec_id、nid、声驱_VERB_SET_PIN_WIDGET 位或 0x40。
+            做 声驱_发送命令 用 card、codec_id、nid、声驱_VERB_SET_EAPD 位或 0x02。
+        完。
+    完。
+    做 声驱_发送命令 用 card、codec_id、nid、声驱_VERB_SET_POWER 位或 0x00。
+完。
+
+声驱_创建混音器 接受 card、codec名称：
+    master_vol 为 新建 混音器控件。
+    master_vol 的 名称 为 「Master Playback Volume」。
+    master_vol 的 类型 为 1。
+    master_vol 的 最小值 为 0。
+    master_vol 的 最大值 为 100。
+    master_vol 的 当前值 为 75。
+    master_vol 的 声道数 为 2。
+    做 追加 用 card 的 混音器列表、master_vol。
+    master_sw 为 新建 混音器控件。
+    master_sw 的 名称 为 「Master Playback Switch」。
+    master_sw 的 类型 为 0。
+    master_sw 的 最小值 为 0。
+    master_sw 的 最大值 为 1。
+    master_sw 的 当前值 为 1。
+    master_sw 的 声道数 为 2。
+    做 追加 用 card 的 混音器列表、master_sw。
+    pcm_vol 为 新建 混音器控件。
+    pcm_vol 的 名称 为 「PCM Playback Volume」。
+    pcm_vol 的 类型 为 1。
+    pcm_vol 的 最小值 为 0。
+    pcm_vol 的 最大值 为 100。
+    pcm_vol 的 当前值 为 100。
+    pcm_vol 的 声道数 为 2。
+    做 追加 用 card 的 混音器列表、pcm_vol。
+    cap_vol 为 新建 混音器控件。
+    cap_vol 的 名称 为 「Capture Volume」。
+    cap_vol 的 类型 为 1。
+    cap_vol 的 最小值 为 0。
+    cap_vol 的 最大值 为 100。
+    cap_vol 的 当前值 为 80。
+    cap_vol 的 声道数 为 2。
+    做 追加 用 card 的 混音器列表、cap_vol。
+    cap_sw 为 新建 混音器控件。
+    cap_sw 的 名称 为 「Capture Switch」。
+    cap_sw 的 类型 为 0。
+    cap_sw 的 最小值 为 0。
+    cap_sw 的 最大值 为 1。
+    cap_sw 的 当前值 为 1。
+    cap_sw 的 声道数 为 2。
+    做 追加 用 card 的 混音器列表、cap_sw。
+    做 内核信息 用 「音频: 创建混音器 」 加 做 整数转字符串 用 做 计数 用 card 的 混音器列表 加 「 个控件」。
+完。
+
+本章 收束。

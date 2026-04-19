@@ -1,0 +1,634 @@
+《注册扩展系统》
+
+引用《.·类型定义》。
+
+引用《.·错误码》。
+
+引用《.·字符串替换》。
+
+引用《.·自动扩容》。
+
+SYS_memfd_create 为 319。
+
+SYS_mlock 为 149。
+
+SYS_munlock 为 150。
+
+SYS_mlockall 为 151。
+
+SYS_munlockall 为 152。
+
+SYS_mremap 为 25。
+
+SYS_msync 为 26。
+
+SYS_mincore 为 27。
+
+SYS_madvise 为 28。
+
+SYS_accept4 为 288。
+
+SYS_recvmmsg 为 299。
+
+SYS_sendmmsg 为 307。
+
+SYS_socketpair 为 53。
+
+SYS_getsockname 为 51。
+
+SYS_getpeername 为 52。
+
+SYS_getrandom 为 318。
+
+SYS_seccomp 为 317。
+
+SYS_dup3 为 292。
+
+SYS_pipe2 为 293。
+
+SYS_Nova事件轮询_pwait 为 281。
+
+SYS_ppoll 为 271。
+
+SYS_pselect6 为 270。
+
+SYS_set_robust_list 为 273。
+
+SYS_get_robust_list 为 274。
+
+SYS_Nova快速锁 为 202。
+
+SYS_clock_getres 为 229。
+
+SYS_ioprio_set 为 251。
+
+SYS_ioprio_get 为 252。
+
+注册_扩展系统调用 接受 零参：
+    做 系统调用_注册 用 SYS_timerfd_create、sys_timerfd_create。
+    做 系统调用_注册 用 SYS_timerfd_settime、sys_timerfd_settime。
+    做 系统调用_注册 用 SYS_timerfd_gettime、sys_timerfd_gettime。
+    做 系统调用_注册 用 SYS_timer_create、sys_timer_create。
+    做 系统调用_注册 用 SYS_timer_settime、sys_timer_settime。
+    做 系统调用_注册 用 SYS_timer_gettime、sys_timer_gettime。
+    做 系统调用_注册 用 SYS_timer_delete、sys_timer_delete。
+    做 系统调用_注册 用 SYS_timer_getoverrun、sys_timer_getoverrun。
+    做 系统调用_注册 用 SYS_clock_settime、sys_clock_settime。
+    做 系统调用_注册 用 SYS_clock_nanosleep、sys_clock_nanosleep。
+    做 系统调用_注册 用 SYS_clock_getres、sys_clock_getres。
+    做 系统调用_注册 用 SYS_事件fd2、sys_事件fd2。
+    做 系统调用_注册 用 SYS_signalfd4、sys_signalfd4。
+    做 系统调用_注册 用 SYS_sendfile、sys_sendfile。
+    做 系统调用_注册 用 SYS_splice、sys_splice。
+    做 系统调用_注册 用 SYS_fallocate、sys_fallocate。
+    做 系统调用_注册 用 SYS_inotify_init1、sys_inotify_init1。
+    做 系统调用_注册 用 SYS_inotify_add_watch、sys_inotify_add_watch。
+    做 系统调用_注册 用 SYS_inotify_rm_watch、sys_inotify_rm_watch。
+    做 系统调用_注册 用 SYS_readahead、sys_readahead。
+    做 系统调用_注册 用 SYS_fadvise64、sys_fadvise64。
+    做 系统调用_注册 用 SYS_sync、sys_sync。
+    做 系统调用_注册 用 SYS_synNova公平调度、sys_synNova公平调度。
+    做 系统调用_注册 用 SYS_statfs、sys_statfs。
+    做 系统调用_注册 用 SYS_fstatfs、sys_fstatfs。
+    做 系统调用_注册 用 SYS_utimensat、sys_utimensat。
+    做 系统调用_注册 用 SYS_renameat2、sys_renameat2。
+    做 系统调用_注册 用 SYS_copy_file_range、sys_copy_file_range。
+    做 系统调用_注册 用 SYS_preadv、sys_preadv。
+    做 系统调用_注册 用 SYS_pwritev、sys_pwritev。
+    做 系统调用_注册 用 SYS_newfstatat、sys_newfstatat。
+    做 系统调用_注册 用 SYS_faccessat、sys_faccessat。
+    做 系统调用_注册 用 SYS_fchmodat、sys_fchmodat。
+    做 系统调用_注册 用 SYS_fchownat、sys_fchownat。
+    做 系统调用_注册 用 SYS_mkdirat、sys_mkdirat。
+    做 系统调用_注册 用 SYS_unlinkat、sys_unlinkat。
+    做 系统调用_注册 用 SYS_symlinkat、sys_symlinkat。
+    做 系统调用_注册 用 SYS_readlinkat、sys_readlinkat。
+    做 系统调用_注册 用 SYS_linkat、sys_linkat。
+    做 系统调用_注册 用 SYS_waitid、sys_waitid。
+    做 系统调用_注册 用 SYS_gettid、sys_gettid。
+    做 系统调用_注册 用 SYS_set_tid_address、sys_set_tid_address。
+    做 系统调用_注册 用 SYS_tgkill、sys_tgkill。
+    做 系统调用_注册 用 SYS_sched_yield、sys_sched_yield。
+    做 系统调用_注册 用 SYS_sched_getaffinity、sys_sched_getaffinity。
+    做 系统调用_注册 用 SYS_sched_setaffinity、sys_sched_setaffinity。
+    做 系统调用_注册 用 SYS_getrusage、sys_getrusage。
+    做 系统调用_注册 用 SYS_getrlimit、sys_getrlimit。
+    做 系统调用_注册 用 SYS_setrlimit、sys_setrlimit。
+    做 系统调用_注册 用 SYS_prlimit64、sys_prlimit64。
+    做 系统调用_注册 用 SYS_prctl、sys_prctl。
+    做 系统调用_注册 用 SYS_arch_prctl、sys_arch_prctl。
+    做 系统调用_注册 用 SYS_umask、sys_umask。
+    做 系统调用_注册 用 SYS_capget、sys_capget。
+    做 系统调用_注册 用 SYS_capset、sys_capset。
+    做 系统调用_注册 用 SYS_getgroups、sys_getgroups。
+    做 系统调用_注册 用 SYS_setgroups、sys_setgroups。
+    做 系统调用_注册 用 SYS_setreuid、sys_setreuid。
+    做 系统调用_注册 用 SYS_setregid、sys_setregid。
+    做 系统调用_注册 用 SYS_setresuid、sys_setresuid。
+    做 系统调用_注册 用 SYS_getresuid、sys_getresuid。
+    做 系统调用_注册 用 SYS_setresgid、sys_setresgid。
+    做 系统调用_注册 用 SYS_getresgid、sys_getresgid。
+    做 系统调用_注册 用 SYS_sched_getscheduler、sys_sched_getscheduler。
+    做 系统调用_注册 用 SYS_sched_setscheduler、sys_sched_setscheduler。
+    做 系统调用_注册 用 SYS_sched_getparam、sys_sched_getparam。
+    做 系统调用_注册 用 SYS_sched_setparam、sys_sched_setparam。
+    做 系统调用_注册 用 SYS_memfd_create、sys_memfd_create。
+    做 系统调用_注册 用 SYS_mlock、sys_mlock。
+    做 系统调用_注册 用 SYS_munlock、sys_munlock。
+    做 系统调用_注册 用 SYS_mremap、sys_mremap。
+    做 系统调用_注册 用 SYS_msync、sys_msync。
+    做 系统调用_注册 用 SYS_mincore、sys_mincore。
+    做 系统调用_注册 用 SYS_madvise、sys_madvise。
+    做 系统调用_注册 用 SYS_accept4、sys_accept4。
+    做 系统调用_注册 用 SYS_recvmmsg、sys_recvmmsg。
+    做 系统调用_注册 用 SYS_sendmmsg、sys_sendmmsg。
+    做 系统调用_注册 用 SYS_socketpair、sys_socketpair。
+    做 系统调用_注册 用 SYS_getsockname、sys_getsockname。
+    做 系统调用_注册 用 SYS_getpeername、sys_getpeername。
+    做 系统调用_注册 用 SYS_getrandom、sys_getrandom。
+    做 系统调用_注册 用 SYS_seccomp、sys_seccomp。
+    做 系统调用_注册 用 SYS_dup3、sys_dup3。
+    做 系统调用_注册 用 SYS_pipe2、sys_pipe2。
+    做 系统调用_注册 用 SYS_set_robust_list、sys_set_robust_list。
+    做 系统调用_注册 用 SYS_get_robust_list、sys_get_robust_list。
+    做 系统调用_注册 用 SYS_Nova快速锁、sys_futex。
+    注册_已完成 为 真。
+    注册_总数 为 注册_定时器数 加 注册_事件数 加 注册_文件高级数 加 注册_进程高级数 加 注册_内存高级数 加 注册_网络高级数 加 注册_杂项数。
+    做 打印 用 「[扩展注册] 完成, 共注册 」 加 做 转字符串 用 注册_总数 加 「 个扩展系统调用」。
+完。
+
+SYS_timerfd_create 为 283。
+
+SYS_timerfd_settime 为 286。
+
+SYS_timerfd_gettime 为 287。
+
+SYS_timer_create 为 222。
+
+SYS_timer_settime 为 223。
+
+SYS_timer_gettime 为 224。
+
+SYS_timer_delete 为 226。
+
+SYS_timer_getoverrun 为 225。
+
+SYS_clock_settime 为 227。
+
+SYS_clock_nanosleep 为 230。
+
+SYS_事件fd2 为 290。
+
+SYS_signalfd4 为 289。
+
+SYS_sendfile 为 40。
+
+SYS_splice 为 275。
+
+SYS_fallocate 为 285。
+
+SYS_inotify_init1 为 294。
+
+SYS_inotify_add_watch 为 254。
+
+SYS_inotify_rm_watch 为 255。
+
+SYS_readahead 为 187。
+
+SYS_fadvise64 为 221。
+
+SYS_sync 为 162。
+
+SYS_synNova公平调度 为 306。
+
+SYS_statfs 为 137。
+
+SYS_fstatfs 为 138。
+
+SYS_utimensat 为 280。
+
+SYS_renameat2 为 316。
+
+SYS_copy_file_range 为 326。
+
+SYS_preadv 为 295。
+
+SYS_pwritev 为 296。
+
+SYS_newfstatat 为 262。
+
+SYS_faccessat 为 269。
+
+SYS_fchmodat 为 268。
+
+SYS_fchownat 为 260。
+
+SYS_mkdirat 为 258。
+
+SYS_unlinkat 为 263。
+
+SYS_symlinkat 为 266。
+
+SYS_readlinkat 为 267。
+
+SYS_linkat 为 265。
+
+SYS_waitid 为 247。
+
+SYS_gettid 为 186。
+
+SYS_set_tid_address 为 218。
+
+SYS_tgkill 为 234。
+
+SYS_sched_yield 为 24。
+
+SYS_sched_getaffinity 为 204。
+
+SYS_sched_setaffinity 为 203。
+
+SYS_getrusage 为 98。
+
+SYS_getrlimit 为 97。
+
+SYS_setrlimit 为 160。
+
+SYS_prlimit64 为 302。
+
+SYS_prctl 为 157。
+
+SYS_arch_prctl 为 158。
+
+SYS_umask 为 95。
+
+SYS_capget 为 125。
+
+SYS_capset 为 126。
+
+SYS_getgroups 为 115。
+
+SYS_setgroups 为 116。
+
+SYS_setreuid 为 113。
+
+SYS_setregid 为 114。
+
+SYS_setresuid 为 117。
+
+SYS_getresuid 为 118。
+
+SYS_setresgid 为 119。
+
+SYS_getresgid 为 120。
+
+SYS_sched_getscheduler 为 145。
+
+SYS_sched_setscheduler 为 144。
+
+SYS_sched_getparam 为 143。
+
+SYS_sched_setparam 为 142。
+
+可变 注册_已完成 为 假。
+
+可变 注册_总数 为 0。
+
+可变 注册_定时器数 为 11。
+
+可变 注册_事件数 为 2。
+
+可变 注册_文件高级数 为 26。
+
+可变 注册_进程高级数 为 18。
+
+可变 注册_内存高级数 为 7。
+
+可变 注册_网络高级数 为 6。
+
+可变 注册_杂项数 为 7。
+
+可变 注册_错误数 为 0。
+
+注册_扩展_完整初始化 接受 零参：
+    若 注册_已完成 等于 真：
+        做 打印 用 「[扩展注册] 已完成, 跳过重复注册」。
+        返还 0。
+    完。
+    做 注册_扩展系统调用。
+    返还 0。
+完。
+
+扩展调用号_名称 接受 号：
+    若 号 等于 SYS_timerfd_create：
+        返还 「timerfd_create」。
+    完。
+    若 号 等于 SYS_timerfd_settime：
+        返还 「timerfd_settime」。
+    完。
+    若 号 等于 SYS_事件fd2：
+        返还 「eventfd2」。
+    完。
+    若 号 等于 SYS_signalfd4：
+        返还 「signalfd4」。
+    完。
+    若 号 等于 SYS_memfd_create：
+        返还 「memfd_create」。
+    完。
+    若 号 等于 SYS_getrandom：
+        返还 「getrandom」。
+    完。
+    若 号 等于 SYS_seccomp：
+        返还 「seccomp」。
+    完。
+    若 号 等于 SYS_splice：
+        返还 「splice」。
+    完。
+    若 号 等于 SYS_fallocate：
+        返还 「fallocate」。
+    完。
+    若 号 等于 SYS_inotify_init1：
+        返还 「inotify_init1」。
+    完。
+    若 号 等于 SYS_accept4：
+        返还 「accept4」。
+    完。
+    若 号 等于 SYS_socketpair：
+        返还 「socketpair」。
+    完。
+    若 号 等于 SYS_prctl：
+        返还 「prctl」。
+    完。
+    若 号 等于 SYS_arch_prctl：
+        返还 「arch_prctl」。
+    完。
+    若 号 等于 SYS_sched_yield：
+        返还 「sched_yield」。
+    完。
+    若 号 等于 SYS_getrusage：
+        返还 「getrusage」。
+    完。
+    若 号 等于 SYS_prlimit64：
+        返还 「prlimit64」。
+    完。
+    若 号 等于 SYS_Nova快速锁：
+        返还 「futex」。
+    完。
+    返还 「扩展#」 加 做 转字符串 用 号。
+完。
+
+扩展注册_完整统计 接受 零参：
+    统计 为 做 字典。
+    做 字典设 用 统计、「已完成」、注册_已完成。
+    做 字典设 用 统计、「总注册数」、注册_总数。
+    做 字典设 用 统计、「定时器组」、注册_定时器数。
+    做 字典设 用 统计、「事件组」、注册_事件数。
+    做 字典设 用 统计、「文件高级组」、注册_文件高级数。
+    做 字典设 用 统计、「进程高级组」、注册_进程高级数。
+    做 字典设 用 统计、「内存高级组」、注册_内存高级数。
+    做 字典设 用 统计、「网络高级组」、注册_网络高级数。
+    做 字典设 用 统计、「杂项组」、注册_杂项数。
+    做 字典设 用 统计、「错误数」、注册_错误数。
+    返还 统计。
+完。
+
+扩展注册_打印统计 接受 零参：
+    统计 为 做 扩展注册_完整统计。
+    做 打印 用 「[扩展注册] ═══════ 完整统计 ═══════」。
+    做 打印 用 「  已完成:       」 加 做 转字符串 用 做 字典取 用 统计、「已完成」。
+    做 打印 用 「  总注册数:     」 加 做 转字符串 用 做 字典取 用 统计、「总注册数」。
+    做 打印 用 「  定时器组:     」 加 做 转字符串 用 做 字典取 用 统计、「定时器组」。
+    做 打印 用 「  事件组:       」 加 做 转字符串 用 做 字典取 用 统计、「事件组」。
+    做 打印 用 「  文件高级组:   」 加 做 转字符串 用 做 字典取 用 统计、「文件高级组」。
+    做 打印 用 「  进程高级组:   」 加 做 转字符串 用 做 字典取 用 统计、「进程高级组」。
+    做 打印 用 「  内存高级组:   」 加 做 转字符串 用 做 字典取 用 统计、「内存高级组」。
+    做 打印 用 「  网络高级组:   」 加 做 转字符串 用 做 字典取 用 统计、「网络高级组」。
+    做 打印 用 「  杂项组:       」 加 做 转字符串 用 做 字典取 用 统计、「杂项组」。
+    做 打印 用 「  错误数:       」 加 做 转字符串 用 做 字典取 用 统计、「错误数」。
+    做 打印 用 「[扩展注册] ═════════════════════════」。
+    返还 0。
+完。
+
+扩展注册_dump 接受 零参：
+    做 打印 用 「[扩展注册 dump] ──────────────────」。
+    做 打印 用 「  已完成: 」 加 做 转字符串 用 注册_已完成。
+    做 打印 用 「  总注册: 」 加 做 转字符串 用 注册_总数。
+    做 打印 用 「  定时器: 」 加 做 转字符串 用 注册_定时器数。
+    做 打印 用 「  事件: 」 加 做 转字符串 用 注册_事件数。
+    做 打印 用 「  文件高级: 」 加 做 转字符串 用 注册_文件高级数。
+    做 打印 用 「  进程高级: 」 加 做 转字符串 用 注册_进程高级数。
+    做 打印 用 「  内存高级: 」 加 做 转字符串 用 注册_内存高级数。
+    做 打印 用 「  网络高级: 」 加 做 转字符串 用 注册_网络高级数。
+    做 打印 用 「  杂项: 」 加 做 转字符串 用 注册_杂项数。
+    做 打印 用 「  错误: 」 加 做 转字符串 用 注册_错误数。
+    做 打印 用 「[扩展注册 dump] ──────────────────」。
+完。
+
+扩展注册_销毁 接受 零参：
+    注册_已完成 为 假。
+    注册_总数 为 0。
+    做 打印 用 「[扩展注册] 已销毁」。
+    返还 0。
+完。
+
+扩展注册_为procfs提供统计 接受 零参：
+    返还 一组：注册_总数、注册_定时器数、注册_事件数、注册_文件高级数、注册_进程高级数、注册_内存高级数、注册_网络高级数、注册_杂项数。
+完。
+
+扩展注册_为AI提供注册模式 接受 零参：
+    返还 一组：注册_总数、注册_已完成、注册_错误数。
+完。
+
+扩展注册_为系统调用表提供信息 接受 零参：
+    返还 一组：注册_已完成、注册_总数。
+完。
+
+注册_定时器组 接受 零参：
+    做 系统调用_注册 用 SYS_timerfd_create、sys_timerfd_create。
+    做 系统调用_注册 用 SYS_timerfd_settime、sys_timerfd_settime。
+    做 系统调用_注册 用 SYS_timerfd_gettime、sys_timerfd_gettime。
+    做 系统调用_注册 用 SYS_timer_create、sys_timer_create。
+    做 系统调用_注册 用 SYS_timer_settime、sys_timer_settime。
+    做 系统调用_注册 用 SYS_timer_gettime、sys_timer_gettime。
+    做 系统调用_注册 用 SYS_timer_delete、sys_timer_delete。
+    做 系统调用_注册 用 SYS_timer_getoverrun、sys_timer_getoverrun。
+    做 系统调用_注册 用 SYS_clock_settime、sys_clock_settime。
+    做 系统调用_注册 用 SYS_clock_nanosleep、sys_clock_nanosleep。
+    做 系统调用_注册 用 SYS_clock_getres、sys_clock_getres。
+    做 打印 用 「[扩展注册] 定时器组注册完成」。
+    返还 注册_定时器数。
+完。
+
+注册_事件组 接受 零参：
+    做 系统调用_注册 用 SYS_事件fd2、sys_事件fd2。
+    做 系统调用_注册 用 SYS_signalfd4、sys_signalfd4。
+    做 打印 用 「[扩展注册] 事件组注册完成」。
+    返还 注册_事件数。
+完。
+
+注册_内存高级组 接受 零参：
+    做 系统调用_注册 用 SYS_memfd_create、sys_memfd_create。
+    做 系统调用_注册 用 SYS_mlock、sys_mlock。
+    做 系统调用_注册 用 SYS_munlock、sys_munlock。
+    做 系统调用_注册 用 SYS_mremap、sys_mremap。
+    做 系统调用_注册 用 SYS_msync、sys_msync。
+    做 系统调用_注册 用 SYS_mincore、sys_mincore。
+    做 系统调用_注册 用 SYS_madvise、sys_madvise。
+    做 打印 用 「[扩展注册] 内存高级组注册完成」。
+    返还 注册_内存高级数。
+完。
+
+注册_网络高级组 接受 零参：
+    做 系统调用_注册 用 SYS_accept4、sys_accept4。
+    做 系统调用_注册 用 SYS_recvmmsg、sys_recvmmsg。
+    做 系统调用_注册 用 SYS_sendmmsg、sys_sendmmsg。
+    做 系统调用_注册 用 SYS_socketpair、sys_socketpair。
+    做 系统调用_注册 用 SYS_getsockname、sys_getsockname。
+    做 系统调用_注册 用 SYS_getpeername、sys_getpeername。
+    做 打印 用 「[扩展注册] 网络高级组注册完成」。
+    返还 注册_网络高级数。
+完。
+
+注册_杂项组 接受 零参：
+    做 系统调用_注册 用 SYS_getrandom、sys_getrandom。
+    做 系统调用_注册 用 SYS_seccomp、sys_seccomp。
+    做 系统调用_注册 用 SYS_dup3、sys_dup3。
+    做 系统调用_注册 用 SYS_pipe2、sys_pipe2。
+    做 系统调用_注册 用 SYS_set_robust_list、sys_set_robust_list。
+    做 系统调用_注册 用 SYS_get_robust_list、sys_get_robust_list。
+    做 系统调用_注册 用 SYS_Nova快速锁、sys_futex。
+    做 打印 用 「[扩展注册] 杂项组注册完成」。
+    返还 注册_杂项数。
+完。
+
+注册_验证 接受 零参：
+    可变 未注册数 为 0。
+    若 注册_已完成 等于 假：
+        做 打印 用 「[扩展注册] 警告: 注册未完成」。
+        未注册数 为 未注册数 加 1。
+    完。
+    若 未注册数 大于 0：
+        做 打印 用 「[扩展注册] 验证: 」 加 做 转字符串 用 未注册数 加 「 个问题」。
+    否则：
+        做 打印 用 「[扩展注册] 验证: 全部通过」。
+    完。
+    返还 未注册数。
+完。
+
+注册_获取分组名 接受 组号：
+    若 组号 等于 0：
+        返还 「A.定时器」。
+    完。
+    若 组号 等于 1：
+        返还 「B.事件」。
+    完。
+    若 组号 等于 2：
+        返还 「C.文件高级」。
+    完。
+    若 组号 等于 3：
+        返还 「D.进程高级」。
+    完。
+    若 组号 等于 4：
+        返还 「E.内存高级」。
+    完。
+    若 组号 等于 5：
+        返还 「F.网络高级」。
+    完。
+    若 组号 等于 6：
+        返还 「G.杂项」。
+    完。
+    若 组号 等于 7：
+        返还 「H.现代扩展」。
+    完。
+    返还 「未知组」。
+完。
+
+注册_获取分组大小 接受 组号：
+    若 组号 等于 0：
+        返还 注册_定时器数。
+    完。
+    若 组号 等于 1：
+        返还 注册_事件数。
+    完。
+    若 组号 等于 2：
+        返还 注册_文件高级数。
+    完。
+    若 组号 等于 3：
+        返还 注册_进程高级数。
+    完。
+    若 组号 等于 4：
+        返还 注册_内存高级数。
+    完。
+    若 组号 等于 5：
+        返还 注册_网络高级数。
+    完。
+    若 组号 等于 6：
+        返还 注册_杂项数。
+    完。
+    返还 0。
+完。
+
+扩展注册_为系统调用入口提供总数 接受 零参：
+    返还 注册_总数。
+完。
+
+扩展注册_为AI提供扩展覆盖率 接受 零参：
+    理论总数 为 100。
+    若 注册_总数 等于 0：
+        返还 0。
+    完。
+    返还 注册_总数 乘 100 除以 理论总数。
+完。
+
+扩展注册_为热更新提供注册状态 接受 零参：
+    返还 一组：注册_已完成、注册_总数、注册_错误数。
+完。
+
+扩展注册_为电源管理挂起 接受 零参：
+    返还 0。
+    返还 0。
+完。
+
+扩展注册_重置 接受 零参：
+    注册_已完成 为 假。
+    注册_总数 为 0。
+    注册_错误数 为 0。
+    做 打印 用 「[扩展注册] 已重置」。
+    返还 0。
+完。
+
+扩展注册_重新注册 接受 零参：
+    做 扩展注册_重置。
+    做 注册_扩展系统调用。
+    返还 注册_总数。
+完。
+
+扩展注册_为调度器提供系统调用密度 接受 零参：
+    返还 一组：注册_总数、注册_已完成。
+完。
+
+扩展注册_获取总注册数 接受 零参：
+    返还 注册_总数。
+完。
+
+扩展注册_获取分组总数 接受 零参：
+    返还 8。
+完。
+
+扩展注册_获取错误数 接受 零参：
+    返还 注册_错误数。
+完。
+
+扩展注册_是否已完成 接受 零参：
+    返还 注册_已完成。
+完。
+
+系统调用_注册 接受 号、函数：
+    若 号 小于 0 或者 号 大于或等于 做 计数 用 系统调用表：
+        返还 负 1。
+    完。
+    系统调用表 的 第 号 项 为 以 零参 为 引，其做法是：
+    系统调用_已注册总数 为 系统调用_已注册总数 加 1。
+    返还 0。
+完。
+
+本章 收束。

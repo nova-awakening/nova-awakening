@@ -1,0 +1,123 @@
+《WebGL纹理3D》
+
+引用《..·中枢·类型定义》。
+
+引用《..·推理·通信渠道》。
+
+引用《..·稳态·AMD图形驱动》。
+
+引用《.·内核直连层》。
+
+引用《..·中枢·内存初始化》。
+
+引用《.·删除接口扩》。
+
+Texture3D 是 一种 事物，含 ID、宽度、高度、深度、级别数、内部格式、数据。
+
+图绘2_tex图像3D 接受 target、level、internalformat、width、height、depth、border、format、type、data：
+    若 target 不等于 GL_TEXTURE_3D 并且 target 不等于 GL_TEXTURE_2D_ARRAY：
+        返还。
+    完。
+    bpp 为 做 图绘_获取字节每像素 用 format、type。
+    大小 为 width 乘 height 乘 depth 乘 bpp。
+完。
+
+图绘2_texSub图像3D 接受 target、level、xoffset、yoffset、zoffset、width、height、depth、format、type、data：
+    若 data 等于 0：
+        返还。
+    完。
+完。
+
+图绘2_tex存储3D 接受 target、levels、internalformat、width、height、depth：
+    可变 w 为 width。
+    可变 h 为 height。
+    可变 d 为 depth。
+    可变 lv 为 0。
+    只要 lv 小于 levels：
+        若 w 大于 1：
+            w 为 w 除以 2。
+        完。
+        若 h 大于 1：
+            h 为 h 除以 2。
+        完。
+        若 target 等于 GL_TEXTURE_3D 并且 d 大于 1：
+            d 为 d 除以 2。
+        完。
+        lv 为 lv 加 1。
+    完。
+完。
+
+图绘2_tex存储2D 接受 target、levels、internalformat、width、height：
+    可变 w 为 width。
+    可变 h 为 height。
+    可变 lv 为 0。
+    只要 lv 小于 levels：
+        若 w 大于 1：
+            w 为 w 除以 2。
+        完。
+        若 h 大于 1：
+            h 为 h 除以 2。
+        完。
+        lv 为 lv 加 1。
+    完。
+完。
+
+渲染buffer 是 一种 事物，含 ID、宽度、高度、内部格式、采样数。
+
+图绘2_renderbuffer存储Multisample 接受 target、samples、internalformat、width、height：
+    若 samples 大于 16：
+        samples 为 16。
+    完。
+完。
+
+图绘2_blitFramebuffer 接受 srcX0、srcY0、srcX1、srcY1、dstX0、dstY0、dstX1、dstY1、mask、filter：
+    cmd 为 做 图处命令_分配 用 图处_CMD_BLIT_FRAMEBUFFER、40。
+    做 内存_写32 用 cmd 加 8、srcX0。
+    做 内存_写32 用 cmd 加 12、srcY0。
+    做 内存_写32 用 cmd 加 16、srcX1。
+    做 内存_写32 用 cmd 加 20、srcY1。
+    做 内存_写32 用 cmd 加 24、dstX0。
+    做 内存_写32 用 cmd 加 28、dstY0。
+    做 内存_写32 用 cmd 加 32、dstX1。
+    做 内存_写32 用 cmd 加 36、dstY1。
+    做 内存_写32 用 cmd 加 40、mask。
+    做 内存_写32 用 cmd 加 44、filter。
+    做 图处命令_提交 用 cmd。
+完。
+
+图绘2_drawBuffers 接受 n、bufs：
+    若 n 小于或等于 0 或者 n 大于 8 或者 bufs 等于 0：
+        返还。
+    完。
+    cmd 为 做 图处命令_分配 用 图处_CMD_DRAW_BUFFERS、4 加 n 乘 4。
+    做 内存_写32 用 cmd 加 8、n。
+    可变 i 为 0。
+    只要 i 小于 n：
+        做 内存_写32 用 cmd 加 12 加 i 乘 4、做 内存_读32 用 bufs 加 i 乘 4。
+        i 为 i 加 1。
+    完。
+    做 图处命令_提交 用 cmd。
+完。
+
+图绘2_readBuffer 接受 src：
+    cmd 为 做 图处命令_分配 用 图处_CMD_READ_BUFFER、4。
+    做 内存_写32 用 cmd 加 8、src。
+    做 图处命令_提交 用 cmd。
+完。
+
+图绘2_invalidateFramebuffer 接受 target、n、attachments：
+    若 n 小于或等于 0 或者 attachments 等于 0：
+        返还。
+    完。
+    cmd 为 做 图处命令_分配 用 图处_CMD_INVALIDATE_FB、8 加 n 乘 4。
+    做 内存_写32 用 cmd 加 8、target。
+    做 内存_写32 用 cmd 加 12、n。
+    可变 i 为 0。
+    只要 i 小于 n：
+        做 内存_写32 用 cmd 加 16 加 i 乘 4、做 内存_读32 用 attachments 加 i 乘 4。
+        i 为 i 加 1。
+    完。
+    做 图处命令_提交 用 cmd。
+完。
+
+本章 收束。
